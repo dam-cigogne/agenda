@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agenda · emploi du temps simple et lisible</title>
+<meta name="description" content="Agenda et emploi du temps gratuit, lisible et privé : jour, semaine, mois, rappels, import/export .ics. Aucune donnée collectée.">
+<meta name="theme-color" content="#2f5bea">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Agenda – emploi du temps simple et lisible">
+<meta property="og:description" content="Jour, semaine, mois en gros caractères. Gratuit, sans publicité, aucune donnée collectée.">
+<meta property="og:image" content="https://dam-cigogne.github.io/agenda/apercu.png">
+<meta property="og:url" content="https://dam-cigogne.github.io/agenda/presentation.html">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--bg:#f5f6f8;--surface:#fff;--text:#10151c;--muted:#5b6574;--line:#e2e6ec;--accent:#2f5bea;--warn:#f59e0b}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--surface:#161b22;--text:#eef1f5;--muted:#9aa5b4;--line:#2b3340;--accent:#7b97ff}}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:18px}
+.wrap{max-width:62rem;margin:0 auto;padding:0 1.2rem}
+header.hero{background:linear-gradient(135deg,#2f5bea,#1f3fb8 65%,#172f8c);color:#fff;padding:3rem 0 3.4rem}
+.brand{display:flex;align-items:center;gap:.8rem;font-weight:800;font-size:1.4rem}
+.brand img{width:3rem;height:3rem;border-radius:.8rem}
+h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:1.6rem 0 .8rem;letter-spacing:-.02em}
+.hero p{font-size:1.2rem;max-width:36rem;margin:0 0 1.6rem;opacity:.95}
+.btn{display:inline-block;padding:.85rem 1.4rem;border-radius:1rem;font-weight:750;text-decoration:none;margin:0 .5rem .5rem 0}
+.btn.w{background:#fff;color:#1f3fb8}.btn.o{border:2px solid rgba(255,255,255,.6);color:#fff}
+section{padding:2.2rem 0}
+h2{font-size:1.7rem;letter-spacing:-.01em;margin:0 0 1rem}
+.shots{display:flex;gap:1rem;overflow-x:auto;padding:.3rem .2rem 1rem;margin-top:-2.4rem;scroll-snap-type:x mandatory}
+.shots img{height:30rem;border-radius:1.6rem;border:1px solid var(--line);box-shadow:0 14px 40px rgba(16,24,40,.22);scroll-snap-align:start;flex:none;background:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;padding:1.1rem 1.2rem}
+.card h3{margin:0 0 .4rem;font-size:1.1rem}
+.card p,.card li{margin:.2rem 0;color:var(--muted);font-size:1rem}
+ol,ul{padding-left:1.2rem;margin:.4rem 0}
+.warn{background:rgba(245,158,11,.14);border:2px solid var(--warn);border-radius:1rem;padding:1rem 1.2rem;margin-top:1rem}
+.warn b{display:block;margin-bottom:.2rem}
+footer{padding:2rem 0 3rem;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line)}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="brand"><img src="icons/icon-192.png" alt=""> Agenda</div>
+  <h1>Ton emploi du temps,<br>simple et lisible.</h1>
+  <p>Jour, semaine et mois en gros caractères. Gratuit, sans publicité, et rien ne quitte ton téléphone.</p>
+  <a class="btn w" href="./">Ouvrir l’appli</a><a class="btn o" href="./?demo=1">Voir la démo</a>
+</div></header>
+
+<div class="wrap">
+  <div class="shots" aria-label="Captures d’écran (données d’exemple)">
+    <img src="screenshots/semaine.png" alt="Vue semaine">
+    <img src="screenshots/mois.png" alt="Vue mois">
+    <img src="screenshots/jour.png" alt="Vue jour">
+    <img src="screenshots/semaine-sombre.png" alt="Mode sombre">
+  </div>
+
+  <section>
+    <h2>Ce que fait l’appli</h2>
+    <div class="grid">
+      <div class="card"><h3>Jour, semaine, mois</h3><p>Des vues nettes, en gros caractères, lisibles d’un coup d’œil, sur téléphone, tablette ou ordinateur.</p></div>
+      <div class="card"><h3>Tu mets ce que tu veux, le temps que tu veux</h3><p>Titre, lieu, note, couleur par catégorie, durée libre, plusieurs jours, journée entière.</p></div>
+      <div class="card"><h3>Répétitions et rotations</h3><p>Tous les jours, semaines, mois, ans, ou rotation « 3 jours de travail, 2 jours de repos ».</p></div>
+      <div class="card"><h3>Rappels</h3><p>« À venir aujourd’hui » à l’ouverture et notifications quand la plateforme le permet.</p></div>
+      <div class="card"><h3>Sauvegarde et partage</h3><p>Sauvegarde .json, import et export .ics pour échanger avec Google, Apple ou Outlook.</p></div>
+      <div class="card"><h3>Recherche, mode sombre</h3><p>Retrouve un événement en quelques lettres. Thème clair, sombre ou automatique.</p></div>
+    </div>
+  </section>
+
+  <section id="installer">
+    <h2>Installer sur ton téléphone</h2>
+    <div class="grid">
+      <div class="card"><h3>iPhone (Safari)</h3><ol>
+        <li>Ouvre le lien de l’appli dans <b>Safari</b> (pas dans une autre appli).</li>
+        <li>Touche le bouton <b>Partager</b> (carré avec une flèche).</li>
+        <li>Choisis <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b>.</li>
+        <li>Lance l’appli depuis son icône : elle marche aussi sans connexion.</li></ol></div>
+      <div class="card"><h3>Android (Chrome)</h3><ol>
+        <li>Ouvre le lien de l’appli dans <b>Chrome</b>.</li>
+        <li>Touche le menu <b>⋮</b>, puis <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</li>
+        <li>Confirme. L’icône apparaît sur l’écran d’accueil.</li></ol></div>
+    </div>
+    <div class="warn"><b>⚠️ Plusieurs appareils : pas de synchronisation automatique</b>
+      L’agenda reste sur chaque appareil. Pour le retrouver ailleurs : <b>Réglages → Sauvegarder</b> sur le premier appareil, envoie le fichier « agenda-sauvegarde.json », puis <b>Réglages → Restaurer</b> sur le second.</div>
+  </section>
+
+  <section>
+    <h2>Rappels : ce qui marche, honnêtement</h2>
+    <div class="card"><ul>
+      <li>L’écran « À venir aujourd’hui » s’affiche à chaque ouverture.</li>
+      <li>Les notifications s’affichent quand l’appli est ouverte ou récemment active. Sur iPhone, elles exigent l’installation sur l’écran d’accueil (iOS 16.4 minimum).</li>
+      <li>Appli fermée, aucun rappel ne peut être garanti : une appli web sans serveur ne peut pas réveiller le téléphone. Pour des alarmes fiables, exporte en .ics et ouvre le fichier dans l’agenda natif du téléphone (les rappels sont inclus).</li>
+    </ul></div>
+  </section>
+
+  <section id="confidentialite">
+    <h2>Confidentialité</h2>
+    <div class="card">
+      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de serveur, pas de statistiques, pas de cookies, pas de publicité, aucune bibliothèque ou police chargée depuis un autre site.</p>
+      <p>Tes événements sont enregistrés uniquement dans le stockage local de ton appareil. Ils ne sont jamais envoyés nulle part. Pour les déplacer, tu crées toi-même un fichier de sauvegarde.</p>
+      <p>Pour effacer tes données : Réglages → « Effacer toutes mes données ».</p>
+    </div>
+  </section>
+
+  <footer>Agenda · gratuit, sans publicité · version 1.3.0 · <a href="./">Ouvrir l’appli</a></footer>
+</div>
+</body>
+</html>
