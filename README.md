@@ -14,6 +14,7 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Répétitions : jours, semaines (jours au choix), mois, années, rotations travail / repos
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
+- Connexion facultative à Outlook / Microsoft : envoi de l'agenda vers un calendrier à part (sens unique, directement vers le compte de l'utilisateur, aucun serveur intermédiaire)
 - Mode sombre, recherche, mode démo, aide « ? » intégrée avec historique des versions
 
 ## Limites à connaître

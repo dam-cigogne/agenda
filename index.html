@@ -359,12 +359,16 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.4.0';
 const P='agd-';
-const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired'};
+const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.4.0',d:'27/10/2026',items:[
+  'Connexion à Outlook / Microsoft (compte Outlook, Hotmail, Live) : envoi de ton agenda vers un calendrier Outlook, à la demande ou automatiquement',
+  'Sens unique appli → Outlook, dans un calendrier à part : tes autres calendriers ne sont jamais touchés'
+ ]},
  {v:'1.3.0',d:'26/10/2026',items:[
   'Nouvelle vue « 2 sem. » : deux semaines d’un coup, avec beaucoup plus de place pour les titres, les emoji et les bandeaux',
   'Réglages : la vue 2 semaines peut être choisie comme écran de démarrage'
@@ -438,7 +442,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',remind:true,notif:false,defAlarm:null,lastCat:null,cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',msAuto:0,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0},ls.get(K.meta,{}));
@@ -446,7 +450,7 @@ let EV=[];
 let demo=false;
 const saveSet=()=>ls.set(K.set,S);
 const saveMeta=()=>{if(!demo)ls.set(K.meta,META)};
-const saveData=()=>{if(demo)return true;const ok=ls.set(K.data,{v:1,events:EV});if(!ok)toast('⚠️ Enregistrement impossible (stockage plein ou bloqué)');return ok};
+const saveData=()=>{if(demo)return true;const ok=ls.set(K.data,{v:1,events:EV});if(!ok)toast('⚠️ Enregistrement impossible (stockage plein ou bloqué)');else msSchedule();return ok};
 function touch(){saveData();if(!demo){if(!META.dirtySince)META.dirtySince=Date.now();saveMeta()}}
 const catOf=id=>S.cats.find(c=>c.id===id)||S.cats[S.cats.length-1];
 
@@ -1054,6 +1058,180 @@ function shift(n){
  render();
 }
 
+/* ---------- Connexion Outlook / Microsoft (envoi dans un sens : appli -> Outlook) ---------- */
+/* Connexion officielle Microsoft (OAuth, code + PKCE), sans serveur : l'appli parle directement
+   à Microsoft avec TON compte. Aucune donnée ne passe par un autre intermédiaire. */
+const MS_CLIENT_ID='661cb213-42fd-400c-b81a-34a07b5c4046';                       /* identifiant public de l'application Microsoft (pas un secret) */
+const MS_AUTH='https://login.microsoftonline.com/consumers/oauth2/v2.0';
+const MS_SCOPE='Calendars.ReadWrite User.Read offline_access';
+const MS_CAL_NAME='Agenda (appli)';
+const GRAPH='https://graph.microsoft.com/v1.0';
+let MSA=Object.assign({token:null,exp:0,refresh:null,calId:null,map:{},acct:'',last:0,err:'',n:0},ls.get(K.ms,{}));
+const msSave=()=>ls.set(K.ms,MSA);
+const msClientId=()=>String(S.msClientId||MS_CLIENT_ID||'').trim();
+const msConnected=()=>!!MSA.refresh;
+const msRedirect=()=>location.origin+location.pathname.replace(/index\.html$/,'');
+let msBusy=false,msTimer=null;
+
+const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const msRand=n=>b64u(crypto.getRandomValues(new Uint8Array(n)));
+
+async function msConnect(){
+ const cid=msClientId();
+ if(!cid){toast('Identifiant d’application Microsoft manquant');return}
+ if(!window.crypto||!crypto.subtle){toast('Connexion impossible sur cet appareil (navigateur trop ancien)');return}
+ const verifier=msRand(48),state=msRand(16);
+ const challenge=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
+ ls.set(P+'msauth',{verifier,state,t:Date.now()});
+ const p=new URLSearchParams({client_id:cid,response_type:'code',redirect_uri:msRedirect(),response_mode:'query',scope:MS_SCOPE,state,code_challenge:challenge,code_challenge_method:'S256',prompt:'select_account'});
+ location.href=MS_AUTH+'/authorize?'+p;
+}
+async function msTokenReq(params){
+ const r=await fetch(MS_AUTH+'/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(params)});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok||!j.access_token)throw Object.assign(new Error(j.error_description||j.error||'Erreur de connexion'),{code:j.error});
+ MSA.token=j.access_token;MSA.exp=Date.now()+(j.expires_in||3600)*1000;
+ if(j.refresh_token)MSA.refresh=j.refresh_token;
+ MSA.err='';msSave();
+}
+/* Retour de la page de connexion Microsoft (?code=…&state=…) */
+async function msHandleReturn(){
+ const q=new URLSearchParams(location.search);
+ if(!q.has('code')&&!q.has('error'))return false;
+ const au=ls.get(P+'msauth',null);
+ if(!au||q.get('state')!==au.state)return false;
+ const clean=()=>{ls.del(P+'msauth');try{history.replaceState(null,'',msRedirect())}catch(e){}};
+ if(q.has('error')){clean();toast('Connexion Outlook annulée');return true}
+ try{
+  await msTokenReq({client_id:msClientId(),grant_type:'authorization_code',code:q.get('code'),redirect_uri:msRedirect(),code_verifier:au.verifier,scope:MS_SCOPE});
+  clean();
+  try{const me=await msFetch('/me?$select=mail,userPrincipalName');MSA.acct=me.mail||me.userPrincipalName||'';msSave()}catch(e){}
+  V.view='settings';render();
+  toast('Outlook connecté. Touche « Envoyer maintenant ».',6000);
+ }catch(e){clean();toast('Connexion Outlook impossible : '+e.message,6000)}
+ return true;
+}
+async function msAccessToken(force){
+ if(!force&&MSA.token&&MSA.exp>Date.now()+60000)return MSA.token;
+ if(!MSA.refresh)throw new Error('Non connecté');
+ try{await msTokenReq({client_id:msClientId(),grant_type:'refresh_token',refresh_token:MSA.refresh,scope:MS_SCOPE})}
+ catch(e){
+  if(e.code==='invalid_grant'||e.code==='interaction_required'){MSA.token=null;MSA.refresh=null;MSA.err='Reconnexion nécessaire';msSave()}
+  throw e;
+ }
+ return MSA.token;
+}
+async function msFetch(path,opt){
+ opt=opt||{};
+ for(let k=0;k<2;k++){
+  const t=await msAccessToken(k>0);
+  const r=await fetch(path.startsWith('http')?path:GRAPH+path,Object.assign({},opt,{headers:Object.assign({Authorization:'Bearer '+t},opt.headers||{})}));
+  if(r.status===401&&k===0)continue;
+  if(r.status===204)return null;
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error((j.error&&j.error.message)||('Erreur '+r.status)),{status:r.status});
+  return j;
+ }
+}
+async function msEnsureCal(){
+ if(MSA.calId){
+  try{await msFetch('/me/calendars/'+MSA.calId+'?$select=id');return MSA.calId}catch(e){if(e.status!==404)throw e;MSA.calId=null;MSA.map={}}
+ }
+ const l=await msFetch('/me/calendars?$select=id,name&$top=100');
+ const f=(l.value||[]).find(c=>c.name===MS_CAL_NAME);
+ if(f)MSA.calId=f.id;
+ else{const c=await msFetch('/me/calendars',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:MS_CAL_NAME})});MSA.calId=c.id}
+ msSave();return MSA.calId;
+}
+const hash32=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h>>>0)};
+const msUTC=(d,m)=>{const [y,mo,da]=d.split('-').map(Number);return new Date(y,mo-1,da,0,m,0).toISOString().slice(0,19)};
+function msPayload(o){
+ const ev=o.ev;
+ let start,end;
+ if(o.allDay){start=add(o.date,0)+'T00:00:00';end=add(o.endDate,1)+'T00:00:00'}
+ else{start=msUTC(o.date,o.s);end=msUTC(o.endDate,o.e)}
+ const p={subject:(ev.icon?ev.icon+' ':'')+ev.title,isAllDay:!!o.allDay,
+  start:{dateTime:start,timeZone:'UTC'},end:{dateTime:end,timeZone:'UTC'},
+  location:{displayName:ev.place||''},body:{contentType:'text',content:ev.note||''},showAs:'busy'};
+ if(ev.alarm!=null){p.isReminderOn=true;p.reminderMinutesBeforeStart=o.allDay?(ev.alarm>=1440?900:0):ev.alarm}
+ else p.isReminderOn=false;
+ return p;
+}
+async function msBatch(reqs){
+ for(let tries=0;;tries++){
+  const j=await msFetch('/$batch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requests:reqs})});
+  const res=j.responses||[];
+  const th=res.find(r=>r.status===429||r.status===503);
+  if(th&&tries<2){const w=Math.min(20,(+((th.headers||{})['Retry-After']||'3')))*1000;await new Promise(r=>setTimeout(r,w));continue}
+  return res;
+ }
+}
+async function msSync(silent){
+ if(demo){if(!silent)toast('Quitte d’abord le mode démo');return}
+ if(!msConnected()){if(!silent)toast('Outlook n’est pas connecté');return}
+ if(msBusy)return;
+ msBusy=true;if(!silent){toast('Envoi vers Outlook…',4000);}
+ let add_=0,upd=0,del=0,err=0;
+ try{
+  const cal=await msEnsureCal();
+  const from=add(today(),-31),to=add(today(),366);
+  const want={};
+  for(const o of occs(from,to)){const p=msPayload(o);want[o.ev.id+'|'+o.date]={p,h:hash32(JSON.stringify(p))}}
+  const reqs=[];
+  for(const k in want){
+   const m=MSA.map[k];
+   if(!m)reqs.push({k,kind:'add',method:'POST',url:'/me/calendars/'+cal+'/events',body:want[k].p,h:want[k].h});
+   else if(m.h!==want[k].h)reqs.push({k,kind:'upd',method:'PATCH',url:'/me/events/'+m.id,body:want[k].p,h:want[k].h,id:m.id});
+  }
+  for(const k in MSA.map)if(!want[k])reqs.push({k,kind:'del',method:'DELETE',url:'/me/events/'+MSA.map[k].id});
+  for(let i=0;i<reqs.length;i+=20){
+   const ch=reqs.slice(i,i+20);
+   const res=await msBatch(ch.map((r,j)=>({id:String(j),method:r.method,url:r.url,headers:r.body?{'Content-Type':'application/json'}:undefined,body:r.body})));
+   ch.forEach((r,j)=>{
+    const x=res.find(z=>z.id===String(j))||{status:0};
+    const ok=x.status>=200&&x.status<300;
+    if(r.kind==='add'){if(ok&&x.body&&x.body.id){MSA.map[r.k]={id:x.body.id,h:r.h};add_++}else err++}
+    else if(r.kind==='upd'){if(ok){MSA.map[r.k].h=r.h;upd++}else if(x.status===404){delete MSA.map[r.k];err++}else err++}
+    else{if(ok||x.status===404){delete MSA.map[r.k];del++}else err++}
+   });
+   msSave();
+   if(!silent&&reqs.length>20)toast('Envoi vers Outlook… '+Math.min(i+20,reqs.length)+'/'+reqs.length,4000);
+  }
+  MSA.last=Date.now();MSA.err=err?(err+' élément(s) non envoyés'):'';msSave();
+  if(!silent)toast(reqs.length?('Outlook à jour : '+add_+' ajouté'+(add_>1?'s':'')+', '+upd+' modifié'+(upd>1?'s':'')+', '+del+' supprimé'+(del>1?'s':'')+(err?' · '+err+' erreur(s)':'')):'Outlook déjà à jour',5000);
+ }catch(e){
+  MSA.err=e.message||'Erreur';msSave();
+  if(!silent)toast('Envoi Outlook impossible : '+MSA.err,6000);
+ }finally{msBusy=false;if(V.view==='settings')render()}
+}
+function msSchedule(){
+ if(demo||!msConnected()||!S.msAuto)return;
+ clearTimeout(msTimer);msTimer=setTimeout(()=>msSync(true),4000);
+}
+async function msDisconnect(){
+ const r=await ask({title:'Déconnecter Outlook ?',text:'Les événements déjà envoyés restent dans Outlook, sauf si tu choisis de supprimer le calendrier « '+MS_CAL_NAME+' ».',btns:[{label:'Déconnecter et supprimer le calendrier Outlook',value:'del',cls:'dng'},{label:'Déconnecter seulement',value:'keep'},{label:'Annuler',value:null}]});
+ if(!r)return;
+ if(r==='del'&&MSA.calId){try{await msFetch('/me/calendars/'+MSA.calId,{method:'DELETE'})}catch(e){toast('Calendrier Outlook non supprimé : '+e.message,5000)}}
+ MSA={token:null,exp:0,refresh:null,calId:null,map:{},acct:'',last:0,err:'',n:0};ls.del(K.ms);
+ toast('Outlook déconnecté');render();
+}
+function msCard(){
+ const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
+ let h='<div class="card"><h3>Outlook / Microsoft</h3>';
+ if(!msClientId()){
+  h+='<p class="mut" style="margin-top:0">Connexion non configurée. Colle l’identifiant d’application Microsoft (voir le mode d’emploi).</p><input class="in" id="ms-cid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off"><button class="btn blk" data-act="ms-saveid">Enregistrer l’identifiant</button>';
+ }else if(!msConnected()){
+  h+='<p class="mut" style="margin-top:0">Envoie ton agenda vers un calendrier Outlook (compte Outlook, Hotmail, Live), visible ensuite sur l’iPhone, Android et Outlook. L’appli parle directement à Microsoft, sans intermédiaire.</p>'+(MSA.err?'<p class="mut"><b>'+esc(MSA.err)+'</b></p>':'')+'<button class="btn pri blk" data-act="ms-connect">'+ic('share')+' Se connecter à Outlook</button>';
+ }else{
+  h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
+   '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
+   '<div class="set-row"><span class="lbl">Envoi automatique après chaque modification</span>'+seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0)+'</div>'+
+   '<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem">Sens unique : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (période : 1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés. Ce qui est modifié dans Outlook sur ces événements est écrasé au prochain envoi.</p>'+
+   '<button class="btn blk" data-act="ms-disc">Déconnecter Outlook</button>';
+ }
+ return h+'</div>';
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -1298,6 +1476,7 @@ function settingsView(){
   '<p class="mut" style="margin:.2rem 0 .6rem;font-size:.85rem">Envoi unique : l’agenda du téléphone gère ensuite les rappels. Ce n’est pas une synchronisation : une modification faite d’un côté n’apparaît pas de l’autre.</p>'+
   '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
   '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
+ h+=msCard();
  h+='<div class="card"><h3>Démo et aide</h3>'+
   (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
   '<button class="btn blk" data-act="help">'+ic('help')+' Mode d’emploi et historique</button>'+
@@ -1316,6 +1495,7 @@ function openHelp(){
  h+=d('Répétitions et rotations','<ul><li>Tous les jours, semaines (avec choix des jours), mois, ans, avec un intervalle (ex. toutes les 2 semaines) et une date de fin facultative.</li><li><b>Rotation travail / repos</b> : indique le nombre de jours travaillés puis de repos (ex. 3 puis 2). Le cycle part de la date de début et se répète. Pratique pour des horaires en rotation.</li><li>Modifier ou supprimer un événement répété : tu choisis « cette occurrence », « celle-ci et les suivantes » ou « toute la série ».</li></ul>');
  h+=d('Rappels et notifications','<ul><li><b>À l’ouverture</b> : un écran « À venir aujourd’hui » liste ce qu’il reste à faire dans la journée (désactivable dans Réglages).</li><li><b>Notifications</b> : elles s’affichent quand l’appli est ouverte ou récemment active. <b>Quand l’appli est fermée, aucun rappel ne sonne</b> : une appli web sans serveur ne peut pas le garantir, surtout sur iPhone (notifications possibles seulement depuis l’écran d’accueil, iOS 16.4 minimum).</li><li><b>Solution fiable</b> : exporte en .ics et ouvre le fichier avec l’agenda natif du téléphone, qui gère les alarmes lui-même.</li></ul>');
  h+=d('Plusieurs appareils et sauvegarde','<div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Chaque appareil a sa propre copie de ton agenda.</div><ol><li>Appareil A : Réglages → <b>Sauvegarder (.json)</b>.</li><li>Envoie le fichier « '+BACKUP_FILE+' » à l’appareil B.</li><li>Appareil B : Réglages → <b>Restaurer</b>, puis choisis « Remplacer » ou « Fusionner ».</li></ol><p>Sauvegarde aussi régulièrement par sécurité : si tu vides les données du navigateur ou changes de téléphone, la sauvegarde est la seule copie. Le fichier porte toujours le même nom ; si ton téléphone en garde plusieurs, il ajoute « (1) », « (2) »… à la fin.</p>');
+ h+=d('Connexion à Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Se connecter ». Tu t’identifies sur le site officiel de Microsoft : l’appli ne voit jamais ton mot de passe.</li><li>Elle crée un calendrier <b>« Agenda (appli) »</b> dans ton compte et y envoie tes événements (1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés.</li><li><b>Sens unique</b> : appli → Outlook. Une modification faite dans Outlook sur ces événements est écrasée au prochain envoi.</li><li>Sur l’iPhone, ajoute ton compte Outlook dans Réglages → Calendrier → Comptes pour voir ce calendrier dans Calendrier.</li><li>La connexion expire au bout de quelques jours sans ouvrir l’appli : refais « Se connecter ».</li><li>Tu peux te déconnecter et supprimer ce calendrier à tout moment.</li></ul>');
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li></ul>');
  h+=d('Ajouter à l’agenda du téléphone','<ul><li>Réglages → <b>Ajouter à mon agenda</b>. Sur <b>iPhone</b>, choisis « Calendrier » puis « Tout ajouter ». Sur <b>Android</b>, ouvre le fichier avec Google Agenda ou Outlook.</li><li>C’est un <b>envoi unique</b>, pas une synchronisation : refais-le après une modification (les événements déjà présents sont mis à jour par l’agenda, selon l’appli). L’intérêt : les rappels de l’agenda natif sont fiables, même appli fermée.</li></ul>');
@@ -1523,9 +1703,13 @@ async function act(a,el,e){
   case 'demo':enterDemo();break;
   case 'exitdemo':exitDemo();break;
   case 'install':if(installEv){installEv.prompt();installEv=null;render()}break;
+  case 'ms-connect':msConnect();break;
+  case 'ms-sync':msSync(false);break;
+  case 'ms-disc':msDisconnect();break;
+  case 'ms-saveid':{const v=($('#ms-cid')||{}).value||'';if(/^[0-9a-f-]{36}$/i.test(v.trim())){S.msClientId=v.trim();saveSet();render();toast('Identifiant enregistré')}else toast('Identifiant invalide (36 caractères avec des tirets)');break}
   case 'wipe':{
    const r=await ask({title:'Tout effacer ?',text:'Tous tes événements et réglages seront supprimés de cet appareil. Pense à sauvegarder avant. Action irréversible.',btns:[{label:'Effacer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
-   if(r==='y'){[K.data,K.set,K.meta,K.fired].forEach(ls.del);S=Object.assign({},DEF_SET,{cats:DEF_CATS.map(c=>Object.assign({},c))});META={lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0};EV=[];demo=false;setTheme();V.view='day';V.date=today();render();toast('Données effacées')}
+   if(r==='y'){[K.data,K.set,K.meta,K.fired,K.ms].forEach(ls.del);MSA={token:null,exp:0,refresh:null,calId:null,map:{},acct:'',last:0,err:'',n:0};S=Object.assign({},DEF_SET,{cats:DEF_CATS.map(c=>Object.assign({},c))});META={lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0};EV=[];demo=false;setTheme();V.view='day';V.date=today();render();toast('Données effacées')}
    break}
   case 'welcome-start':closeSheet();META.seen=true;saveMeta();break;
   case 'welcome-demo':closeSheet();META.seen=true;saveMeta();enterDemo();break;
@@ -1601,12 +1785,13 @@ function registerSW(){
  let reloaded=false;
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded||!hadController)return;reloaded=true;location.reload()});
 }
-function init(){
+async function init(){
  setTheme();fillIcons(document);
  loadData();
  const q=new URLSearchParams(location.search);
  const pv=q.get('view');
  V.view=['day','week','month','fort'].includes(pv)?pv:(['week','month','fort'].includes(S.start)?S.start:'day');
+ await msHandleReturn();
  if(q.get('demo')==='1'){demo=true;EV=demoData()}
  render();
  registerSW();
