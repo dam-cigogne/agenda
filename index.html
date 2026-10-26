@@ -185,14 +185,15 @@ input,select,textarea{font:inherit;color:inherit}
 .mn.today{background:var(--accent);color:var(--on-accent)}
 .mn.out{color:var(--muted);opacity:.65}
 .mhid{justify-self:start;align-self:start;font-size:.62rem;color:var(--muted);font-weight:800;padding:.3rem 0 0 .25rem}
-.mband,.ml{display:block;font-style:normal;font-size:.7rem;line-height:1.46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 1px 1px}
+.mband{display:block;font-style:normal;font-size:.7rem;line-height:1.46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 1px 1px}
 .mband{font-weight:700;padding:0 .3rem;border-radius:.3rem;background:var(--c);color:var(--ink)}
 .mband.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
 .mband.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
-.ml{font-weight:650;padding:0 .1rem 0 .7rem;position:relative}
-.ml:before{content:"";position:absolute;left:.2rem;top:.42em;width:.34rem;height:.34rem;border-radius:50%;background:var(--c)}
+.mcol{display:flex;flex-direction:column;gap:1px;min-width:0;margin:0 1px;align-self:start;overflow:hidden}
+.mcol.l1 .ei{display:none}
+.ml{font-style:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);white-space:normal;overflow:hidden;overflow-wrap:anywhere;margin:0;font-weight:650;line-height:1.25;padding:0 .12rem 0 .2rem;border-left:3px solid var(--c);border-radius:.15rem;background:rgba(127,127,127,.13);background:color-mix(in srgb,var(--c) 16%,transparent)}
 .ml em{font-style:normal;color:var(--muted);font-weight:600}
-@media(min-width:700px){.mband,.ml{font-size:.8rem}.mn{font-size:.9rem}}
+@media(min-width:700px){.mband{font-size:.8rem}.mn{font-size:.9rem}}
 #body.mview #fab{width:3.1rem;height:3.1rem;right:.7rem;bottom:.7rem}
 #body.mview #fab .ic{width:1.5rem;height:1.5rem}
 @media(min-width:900px){#body.has-side.mview #fab{right:22rem}}
@@ -313,11 +314,11 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .icos{gap:.35rem}
 .chip.ico{padding:.3rem .5rem;font-size:1.3rem;min-width:2.6rem;justify-content:center}
 
-.mo2.fort .mband,.mo2.fort .ml{font-size:.82rem}
+.mo2.fort .mband{font-size:.82rem}
 .mo2.fort .mn{font-size:.9rem}
 .mo2.fort .mn small{font-size:.62rem;font-weight:800;color:var(--muted);text-transform:uppercase}
 .mo2.fort .mn.today small{color:inherit}
-@media(min-width:700px){.mo2.fort .mband,.mo2.fort .ml{font-size:.9rem}}
+@media(min-width:700px){.mo2.fort .mband{font-size:.9rem}}
 #tabs em{white-space:nowrap}
 .mn{white-space:nowrap}
 .mo2.fort .mn.today small{display:none}
@@ -359,12 +360,15 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.4.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.4.1',d:'27/10/2026',items:[
+  'Vue Mois et 2 sem. plus lisibles : texte plus fin, titres sur 2 ou 3 lignes quand il y a de la place, barre de couleur à gauche de chaque événement, plus d’événements visibles par case'
+ ]},
  {v:'1.4.0',d:'27/10/2026',items:[
   'Connexion à Outlook / Microsoft (compte Outlook, Hotmail, Live) : envoi de ton agenda vers un calendrier Outlook, à la demande ou automatiquement',
   'Sens unique appli → Outlook, dans un calendrier à part : tes autres calendriers ne sont jamais touchés'
@@ -911,8 +915,11 @@ function monthViewTitles(fort){
  const fs=parseFloat(getComputedStyle(document.documentElement).fontSize)||17;
  const mainH=$('#main').clientHeight||600;
  const rowH=Math.max(fs*5,(mainH-fs*2.2)/rows);
- const lineH=fs*(fort?(isTablet()?0.9:0.82):(isTablet()?0.8:0.7))*1.46+1;
- const cap=Math.max(1,Math.floor((rowH-fs*1.5)/lineH));
+ const tab=isTablet();
+ const bandH=fs*(fort?(tab?0.9:0.82):(tab?0.8:0.68))*1.46+1;
+ const tFs=fort?(tab?0.86:0.76):(tab?0.74:0.62);
+ const tlH=fs*tFs*1.25+1;
+ const avail=rowH-fs*1.55;
  let h='<div class="mo2'+(fort?' fort':'')+'" style="--rows:'+rows+'"><div class="mo2-h"><span></span>'+weekHead().map(d=>'<span>'+DS[d].replace('.','')+'</span>').join('')+'</div>';
  for(let w=0;w<rows;w++){
   const ws=add(gs,w*7),we=add(ws,6);
@@ -928,7 +935,10 @@ function monthViewTitles(fort){
   bands.sort((a,b)=>a.c0-b.c0||(b.c1-b.c0)-(a.c1-a.c0)||a.o.ev.title.localeCompare(b.o.ev.title));
   const lanes=[];
   bands.forEach(b=>{let i=0;while(lanes[i]!==undefined&&lanes[i]>=b.c0)i++;lanes[i]=b.c1;b.lane=i});
-  const vis=Math.min(lanes.length,cap),hid=Array(7).fill(0);
+  const anyT=timed.some(a=>a.length);
+  const capB=Math.max(1,Math.floor((avail-(anyT?tlH*2:0))/bandH));
+  const vis=Math.min(lanes.length,capB),hid=Array(7).fill(0);
+  const room=Math.max(0,avail-vis*bandH);
   let fg='';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
@@ -940,11 +950,14 @@ function monthViewTitles(fort){
    fg+='<i class="mband'+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+'">'+evT(o.ev)+'</i>';
   });
   timed.forEach((arr,c)=>{
-   arr.sort((a,b)=>a.s-b.s);const room=Math.max(0,cap-vis);
-   arr.forEach((o,k)=>{
-    if(k>=room){hid[c]++;return}
-    fg+='<i class="ml" data-date="'+o.date+'" style="grid-row:'+(2+vis+k)+';grid-column:'+(c+2)+';--c:'+catOf(o.ev.cat).color+'">'+(isTablet()?'<em>'+hm(o.s)+'</em> ':'')+evT(o.ev)+'</i>';
-   });
+   if(!arr.length)return;
+   arr.sort((x,y)=>x.s-y.s);
+   const L=Math.max(0,Math.floor(room/tlH));let ln=1;
+   for(const t3 of [3,2]){if(arr.length*t3<=L){ln=t3;break}}
+   const shown=Math.min(arr.length,Math.max(0,Math.floor(L/ln)));
+   hid[c]+=arr.length-shown;
+   if(!shown)return;
+   fg+='<div class="mcol'+(ln===1&&!tab&&!fort?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml" data-date="'+o.date+'" style="--c:'+catOf(o.ev.cat).color+'">'+(tab?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
   });
   hid.forEach((n,c)=>{if(n>0)fg+='<span class="mhid" style="grid-row:1;grid-column:'+(c+2)+'">+'+n+'</span>'});
   let bg='<span class="wn">'+wk+'</span>';
@@ -1497,7 +1510,7 @@ function openHelp(){
  h+=d('Plusieurs appareils et sauvegarde','<div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Chaque appareil a sa propre copie de ton agenda.</div><ol><li>Appareil A : Réglages → <b>Sauvegarder (.json)</b>.</li><li>Envoie le fichier « '+BACKUP_FILE+' » à l’appareil B.</li><li>Appareil B : Réglages → <b>Restaurer</b>, puis choisis « Remplacer » ou « Fusionner ».</li></ol><p>Sauvegarde aussi régulièrement par sécurité : si tu vides les données du navigateur ou changes de téléphone, la sauvegarde est la seule copie. Le fichier porte toujours le même nom ; si ton téléphone en garde plusieurs, il ajoute « (1) », « (2) »… à la fin.</p>');
  h+=d('Connexion à Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Se connecter ». Tu t’identifies sur le site officiel de Microsoft : l’appli ne voit jamais ton mot de passe.</li><li>Elle crée un calendrier <b>« Agenda (appli) »</b> dans ton compte et y envoie tes événements (1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés.</li><li><b>Sens unique</b> : appli → Outlook. Une modification faite dans Outlook sur ces événements est écrasée au prochain envoi.</li><li>Sur l’iPhone, ajoute ton compte Outlook dans Réglages → Calendrier → Comptes pour voir ce calendrier dans Calendrier.</li><li>La connexion expire au bout de quelques jours sans ouvrir l’appli : refais « Se connecter ».</li><li>Tu peux te déconnecter et supprimer ce calendrier à tout moment.</li></ul>');
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
- h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li></ul>');
+ h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Ajouter à l’agenda du téléphone','<ul><li>Réglages → <b>Ajouter à mon agenda</b>. Sur <b>iPhone</b>, choisis « Calendrier » puis « Tout ajouter ». Sur <b>Android</b>, ouvre le fichier avec Google Agenda ou Outlook.</li><li>C’est un <b>envoi unique</b>, pas une synchronisation : refais-le après une modification (les événements déjà présents sont mis à jour par l’agenda, selon l’appli). L’intérêt : les rappels de l’agenda natif sont fiables, même appli fermée.</li></ul>');
  h+=d('Import et export .ics','<ul><li><b>Exporter</b> : crée un fichier .ics (calendrier standard) avec tes événements, leurs répétitions et leurs rappels. Les rotations sont exportées jour par jour (environ 14 mois).</li><li><b>Importer</b> : lis un fichier .ics venant de Google Agenda, Apple, Outlook… Les événements déjà présents ne sont pas dupliqués. Les fuseaux horaires sont lus comme heure locale.</li></ul>');
  h+=d('Installer sur iPhone ou Android','<p><b>iPhone (Safari)</b> : ouvre le lien dans <b>Safari</b> → bouton Partager (carré avec flèche) → <b>Sur l’écran d’accueil</b> → Ajouter.</p><p><b>Android (Chrome)</b> : ouvre le lien → menu ⋮ → <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</p><p>Une fois installée, l’appli fonctionne <b>sans connexion</b>.</p>');
