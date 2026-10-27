@@ -527,6 +527,12 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .sgrid .opt-wrap>summary::after{position:absolute;right:.2rem;top:.6rem;float:none}
 .sgrid .warn b:not(:first-child){display:inline}
 
+/* 1.16.7 couleurs Outlook choisies + éditeur */
+.olrow{display:flex;align-items:center;gap:.55rem;padding:.3rem 0}
+.olrow .dotc,.dotc{-webkit-appearance:none;appearance:none;width:1.6rem;height:1.6rem;border:0;padding:0;border-radius:50%;background:none;flex:none;cursor:pointer}
+.dotc::-webkit-color-swatch-wrapper{padding:0}.dotc::-webkit-color-swatch{border:2px solid var(--line);border-radius:50%}.dotc::-moz-color-swatch{border:2px solid var(--line);border-radius:50%}
+.ocat-d>summary{cursor:pointer;display:block;padding:.2rem 0 .4rem}
+
 </style>
 </head>
 <body>
@@ -568,12 +574,16 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.6';
+const APP_VERSION='1.16.7';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.7',d:'27/10/2026',items:[
+  'Les calendriers Outlook gardent leur couleur : l’éditeur et « Catégories et calendriers » affichent la couleur de chaque calendrier telle qu’elle est dans Outlook (ex. RDV violet, Commun vert), modifiable d’un toucher. Nouveau bouton « Aligner mes catégories de l’appli sur ces couleurs ».',
+  'Couleurs des catégories Outlook : dans Réglages → Outlook → « Catégories et calendriers », touche un rond de couleur pour choisir la couleur que tu veux (Outlook ne donne pas toujours la vraie couleur, surtout pour les catégories des calendriers partagés). Elle s’applique partout dans l’appli.',
+  'Éditeur d’événement, partie Outlook plus claire : « 📅 Ranger dans quel calendrier Outlook ? » (le dossier) et « 🏷️ Étiquette de couleur Outlook (facultatif) », repliée par défaut. « Appli seulement » devient « Aucune ».']},
  {v:'1.16.6',d:'27/10/2026',items:[
   'La fenêtre « À venir aujourd’hui » de l’ouverture se désactive en un geste : bouton « Ne plus afficher cette fenêtre à l’ouverture » dans la fenêtre elle-même, ou interrupteur en haut de Réglages → Affichage. Elle reste réactivable à tout moment.']},
  {v:'1.16.5',d:'27/10/2026',items:[
@@ -1678,10 +1688,14 @@ function olCatList(){
 }
 /* catégories perso de l'appli (souvent venues d'Outlook à l'import) : proposées aussi comme catégories Outlook */
 function olAppCats(){const std=new Set(DEF_CATS.map(c=>c.id));return S.cats.filter(c=>!std.has(c.id)&&c.id!=='-').map(c=>c.name)}
+const CAL_COL={auto:'#0078d4',lightBlue:'#6eb5f0',lightGreen:'#5ccc7a',lightOrange:'#f2923a',lightGray:'#9ca3af',lightYellow:'#f6e338',lightTeal:'#2fc4b2',lightPink:'#f06ab0',lightBrown:'#a0714f',lightRed:'#e05a5a'};
+const calHex=x=>/^#[0-9a-f]{6}$/i.test(x.hexColor||'')?x.hexColor.toLowerCase():(CAL_COL[x.color]||'');
+const calColOf=c=>(S.olCol||{})['cal:'+c.id]||c.col||'#0078d4';
 async function olCatsRefresh(){
  if(!msConnected()||demo)return false;
  let got=false;
- try{const c=await msFetch('/me/calendars?$select=id,name,canEdit&$top=100');MSA.cals=(c.value||[]).filter(x=>x.canEdit!==false).map(x=>({id:x.id,name:String(x.name||'').slice(0,80)}));msSave()}catch(e){}
+ try{const c=await msFetch('/me/calendars?$select=id,name,canEdit,color,hexColor&$top=100');const all=(c.value||[]).map(x=>({id:x.id,name:String(x.name||'').slice(0,80),col:calHex(x),ok:x.canEdit!==false}));
+  MSA.cals=all.filter(x=>x.ok).map(x=>({id:x.id,name:x.name,col:x.col}));MSA.calCol={};all.forEach(x=>{if(x.col)MSA.calCol[x.name]=x.col});msSave()}catch(e){}
  try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);MSA.catsFull=true;msSave();return true}
  catch(e){}
  /* repli (autorisation pas encore donnée) : catégories déjà utilisées sur tes événements Outlook */
@@ -1703,18 +1717,24 @@ async function olManage(){
  const hid=new Set(S.olHide||[]);
  const cats=(MSA.cats||[]).slice();for(const e of EV)if(e.ocat&&!cats.some(c=>c.name===e.ocat))cats.push({name:e.ocat,color:''});
  for(const n of olAppCats())if(!cats.some(c=>norm(c.name).trim()===norm(n).trim()))cats.push({name:n,color:'',app:true});
- const row=(k,label,col)=>'<label class="olrow"><input type="checkbox" data-k="'+esc(k)+'"'+(hid.has(k)?'':' checked')+'><span class="dot" style="background:'+(col||'#94a3b8')+'"></span><span>'+esc(label)+'</span></label>';
+ const hex=c=>/^#[0-9a-f]{6}$/i.test(c||'')?c:'#94a3b8';
+ const row=(k,label,col,cn)=>'<div class="olrow"><input type="checkbox" data-k="'+esc(k)+'"'+(hid.has(k)?'':' checked')+' aria-label="Afficher"><'+(cn!=null?'input type="color" class="dotc" data-cn="'+esc(cn)+'" value="'+hex(col)+'" aria-label="Couleur de '+esc(cn)+'"':'span class="dot" style="background:'+(col||'#94a3b8')+'"')+'><span>'+esc(label)+'</span></div>';
  const cals=(MSA.cals||[]).filter(c=>c.id!==MSA.calId);
- const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Coche ce que tu veux voir dans l’éditeur d’un événement. '+(MSA.catsFull?'Liste complète lue dans ton compte Outlook.':'Liste partielle (catégories déjà utilisées). Pour la liste complète : Réglages → Outlook → Reconnecter.')+'</p>'+
-  '<div class="olbox"><b>Catégories Outlook ('+cats.length+')</b>'+(cats.length?cats.map(c=>row('c:'+c.name,c.name+(c.app?' (de l’appli)':''),OL_COL[c.color]||((S.cats.find(x=>norm(x.name).trim()===norm(c.name).trim())||{}).color))).join(''):'<p class="mut" style="margin:.3rem 0">Aucune catégorie renvoyée par Outlook.</p>')+
-  '<b style="display:block;margin-top:.6rem">Calendriers Outlook ('+cals.length+')</b>'+(cals.length?cals.map(c=>row('k:'+c.id,c.name)).join(''):'<p class="mut" style="margin:.3rem 0">Aucun autre calendrier trouvé.</p>')+'</div>';
+ const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Coche ce que tu veux voir dans la liste de l’éditeur. <b>Touche un rond de couleur pour changer sa couleur</b> (Outlook ne donne pas toujours la vraie couleur : à toi de la choisir). '+(MSA.catsFull?'Liste complète lue dans ton compte Outlook.':'Liste partielle (catégories déjà utilisées). Pour la liste complète : Réglages → Outlook → Reconnecter.')+'</p>'+
+  '<div class="olbox"><b>Catégories Outlook ('+cats.length+')</b>'+(cats.length?cats.map(c=>row('c:'+c.name,c.name+(c.app?' (de l’appli)':''),olColOf(c.name,c.color),c.name)).join(''):'<p class="mut" style="margin:.3rem 0">Aucune catégorie renvoyée par Outlook.</p>')+
+  '<b style="display:block;margin-top:.6rem">Calendriers Outlook ('+cals.length+')</b>'+(cals.length?cals.map(c=>row('k:'+c.id,c.name,calColOf(c),'cal:'+c.id)).join(''):'<p class="mut" style="margin:.3rem 0">Aucun autre calendrier trouvé.</p>')+'</div>';
  const root=$('#dlg');
  const h=e=>{const b=e.target.closest('[data-v="0"]');if(!b)return;root.removeEventListener('click',h,true);
   const nh=[];root.querySelectorAll('.olrow input').forEach(i=>{if(!i.checked)nh.push(i.dataset.k)});
   S.olHide=nh;saveSet();toast('Enregistré')};
  root.addEventListener('click',h,true);
- const v=await ask({title:'Catégories et calendriers Outlook',html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Fermer',value:null}]});
+ const hc=e=>{const t=e.target;if(!t||!t.classList||!t.classList.contains('dotc'))return;const nm=t.dataset.cn;S.olCol=S.olCol||{};S.olCol[nm]=t.value;
+  if(nm.indexOf('cal:')!==0){const ac=S.cats.find(x=>norm(x.name).trim()===norm(nm).trim());if(ac)ac.color=t.value}saveSet()};
+ root.addEventListener('input',hc,true);root.addEventListener('change',hc,true);
+ const v=await ask({title:'Catégories et calendriers Outlook',html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Aligner mes catégories de l’appli sur ces couleurs',value:'sync'},{label:'Fermer',value:null}]});
  root.removeEventListener('click',h,true);
+ if(v==='sync'){let n=0;for(const c of S.cats){const k=olColOf(c.name,((MSA.cats||[]).find(x=>norm(x.name).trim()===norm(c.name).trim())||{}).color,true);if(k&&k.toLowerCase()!==String(c.color).toLowerCase()){c.color=k;n++}}saveSet();toast(n?n+' catégorie'+(n>1?'s':'')+' de l’appli mise'+(n>1?'s':'')+' à la couleur d’Outlook':'Déjà alignées')}root.removeEventListener('input',hc,true);root.removeEventListener('change',hc,true);
+ if(typeof render==='function')render();
 }
 
 /* événements envoyés par l'appli (marqués d'une clé), par calendrier */
@@ -2231,7 +2251,7 @@ function resolveCats(list,create){
   if(S.cats.some(c=>c.id===n)){e.cat=n;continue}
   if(create){
    let id=slug(e._cat),k=2;while(S.cats.some(c=>c.id===id))id=slug(e._cat)+'-'+k++;
-   S.cats.push({id,name:e._cat.slice(0,30),color:((typeof MSA!=='undefined'&&(MSA.cats||[]).find(c=>norm(c.name).trim()===n)||{}).color&&OL_COL[(MSA.cats.find(c=>norm(c.name).trim()===n)||{}).color])||CAT_COL[(S.cats.length)%CAT_COL.length]});
+   S.cats.push({id,name:e._cat.slice(0,30),color:(typeof olColOf==='function'&&olColOf(e._cat,((typeof MSA!=='undefined'&&(MSA.cats||[]).find(c=>norm(c.name).trim()===n)||{}).color),true))||CAT_COL[(S.cats.length)%CAT_COL.length]});
    byName.set(n,id);e.cat=id;made++;
   }else e.cat=S.cats.some(c=>c.id==='autre')?'autre':S.cats[S.cats.length-1].id;
  }
@@ -3516,7 +3536,7 @@ function openEditor(opt){
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
  h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'<button type="button" class="chip cat'+(f.cat==='-'?' on':'')+'" style="--c:#94a3b8" data-act="pickcat" data-id="-">Sans catégorie</button></div></div>';
- if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">Calendrier Outlook</span><div class="chips" id="f-ocal">'+ocalChips(f.ocal||'')+'</div></div>';h+='<div class="fld"><span class="lbl">Catégorie Outlook (facultatif)</span><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Choisis « Appli seulement » pour ne pas mettre de catégorie dans Outlook : l’événement garde sa catégorie de l’appli.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></div>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur);const k=$('#f-ocal');if(k){const cc=($('#f-ocal .chip.on')||{dataset:{}}).dataset.o||'';k.innerHTML=ocalChips(cc)}}})}
+ if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">📅 Ranger dans quel calendrier Outlook ?</span><div class="chips" id="f-ocal">'+ocalChips(f.ocal||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Le calendrier, c’est le « dossier » dans Outlook (Agenda (appli), RDV, Vacance DAM…).</p></div>';h+='<details class="fld ocat-d"'+(f.ocat?' open':'')+'><summary class="lbl">🏷️ Étiquette de couleur Outlook (facultatif)</summary><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">L’étiquette, c’est la couleur affichée sur l’événement dans Outlook. « Aucune » = pas d’étiquette (l’événement garde sa catégorie de l’appli). Calendrier et étiquette sont deux choses séparées.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></details>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur);const k=$('#f-ocal');if(k){const cc=($('#f-ocal .chip.on')||{dataset:{}}).dataset.o||'';k.innerHTML=ocalChips(cc)}}})}
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-sd">Début</label><input class="in" type="date" id="f-sd" value="'+f.sd+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-st">Heure</label><input class="in" type="time" id="f-st" value="'+f.st+'"></div></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-ed">Fin</label><input class="in" type="date" id="f-ed" value="'+f.ed+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-et">Heure</label><input class="in" type="time" id="f-et" value="'+f.et+'"></div></div>';
@@ -3549,13 +3569,14 @@ function recUI(){
 }
 function ocalChips(cur){
  const l=olCalList();if(cur&&!l.some(c=>c.id===cur)){const k=(MSA.cals||[]).find(c=>c.id===cur);if(k)l.unshift(k)}
- return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocal" data-o="">Agenda (appli)</button>'+l.map(c=>'<button type="button" class="chip cat'+(c.id===cur?' on':'')+'" style="--c:#0078d4" data-act="pickocal" data-o="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('');
+ return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:'+((MSA.calCol||{})['Agenda (appli)']||'#94a3b8')+'" data-act="pickocal" data-o="">Agenda (appli)</button>'+l.map(c=>'<button type="button" class="chip cat'+(c.id===cur?' on':'')+'" style="--c:'+calColOf(c)+'" data-act="pickocal" data-o="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('');
 }
 function ocatChips(cur){
  const names=olCatList();if(cur&&!names.includes(cur))names.unshift(cur);
- const col=n=>{const c=(MSA.cats||[]).find(x=>x.name===n);const a=S.cats.find(x=>norm(x.name).trim()===norm(n).trim());return c&&OL_COL[c.color]||(a&&a.color)||'#94a3b8'};
- return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Appli seulement</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="chip cat" style="--c:#94a3b8" data-act="ocatnew">＋ Autre nom…</button>';
+ const col=n=>olColOf(n,((MSA.cats||[]).find(x=>x.name===n)||{}).color);
+ return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Aucune</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="chip cat" style="--c:#94a3b8" data-act="ocatnew">＋ Autre nom…</button>';
 }
+function olColOf(n,preset,noApp){const o=(S.olCol||{})[n];if(o)return o;if(OL_COL[preset])return OL_COL[preset];const cc=(typeof MSA!=='undefined'&&MSA.calCol||{})[n];if(cc)return cc;if(noApp)return '';const a=S.cats.find(x=>norm(x.name).trim()===norm(n).trim());return (a&&a.color)||'#94a3b8'}
 const OL_COL={preset0:'#e74856',preset1:'#f7630c',preset2:'#8e562e',preset3:'#ffb900',preset4:'#13a10e',preset5:'#00b7c3',preset6:'#7a7a2a',preset7:'#0078d4',preset8:'#8764b8',preset9:'#c30052',preset10:'#69797e',preset11:'#4a5459',preset12:'#7a7574',preset13:'#555555',preset14:'#1b1b1b',preset15:'#a4262c',preset16:'#ca5010',preset17:'#6a3f2a',preset18:'#c19c00',preset19:'#107c10',preset20:'#038387',preset21:'#5a5a1a',preset22:'#0063b1',preset23:'#5c2d91',preset24:'#8b0036'};
 function readForm(){
  const g=id=>$('#'+id);
@@ -3699,7 +3720,7 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
- h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Appli seulement</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
+ h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
  h+=d('Modèles et garde alternée','<ul><li><b>Modèle</b> : dans la fiche d’un événement, touche « Enregistrer comme modèle ». Ensuite, dans « Nouvel événement », touche le modèle : tout est rempli, tu changes seulement la date.</li><li><b>Garde alternée</b> : touche « Garde alternée… » (dans Nouvel événement ou Réglages → Modèles), choisis le rythme, les jours et heures de début et de fin, à partir de quand et jusqu’à quand. Les gardes sont créées d’un coup.</li><li><b>Vacances</b> : ajoute une période (du… au…) avec « Pas de garde », « Garde toute la période », « 1re moitié » ou « 2e moitié » : les gardes normales de la période sont remplacées.</li><li>Pour changer une seule garde, ouvre-la et choisis « Cette occurrence seulement ».</li><li>Gérer ou supprimer un modèle : Réglages → Modèles et garde alternée.</li></ul>');
