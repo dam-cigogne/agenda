@@ -480,6 +480,35 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .dlgbox .gd .g2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
 .gv{border:1.5px solid var(--line);border-radius:.8rem;padding:.6rem;margin:.5rem 0;background:var(--surface)}
 
+/* Réglages compacts (1.16.3) */
+.sgrid .card{padding:.7rem .8rem;margin:.45rem .7rem;border-radius:.9rem}
+.sgrid .card h3{font-size:.95rem;margin:0 0 .35rem}
+.sgrid .card p{margin:.3rem 0;font-size:.86rem}
+.sgrid .btn{padding:.38rem .8rem;border-radius:.7rem;font-size:.86rem;font-weight:700;min-height:2.1rem}
+.sgrid .btn.blk{display:inline-flex;width:auto;margin:.3rem .35rem 0 0}
+.sgrid .btn .ic{width:1rem;height:1rem}
+.sgrid .seg{padding:2px;border-radius:.7rem}
+.sgrid .seg button{padding:.3rem .15rem;font-size:.8rem;border-radius:.55rem}
+.sgrid .set-row{margin:.5rem 0}
+.sgrid .set-row>.lbl,.sgrid .lbl{font-size:.7rem;margin-bottom:.22rem}
+.sgrid .tgl-row{gap:.6rem;padding:.1rem 0}
+.sgrid .tgl-row b{font-weight:650;font-size:.9rem}
+.sgrid .tgl{width:2.6rem;height:1.55rem}
+.sgrid .tgl:after{width:1.15rem;height:1.15rem;left:.2rem;top:.2rem}
+.sgrid .tgl:has(input:checked):after{left:1.25rem}
+.sgrid .in{min-height:2.2rem;padding:.3rem .6rem;border-radius:.65rem;font-size:.9rem}
+.sgrid .catrow{gap:.4rem;margin:.25rem 0}
+.sgrid .catrow input[type=color]{width:2rem;height:2rem;border-radius:.5rem}
+.sgrid .chip{padding:.28rem .65rem;font-size:.8rem}
+.sgrid .chip.ico{font-size:1.05rem;min-width:2rem;padding:.12rem .3rem}
+.sgrid .lk-sw{gap:.4rem;margin:.25rem 0 .55rem}
+.sgrid .lk-c{width:1.8rem;height:1.8rem}
+.sgrid .lk-prev{margin:.3rem 0 .6rem}
+.sgrid .lk{padding:.25rem 0}.sgrid .lk .n{font-size:1rem}
+.sgrid .warn{font-size:.8rem;padding:.5rem .65rem}
+.sgrid .tpl-i{padding:.35rem .55rem}
+.sgrid .jump{gap:.3rem}
+
 </style>
 </head>
 <body>
@@ -521,12 +550,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.2';
+const APP_VERSION='1.16.3';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.3',d:'27/10/2026',items:[
+  'Réglages plus simples et plus compacts : boutons, curseurs, champs et catégories moins gros, cartes plus serrées, tout reste lisible.',
+  'Ce qu’on utilise le plus est en haut : Affichage et couleurs, puis Mon agenda (catégories, modèles, horaires). Rappels et aide à l’adresse sont maintenant vers la fin.']},
  {v:'1.16.2',d:'27/10/2026',items:[
   'Vue Mois : les barres sur plusieurs jours (vacances, congés, événements de 2-3 jours…) passent maintenant avant les petits événements et se réduisent un peu quand la semaine est chargée, au lieu de disparaître derrière « +2 » en vue normale.',
   'Catégories Outlook : les couleurs Bleu et Violet étaient inversées, c’est corrigé (et plusieurs autres couleurs d’Outlook sont mieux respectées).',
@@ -2012,7 +2044,7 @@ async function openMap(p){
 /* ---------- Réglages : sections, raccourcis, outils développeur ---------- */
 const sec=(id,t)=>'<h2 class="sect" id="'+id+'">'+esc(t)+'</h2>';
 function settingsJump(){
- const J=[['s-agenda','Horaires'],['s-aff','Affichage'],['s-cal','Calendriers'],['s-data','Données'],['s-aide','Aide']];
+ const J=[['s-aff','Affichage'],['s-agenda','Mon agenda'],['s-cal','Calendriers'],['s-data','Données'],['s-rap','Rappels'],['s-aide','Aide']];
  return '<div class="jump">'+J.map(j=>'<button type="button" class="chip" data-act="jump" data-t="'+j[0]+'">'+j[1]+'</button>').join('')+'</div>';
 }
 function devCard(){
@@ -3578,12 +3610,7 @@ function settingsView(){
  const perm=('Notification' in window)?Notification.permission:'indisponible';
  let h='';
  h+=settingsJump();
- h+=sec('s-agenda','Mon agenda')+rotCard();
- h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
-  '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
- h+=sec('s-aff','Affichage et rappels');
- h+=lookCard(seg);
- h+=tplCard();
+ h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
@@ -3591,16 +3618,12 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Premier jour de la semaine</span>'+seg('weekStart',[[1,'Lundi'],[0,'Dimanche']],S.weekStart)+'</div>'+
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div></div>';
- h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
- h+='<div class="card"><h3>Rappels</h3>'+
-  '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
-  '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
-  '<div class="set-row"><span class="lbl">Notifications système</span>'+
-  (perm==='granted'?'<p><b>Activées.</b> <span class="mut">Elles ne sonnent que si l’appli est ouverte ou récemment utilisée en arrière-plan.</span></p>'
-   :perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
-   :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
-   :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
-  '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
+ h+=lookCard(seg);
+ h+=sec('s-agenda','Mon agenda');
+ h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
+  '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
+ h+=tplCard();
+ h+=rotCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
  h+=msCard();
  h+=importCard();
@@ -3615,6 +3638,17 @@ h+='<div class="card" id="ics-card">'+
   '<button class="btn pri blk" data-act="bk-save">'+ic('down')+' Sauvegarder (.json)</button>'+
   (canShareFiles()?'<button class="btn blk" data-act="bk-share">'+ic('share')+' Envoyer la sauvegarde…</button>':'')+
   '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer une sauvegarde</button></div>';
+ h+=sec('s-rap','Rappels et adresse');
+ h+='<div class="card"><h3>Rappels</h3>'+
+  '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
+  '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
+  '<div class="set-row"><span class="lbl">Notifications système</span>'+
+  (perm==='granted'?'<p><b>Activées.</b> <span class="mut">Elles ne sonnent que si l’appli est ouverte ou récemment utilisée en arrière-plan.</span></p>'
+   :perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
+   :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
+   :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
+  '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
+ h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
  h+=sec('s-aide','Aide et partage')+guideCard()+installCard()+ficheCard();
  h+='<div class="card"><h3>Démo et aide</h3>'+
   (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
