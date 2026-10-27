@@ -574,12 +574,14 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.7';
+const APP_VERSION='1.16.8';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.8',d:'27/10/2026',items:[
+  'Écran large (iPad en paysage, ordinateur) : nouveau réglage « Panneau de droite » (Réglages → Affichage). Sur « Non », le mini-calendrier et la liste de la journée disparaissent et le mois, la semaine ou le jour prennent toute la largeur : les titres sont moins coupés.']},
  {v:'1.16.7',d:'27/10/2026',items:[
   'Les calendriers Outlook gardent leur couleur : l’éditeur et « Catégories et calendriers » affichent la couleur de chaque calendrier telle qu’elle est dans Outlook (ex. RDV violet, Commun vert), modifiable d’un toucher. Nouveau bouton « Aligner mes catégories de l’appli sur ces couleurs ».',
   'Couleurs des catégories Outlook : dans Réglages → Outlook → « Catégories et calendriers », touche un rond de couleur pour choisir la couleur que tu veux (Outlook ne donne pas toujours la vraie couleur, surtout pour les catégories des calendriers partagés). Elle s’applique partout dans l’appli.',
@@ -797,7 +799,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -1462,10 +1464,10 @@ function render(){
  const nav=['day','week','month','fort'].includes(V.view);
  $('#nav').style.display=nav?'':'none';
  $$('#tabs button,#gearbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
- body.classList.toggle('has-side',nav&&isWide());
+ body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
  body.classList.toggle('nofab',!nav&&V.view!=='search');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
- $('#side').innerHTML=(nav&&isWide())?sideHTML():'';
+ $('#side').innerHTML=(nav&&isWide()&&S.side!==0)?sideHTML():'';
  $('#banner').innerHTML=bannerHTML();
 }
 function go(view){V.view=view;render()}
@@ -3670,6 +3672,7 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div>'+
   '<div class="set-row"><span class="lbl">Premier jour de la semaine</span>'+seg('weekStart',[[1,'Lundi'],[0,'Dimanche']],S.weekStart)+'</div>'+
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
+  '<div class="set-row"><span class="lbl">Panneau de droite (iPad paysage, ordinateur)</span>'+seg('side',[[1,'Afficher'],[0,'Masquer']],S.side===0?0:1)+'</div>'+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div></div>';
  h+=lookCard(seg);
  h+=sec('s-agenda','Mon agenda');
@@ -3729,7 +3732,7 @@ function openHelp(hist){
  h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
  h+=d('Envoyer vers le calendrier du téléphone','<ul><li>Dans <b>Réglages → Calendrier du téléphone → Choisir les événements à envoyer</b> : filtre par période ou catégorie, décoche ce que tu ne veux pas, puis touche <b>Envoyer</b>.</li><li>Le téléphone affiche alors sa page « Ajouter » : <b>c’est lui qui te laisse choisir le calendrier</b> (iCloud, Outlook…).</li><li>Dans la fiche d’un événement, <b>Au calendrier</b> envoie cet événement seul. Dans l’éditeur, le bouton « Me proposer de l’ajouter au calendrier du téléphone » le fait juste après l’enregistrement.</li><li>C’est un envoi, pas une synchronisation : après une modification, l’appli te propose « Mettre à jour » pour renvoyer l’événement. Cette proposition s’active ou se désactive dans <b>Réglages</b> (ou événement par événement dans l’éditeur).</li><li>Sur <b>Android</b>, le téléphone ouvre en général Google Agenda ou l’agenda Samsung pour confirmer l’ajout.</li><li>Sur <b>ordinateur</b>, « Au calendrier » propose : <b>Outlook.com</b> (hotmail, live), <b>Outlook travail/école</b>, <b>Google Agenda</b> (l’événement arrive déjà rempli, il suffit d’enregistrer) ou le <b>fichier .ics</b> pour Outlook installé, <b>iCloud</b> ou Apple (iCloud n’a pas de lien direct : sur Mac le .ics s’ouvre dans Calendrier, sur PC dans Outlook). Pour plusieurs événements d’un coup, utilise le .ics.</li></ul>');
  h+=d('Aller à l’adresse d’un rendez-vous','<ul><li>Quand un événement a un <b>lieu</b> (champ « Lieu »), ouvre-le (le jour même, ou n’importe quand) : la ligne du lieu est cliquable.</li><li>Touche-la : choisis <b>Plans</b> (Apple), <b>Google Maps</b> ou <b>Waze</b> ; l’appli choisie s’ouvre avec l’adresse prête. Tu peux aussi <b>copier l’adresse</b>.</li><li>Plus l’adresse est complète (numéro, rue, ville), plus le résultat est précis.</li></ul>');
- h+=d('Ordinateur, tablette et grand écran','<ul><li>L’affichage s’adapte à l’appareil : téléphone (onglets en bas), tablette et ordinateur (onglets à gauche, mini-calendrier et journée à droite, réglages sur deux colonnes), grand écran (texte et grilles agrandis).</li><li><b>Raccourcis clavier</b> sur ordinateur : flèches ← → (période précédente / suivante), <b>T</b> aujourd’hui, <b>J</b> jour, <b>S</b> semaine, <b>M</b> mois, <b>D</b> 2 semaines, <b>C</b> ou <b>/</b> chercher, <b>N</b> nouvel événement, <b>P</b> imprimer, <b>?</b> aide.</li></ul>');
+ h+=d('Ordinateur, tablette et grand écran','<ul><li><b>Panneau de droite</b> : sur iPad en paysage ou ordinateur, le mini-calendrier et la liste de la journée sont à droite. Pas besoin ? Réglages → Affichage → <b>Panneau de droite : Masquer</b> : le calendrier prend toute la largeur, et toucher un jour ouvre sa liste.</li><li>L’affichage s’adapte à l’appareil : téléphone (onglets en bas), tablette et ordinateur (onglets à gauche, mini-calendrier et journée à droite, réglages sur deux colonnes), grand écran (texte et grilles agrandis).</li><li><b>Raccourcis clavier</b> sur ordinateur : flèches ← → (période précédente / suivante), <b>T</b> aujourd’hui, <b>J</b> jour, <b>S</b> semaine, <b>M</b> mois, <b>D</b> 2 semaines, <b>C</b> ou <b>/</b> chercher, <b>N</b> nouvel événement, <b>P</b> imprimer, <b>?</b> aide.</li></ul>');
  h+=d('Imprimer','<ul><li>Touche l’icône <b>imprimante</b> en haut. Depuis Jour, Semaine, Mois ou 2 sem., elle imprime la vue affichée ; depuis les autres écrans, elle te demande <b>quoi imprimer</b>. <b>Une seule page</b> par impression.</li><li><b>Sur iPhone et iPad</b> : l’appli prépare un <b>PDF d’une page A4</b> ; touche « Imprimer / Partager le PDF », puis <b>Imprimer</b> dans le menu (ou Mail, Enregistrer dans Fichiers…). Sur ordinateur et Android, la fenêtre d’impression s’ouvre directement.</li><li>Le jour s’imprime en <b>portrait</b> (avec lieu et notes) ; la semaine, le mois et les 2 semaines en <b>paysage</b>, avec l’heure devant chaque rendez-vous.</li><li>Si une case est trop chargée, « +2 » indique les événements qui ne rentrent pas : passe alors par la vue Jour.</li><li>Sur <b>iPhone</b> : si rien ne s’ouvre, touche Partager puis « Imprimer », ou « Enregistrer dans Fichiers » pour faire un PDF.</li></ul>');
  h+=d('Ajouter à l’agenda du téléphone','<ul><li>Réglages → <b>Ajouter à mon agenda</b>. Sur <b>iPhone</b>, choisis « Calendrier » puis « Tout ajouter ». Sur <b>Android</b>, ouvre le fichier avec Google Agenda ou Outlook.</li><li>C’est un <b>envoi unique</b>, pas une synchronisation : refais-le après une modification (les événements déjà présents sont mis à jour par l’agenda, selon l’appli). L’intérêt : les rappels de l’agenda natif sont fiables, même appli fermée.</li></ul>');
  h+=d('Import et export .ics','<ul><li><b>Exporter</b> : crée un fichier .ics (calendrier standard) avec tes événements, leurs répétitions et leurs rappels. Les rotations sont exportées jour par jour (environ 14 mois).</li><li><b>Importer</b> : lis un fichier .ics venant de Google Agenda, Apple, Outlook… Les événements déjà présents ne sont pas dupliqués. Les fuseaux horaires sont lus comme heure locale.</li></ul>');
@@ -3950,7 +3953,7 @@ async function act(a,el,e){
   case 'newon':openEditor({date:ds_.date});break;
   case 'open':openDetail(getOcc(+ds_.o));break;
   case 'goday':closeSheet();V.date=ds_.date;V.view='day';render();break;
-  case 'selday':V.date=ds_.date;render();if((V.view==='fort'||V.view==='month'&&S.monthMode!=='dots')&&!isWide())openDaySheet(ds_.date);break;
+  case 'selday':V.date=ds_.date;render();if((V.view==='fort'||V.view==='month'&&S.monthMode!=='dots')&&(!isWide()||S.side===0))openDaySheet(ds_.date);break;
   case 'minimonth':V.date=addMonths(V.date,+ds_.n);render();break;
   case 'close':closeSheet();break;
   case 'edit':{const ev=findEv(CUR.id);if(ev)openEditor({ev,occDate:CUR.date});break}
