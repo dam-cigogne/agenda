@@ -20,6 +20,9 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
 - Apparence à ta couleur : couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge, dates plus lisibles
+- Réglages simples : sauvegarde en haut (partage direct vers « Fichiers » sur iPhone/Android), boutons compacts, options rares dans « Options complémentaires » (repliable)
+- Écran large : panneau latéral (mini-calendrier et journée) masquable pour agrandir le mois
+- Couleurs Outlook : couleur de chaque calendrier lue depuis Outlook, couleurs de catégories modifiables
 - Aide à l’adresse facultative (France, service public, désactivée par défaut) : adresses complètes proposées, ton texte gardé si elle est introuvable
 - Modèles d’événements (on ne change que la date) et garde alternée (un week-end ou une semaine sur 2, début et fin au choix)
 - Mode plein écran (œil), jour J mis en valeur, vue 2 semaines lisible (mots coupés avec tiret)
