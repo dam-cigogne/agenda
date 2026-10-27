@@ -465,6 +465,14 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .lk small{font-size:.65rem;color:var(--muted);text-transform:uppercase}.lk .n{font-weight:800;font-size:1.1rem}
 .lk.we{background-color:var(--wec,var(--surface))}.lk .n.hol{color:var(--danger)}.lk.today .n{color:var(--accent)}
 
+/* Aide à l'adresse */
+.adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
+.adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
+.adr-l button{display:flex;gap:.55rem;align-items:flex-start;text-align:left;padding:.6rem .6rem;border-radius:.6rem;color:var(--text);font-weight:600;min-height:2.6rem}
+.adr-l button:active,.adr-l button:hover{background:var(--accent-soft)}
+.adr-l button svg{flex:none;margin-top:.15rem;color:var(--accent)}
+.adr-on{display:inline-flex;gap:.4rem;align-items:center;color:var(--accent);font-weight:700;padding:.35rem .1rem}
+
 </style>
 </head>
 <body>
@@ -506,12 +514,16 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.14.0';
+const APP_VERSION='1.15.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.15.0',d:'27/10/2026',items:[
+  'Nouveau : aide à l’adresse (facultative, France). Dans « Lieu », après quelques lettres, l’appli propose des adresses complètes ; tu touches la bonne et c’est rempli. Si l’adresse est fausse ou introuvable, ton texte est gardé tel quel.',
+  'Désactivée par défaut et jamais envoyée sans ton accord : si tu l’actives, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale (gratuit, sans pub, sans compte). Désactivable dans Réglages.',
+  'Hors connexion ou hors de France : le champ reste libre, rien ne casse.']},
  {v:'1.14.0',d:'27/10/2026',items:[
   'Nouveau : Réglages → Apparence. Choisis la couleur de l’appli (8 couleurs ou la tienne), la teinte du fond (crème, bleuté, menthe, rose…), avec un aperçu immédiat. Fonctionne en clair et en sombre.',
   'Couleur des week-ends au choix (ou aucune), visible en Mois, Semaine, 2 semaines et Jour.',
@@ -699,7 +711,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -3162,6 +3174,33 @@ function lookCard(seg){
   '<button class="btn blk sm" data-act="look-reset">Remettre l’apparence par défaut</button></div>';
 }
 
+/* ---------- Aide à l'adresse (optionnelle) : Base Adresse Nationale, service de l'État ---------- */
+let ADR_T=null,ADR_AC=null,ADR_L=[];
+function adrBox(){let b=$('#f-adr');if(!b){const i=$('#f-place');if(!i)return null;b=document.createElement('div');b.id='f-adr';b.className='adr';i.parentNode.appendChild(b)}return b}
+function adrHint(){const b=adrBox();if(!b)return;if(S.adrAide){b.innerHTML='';return}b.innerHTML='<button type="button" class="adr-on" data-act="adr-on">'+ic('pin')+' Activer l’aide à l’adresse (France)</button>'}
+function adrClose(){ADR_L=[];const b=$('#f-adr');if(b)b.innerHTML=S.adrAide?'':b.innerHTML}
+function adrInput(t){
+ clearTimeout(ADR_T);if(ADR_AC){try{ADR_AC.abort()}catch(e){}}
+ if(!S.adrAide)return;
+ const q=t.value.trim(),b=adrBox();if(!b)return;
+ if(q.length<4){b.innerHTML='';return}
+ ADR_T=setTimeout(async()=>{
+  ADR_AC=window.AbortController?new AbortController():null;
+  try{
+   const r=await fetch('https://api-adresse.data.gouv.fr/search/?limit=5&autocomplete=1&q='+encodeURIComponent(q.slice(0,200)),ADR_AC?{signal:ADR_AC.signal}:{});
+   if(!r.ok)throw 0;const j=await r.json();
+   if(!$('#f-place')||$('#f-place').value.trim()!==q)return;
+   ADR_L=(j.features||[]).map(f=>f.properties.label).filter(Boolean);
+   b.innerHTML=ADR_L.length?'<div class="adr-l" role="listbox">'+ADR_L.map((l,i)=>'<button type="button" role="option" data-act="adr-pick" data-i="'+i+'">'+ic('pin')+'<span>'+esc(l)+'</span></button>').join('')+'<small class="mut">Source : Base Adresse Nationale (France). Tu peux aussi garder ton texte tel quel.</small></div>':'<small class="mut">Aucune adresse trouvée : ton texte est gardé tel quel.</small>';
+  }catch(e){if(e&&e.name==='AbortError')return;b.innerHTML='<small class="mut">Aide indisponible (hors connexion ?) : écris l’adresse à la main.</small>'}
+ },450);
+}
+function adrPick(i){const l=ADR_L[i];const inp=$('#f-place');if(!l||!inp)return;inp.value=l;ADR_L=[];const b=$('#f-adr');if(b)b.innerHTML='';inp.focus()}
+async function adrEnable(){
+ const r=await ask({title:'Aide à l’adresse',html:'<p style="margin:.3rem 0">Quand tu écris un lieu, l’appli propose des adresses en France.</p><p style="margin:.3rem 0"><b>Ce que tu tapes dans « Lieu » est alors envoyé au service public api-adresse.data.gouv.fr</b> (Base Adresse Nationale : gratuit, sans publicité, sans compte). Rien n’est envoyé ailleurs. Tu peux désactiver quand tu veux dans Réglages.</p>',btns:[{label:'Activer',value:'on',cls:'pri'},{label:'Non merci',value:null}]});
+ if(r==='on'){S.adrAide=true;saveSet();adrHint();toast('Aide à l’adresse activée');const i=$('#f-place');if(i&&i.value.trim().length>=4)adrInput(i)}
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -3279,7 +3318,7 @@ function openEditor(opt){
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-sd">Début</label><input class="in" type="date" id="f-sd" value="'+f.sd+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-st">Heure</label><input class="in" type="time" id="f-st" value="'+f.st+'"></div></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-ed">Fin</label><input class="in" type="date" id="f-ed" value="'+f.ed+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-et">Heure</label><input class="in" type="time" id="f-et" value="'+f.et+'"></div></div>';
  h+='<div class="chips timeonly'+(f.allDay?' hide':'')+'">'+[[30,'30 min'],[60,'1 h'],[120,'2 h'],[240,'4 h'],[480,'8 h']].map(d=>'<button type="button" class="chip" data-act="dur" data-m="'+d[0]+'">'+d[1]+'</button>').join('')+'</div>';
- h+='<div class="fld"><label class="lbl" for="f-place">Lieu</label><input class="in" id="f-place" value="'+esc(f.place)+'" placeholder="Adresse, salle…" autocomplete="off"></div>';
+ h+='<div class="fld"><label class="lbl" for="f-place">Lieu</label><input class="in" id="f-place" value="'+esc(f.place)+'" placeholder="Adresse, salle…" autocomplete="off"><div id="f-adr" class="adr"></div></div>';
  h+='<div class="fld"><label class="lbl" for="f-note">Note</label><textarea class="in" id="f-note" placeholder="Détails…">'+esc(f.note)+'</textarea></div>';
  h+='<div class="fld"><label class="lbl" for="f-rec">Répétition</label>'+sel('f-rec',[['none','Jamais'],['daily','Tous les jours'],['weekly','Toutes les semaines'],['monthly','Tous les mois'],['yearly','Tous les ans'],['cycle','Rotation simple (travail / repos)']],rtype)+
   '<div class="sub'+(rtype==='none'?' hide':'')+'" id="f-recbox">'+
@@ -3293,6 +3332,7 @@ function openEditor(opt){
  if(ev)h+='<button class="btn dng blk" data-act="delfromedit">'+ic('trash')+' Supprimer</button>';
  openSheet(h,'full');
  recUI();
+ adrHint();
  if(!ev)setTimeout(()=>{const t=$('#f-title');t&&t.focus()},120);
 }
 function recUI(){
@@ -3404,6 +3444,7 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Premier jour de la semaine</span>'+seg('weekStart',[[1,'Lundi'],[0,'Dimanche']],S.weekStart)+'</div>'+
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div></div>';
+ h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
@@ -3453,6 +3494,7 @@ function openHelp(hist){
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Appli seulement</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
+ h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
  h+=d('Plein écran (œil)','<ul><li>Touche l’<b>œil</b> en haut : les boutons du haut et du bas disparaissent et le calendrier occupe tout l’écran.</li><li>Pour revenir, touche l’<b>œil barré</b> en haut à droite (ou la touche Échap sur ordinateur).</li><li>Glisser à gauche ou à droite change de mois/semaine/jour.</li></ul>');
  h+=d('Choisir un emoji','<ul><li>Dans l’éditeur d’un événement, touche <b>＋ Plus…</b> : catégories, recherche par mot (« dentiste », « avion »…) et tes emojis récents.</li><li>Tu peux aussi taper ou coller un emoji de ton clavier dans le champ.</li><li><b>Réglages → Catégories</b> : le bouton à côté du nom fixe l’emoji par défaut de la catégorie.</li></ul>');
  h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
@@ -3697,6 +3739,8 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
+  case 'adr-on':adrEnable();break;
+  case 'adr-pick':adrPick(+el.dataset.i);break;
   case 'look-reset':S.acc='';S.bgk='';S.weCol='';S.holi=1;S.dsty='normal';saveSet();setTheme();render();toast('Apparence par défaut');break;
   case 'addcat':S.cats.push({id:'c'+uid(),name:'Nouvelle catégorie',color:'#0ea5e9'});saveSet();render();break;
   case 'delcat':{
@@ -3787,6 +3831,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
+ if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
@@ -3796,6 +3841,7 @@ document.addEventListener('change',e=>{
 document.addEventListener('input',e=>{
  const t=e.target;
  if(t.id==='sel-q'){SEL.q=t.value;selRefilter();return}
+ if(t.id==='f-place'){adrInput(t);return}
  if(t.id==='q'){SQ=t.value;const r=$('#sres');if(r)r.innerHTML=searchResults(SQ);return}
  if(t.dataset.cat!=null&&t.dataset.field==='name'){S.cats[+t.dataset.cat].name=t.value.slice(0,30)||'Sans nom';saveSet()}
 });
