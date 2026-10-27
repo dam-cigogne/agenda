@@ -374,6 +374,12 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .ficheview{display:block;width:100%;max-height:58vh;object-fit:contain;border-radius:.7rem;background:var(--surface2);margin:.3rem 0}
 .dlgbox a.btn{color:var(--text,inherit);display:flex;align-items:center;justify-content:center;text-decoration:none}
 
+.sect{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:1.4rem .25rem .5rem;scroll-margin-top:.5rem}
+.jump{display:flex;gap:.45rem;overflow-x:auto;padding:.1rem .25rem .2rem;margin:0 0 .2rem}
+.jump .chip{flex:0 0 auto}
+details.dev summary{cursor:pointer;padding:.1rem 0}
+details.dev[open] summary{margin-bottom:.5rem}
+
 </style>
 </head>
 <body>
@@ -412,12 +418,18 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.8.1';
+const APP_VERSION='1.9.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.9.0',d:'27/10/2026',items:[
+  'Réglages réorganisés par thèmes : Mon agenda, Affichage et rappels, Calendriers, Mes données, Aide et partage, À propos (avec des raccourcis en haut)',
+  'À l’ouverture après une mise à jour, une fenêtre « Nouveautés » résume ce qui a changé',
+  'Historique : les 5 dernières versions dans l’aide ; tout l’historique depuis le début dans Réglages → Outils développeur',
+  'Outils développeur : bouton « Forcer la mise à jour » (recharge l’appli sans toucher à tes événements)'
+ ]},
  {v:'1.8.1',d:'27/10/2026',items:[
   'Envoi au calendrier du téléphone : le téléphone affiche maintenant directement sa page « Ajouter » avec le choix du calendrier (iCloud, Outlook…), pour un événement, une sélection ou tout',
   'Réglages : nouvelle carte « Calendrier du téléphone » en haut (option de proposition + choix des événements à envoyer), juste sous les rotations de travail'
@@ -439,9 +451,7 @@ const CHANGELOG=[
  ]},
  {v:'1.5.0',d:'27/10/2026',items:[
   'Impression d’une page pour chaque vue : Jour (portrait), Semaine, Mois et 2 semaines (paysage A4) — plus de page en trop',
-  'La semaine s’imprime en colonnes (un jour par colonne) avec les heures devant chaque rendez-vous'
- ]},
- {v:'1.5.0',d:'27/10/2026',items:[
+  'La semaine s’imprime en colonnes (un jour par colonne) avec les heures devant chaque rendez-vous',
   'Impression : icône imprimante en haut pour imprimer le jour (détaillé), la semaine, le mois ou les 2 semaines, avec tous les événements',
   'Raccourci « 2 semaines » ajouté sur l’icône de l’appli (appui long sur Android)'
  ]},
@@ -528,7 +538,7 @@ const DEF_CATS=[
 const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
-let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0},ls.get(K.meta,{}));
+let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
 let EV=[];
 let demo=false;
 const saveSet=()=>ls.set(K.set,S);
@@ -1585,6 +1595,47 @@ async function openMap(p){
  if(r==='copy')ficheCopy(p,'Adresse copiée');
 }
 
+/* ---------- Réglages : sections, raccourcis, outils développeur ---------- */
+const sec=(id,t)=>'<h2 class="sect" id="'+id+'">'+esc(t)+'</h2>';
+function settingsJump(){
+ const J=[['s-agenda','Horaires'],['s-aff','Affichage'],['s-cal','Calendriers'],['s-data','Données'],['s-aide','Aide']];
+ return '<div class="jump">'+J.map(j=>'<button type="button" class="chip" data-act="jump" data-t="'+j[0]+'">'+j[1]+'</button>').join('')+'</div>';
+}
+function devCard(){
+ return '<details class="card dev"><summary><b>Outils développeur</b></summary>'+
+  '<p class="mut">Pour les curieux et pour dépanner. Rien ici ne touche à tes événements.</p>'+
+  '<button class="btn blk" data-act="hist-all">Historique complet depuis le début ('+CHANGELOG.length+' versions)</button>'+
+  '<button class="btn blk" data-act="force-update">Forcer la mise à jour de l’appli</button>'+
+  '<p class="mut" style="margin:.2rem 0 0;font-size:.85rem">Version '+APP_VERSION+' · cache « agd-cache-v'+APP_VERSION+' »</p></details>';
+}
+const histHTML=list=>list.map(c=>'<div class="ver"><b>Version '+esc(c.v)+' · '+esc(c.d)+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('');
+function openHistory(all){
+ const list=all?CHANGELOG:CHANGELOG.slice(0,5);
+ let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">'+(all?'Historique complet':'Dernières mises à jour')+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<p class="mut" style="margin:.2rem 0 .6rem">'+(all?'Toutes les versions depuis le début ('+list.length+').':'Les 5 dernières versions. Tout l’historique : Réglages → Outils développeur.')+'</p>'+histHTML(list);
+ if(!all)h+='<button class="btn blk" data-act="hist-all">Voir tout l’historique</button>';
+ openSheet(h,'full');
+}
+function whatsNew(){
+ const prev=META.ver||'';
+ const i=CHANGELOG.findIndex(c=>c.v===prev);
+ const list=i>0?CHANGELOG.slice(0,Math.min(i,3)):CHANGELOG.slice(0,1);
+ META.ver=APP_VERSION;saveMeta();
+ let h='<div class="sh-h"><b style="font-size:1.25rem;color:var(--text)">Nouveautés</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<p style="margin:.2rem 0 .6rem">AgenDam vient d’être mis à jour : <b>version '+esc(APP_VERSION)+'</b>.</p>'+histHTML(list);
+ h+='<div class="btns"><button class="btn pri grow" data-act="wn-ok">OK, compris</button><button class="btn" data-act="hist">Tout l’historique</button></div>';
+ openSheet(h,'full');
+}
+async function forceUpdate(){
+ const r=await ask({title:'Forcer la mise à jour',text:'L’appli va se recharger depuis internet pour récupérer la dernière version. Tes événements et réglages ne sont pas touchés.',btns:[{label:'Mettre à jour',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ try{
+  if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();for(const x of rs)await x.unregister()}
+  if(window.caches){const ks=await caches.keys();for(const k of ks)if(k.startsWith('agd-'))await caches.delete(k)}
+ }catch(e){}
+ location.reload();
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -1803,7 +1854,11 @@ function settingsView(){
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  const perm=('Notification' in window)?Notification.permission:'indisponible';
  let h='';
- h+=guideCard()+rotCard()+phoneCard();
+ h+=settingsJump();
+ h+=sec('s-agenda','Mon agenda')+rotCard();
+ h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
+  '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
+ h+=sec('s-aff','Affichage et rappels');
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
@@ -1820,25 +1875,27 @@ function settingsView(){
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
    :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
   '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
- h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
-  '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
+ h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
+ h+=msCard();
+h+='<div class="card" id="ics-card">'+
+'<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
+  '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
+  '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
+ h+=sec('s-data','Mes données');
  h+='<div class="card" id="data-card"><h3>Sauvegarde et plusieurs appareils</h3>'+
   '<div class="warn"><b>⚠️ Les appareils ne se synchronisent PAS tout seuls.</b>Tes événements restent sur chaque appareil. Pour retrouver ton agenda sur un autre téléphone :<ol><li>Sur le premier appareil : <b>Sauvegarder</b> (fichier « '+BACKUP_FILE+' »).</li><li>Envoie ce fichier à l’autre appareil (mail, AirDrop, messagerie, cloud…).</li><li>Sur l’autre appareil : <b>Restaurer</b>.</li></ol>Refais-le après chaque grosse modification. Les deux agendas ne se fusionnent jamais d’eux-mêmes.</div>'+
   '<p class="mut">'+(META.lastBackup?'Dernière sauvegarde : '+fmtDate(META.lastBackup):'Aucune sauvegarde pour le moment.')+'</p>'+
   '<button class="btn pri blk" data-act="bk-save">'+ic('down')+' Sauvegarder (.json)</button>'+
   (canShareFiles()?'<button class="btn blk" data-act="bk-share">'+ic('share')+' Envoyer la sauvegarde…</button>':'')+
-  '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer une sauvegarde</button>'+
-  '<h3 style="margin-top:1.2rem">Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
-  '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
-  '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
- h+=msCard();
- h+=installCard()+ficheCard();
+  '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer une sauvegarde</button></div>';
+ h+=sec('s-aide','Aide et partage')+guideCard()+installCard()+ficheCard();
  h+='<div class="card"><h3>Démo et aide</h3>'+
   (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
   '<button class="btn blk" data-act="help">'+ic('help')+' Mode d’emploi et historique</button>'+
   (installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
  h+='<div class="card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
-  '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div><div style="height:2rem"></div>';
+  '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
+ h+=devCard()+'<div style="height:2rem"></div>';
  return{html:h,fixed:false};
 }
 
@@ -1862,7 +1919,7 @@ function openHelp(hist){
  h+=d('Import et export .ics','<ul><li><b>Exporter</b> : crée un fichier .ics (calendrier standard) avec tes événements, leurs répétitions et leurs rappels. Les rotations sont exportées jour par jour (environ 14 mois).</li><li><b>Importer</b> : lis un fichier .ics venant de Google Agenda, Apple, Outlook… Les événements déjà présents ne sont pas dupliqués. Les fuseaux horaires sont lus comme heure locale.</li></ul>');
  h+=d('Installer sur iPhone ou Android','<p><b>iPhone (Safari)</b> : ouvre le lien dans <b>Safari</b> → bouton Partager (carré avec flèche) → <b>Sur l’écran d’accueil</b> → Ajouter.</p><p><b>Android (Chrome)</b> : ouvre le lien → menu ⋮ → <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</p><p>Une fois installée, l’appli fonctionne <b>sans connexion</b>.</p>');
  h+=d('Confidentialité et stockage','<ul><li>Aucun compte, aucun serveur, aucune publicité, aucune statistique : tes données restent sur l’appareil.</li><li>Sur iPhone, Safari peut effacer les données d’un site non installé après environ 7 jours sans visite. <b>Installe l’appli sur l’écran d’accueil et sauvegarde</b> pour ne rien perdre.</li></ul>');
- h+='<details id="hist"'+(hist?' open':'')+'><summary>Historique des versions</summary>'+CHANGELOG.map(c=>'<div class="ver"><b>Version '+c.v+' · '+c.d+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('')+'</details>';
+ h+='<details id="hist"'+(hist?' open':'')+'><summary>Historique des 5 dernières versions</summary>'+CHANGELOG.slice(0,5).map(c=>'<div class="ver"><b>Version '+c.v+' · '+c.d+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('')+'<p class="mut">Tout l’historique depuis le début : Réglages → Outils développeur.</p></details>';
  h+='<p class="mut" style="margin-top:1rem">AgenDam · version '+APP_VERSION+'</p>';
  openSheet(h,'full');
  if(hist){const x=$('#hist');if(x)x.scrollIntoView()}
@@ -2020,7 +2077,11 @@ async function act(a,el,e){
   case 'today':V.date=today();render();break;
   case 'view':go(ds_.v);break;
   case 'help':openHelp();break;
-  case 'hist':openHelp(true);break;
+  case 'hist':openHistory(false);break;
+  case 'hist-all':openHistory(true);break;
+  case 'wn-ok':closeSheet();if(S.remind&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
+  case 'force-update':forceUpdate();break;
+  case 'jump':{const x=document.getElementById(el.dataset.t);if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'fiche-share':ficheShare();break;
   case 'fiche-view':window.open(ficheBase()+'presentation.html','_blank');break;
   case 'fiche-copy':ficheCopy(ficheBase());break;
@@ -2183,7 +2244,8 @@ async function init(){
  registerSW();
  setInterval(tick,30000);tick();
  if(!demo){
-  if(!META.seen&&!EV.length)setTimeout(welcome,300);
+  if(!META.seen&&!EV.length){setTimeout(welcome,300);META.ver=APP_VERSION;saveMeta()}
+  else if(META.ver!==APP_VERSION)setTimeout(()=>{if(!SHEET_OPEN)whatsNew()},400);
   else if(S.remind)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},500);
  }
 }
