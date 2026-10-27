@@ -422,6 +422,9 @@ details.dev[open] summary{margin-bottom:.5rem}
 details.msd summary{display:flex;flex-wrap:wrap;gap:.2rem .5rem;align-items:baseline}
 details.msd .mut{font-size:.85rem}
 
+/* bandeau étroit : titre sur plusieurs lignes */
+.mband.wn{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--wl,2);overflow-wrap:anywhere;line-height:1.25;padding-top:.06rem;padding-bottom:.06rem}
+
 </style>
 </head>
 <body>
@@ -461,12 +464,16 @@ details.msd .mut{font-size:.85rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.12.2';
+const APP_VERSION='1.12.3';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.12.3',d:'27/10/2026',items:[
+  'Vue Mois : le titre d’un événement « journée entière » d’un seul jour est maintenant lisible en entier : il passe sur 2 ou 3 lignes, et quand la case est trop petite l’emoji s’efface pour laisser la place au titre (« pêche » au lieu de « 👨👩… »)',
+  'Les emojis composés (famille, drapeaux…) ne sont plus coupés en deux'
+ ]},
  {v:'1.12.2',d:'27/10/2026',items:[
   'Imports Outlook et Excel/CSV : une vraie page liste tous les événements (date, heure, lieu, calendrier) avec une case à cocher chacun, une recherche, « Tout cocher / Tout décocher » et le nombre choisi avant d’importer'
  ]},
@@ -619,11 +626,17 @@ const catOf=id=>S.cats.find(c=>c.id===id)||S.cats[S.cats.length-1];
 
 /* ---------- Événements ---------- */
 const RX_D=/^\d{4}-\d{2}-\d{2}$/,RX_T=/^\d{2}:\d{2}$/;
+/* un emoji = un « graphème » (les emojis famille, drapeaux… sont faits de plusieurs signes : on ne les coupe plus) */
+function iconClean(v){
+ const s=String(v||'');if(!s)return '';
+ try{if(window.Intl&&Intl.Segmenter)return Array.from(new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(s)).slice(0,2).map(g=>g.segment).join('')}catch(e){}
+ return Array.from(s).slice(0,12).join('');
+}
 function cleanEvent(x){
  if(!x||typeof x!=='object')return null;
  const ev={id:String(x.id||uid()),title:String(x.title||'Sans titre').slice(0,200),allDay:!!x.allDay,start:x.start,end:x.end||x.start,
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
-  cat:String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:Array.from(String(x.icon||'')).slice(0,4).join(''),rec:null,ex:[],alarm:null};
+  cat:String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),rec:null,ex:[],alarm:null};
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
  if(!RX_T.test(ev.startTime))ev.startTime='09:00';
@@ -1099,9 +1112,30 @@ function monthViewTitles(fort,pr){
   const lanes=[];
   bands.forEach(b=>{let i=0;while(lanes[i]!==undefined&&lanes[i]>=b.c0)i++;lanes[i]=b.c1;b.lane=i});
   const anyT=timed.some(a=>a.length);
-  const capB=Math.max(1,Math.floor((avail-(anyT?tlH*2:0))/bandH));
-  const vis=Math.min(lanes.length,capB),hid=Array(7).fill(0);
-  const room=Math.max(0,avail-vis*bandH);
+  /* bandeaux d'une seule colonne (étroits) : le titre passe sur 2-3 lignes au lieu d'être coupé */
+  const cw=pr?(big?96:70):(((($('#main')||{}).clientWidth)||390)-fs*1.5)/7;
+  const bfs=pr?(big?14:11):fs*(fort?(tab?0.82:0.82):(tab?0.8:0.7));
+  const cpl=Math.max(4,Math.floor((cw-bfs*0.6)/(bfs*0.56)));
+  const budget=avail-(anyT?tlH*2:0);
+  /* on essaie d'abord icône + titre sur 3 puis 2 lignes, puis titre seul ; on garde la 1re option qui montre tous les événements */
+  let best=null;
+  for(const [withIcon,cap] of [[true,3],[true,2],[false,2],[false,1]]){
+   const lh=lanes.map(()=>1);
+   const wls=bands.map(b=>{
+    if(b.c0!==b.c1)return 1;
+    const n=Array.from(b.o.ev.title).length+(withIcon&&b.o.ev.icon?2:0);
+    const w=n>cpl?Math.min(cap,Math.ceil(n/cpl)):1;
+    if(w>lh[b.lane])lh[b.lane]=w;return w;
+   });
+   let vis_=0,used_=0;
+   while(vis_<lanes.length&&(vis_===0||used_+lh[vis_]*bandH<=budget)){used_+=lh[vis_]*bandH;vis_++}
+   if(!best||vis_>best.vis)best={vis:vis_,used:used_,wls,noIcon:!withIcon};
+   if(vis_===lanes.length)break;
+  }
+  bands.forEach((b,k)=>{b.wl=best.wls[k]});
+  const vis=best.vis,used=best.used;
+  const hid=Array(7).fill(0);
+  const room=Math.max(0,avail-used);
   let fg='';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
@@ -1110,7 +1144,7 @@ function monthViewTitles(fort,pr){
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
    const o=b.o,col=catOf(o.ev.cat).color;
-   fg+='<i class="mband'+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+'">'+evT(o.ev)+'</i>';
+   fg+='<i class="mband'+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(b.wl>1?';--wl:'+b.wl:'')+'">'+(best.noIcon&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
   });
   timed.forEach((arr,c)=>{
    if(!arr.length)return;
@@ -2199,7 +2233,7 @@ function openEditor(opt){
  const sel=(id,opts,v)=>'<select class="in" id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'"'+(String(o[0])===String(v)?' selected':'')+'>'+o[1]+'</option>').join('')+'</select>';
  let h='<div class="sh-h"><b style="font-size:1.1rem;color:var(--text)">'+(ev?'Modifier l’événement':'Nouvel événement')+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
- h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="8" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'</div></div></div>';
+ h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'</div></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'</div></div>';
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-sd">Début</label><input class="in" type="date" id="f-sd" value="'+f.sd+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-st">Heure</label><input class="in" type="time" id="f-st" value="'+f.st+'"></div></div>';
@@ -2241,7 +2275,7 @@ function readForm(){
  }
  const cat=($('#f-cats .chip.on')||{dataset:{}}).dataset.id||S.cats[0].id;
  return{title:g('f-title').value.trim()||'Sans titre',allDay,start:g('f-sd').value,end:g('f-ed').value,startTime:g('f-st').value||'09:00',endTime:g('f-et').value||'10:00',
-  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:Array.from(g('f-icon').value.trim()).slice(0,4).join(''),rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
+  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
 }
 async function saveEditor(){
  const b=readForm();
