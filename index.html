@@ -449,6 +449,22 @@ body.focus #body{padding-top:calc(env(safe-area-inset-top,0px) + 3.1rem)}
 .mband{align-self:start}
 @media(max-width:699px){.mo2 .mband.wn{font-size:.62rem;padding-left:.15rem;padding-right:.1rem}}
 
+/* Apparence */
+.bgc.we:not(.today):not(.out),.tg-col.we:not(.today),.wd.we:not(.today),.mc.we:not(.today):not(.sel){background-color:var(--wec)}
+.bgc.hol:not(.today):not(.out),.tg-col.hol:not(.today),.wd.hol:not(.today),.mc.hol:not(.today):not(.sel){background-color:var(--holc)}
+.mn.hol:not(.today),.mc.hol .n,.dh.hol b,.wd.hol .wd-n{color:var(--danger)}
+html.dst-big .mn{font-size:1rem}html.dst-big .mc .n{font-size:1.05rem}html.dst-big .dh b{font-size:1.5rem}html.dst-big .wd-n{font-size:1.9rem}
+html.dst-circle .mn:not(.today){background:var(--surface2);border-radius:999px}
+html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999px;padding:0 .35rem}
+.lk-sw{display:flex;flex-wrap:wrap;gap:.5rem;margin:.35rem 0 .8rem}
+.lk-c{width:2.2rem;height:2.2rem;border-radius:50%;border:2px solid var(--line);background:var(--c,var(--accent));display:grid;place-items:center;color:var(--muted);font-size:1rem;cursor:pointer;position:relative;padding:0}
+.lk-c.on{outline:3px solid var(--accent);outline-offset:2px}
+.lk-c.cust{background:var(--surface2);overflow:hidden}.lk-c.cust input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.lk-prev{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:.4rem 0 .9rem}
+.lk{display:flex;flex-direction:column;align-items:center;padding:.4rem 0;border-radius:10px;background:var(--surface);border:1px solid var(--line2)}
+.lk small{font-size:.65rem;color:var(--muted);text-transform:uppercase}.lk .n{font-weight:800;font-size:1.1rem}
+.lk.we{background-color:var(--wec,var(--surface))}.lk .n.hol{color:var(--danger)}.lk.today .n{color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -490,12 +506,18 @@ body.focus #body{padding-top:calc(env(safe-area-inset-top,0px) + 3.1rem)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.13.8';
+const APP_VERSION='1.14.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.14.0',d:'27/10/2026',items:[
+  'Nouveau : Réglages → Apparence. Choisis la couleur de l’appli (8 couleurs ou la tienne), la teinte du fond (crème, bleuté, menthe, rose…), avec un aperçu immédiat. Fonctionne en clair et en sombre.',
+  'Couleur des week-ends au choix (ou aucune), visible en Mois, Semaine, 2 semaines et Jour.',
+  'Jours fériés français en rouge (Pâques, Ascension, Pentecôte inclus, calculés automatiquement) : option à activer ou non.',
+  'Numéros des dates plus lisibles : Normal, Gros ou Dans un rond.',
+  'Bouton pour remettre l’apparence par défaut.']},
  {v:'1.13.8',d:'27/10/2026',items:[
   'Vue 2 semaines (téléphone) : texte un peu plus petit et jusqu’à 6 lignes par événement, les mots longs se coupent proprement avec un tiret (« anniver-saire ») au lieu d’être hachés en morceaux',
   'Vue Mois : les titres d’un seul jour se lisent mieux (police ajustée, icône retirée quand elle prend la place du texte) et les barres sur plusieurs jours ne s’étirent plus',
@@ -677,7 +699,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -1020,6 +1042,7 @@ function setTheme(){
  document.documentElement.setAttribute('data-theme',t?'dark':'light');
  document.documentElement.style.setProperty('--scale',S.scale);
  const m=$('meta[name=theme-color]');if(m)m.content=t?'#161b22':'#2f5bea';
+ applyLook(t);
 }
 
 /* ---------- Titres ---------- */
@@ -1070,7 +1093,7 @@ function gridHTML(days,hh,opts){
  let h='<div class="tg-wrap" id="tgw"><div class="tg'+(cols>1?' wk':'')+'" style="--cols:'+cols+';--hh:'+hh+'px;'+(opts.min?'--tgmin:'+opts.min+'px;':'')+'">';
  h+='<div class="tg-top">';
  if(cols>1){
-  h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b></button>').join('')+'</div>';
+  h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+dayCls(d)+'" title="'+esc(holName(d))+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b></button>').join('')+'</div>';
  }
  if(anyAd){
   h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip" style="--c:'+catOf(o.ev.cat).color+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
@@ -1079,7 +1102,7 @@ function gridHTML(days,hh,opts){
  h+='<div class="tg-body"><div class="tg-hours">'+Array.from({length:23},(_,i)=>'<span style="top:calc(var(--hh)*'+(i+1)+')">'+pad(i+1)+':00</span>').join('')+'</div>';
  days.forEach((d,i)=>{
   const items=layout(per[i].ts.map(x=>({o:x.o,s:x.s,e:x.e})));
-  h+='<div class="tg-col'+(d===t?' today':'')+'" data-date="'+d+'">';
+  h+='<div class="tg-col'+(d===t?' today':'')+dayCls(d)+'" data-date="'+d+'">';
   for(const it of items){
    const o=it.o,ev=o.ev,dur=it.e-it.s,sm=dur<=50||(cols>1&&dur<=60);
    const top=it.s/1440*100,ht=Math.max(dur,20)/1440*100,w=100/it.cols,l=it.col*w;
@@ -1120,7 +1143,7 @@ function weekView(){
  let h='<div class="wl">';
  for(const d of days){
   const rows=dayRows(d,list);
-  h+='<section class="wd'+(d===t?' today':'')+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||'<p class="empty">Rien de prévu</p>')+'</section>';
+  h+='<section class="wd'+(d===t?' today':'')+dayCls(d)+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||'<p class="empty">Rien de prévu</p>')+'</section>';
  }
  return{html:h+'</div>',fixed:false};
 }
@@ -1143,7 +1166,7 @@ function monthViewDots(){
   const all=[...ad,...ts.map(x=>x.o)];
   const shown=all.slice(0,4),more=all.length-shown.length;
   const wk=[0,6].includes(dow(d));
-  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+(wk?' we':'')+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+catOf(o.ev.cat).color+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
+  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+catOf(o.ev.cat).color+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
  }
  h+='</div></div>'+dayListHTML(V.date,{inMain:true,openBtn:true});
  return{html:h,fixed:false};
@@ -1213,7 +1236,7 @@ function monthViewTitles(fort,pr){
   let fg='';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
-   fg+='<b class="mn'+(d===t?' today':'')+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" style="grid-row:1;grid-column:'+(c+2)+'">'+(fort&&(pd(d).getDate()===1||(w===0&&c===0))?'<small>'+MS[pd(d).getMonth()]+'</small> ':'')+pd(d).getDate()+'</b>';
+   fg+='<b class="mn'+(d===t?' today':'')+dayCls(d)+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" style="grid-row:1;grid-column:'+(c+2)+'">'+(fort&&(pd(d).getDate()===1||(w===0&&c===0))?'<small>'+MS[pd(d).getMonth()]+'</small> ':'')+pd(d).getDate()+'</b>';
   }
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
@@ -1235,7 +1258,7 @@ function monthViewTitles(fort,pr){
   let bg='<span class="wn">'+wk+'</span>';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
-   bg+='<button class="bgc'+(d===t?' today':'')+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" data-act="selday" data-date="'+d+'" aria-label="'+fLong(d)+'"></button>';
+   bg+='<button class="bgc'+(d===t?' today':'')+dayCls(d)+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" data-act="selday" data-date="'+d+'" aria-label="'+fLong(d)+'"></button>';
   }
   h+='<div class="mw"><div class="mw-bg">'+bg+'</div><div class="mw-fg">'+fg+'</div></div>';
  }
@@ -3082,6 +3105,63 @@ function pickEmoji(cur){
  });
 }
 
+/* ---------- Apparence : couleur de l'appli, fond, week-ends, jours fériés, style des dates ---------- */
+const LK_ACC=[['#2f5bea','Bleu'],['#0d9488','Turquoise'],['#16a34a','Vert'],['#7c3aed','Violet'],['#db2777','Rose'],['#ea580c','Orange'],['#dc2626','Rouge'],['#475569','Graphite']];
+const LK_BG=[['','Standard','',''],['creme','Crème','#faf6ee','#17130c'],['bleute','Bleuté','#eef3fb','#0b1220'],['menthe','Menthe','#eef7f1','#0c1511'],['rose','Rose','#fbeff3','#1a0f15'],['lavande','Lavande','#f3effb','#130f1c'],['ardoise','Ardoise','#eceff3','#10151c']];
+const LK_WE=[['','Aucune'],['#94a3b8','Gris'],['#60a5fa','Bleu'],['#fbbf24','Jaune'],['#f472b6','Rose'],['#4ade80','Vert'],['#a78bfa','Violet']];
+const lkRgb=h=>{h=String(h||'').replace('#','');if(h.length===3)h=h.replace(/./g,'$&$&');const n=parseInt(h,16);return isNaN(n)||h.length!==6?[0,0,0]:[n>>16&255,n>>8&255,n&255]};
+const lkHex=r=>'#'+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const lkMix=(a,b,t)=>{const x=lkRgb(a),y=lkRgb(b);return lkHex(x.map((v,i)=>v*(1-t)+y[i]*t))};
+const lkLum=h=>{const [r,g,b]=lkRgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+const lkA=(h,a)=>'rgba('+lkRgb(h).join(',')+','+a+')';
+function applyLook(dark){
+ const st=document.documentElement.style,cl=document.documentElement.classList;
+ const P=['--accent','--on-accent','--accent-soft','--todaybg','--todayc','--bg','--surface','--surface2','--line','--line2','--wec','--holc'];
+ P.forEach(p=>st.removeProperty(p));
+ if(S.acc){const c=dark?lkMix(S.acc,'#ffffff',.35):S.acc;
+  st.setProperty('--accent',c);st.setProperty('--on-accent',lkLum(c)>.5?'#0b1020':'#ffffff');
+  st.setProperty('--accent-soft',lkA(c,dark?.16:.10));st.setProperty('--todaybg',lkA(c,dark?.13:.09));st.setProperty('--todayc',lkA(c,dark?.24:.16));}
+ const bg=LK_BG.find(x=>x[0]===S.bgk);
+ if(bg&&bg[0]){const b=dark?bg[3]:bg[2];
+  st.setProperty('--bg',b);
+  st.setProperty('--surface',dark?lkMix(b,'#ffffff',.05):lkMix(b,'#ffffff',.6));
+  st.setProperty('--surface2',dark?lkMix(b,'#ffffff',.10):lkMix(b,'#000000',.05));
+  st.setProperty('--line',dark?lkMix(b,'#ffffff',.14):lkMix(b,'#000000',.10));
+  st.setProperty('--line2',dark?lkMix(b,'#ffffff',.08):lkMix(b,'#000000',.06));}
+ if(S.weCol)st.setProperty('--wec',lkA(S.weCol,dark?.24:.18));
+ st.setProperty('--holc',lkA(dark?'#ff6b5f':'#d92d20',dark?.16:.09));
+ cl.toggle('dst-big',S.dsty==='big');cl.toggle('dst-circle',S.dsty==='circle');
+ const m=$('meta[name=theme-color]');if(m)m.content=dark?(S.bgk&&bg?bg[3]:'#161b22'):(S.acc||'#2f5bea');
+}
+/* jours fériés français (fixes + Pâques, Ascension, Pentecôte) */
+const HOL_CACHE={};
+function holidaysOf(y){
+ if(HOL_CACHE[y])return HOL_CACHE[y];
+ const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+ const mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+ const easter=new Date(y,mo-1,da);const P=n=>ds(new Date(y,mo-1,da+n));
+ const o={};const fx=(mm,dd,n)=>{o[y+'-'+pad(mm)+'-'+pad(dd)]=n};
+ fx(1,1,'Jour de l’an');fx(5,1,'Fête du Travail');fx(5,8,'Victoire 1945');fx(7,14,'Fête nationale');fx(8,15,'Assomption');fx(11,1,'Toussaint');fx(11,11,'Armistice');fx(12,25,'Noël');
+ o[P(0)]='Pâques';o[P(1)]='Lundi de Pâques';o[P(39)]='Ascension';o[P(49)]='Pentecôte';o[P(50)]='Lundi de Pentecôte';
+ return HOL_CACHE[y]=o;
+}
+const holName=d=>holidaysOf(+d.slice(0,4))[d]||'';
+const isHoliday=d=>!!holName(d);
+function dayCls(d){let c='';const w=dow(d);if(w===0||w===6)c+=' we';if(S.holi&&isHoliday(d))c+=' hol';return c}
+function lookCard(seg){
+ const sw=(k,list,cur)=>'<div class="lk-sw">'+list.map(x=>'<button type="button" class="lk-c'+((cur||'')===x[0]?' on':'')+'" data-act="set" data-k="'+k+'" data-v="'+x[0]+'" style="--c:'+(x[0]||(k==='acc'?LK_ACC[0][0]:'transparent'))+'" title="'+esc(x[1])+'" aria-label="'+esc(x[1])+'">'+(x[0]||k==='acc'?'':'∅')+'</button>').join('')+'<label class="lk-c cust" title="Autre couleur" aria-label="Autre couleur">＋<input type="color" data-look="'+k+'" value="'+(cur||'#2f5bea')+'"></label></div>';
+ const bgs='<div class="chips">'+LK_BG.map(x=>'<button type="button" class="chip'+((S.bgk||'')===x[0]?' on':'')+'" data-act="set" data-k="bgk" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
+ const cell=(n,w,cls,cl2)=>'<span class="lk '+cls+'"><small>'+w+'</small><span class="n'+(cl2||'')+'">'+n+'</span></span>';
+ const prev='<div class="lk-prev">'+cell(9,'Lun','')+cell(10,'Mar','')+cell(11,'Mer',S.holi?'hol':'')+cell(12,'Jeu','')+cell(13,'Ven','today')+cell(14,'Sam','we')+cell(15,'Dim','we')+'</div>';
+ return '<div class="card" id="look-card"><h3>Apparence</h3><p class="mut" style="margin-top:0">Choisis les couleurs de ton agenda. L’aperçu ci-dessous change tout de suite.</p>'+prev+
+  '<span class="lbl">Couleur de l’appli</span>'+sw('acc',LK_ACC.map(x=>[x[0]===LK_ACC[0][0]?'':x[0],x[1]]),S.acc)+
+  '<span class="lbl">Fond</span>'+bgs+
+  '<span class="lbl">Couleur des week-ends</span>'+sw('weCol',LK_WE,S.weCol)+
+  '<div class="set-row"><span class="lbl">Jours fériés en rouge</span>'+seg('holi',[[1,'Oui'],[0,'Non']],S.holi?1:0)+'</div>'+
+  '<div class="set-row"><span class="lbl">Numéros des dates</span>'+seg('dsty',[['normal','Normal'],['big','Gros'],['circle','Dans un rond']],S.dsty||'normal')+'</div>'+
+  '<button class="btn blk sm" data-act="look-reset">Remettre l’apparence par défaut</button></div>';
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -3316,6 +3396,7 @@ function settingsView(){
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=sec('s-aff','Affichage et rappels');
+ h+=lookCard(seg);
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
@@ -3371,6 +3452,7 @@ function openHelp(hist){
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Appli seulement</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
+ h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Plein écran (œil)','<ul><li>Touche l’<b>œil</b> en haut : les boutons du haut et du bas disparaissent et le calendrier occupe tout l’écran.</li><li>Pour revenir, touche l’<b>œil barré</b> en haut à droite (ou la touche Échap sur ordinateur).</li><li>Glisser à gauche ou à droite change de mois/semaine/jour.</li></ul>');
  h+=d('Choisir un emoji','<ul><li>Dans l’éditeur d’un événement, touche <b>＋ Plus…</b> : catégories, recherche par mot (« dentiste », « avion »…) et tes emojis récents.</li><li>Tu peux aussi taper ou coller un emoji de ton clavier dans le champ.</li><li><b>Réglages → Catégories</b> : le bouton à côté du nom fixe l’emoji par défaut de la catégorie.</li></ul>');
  h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
@@ -3559,7 +3641,7 @@ function tick(){
 /* ---------- Actions ---------- */
 function setSetting(k,v){
  S[k]=v;saveSet();
- if(k==='theme'||k==='scale')setTheme();
+ if(['theme','scale','acc','bgk','weCol','dsty','holi'].includes(k))setTheme();
  render();
 }
 async function act(a,el,e){
@@ -3615,6 +3697,7 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
+  case 'look-reset':S.acc='';S.bgk='';S.weCol='';S.holi=1;S.dsty='normal';saveSet();setTheme();render();toast('Apparence par défaut');break;
   case 'addcat':S.cats.push({id:'c'+uid(),name:'Nouvelle catégorie',color:'#0ea5e9'});saveSet();render();break;
   case 'delcat':{
    if(S.cats.length<=1){toast('Garde au moins une catégorie');break}
@@ -3704,6 +3787,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
+ if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
  if(t.id==='fi-ics'&&t.files[0]){importICS(t.files[0]);return}

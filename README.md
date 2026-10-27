@@ -19,6 +19,7 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Envoi vers le calendrier du téléphone : choix précis des événements (période, catégorie, cases), choix du calendrier par le téléphone, « Mettre à jour » après modification (réglable)
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
+- Apparence à ta couleur : couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge, dates plus lisibles
 - Mode plein écran (œil), jour J mis en valeur, vue 2 semaines lisible (mots coupés avec tiret)
 - Sélecteur d'emojis intégré (catégories, recherche en français, récents) + emoji par défaut par catégorie
 - Import d'autres calendriers : depuis Outlook (lecture de ses autres calendriers, sens Outlook → appli) et depuis un fichier Excel / CSV / ODS (SheetJS, Apache-2.0, `lib/xlsx.core.min.js`, chargé uniquement à l'import) avec reconnaissance automatique des colonnes
