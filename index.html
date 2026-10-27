@@ -189,7 +189,7 @@ input,select,textarea{font:inherit;color:inherit}
 .mn.today{background:var(--accent);color:var(--on-accent)}
 .mn.out{color:var(--muted);opacity:.65}
 .mhid{justify-self:start;align-self:start;font-size:.62rem;color:var(--muted);font-weight:800;padding:.3rem 0 0 .25rem}
-.mband{display:block;font-style:normal;font-size:.7rem;line-height:1.46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 1px 1px}
+.mband{display:block;font-style:normal;font-size:calc(.7rem*var(--bsc,1));line-height:1.46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 1px 1px}
 .mband{font-weight:700;padding:0 .3rem;border-radius:.3rem;background:var(--c);color:var(--ink)}
 .mband.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
 .mband.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
@@ -197,7 +197,7 @@ input,select,textarea{font:inherit;color:inherit}
 .mcol.l1 .ei{display:none}
 .ml{font-style:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);white-space:normal;overflow:hidden;overflow-wrap:anywhere;margin:0;font-weight:650;line-height:1.25;padding:0 .12rem 0 .2rem;border-left:3px solid var(--c);border-radius:.15rem;background:rgba(127,127,127,.13);background:color-mix(in srgb,var(--c) 16%,transparent)}
 .ml em{font-style:normal;color:var(--muted);font-weight:600}
-@media(min-width:700px){.mband{font-size:.8rem}.mn{font-size:.9rem}}
+@media(min-width:700px){.mband{font-size:calc(.8rem*var(--bsc,1))}.mn{font-size:.9rem}}
 #body.mview #fab{width:3.1rem;height:3.1rem;right:.7rem;bottom:.7rem}
 #body.mview #fab .ic{width:1.5rem;height:1.5rem}
 @media(min-width:900px){#body.has-side.mview #fab{right:22rem}}
@@ -346,11 +346,11 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .icos{gap:.35rem}
 .chip.ico{padding:.3rem .5rem;font-size:1.3rem;min-width:2.6rem;justify-content:center}
 
-.mo2.fort .mband{font-size:.66rem}
+.mo2.fort .mband{font-size:calc(.66rem*var(--bsc,1))}
 .mo2.fort .mn{font-size:.9rem}
 .mo2.fort .mn small{font-size:.62rem;font-weight:800;color:var(--muted);text-transform:uppercase}
 .mo2.fort .mn.today small{color:inherit}
-@media(min-width:700px){.mo2.fort .mband{font-size:.9rem}}
+@media(min-width:700px){.mo2.fort .mband{font-size:calc(.9rem*var(--bsc,1))}}
 #tabs em{white-space:nowrap}
 .mn{white-space:nowrap}
 .mo2.fort .mn.today small{display:none}
@@ -447,7 +447,7 @@ body.focus #body{padding-top:calc(env(safe-area-inset-top,0px) + 3.1rem)}
 .mband.wn{padding-left:.22rem;padding-right:.18rem;hyphenate-limit-chars:9 4 4;-webkit-hyphenate-limit-before:3;-webkit-hyphenate-limit-after:3}
 
 .mband{align-self:start}
-@media(max-width:699px){.mo2 .mband.wn{font-size:.62rem;padding-left:.15rem;padding-right:.1rem}}
+@media(max-width:699px){.mo2 .mband.wn{font-size:calc(.62rem*var(--bsc,1));padding-left:.15rem;padding-right:.1rem}}
 
 /* Apparence */
 .bgc.we:not(.today):not(.out),.tg-col.we:not(.today),.wd.we:not(.today),.mc.we:not(.today):not(.sel){background-color:var(--wec)}
@@ -521,12 +521,16 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.1';
+const APP_VERSION='1.16.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.2',d:'27/10/2026',items:[
+  'Vue Mois : les barres sur plusieurs jours (vacances, congés, événements de 2-3 jours…) passent maintenant avant les petits événements et se réduisent un peu quand la semaine est chargée, au lieu de disparaître derrière « +2 » en vue normale.',
+  'Catégories Outlook : les couleurs Bleu et Violet étaient inversées, c’est corrigé (et plusieurs autres couleurs d’Outlook sont mieux respectées).',
+  'Catégories Outlook : tes catégories personnelles de l’appli (ex. « Semaine Elise », « Ethan ») sont aussi proposées dans le choix Outlook et dans l’écran « Catégories et calendriers Outlook ».']},
  {v:'1.16.1',d:'27/10/2026',items:[
   'Garde alternée et modèles : tu peux maintenant choisir le calendrier Outlook et la catégorie Outlook (comme dans la fiche d’un événement). Les modèles les retiennent aussi.']},
  {v:'1.16.0',d:'27/10/2026',items:[
@@ -1232,28 +1236,41 @@ function monthViewTitles(fort,pr){
   const anyT=timed.some(a=>a.length);
   /* bandeaux d'une seule colonne (étroits) : le titre passe sur 2-3 lignes au lieu d'être coupé */
   const cw=pr?(big?96:70):(((($('#main')||{}).clientWidth)||390)-fs*1.5)/7;
-  const bfs=pr?(big?14:11):fs*(fort?(tab?0.82:0.66):(tab?0.8:0.7));
-  const cpl=Math.max(4,Math.floor((cw-bfs*0.6)/(bfs*0.66)));
-  const budget=avail-(anyT?tlH*2:0);
-  /* on essaie d'abord icône + titre sur 3 puis 2 lignes, puis titre seul ; on garde la 1re option qui montre tous les événements */
-  let best=null;
-  for(const [withIcon,cap] of (fort&&!pr?[[true,6],[true,5],[true,4],[true,3],[true,2],[false,4],[false,3],[false,2]]:[[true,3],[true,2],[false,2],[false,1]])){
-   const lh=lanes.map(()=>1);
-   const nis=[];
-   const wls=bands.map((b,k)=>{
-    nis[k]=false;
-    if(b.c0!==b.c1)return 1;
-    const tl=Array.from(b.o.ev.title).length;
-    if(withIcon&&b.o.ev.icon&&tl>cpl*(cap-1))nis[k]=true;
-    const n=tl+(withIcon&&b.o.ev.icon&&!nis[k]?2:0);
-    const w=n>cpl?Math.min(cap,Math.ceil(n/cpl)):1;
-    if(w>lh[b.lane])lh[b.lane]=w;return w;
-   });
-   let vis_=0,used_=0;
-   const hh=l=>l>1?l*bfs*1.25+bfs*0.3+2:bandH;
+  const bfs0=pr?(big?14:11):fs*(fort?(tab?0.82:0.66):(tab?0.8:0.7));
+  /* essais : d'abord taille normale, puis bandeaux compacts ; les bandeaux (multi-jours) passent avant les petits événements */
+  const trySearch=(sc,resv)=>{
+   const bfs=bfs0*sc,bandHs=bandH*sc;
+   const cpl=Math.max(4,Math.floor((cw-bfs*0.6)/(bfs*0.66)));
+   const budget=avail-(anyT?tlH*resv:0);
+   let best=null;
+   for(const [withIcon,cap] of (fort&&!pr?[[true,6],[true,5],[true,4],[true,3],[true,2],[false,4],[false,3],[false,2]]:[[true,3],[true,2],[false,2],[false,1]])){
+    const lh=lanes.map(()=>1);
+    const nis=[];
+    const wls=bands.map((b,k)=>{
+     nis[k]=false;
+     if(b.c0!==b.c1)return 1;
+     const tl=Array.from(b.o.ev.title).length;
+     if(withIcon&&b.o.ev.icon&&tl>cpl*(cap-1))nis[k]=true;
+     const n=tl+(withIcon&&b.o.ev.icon&&!nis[k]?2:0);
+     const w=n>cpl?Math.min(cap,Math.ceil(n/cpl)):1;
+     if(w>lh[b.lane])lh[b.lane]=w;return w;
+    });
+    let vis_=0,used_=0;
+    const hh=l=>l>1?l*bfs*1.25+bfs*0.3+2:bandHs;
     while(vis_<lanes.length&&(vis_===0||used_+hh(lh[vis_])<=budget)){used_+=hh(lh[vis_]);vis_++}
-   if(!best||vis_>best.vis)best={vis:vis_,used:used_,wls,nis,noIcon:!withIcon};
-   if(vis_===lanes.length)break;
+    if(!best||vis_>best.vis)best={vis:vis_,used:used_,wls,nis,noIcon:!withIcon,sc};
+    if(vis_===lanes.length)break;
+   }
+   return best;
+  };
+  let best=null;
+  const scales=pr?[1]:[1,0.88,0.78];
+  outer:for(const sc of scales){
+   for(const resv of (anyT?[2,1,0]:[0])){
+    const r=trySearch(sc,resv);
+    if(!best||r.vis>best.vis)best=r;
+    if(r.vis===lanes.length){best=r;break outer}
+   }
   }
   bands.forEach((b,k)=>{b.wl=best.wls[k];b.ni=best.nis[k]});
   const vis=best.vis,used=best.used;
@@ -1267,7 +1284,7 @@ function monthViewTitles(fort,pr){
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
    const o=b.o,col=catOf(o.ev.cat).color;
-   fg+='<i class="mband'+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
+   fg+='<i class="mband'+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc<1?';--bsc:'+best.sc:'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
   });
   timed.forEach((arr,c)=>{
    if(!arr.length)return;
@@ -1596,10 +1613,13 @@ const OL_STD=['Catégorie rouge','Catégorie orange','Catégorie jaune','Catégo
 function olCatList(){
  const set=new Set((MSA.cats||[]).map(c=>c.name));
  for(const e of EV)if(e.ocat)set.add(e.ocat);
+ for(const n of olAppCats())if(![...set].some(x=>norm(x).trim()===norm(n).trim()))set.add(n);
  if(!set.size)OL_STD.forEach(n=>set.add(n));
  const hid=new Set(S.olHide||[]);
  return [...set].filter(n=>!hid.has('c:'+n));
 }
+/* catégories perso de l'appli (souvent venues d'Outlook à l'import) : proposées aussi comme catégories Outlook */
+function olAppCats(){const std=new Set(DEF_CATS.map(c=>c.id));return S.cats.filter(c=>!std.has(c.id)&&c.id!=='-').map(c=>c.name)}
 async function olCatsRefresh(){
  if(!msConnected()||demo)return false;
  let got=false;
@@ -1624,10 +1644,11 @@ async function olManage(){
  await olCatsRefresh();
  const hid=new Set(S.olHide||[]);
  const cats=(MSA.cats||[]).slice();for(const e of EV)if(e.ocat&&!cats.some(c=>c.name===e.ocat))cats.push({name:e.ocat,color:''});
+ for(const n of olAppCats())if(!cats.some(c=>norm(c.name).trim()===norm(n).trim()))cats.push({name:n,color:'',app:true});
  const row=(k,label,col)=>'<label class="olrow"><input type="checkbox" data-k="'+esc(k)+'"'+(hid.has(k)?'':' checked')+'><span class="dot" style="background:'+(col||'#94a3b8')+'"></span><span>'+esc(label)+'</span></label>';
  const cals=(MSA.cals||[]).filter(c=>c.id!==MSA.calId);
  const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Coche ce que tu veux voir dans l’éditeur d’un événement. '+(MSA.catsFull?'Liste complète lue dans ton compte Outlook.':'Liste partielle (catégories déjà utilisées). Pour la liste complète : Réglages → Outlook → Reconnecter.')+'</p>'+
-  '<div class="olbox"><b>Catégories Outlook ('+cats.length+')</b>'+(cats.length?cats.map(c=>row('c:'+c.name,c.name,OL_COL[c.color])).join(''):'<p class="mut" style="margin:.3rem 0">Aucune catégorie renvoyée par Outlook.</p>')+
+  '<div class="olbox"><b>Catégories Outlook ('+cats.length+')</b>'+(cats.length?cats.map(c=>row('c:'+c.name,c.name+(c.app?' (de l’appli)':''),OL_COL[c.color]||((S.cats.find(x=>norm(x.name).trim()===norm(c.name).trim())||{}).color))).join(''):'<p class="mut" style="margin:.3rem 0">Aucune catégorie renvoyée par Outlook.</p>')+
   '<b style="display:block;margin-top:.6rem">Calendriers Outlook ('+cals.length+')</b>'+(cals.length?cals.map(c=>row('k:'+c.id,c.name)).join(''):'<p class="mut" style="margin:.3rem 0">Aucun autre calendrier trouvé.</p>')+'</div>';
  const root=$('#dlg');
  const h=e=>{const b=e.target.closest('[data-v="0"]');if(!b)return;root.removeEventListener('click',h,true);
@@ -3474,10 +3495,10 @@ function ocalChips(cur){
 }
 function ocatChips(cur){
  const names=olCatList();if(cur&&!names.includes(cur))names.unshift(cur);
- const col=n=>{const c=(MSA.cats||[]).find(x=>x.name===n);return c&&OL_COL[c.color]||'#94a3b8'};
+ const col=n=>{const c=(MSA.cats||[]).find(x=>x.name===n);const a=S.cats.find(x=>norm(x.name).trim()===norm(n).trim());return c&&OL_COL[c.color]||(a&&a.color)||'#94a3b8'};
  return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Appli seulement</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="chip cat" style="--c:#94a3b8" data-act="ocatnew">＋ Autre nom…</button>';
 }
-const OL_COL={preset0:'#e74856',preset1:'#f7630c',preset2:'#8e562e',preset3:'#ffb900',preset4:'#13a10e',preset5:'#00b7c3',preset6:'#6b69d6',preset7:'#8764b8',preset8:'#0078d4',preset9:'#555555',preset10:'#6e7b8b',preset11:'#2d7d9a',preset12:'#5c2d91',preset13:'#c239b3',preset14:'#ca5010',preset15:'#005b70',preset16:'#7a7574',preset17:'#b4009e',preset18:'#4a5459',preset19:'#d13438',preset20:'#e3008c',preset21:'#00cc6a',preset22:'#038387',preset23:'#d83b01',preset24:'#0063b1'};
+const OL_COL={preset0:'#e74856',preset1:'#f7630c',preset2:'#8e562e',preset3:'#ffb900',preset4:'#13a10e',preset5:'#00b7c3',preset6:'#7a7a2a',preset7:'#0078d4',preset8:'#8764b8',preset9:'#c30052',preset10:'#69797e',preset11:'#4a5459',preset12:'#7a7574',preset13:'#555555',preset14:'#1b1b1b',preset15:'#a4262c',preset16:'#ca5010',preset17:'#6a3f2a',preset18:'#c19c00',preset19:'#107c10',preset20:'#038387',preset21:'#5a5a1a',preset22:'#0063b1',preset23:'#5c2d91',preset24:'#8b0036'};
 function readForm(){
  const g=id=>$('#'+id);
  const allDay=g('f-allday').checked;
