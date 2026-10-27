@@ -425,6 +425,12 @@ details.msd .mut{font-size:.85rem}
 /* bandeau étroit : titre sur plusieurs lignes */
 .mband.wn{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--wl,2);overflow-wrap:anywhere;line-height:1.25;padding-top:.06rem;padding-bottom:.06rem}
 
+.emgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.6rem,1fr));gap:.2rem;max-height:40vh;overflow-y:auto;margin:.4rem 0}
+.emo{font-size:1.6rem;line-height:1;padding:.35rem 0;border:0;background:transparent;border-radius:.5rem;cursor:pointer}
+.emo:hover,.emo:active{background:var(--bg2,rgba(127,127,127,.2))}
+.emcats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:.2rem}.emcats .chip{flex:none}
+.catemo{font-size:1.2rem;padding:.2rem .5rem}
+
 </style>
 </head>
 <body>
@@ -464,12 +470,19 @@ details.msd .mut{font-size:.85rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.12.3';
+const APP_VERSION='1.13.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.13.0',d:'27/10/2026',items:[
+  'Nouveau : choisis n’importe quel emoji. Dans l’éditeur, « ＋ Plus… » ouvre un sélecteur avec catégories (visages, santé, sport, nourriture, voyage…), recherche par mot en français (« dentiste », « gâteau », « avion »…) et tes emojis récents',
+  'Chaque catégorie peut avoir son emoji par défaut (Réglages → Catégories) : il se met tout seul quand tu choisis la catégorie',
+  'Tu peux toujours taper ou coller un emoji de ton clavier dans le champ',
+  'Outlook : dans l’éditeur, un nouveau champ « Catégorie Outlook » (si tu es connecté) liste les catégories de ton compte ; l’événement arrive classé dans Outlook. « Appli seulement » = aucune catégorie Outlook. Les catégories des événements récupérés d’Outlook sont conservées. Pour voir la liste complète de ton compte, déconnecte puis reconnecte Outlook une fois (nouvelle autorisation de lecture des catégories)',
+  'Correction : dans Réglages, la carte Outlook ne se referme plus quand tu choisis Oui/Non'
+ ]},
  {v:'1.12.3',d:'27/10/2026',items:[
   'Vue Mois : le titre d’un événement « journée entière » d’un seul jour est maintenant lisible en entier : il passe sur 2 ou 3 lignes, et quand la case est trop petite l’emoji s’efface pour laisser la place au titre (« pêche » au lieu de « 👨👩… »)',
   'Les emojis composés (famille, drapeaux…) ne sont plus coupés en deux'
@@ -636,7 +649,7 @@ function cleanEvent(x){
  if(!x||typeof x!=='object')return null;
  const ev={id:String(x.id||uid()),title:String(x.title||'Sans titre').slice(0,200),allDay:!!x.allDay,start:x.start,end:x.end||x.start,
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
-  cat:String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),rec:null,ex:[],alarm:null};
+  cat:String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),rec:null,ex:[],alarm:null};
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
  if(!RX_T.test(ev.startTime))ev.startTime='09:00';
@@ -1274,7 +1287,7 @@ function shift(n){
    à Microsoft avec TON compte. Aucune donnée ne passe par un autre intermédiaire. */
 const MS_CLIENT_ID='661cb213-42fd-400c-b81a-34a07b5c4046';                       /* identifiant public de l'application Microsoft (pas un secret) */
 const MS_AUTH='https://login.microsoftonline.com/consumers/oauth2/v2.0';
-const MS_SCOPE='Calendars.ReadWrite User.Read offline_access';
+const MS_SCOPE='Calendars.ReadWrite MailboxSettings.Read User.Read offline_access';
 const MS_CAL_NAME='Agenda (appli)';
 const GRAPH='https://graph.microsoft.com/v1.0';
 let MSA=Object.assign({token:null,exp:0,refresh:null,calId:null,map:{},acct:'',last:0,err:'',n:0},ls.get(K.ms,{}));
@@ -1325,7 +1338,7 @@ async function msHandleReturn(){
 async function msAccessToken(force){
  if(!force&&MSA.token&&MSA.exp>Date.now()+60000)return MSA.token;
  if(!MSA.refresh)throw new Error('Non connecté');
- try{await msTokenReq({client_id:msClientId(),grant_type:'refresh_token',refresh_token:MSA.refresh,scope:MS_SCOPE})}
+ try{await msTokenReq({client_id:msClientId(),grant_type:'refresh_token',refresh_token:MSA.refresh})}
  catch(e){
   if(e.code==='invalid_grant'||e.code==='interaction_required'){MSA.token=null;MSA.refresh=null;MSA.err='Reconnexion nécessaire';msSave()}
   throw e;
@@ -1364,6 +1377,7 @@ function msPayload(o){
  const p={subject:(ev.icon?ev.icon+' ':'')+ev.title,isAllDay:!!o.allDay,
   start:{dateTime:start,timeZone:'UTC'},end:{dateTime:end,timeZone:'UTC'},
   location:{displayName:ev.place||''},body:{contentType:'text',content:ev.note||''},showAs:'busy'};
+ if(ev.ocat)p.categories=[ev.ocat];else p.categories=[];
  if(ev.alarm!=null){p.isReminderOn=true;p.reminderMinutesBeforeStart=o.allDay?(ev.alarm>=1440?900:0):ev.alarm}
  else p.isReminderOn=false;
  return p;
@@ -1387,7 +1401,7 @@ async function msSync(silent){
   const cal=await msEnsureCal();
   const from=add(today(),-31),to=add(today(),366);
   const want={};
-  for(const o of occs(from,to)){if(o.ev.src==='ol')continue;const p=msPayload(o);want[o.ev.id+'|'+o.date]={p,h:hash32(JSON.stringify(p))}}
+  for(const o of occs(from,to)){if(o.ev.src==='ol')continue;const p=msPayload(o);want[o.ev.id+'|'+o.date]={p,h:hash32(JSON.stringify(p.categories&&p.categories.length?p:Object.assign({},p,{categories:undefined})))}}
   const reqs=[];
   for(const k in want){
    const m=MSA.map[k];
@@ -1434,7 +1448,7 @@ function msCard(){
  }else if(!msConnected()){
   h+='<p class="mut" style="margin-top:0">Envoie ton agenda vers un calendrier Outlook (compte Outlook, Hotmail, Live), visible ensuite sur l’iPhone, Android et Outlook. L’appli parle directement à Microsoft, sans intermédiaire.</p>'+(MSA.err?'<p class="mut"><b>'+esc(MSA.err)+'</b></p>':'')+'<button class="btn pri blk" data-act="ms-connect">'+ic('share')+' Se connecter à Outlook</button>';
  }else{
-  h=h.replace('<div class="card"><h3>Outlook / Microsoft</h3>','<details class="card dev msd"><summary><b>Outlook / Microsoft</b> <span class="mut" style="font-weight:600">· connecté'+(MSA.last?' · dernier envoi '+fmtDate(MSA.last):'')+'</span></summary>');
+  h=h.replace('<div class="card"><h3>Outlook / Microsoft</h3>','<details class="card dev msd"'+(window.__msOpen?' open':'')+'><summary><b>Outlook / Microsoft</b> <span class="mut" style="font-weight:600">· connecté'+(MSA.last?' · dernier envoi '+fmtDate(MSA.last):'')+'</span></summary>');
   h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
    '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
    '<button class="btn pri blk" data-act="ms-pull">'+ic('down')+' Récupérer depuis Outlook</button>'+
@@ -1446,6 +1460,22 @@ function msCard(){
    '<button class="btn blk" data-act="ms-disc">Déconnecter Outlook</button>';
  }
  return h+(msConnected()&&msClientId()?'</details>':'</div>');
+}
+
+document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('msd'))window.__msOpen=e.target.open},true);
+
+/* Catégories Outlook (liste du compte + celles déjà vues sur les événements) */
+const OL_STD=['Catégorie rouge','Catégorie orange','Catégorie jaune','Catégorie verte','Catégorie bleue','Catégorie violette'];
+function olCatList(){
+ const set=new Set((MSA.cats||[]).map(c=>c.name));
+ for(const e of EV)if(e.ocat)set.add(e.ocat);
+ if(!set.size)OL_STD.forEach(n=>set.add(n));
+ return [...set];
+}
+async function olCatsRefresh(){
+ if(!msConnected()||demo)return false;
+ try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);msSave();return true}
+ catch(e){return false}
 }
 
 /* ---------- Impression (jour, semaine, mois, 2 semaines) ---------- */
@@ -2025,7 +2055,7 @@ function msConv(x,calName){
  if(allDay){start=x.start.dateTime.slice(0,10);end=add(x.end.dateTime.slice(0,10),-1);if(end<start)end=start}
  else{const a=L(x.start.dateTime),b=L(x.end.dateTime);start=ds(a);end=ds(b);sm=a.getHours()*60+a.getMinutes();em=b.getHours()*60+b.getMinutes()}
  const body=x.body&&x.body.content?(x.body.contentType==='html'?htmlText(x.body.content):String(x.body.content).trim()):'';
- const ev={id:'ol-'+hash32(x.id),title:String(x.subject||'Sans titre').trim(),allDay,start,end,startTime:hm(sm),endTime:hm(em),place:(x.location&&x.location.displayName)||'',note:body,cat:'',icon:'',rec:null,ex:[],alarm:(!allDay&&x.isReminderOn&&x.reminderMinutesBeforeStart>=0)?x.reminderMinutesBeforeStart:null,src:'ol',_cat:(x.categories&&x.categories[0])||calName};
+ const ev={id:'ol-'+hash32(x.id),title:String(x.subject||'Sans titre').trim(),allDay,start,end,startTime:hm(sm),endTime:hm(em),place:(x.location&&x.location.displayName)||'',note:body,cat:'',icon:'',rec:null,ex:[],alarm:(!allDay&&x.isReminderOn&&x.reminderMinutesBeforeStart>=0)?x.reminderMinutesBeforeStart:null,src:'ol',ocat:String((x.categories&&x.categories[0])||'').slice(0,60),_cat:(x.categories&&x.categories[0])||calName};
  return ev;
 }
 async function msImport(){
@@ -2053,7 +2083,7 @@ async function msImport(){
  S.olCals=[...st.sel];S.olPer=st.per;S.olCat=st.cat;saveSet();
  await olPull(cals.filter(c=>st.sel.has(c.id)),st.per,st.cat,false);
 }
-const olDiff=(a,b)=>['title','allDay','start','end','startTime','endTime','place','note','alarm'].some(k=>(a[k]==null?'':a[k])!==(b[k]==null?'':b[k]));
+const olDiff=(a,b)=>['title','allDay','start','end','startTime','endTime','place','note','alarm','ocat'].some(k=>(a[k]==null?'':a[k])!==(b[k]==null?'':b[k]));
 async function olPull(calList,per,catFlag,silent){
  const back={m1:31,m3:92,now:0,y1:366}[per]||31;
  const from=add(today(),-back),to=add(today(),366);
@@ -2086,7 +2116,7 @@ async function olPull(calList,per,catFlag,silent){
   F=pk.filter(x=>!x.upd).map(x=>x.e);U=pk.filter(x=>x.upd).map(x=>x.e);
  }
  const made=resolveCats(F.concat(U),catFlag);
- for(const e of U)Object.assign(byId.get(e.id),{title:e.title,allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:e.place,note:e.note,alarm:e.alarm});
+ for(const e of U)Object.assign(byId.get(e.id),{title:e.title,allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:e.place,note:e.note,alarm:e.alarm,ocat:e.ocat||''});
  EV.push(...F.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean));
  touch();render();
  toast((silent?'Outlook : ':'')+F.length+' ajouté'+(F.length>1?'s':'')+(U.length?' · '+U.length+' mis à jour':'')+(made?' · '+made+' catégorie'+(made>1?'s':'')+' créée'+(made>1?'s':''):''),5000);
@@ -2121,6 +2151,745 @@ function importCard(){
   '<button class="btn blk pri" data-act="ms-import">'+ic('down')+' Depuis Outlook'+(msConnected()?'':' (connexion requise)')+'</button>'+
   '<button class="btn blk" data-act="xl-import">'+ic('up')+' Depuis un fichier Excel ou CSV…</button>'+
   '<p class="mut" style="margin:.2rem 0 0;font-size:.85rem">Excel/CSV : l’appli reconnaît les colonnes (titre, date, heure, lieu, notes, catégorie, rappel…) et te laisse les corriger avant d’importer. Fichiers .xlsx, .xls, .ods, .csv.</p></div>';
+}
+
+/* ---------- Sélecteur d'emojis : catégories, recherche en français, récents ---------- */
+/* Chaque ligne : « emoji mots-clés ». Les mots-clés servent à la recherche (accents et majuscules ignorés). */
+const EMO_CATS=[
+ ['Visages',`😀 sourire content heureux
+😃 joyeux sourire
+😄 rire joie
+😁 grand sourire
+😆 rigolo mdr
+😅 soulagé sueur
+😂 mort de rire larmes
+🤣 fou rire
+🙂 sourire simple
+😉 clin d'oeil
+😊 heureux timide
+😇 ange innocent
+🥰 amoureux coeurs
+😍 yeux coeurs adore
+😘 bisou baiser
+😋 miam délicieux
+😜 langue blague
+🤪 fou délire
+😎 lunettes cool soleil
+🤓 intello lunettes
+🥳 fête anniversaire
+😏 malin
+😒 agacé blasé
+😔 triste pensif
+😢 pleure triste
+😭 sanglots pleure
+😤 énervé colère
+😠 fâché
+😡 rage colère
+🤯 explosé stupéfait
+😱 peur cri
+😨 effrayé
+😰 stress angoisse
+😥 déçu soulagé
+🤔 réflexion question doute
+🤗 câlin accueil
+🤭 oups rire discret
+😴 dormir sommeil fatigue
+😪 somnolent
+🥱 bâiller fatigue
+🤒 malade fièvre thermomètre
+🤕 blessé bandage
+🤢 nausée malade
+🤮 vomir
+🥵 chaud canicule
+🥶 froid gelé
+😷 masque malade
+🤧 rhume éternuer
+😵 étourdi
+🥴 vertige
+🤠 cowboy
+🤡 clown
+🥺 supplie
+😬 grimace gêne
+🙄 yeux au ciel
+😐 neutre
+😶 sans voix silence
+🤐 bouche fermée secret
+🫡 salut garde à vous militaire
+🫠 fondu
+🤫 chut secret`],
+ ['Gens',`👋 salut bonjour main
+👍 pouce ok bien
+👎 pouce bas
+👏 bravo applaudir
+🙌 mains levées célébration
+🙏 merci prière svp
+🤝 poignée de main accord
+💪 muscle force sport
+✌️ victoire paix
+🤞 doigts croisés chance
+👌 parfait ok
+☝️ doigt haut
+👆 doigt haut
+👉 doigt droite
+🫶 coeur mains
+🖐️ main
+✋ stop main
+👀 yeux regarder
+🧠 cerveau tête
+👶 bébé naissance
+🧒 enfant
+👦 garçon enfant
+👧 fille enfant
+👨 homme papa
+👩 femme maman
+🧑 personne adulte
+👴 grand-père papi
+👵 grand-mère mamie
+👨‍👩‍👧 famille parents fille
+👨‍👩‍👧‍👦 famille parents enfants
+👨‍👩‍👦 famille parents fils
+👩‍👧 mère fille
+👨‍👧 père fille
+👩‍👦 mère fils
+👨‍👦 père fils
+👪 famille
+💑 couple amour
+👫 couple
+👭 amies
+👬 amis
+🤰 enceinte grossesse
+🤱 allaiter bébé
+👮 police gendarme
+💂 garde militaire
+🪖 casque militaire armée
+🧑‍✈️ pilote avion
+👨‍⚕️ médecin docteur
+👩‍⚕️ médecin docteur infirmière
+👨‍🏫 professeur enseignant
+👩‍🏫 professeur enseignante
+👨‍🍳 cuisinier chef
+👨‍🔧 mécanicien
+👷 ouvrier chantier travaux
+🧑‍💻 informaticien ordinateur
+🧑‍🎓 étudiant diplômé
+🧑‍🚒 pompier
+🧙 magicien
+🕵️ détective enquête
+💃 danse danseuse
+🕺 danse
+🧘 yoga méditation
+🏃 course sport jogging
+🚶 marche balade
+🚴 vélo cyclisme
+🏊 natation piscine
+🏄 surf
+🧗 escalade`],
+ ['Coeurs',`❤️ coeur amour rouge
+🧡 coeur orange
+💛 coeur jaune
+💚 coeur vert
+💙 coeur bleu
+💜 coeur violet
+🖤 coeur noir
+🤍 coeur blanc
+🤎 coeur marron
+💔 coeur brisé
+❣️ coeur
+💕 deux coeurs
+💞 coeurs
+💓 coeur battant
+💗 coeur grandissant
+💖 coeur brillant
+💘 coeur flèche
+💝 coeur cadeau
+💌 lettre amour
+💋 bisou
+🌹 rose amour
+💐 bouquet fleurs
+💍 bague mariage alliance
+👰 mariée mariage
+🤵 marié mariage
+💒 mariage église
+🎁 cadeau
+🥂 trinquer champagne
+🍾 champagne bouteille`],
+ ['Santé',`🏥 hôpital clinique
+🩺 stéthoscope médecin consultation
+💊 médicament pilule
+💉 piqûre vaccin prise de sang
+🩹 pansement
+🩸 sang
+🦷 dentiste dent
+🦴 os radio
+👁️ oeil ophtalmo orthoptiste vue
+👓 lunettes optique opticien vue
+🕶️ lunettes de soleil
+👂 oreille audition
+🦻 audition appareil
+👃 nez
+🫀 coeur cardiologue
+🫁 poumons
+🧬 adn génétique
+🔬 microscope analyse labo
+🧪 analyse labo
+🌡️ température fièvre
+😷 masque
+🚑 ambulance urgence
+♿ handicap accessibilité
+🧘 kiné relaxation
+💆 massage
+💇 coiffeur coiffure
+💅 manucure ongles
+🧴 crème soin
+🛁 bain
+🚿 douche
+🧼 savon
+🪥 brosse à dents
+🤰 échographie grossesse
+👶 pédiatre bébé
+🩻 radiographie
+🧠 psychomotricien psy cerveau
+🏋️ musculation salle sport
+⚖️ balance poids justice`],
+ ['Sport',`⚽ foot football
+🏀 basket
+🏈 football américain
+⚾ baseball
+🎾 tennis
+🏐 volley
+🏉 rugby
+🎱 billard
+🏓 ping-pong tennis de table
+🏸 badminton
+🥊 boxe
+🥋 judo arts martiaux karaté
+🏹 tir à l'arc
+🎯 fléchettes cible
+⛳ golf
+🛹 skate
+⛸️ patinage
+🎿 ski
+⛷️ ski
+🏂 snowboard
+🏋️ musculation haltères
+🤸 gymnastique
+🤾 handball
+🏊 natation piscine
+🚣 aviron
+🧘 yoga
+🚴 vélo
+🏇 équitation cheval
+🏃 course footing
+🥇 médaille victoire
+🏆 coupe trophée compétition
+🎳 bowling
+🪁 cerf-volant
+🎣 pêche
+🤿 plongée
+🛶 canoë kayak
+🧗 escalade
+⛹️ basket
+🎽 course maillot`],
+ ['Nourriture',`🍕 pizza
+🍔 burger
+🌭 hot-dog
+🌮 tacos
+🥪 sandwich
+🍟 frites
+🍝 pâtes spaghetti
+🍜 nouilles soupe
+🍲 plat mijoté
+🍛 curry riz
+🍣 sushi
+🥗 salade
+🥘 paella plat
+🍳 oeuf poêle petit-déjeuner
+🥐 croissant viennoiserie
+🥖 baguette pain
+🧀 fromage
+🥩 viande steak
+🍗 poulet
+🍖 viande
+🥓 bacon
+🍞 pain
+🥞 crêpes pancakes
+🧇 gaufre
+🍰 gâteau part
+🎂 gâteau anniversaire
+🧁 cupcake
+🍩 donut
+🍪 biscuit cookie
+🍫 chocolat
+🍬 bonbon
+🍦 glace
+🍨 glace
+🍿 pop-corn cinéma
+🍎 pomme
+🍌 banane
+🍓 fraise
+🍇 raisin
+🍉 pastèque
+🍊 orange
+🍋 citron
+🍑 pêche fruit
+🥕 carotte légume
+🥦 brocoli légume
+🍅 tomate
+🍆 aubergine
+🥑 avocat
+☕ café
+🍵 thé
+🥛 lait
+🍷 vin
+🍺 bière
+🍻 bières
+🥂 champagne trinquer apéro
+🍸 cocktail apéro
+🍹 cocktail
+🥤 boisson soda
+💧 eau
+🍽️ repas restaurant couvert
+🥄 cuillère
+🍴 couverts restaurant
+🧑‍🍳 cuisine cuisinier
+🛒 courses supermarché
+🥡 plat à emporter`],
+ ['Voyage',`🚗 voiture
+🚙 voiture suv
+🚕 taxi
+🚌 bus
+🚎 bus
+🚓 police voiture
+🚑 ambulance
+🚒 pompiers
+🚚 camion livraison
+🚛 camion
+🚜 tracteur
+🏍️ moto
+🛵 scooter
+🚲 vélo
+🚆 train sncf
+🚄 tgv train
+🚇 métro
+🚊 tram
+✈️ avion vol
+🛫 décollage avion
+🛬 atterrissage avion
+🚁 hélicoptère
+🚀 fusée
+⛵ voilier bateau
+🚢 bateau croisière
+⚓ ancre port
+⛴️ ferry
+🚦 feu
+⛽ essence carburant station
+🅿️ parking
+🛣️ route autoroute
+🗺️ carte plan
+🧭 boussole
+🏖️ plage vacances
+🏝️ île vacances
+⛰️ montagne
+🏔️ montagne neige
+🏕️ camping
+🌋 volcan
+🏞️ parc nature
+🗼 tour
+🗽 statue
+🏰 château
+🏛️ monument musée
+⛪ église
+🕌 mosquée
+🕍 synagogue
+🏨 hôtel
+🏩 hôtel
+🏠 maison
+🏡 maison jardin
+🏢 immeuble bureau
+🏬 magasin centre commercial
+🏪 magasin
+🏫 école
+🏦 banque
+🏥 hôpital
+🏭 usine
+🏟️ stade
+🎡 grande roue manège
+🎢 montagnes russes parc
+🎠 manège
+🎪 cirque
+🧳 valise bagage voyage
+🎫 billet ticket
+🛂 passeport douane
+🛃 douane
+🌍 monde terre
+🌎 monde
+🗾 japon`],
+ ['Maison',`🏠 maison
+🛋️ canapé salon
+🛏️ lit chambre
+🛁 baignoire
+🚿 douche
+🚽 toilettes
+🧹 ménage balai
+🧺 linge panier lessive
+🧽 éponge nettoyage
+🧴 flacon produit
+🪣 seau
+🔧 clé bricolage réparation
+🔨 marteau travaux
+🪛 tournevis bricolage
+🪚 scie
+🔩 vis boulon
+⚙️ réglage mécanique
+🧰 boîte à outils bricolage
+🪜 échelle
+🔌 prise électricité
+💡 ampoule idée lumière
+🔥 feu cheminée ramonage
+🪵 bois
+🧯 extincteur
+🔑 clé
+🗝️ clé ancienne
+🚪 porte
+🪟 fenêtre
+🛠️ travaux réparation
+🌡️ thermomètre chauffage
+❄️ froid clim climatisation
+🪴 plante
+🌳 arbre jardin
+🌻 fleur tournesol
+✂️ ciseaux coiffeur
+🧵 couture fil
+📦 colis carton déménagement
+📬 courrier boîte aux lettres
+🗑️ poubelle déchets
+♻️ recyclage
+📺 télévision
+📱 téléphone portable
+☎️ téléphone fixe
+💻 ordinateur portable
+🖥️ ordinateur
+🖨️ imprimante
+📷 appareil photo
+🎮 jeu vidéo console
+🕹️ manette jeu
+⏰ réveil
+🔔 sonnerie rappel
+🔋 batterie
+☀️ solaire soleil panneaux`],
+ ['Travail',`💼 travail mallette bureau
+🏢 bureau immeuble
+💻 ordinateur travail
+📞 téléphone appel
+📧 mail courriel
+✉️ lettre courrier
+📝 note mémo écrire
+📋 liste presse-papier
+📅 calendrier date
+📆 calendrier
+🗓️ agenda planning
+⏰ réveil heure
+⏳ sablier attente
+⌛ sablier
+🕐 heure horloge
+📌 épingle important
+📍 lieu position
+📎 trombone pièce jointe
+🖊️ stylo
+✏️ crayon
+📚 livres lecture études
+📖 livre lire
+🎓 diplôme remise études
+🏫 école
+🧑‍🏫 réunion parents prof
+🎒 cartable école rentrée
+📏 règle
+🧮 calcul compta
+💶 euros argent
+💰 argent sac
+💳 carte bancaire
+🏦 banque
+📈 hausse bourse
+📉 baisse
+🧾 facture reçu
+⚖️ justice tribunal juridique
+📜 contrat document parchemin
+🪪 identité carte papiers
+🛡️ protection sécurité
+🎖️ médaille décoration militaire
+🪖 armée casque
+🚁 mission hélicoptère
+⚓ marine
+✈️ déplacement avion
+🔐 sécurité cadenas
+👔 costume cravate
+🎤 micro conférence
+📊 graphique statistiques
+🖨️ imprimer
+🗂️ dossier classeur
+🗃️ archives
+📁 dossier
+✅ fait validé
+☑️ coché
+❗ important urgent
+❓ question
+⚠️ attention`],
+ ['Nature',`☀️ soleil beau temps
+🌤️ éclaircies
+⛅ nuageux
+☁️ nuage
+🌧️ pluie
+⛈️ orage
+🌩️ éclair
+❄️ neige
+☃️ bonhomme de neige
+🌈 arc-en-ciel
+🌪️ tornade
+🌫️ brouillard
+💨 vent
+🌊 vague mer
+🔥 feu
+💧 goutte eau
+🌙 lune nuit
+⭐ étoile
+🌟 étoile brillante
+✨ étincelles
+☄️ comète
+🌍 terre planète
+🌳 arbre forêt
+🌲 sapin
+🌴 palmier
+🌵 cactus
+🌱 pousse plante
+🌿 herbe plante
+🍀 trèfle chance
+🍁 feuille automne érable
+🍂 feuilles automne
+🍄 champignon
+🌷 tulipe fleur
+🌸 fleur cerisier
+🌺 hibiscus fleur
+🌻 tournesol
+🌼 fleur marguerite
+🐶 chien
+🐕 chien
+🐱 chat
+🐈 chat
+🐭 souris
+🐹 hamster
+🐰 lapin
+🦊 renard
+🐻 ours
+🐼 panda
+🐨 koala
+🐯 tigre
+🦁 lion
+🐮 vache
+🐷 cochon
+🐸 grenouille
+🐵 singe
+🐔 poule
+🐧 manchot
+🐦 oiseau
+🦆 canard
+🦉 hibou
+🐴 cheval
+🦄 licorne
+🐝 abeille
+🦋 papillon
+🐌 escargot
+🐢 tortue
+🐍 serpent
+🐠 poisson
+🐟 poisson pêche
+🐬 dauphin
+🐳 baleine
+🦈 requin
+🐾 pattes vétérinaire
+🥚 oeuf`],
+ ['Fêtes',`🎉 fête confettis
+🎊 fête confettis
+🎂 anniversaire gâteau
+🎁 cadeau
+🎈 ballon fête
+🎀 ruban noeud
+🪅 piñata
+🥳 fête
+🍾 champagne
+🥂 trinquer
+🎄 noël sapin
+🎅 père noël
+🤶 mère noël
+⛄ hiver neige
+🕯️ bougie toussaint souvenir
+🎃 halloween citrouille
+👻 fantôme halloween
+💀 tête de mort
+🐰 pâques lapin
+🥚 pâques oeuf
+🐣 pâques poussin
+🎆 feu d'artifice nouvel an
+🎇 feux d'artifice 14 juillet
+🧨 pétard
+🎋 fête
+🎑 fête lune
+🎗️ ruban solidarité
+🕎 hanoucca
+🪔 diwali lumière
+🕌 ramadan aïd mosquée
+⛪ église messe baptême
+✝️ croix religion
+☪️ islam
+✡️ judaïsme
+🇫🇷 france drapeau 14 juillet
+🏳️ drapeau blanc
+🏴 drapeau noir
+🏁 arrivée course drapeau
+🚩 drapeau
+🎵 musique
+🎶 musique notes
+🎤 chant karaoké micro
+🎸 guitare
+🎹 piano
+🥁 batterie tambour
+🎻 violon
+🎷 saxophone
+🎺 trompette
+🎬 cinéma film
+🎭 théâtre
+🎨 peinture art
+🎪 cirque spectacle
+🎟️ billet concert
+🎮 jeux
+🎲 dés jeux société
+♟️ échecs
+🧩 puzzle
+🧸 peluche nounours`],
+ ['Symboles',`✅ ok fait validé
+❌ non annulé
+❗ important
+❓ question
+⚠️ attention danger
+🚫 interdit
+⛔ interdit
+🔴 rouge cercle
+🟠 orange cercle
+🟡 jaune cercle
+🟢 vert cercle
+🔵 bleu cercle
+🟣 violet cercle
+⚫ noir cercle
+⚪ blanc cercle
+🟥 rouge carré
+🟧 orange carré
+🟨 jaune carré
+🟩 vert carré
+🟦 bleu carré
+🟪 violet carré
+⭐ favori étoile
+💯 cent parfait
+🔔 rappel sonnerie
+🔕 silence
+📣 annonce
+📢 annonce
+💬 message discussion
+💭 pensée
+🔄 répéter refaire
+🔁 répétition
+➕ plus ajouter
+➖ moins
+➡️ droite suite
+⬅️ gauche
+⬆️ haut
+⬇️ bas
+🔝 haut
+🆕 nouveau
+🆓 gratuit
+🆗 ok
+🆘 sos urgence
+🅿️ parking
+♻️ recyclage
+⚡ éclair électricité
+🔥 feu
+💤 sommeil dodo
+💢 colère
+💥 boum
+💫 étourdi
+💣 bombe
+🛑 stop
+🔒 fermé verrouillé
+🔓 ouvert
+🔑 clé
+🔍 recherche loupe
+🔗 lien
+🧿 protection
+♾️ infini
+⚓ ancre
+🌐 internet
+📶 réseau wifi
+🔋 batterie
+🔌 branché
+🕛 midi
+🕐 une heure
+🕒 trois heures
+🕕 six heures
+🕘 neuf heures
+🌅 lever soleil matin
+🌇 coucher soleil soir
+🌙 nuit
+🌞 jour soleil`]
+];
+const EMO_INDEX=(()=>{const out=[];for(const [cat,txt] of EMO_CATS){for(const ln of txt.split('\n')){const i=ln.indexOf(' ');if(i<0)continue;out.push({e:ln.slice(0,i),k:norm(ln.slice(i+1)+' '+cat),c:cat})}}return out})();
+
+function emoRecent(){
+ /* récents (dernier utilisé d'abord) puis les plus utilisés dans l'agenda */
+ const cnt={};for(const e of EV)if(e.icon)cnt[e.icon]=(cnt[e.icon]||0)+1;
+ const used=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+ const seen=new Set(),out=[];
+ for(const e of [...(S.emRecent||[]),...used]){if(!seen.has(e)){seen.add(e);out.push(e)}}
+ return out.slice(0,40);
+}
+function emoRemember(e){
+ if(!e)return;
+ S.emRecent=[e,...(S.emRecent||[]).filter(x=>x!==e)].slice(0,24);saveSet();
+}
+/* Ouvre le sélecteur. Résultat : l'emoji choisi, 'none' (retirer), ou null (annulé). */
+function pickEmoji(cur){
+ return new Promise(res=>{
+  const root=$('#dlg');
+  const cats=['Récents',...EMO_CATS.map(c=>c[0])];
+  const st={cat:emoRecent().length?'Récents':'Visages',q:''};
+  const list=()=>{
+   if(st.q){const q=norm(st.q).trim();return EMO_INDEX.filter(x=>x.k.includes(q)).map(x=>x.e).filter((e,i,a)=>a.indexOf(e)===i)}
+   if(st.cat==='Récents')return emoRecent();
+   return EMO_INDEX.filter(x=>x.c===st.cat).map(x=>x.e);
+  };
+  const grid=()=>{
+   const l=list();
+   return l.length?l.map(e=>'<button type="button" class="emo" data-em="'+esc(e)+'" aria-label="'+esc(e)+'">'+esc(e)+'</button>').join(''):'<p class="mut" style="grid-column:1/-1;margin:.6rem 0">'+(st.q?'Aucun emoji pour « '+esc(st.q)+' ». Tu peux aussi taper ton emoji directement dans le champ de l’événement.':'Rien ici pour le moment : les emojis que tu utilises apparaîtront ici.')+'</p>';
+  };
+  const draw=()=>{
+   const g=$('#em-grid');if(g){g.innerHTML=grid();g.scrollTop=0}
+   $$('#em-cats .chip').forEach(c=>c.classList.toggle('on',!st.q&&c.dataset.cat===st.cat));
+  };
+  const p=ask({title:'Choisir un emoji',html:
+   '<input class="in" id="em-q" type="search" placeholder="Chercher : dentiste, gâteau, avion…" autocomplete="off" style="margin:.2rem 0 .5rem">'+
+   '<div class="chips emcats" id="em-cats">'+cats.map(c=>'<button type="button" class="chip" data-cat="'+esc(c)+'">'+esc(c)+'</button>').join('')+'</div>'+
+   '<div id="em-grid" class="emgrid"></div>'+(cur?'<p class="mut" style="margin:.3rem 0 .1rem;font-size:.85rem">Actuel : <span style="font-size:1.3rem">'+esc(cur)+'</span></p>':''),
+   btns:[{label:cur?'Aucun emoji (retirer)':'Fermer',value:cur?'none':null},{label:'Annuler',value:null}]});
+  let chosen=null;
+  const h=e=>{
+   const b=e.target.closest('[data-em]');
+   if(b){chosen=b.dataset.em;cleanup();const x=root.querySelector('[data-v="1"]');if(x)x.click();return}
+   const c=e.target.closest('[data-cat]');
+   if(c){st.cat=c.dataset.cat;st.q='';const q=$('#em-q');if(q)q.value='';draw()}
+  };
+  const inp=e=>{if(e.target.id==='em-q'){st.q=e.target.value;draw()}};
+  const cleanup=()=>{root.removeEventListener('click',h);root.removeEventListener('input',inp)};
+  root.addEventListener('click',h);root.addEventListener('input',inp);
+  draw();
+  p.then(v=>{cleanup();res(chosen!=null?chosen:v)});
+ });
 }
 
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
@@ -2233,8 +3002,9 @@ function openEditor(opt){
  const sel=(id,opts,v)=>'<select class="in" id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'"'+(String(o[0])===String(v)?' selected':'')+'>'+o[1]+'</option>').join('')+'</select>';
  let h='<div class="sh-h"><b style="font-size:1.1rem;color:var(--text)">'+(ev?'Modifier l’événement':'Nouvel événement')+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
- h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'</div></div></div>';
+ h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'</div></div>';
+ if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">Catégorie Outlook (facultatif)</span><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Choisis « Appli seulement » pour ne pas mettre de catégorie dans Outlook : l’événement garde sa catégorie de l’appli.</p></div>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur)}})}
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-sd">Début</label><input class="in" type="date" id="f-sd" value="'+f.sd+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-st">Heure</label><input class="in" type="time" id="f-st" value="'+f.st+'"></div></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-ed">Fin</label><input class="in" type="date" id="f-ed" value="'+f.ed+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-et">Heure</label><input class="in" type="time" id="f-et" value="'+f.et+'"></div></div>';
@@ -2263,6 +3033,12 @@ function recUI(){
  $('#f-cyclebox').classList.toggle('hide',t!=='cycle');
  const u={daily:'jours',weekly:'semaines',monthly:'mois',yearly:'ans'}[t];if(u)$('#f-unit').textContent=u;
 }
+function ocatChips(cur){
+ const names=olCatList();if(cur&&!names.includes(cur))names.unshift(cur);
+ const col=n=>{const c=(MSA.cats||[]).find(x=>x.name===n);return c&&OL_COL[c.color]||'#94a3b8'};
+ return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Appli seulement</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('');
+}
+const OL_COL={preset0:'#e74856',preset1:'#f7630c',preset2:'#8e562e',preset3:'#ffb900',preset4:'#13a10e',preset5:'#00b7c3',preset6:'#6b69d6',preset7:'#8764b8',preset8:'#0078d4',preset9:'#555555',preset10:'#6e7b8b',preset11:'#2d7d9a',preset12:'#5c2d91',preset13:'#c239b3',preset14:'#ca5010',preset15:'#005b70',preset16:'#7a7574',preset17:'#b4009e',preset18:'#4a5459',preset19:'#d13438',preset20:'#e3008c',preset21:'#00cc6a',preset22:'#038387',preset23:'#d83b01',preset24:'#0063b1'};
 function readForm(){
  const g=id=>$('#'+id);
  const allDay=g('f-allday').checked;
@@ -2275,7 +3051,7 @@ function readForm(){
  }
  const cat=($('#f-cats .chip.on')||{dataset:{}}).dataset.id||S.cats[0].id;
  return{title:g('f-title').value.trim()||'Sans titre',allDay,start:g('f-sd').value,end:g('f-ed').value,startTime:g('f-st').value||'09:00',endTime:g('f-et').value||'10:00',
-  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
+  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
 }
 async function saveEditor(){
  const b=readForm();
@@ -2343,7 +3119,7 @@ function settingsView(){
  let h='';
  h+=settingsJump();
  h+=sec('s-agenda','Mon agenda')+rotCard();
- h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
+ h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=sec('s-aff','Affichage et rappels');
  h+='<div class="card"><h3>Affichage</h3>'+
@@ -2400,6 +3176,8 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
+ h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Appli seulement</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
+ h+=d('Choisir un emoji','<ul><li>Dans l’éditeur d’un événement, touche <b>＋ Plus…</b> : catégories, recherche par mot (« dentiste », « avion »…) et tes emojis récents.</li><li>Tu peux aussi taper ou coller un emoji de ton clavier dans le champ.</li><li><b>Réglages → Catégories</b> : le bouton à côté du nom fixe l’emoji par défaut de la catégorie.</li></ul>');
  h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
  h+=d('Envoyer vers le calendrier du téléphone','<ul><li>Dans <b>Réglages → Calendrier du téléphone → Choisir les événements à envoyer</b> : filtre par période ou catégorie, décoche ce que tu ne veux pas, puis touche <b>Envoyer</b>.</li><li>Le téléphone affiche alors sa page « Ajouter » : <b>c’est lui qui te laisse choisir le calendrier</b> (iCloud, Outlook…).</li><li>Dans la fiche d’un événement, <b>Au calendrier</b> envoie cet événement seul. Dans l’éditeur, le bouton « Me proposer de l’ajouter au calendrier du téléphone » le fait juste après l’enregistrement.</li><li>C’est un envoi, pas une synchronisation : après une modification, l’appli te propose « Mettre à jour » pour renvoyer l’événement. Cette proposition s’active ou se désactive dans <b>Réglages</b> (ou événement par événement dans l’éditeur).</li><li>Sur <b>Android</b>, le téléphone ouvre en général Google Agenda ou l’agenda Samsung pour confirmer l’ajout.</li><li>Sur <b>ordinateur</b>, « Au calendrier » propose : <b>Outlook.com</b> (hotmail, live), <b>Outlook travail/école</b>, <b>Google Agenda</b> (l’événement arrive déjà rempli, il suffit d’enregistrer) ou le <b>fichier .ics</b> pour Outlook installé, <b>iCloud</b> ou Apple (iCloud n’a pas de lien direct : sur Mac le .ics s’ouvre dans Calendrier, sur PC dans Outlook). Pour plusieurs événements d’un coup, utilise le .ics.</li></ul>');
  h+=d('Aller à l’adresse d’un rendez-vous','<ul><li>Quand un événement a un <b>lieu</b> (champ « Lieu »), ouvre-le (le jour même, ou n’importe quand) : la ligne du lieu est cliquable.</li><li>Touche-la : choisis <b>Plans</b> (Apple), <b>Google Maps</b> ou <b>Waze</b> ; l’appli choisie s’ouvre avec l’adresse prête. Tu peux aussi <b>copier l’adresse</b>.</li><li>Plus l’adresse est complète (numéro, rue, ville), plus le résultat est précis.</li></ul>');
@@ -2622,7 +3400,12 @@ async function act(a,el,e){
   case 'share1':{const ev=findEv(CUR.id);if(ev)exportICS(false,[ev]);break}
   case 'save':saveEditor();break;
   case 'pickicon':{const i=$('#f-icon');if(i)i.value=(i.value===ds_.i?'':ds_.i);break}
-  case 'pickcat':$$('#f-cats .chip').forEach(c=>c.classList.toggle('on',c===el));break;
+  case 'pickcat':{$$('#f-cats .chip').forEach(c=>c.classList.toggle('on',c===el));
+   const i=$('#f-icon'),cc=S.cats.find(x=>x.id===ds_.id);
+   if(i&&cc&&cc.icon&&(!i.value||S.cats.some(x=>x.icon===i.value)))i.value=cc.icon;break}
+  case 'pickocat':$$('#f-ocats .chip').forEach(c=>c.classList.toggle('on',c===el));break;
+  case 'emopick':{const i=$('#f-icon');pickEmoji(i?i.value:'').then(v=>{if(v==null||!i)return;if(v==='none')i.value='';else{i.value=v;emoRemember(v)}});break}
+  case 'catemo':{const c=S.cats[+ds_.i];if(!c)break;pickEmoji(c.icon||'').then(v=>{if(v==null)return;if(v==='none')delete c.icon;else{c.icon=v;emoRemember(v)}saveSet();render()});break}
   case 'dayc':el.classList.toggle('on');break;
   case 'dur':{
    const sd=$('#f-sd').value,st=$('#f-st').value||'09:00';
