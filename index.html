@@ -568,12 +568,14 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.5';
+const APP_VERSION='1.16.6';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.6',d:'27/10/2026',items:[
+  'La fenêtre « À venir aujourd’hui » de l’ouverture se désactive en un geste : bouton « Ne plus afficher cette fenêtre à l’ouverture » dans la fenêtre elle-même, ou interrupteur en haut de Réglages → Affichage. Elle reste réactivable à tout moment.']},
  {v:'1.16.5',d:'27/10/2026',items:[
   'Réglages : les fonctions qu’on utilise moins souvent (modèles et garde alternée, horaires de travail, aide à l’adresse) sont rangées dans « Options complémentaires », un bloc repliable. L’écran est plus court et va à l’essentiel.',
   'La carte « Installer l’appli » n’est plus répétée dans les Réglages (le rappel d’installation existe déjà à l’ouverture). Le bouton d’installation reste dans « Démo et aide » quand l’appareil le permet, et le mode d’emploi explique toujours comment installer.']},
@@ -3641,6 +3643,7 @@ function settingsView(){
   '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
  h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
+  '<div class="tgl-row"><b>Fenêtre « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
   '<div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div>'+
@@ -3660,7 +3663,6 @@ h+='<div class="card" id="ics-card">'+
   '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
  h+=sec('s-rap','Rappels');
  h+='<div class="card"><h3>Rappels</h3>'+
-  '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
   '<div class="set-row"><span class="lbl">Notifications système</span>'+
   (perm==='granted'?'<p><b>Activées.</b> <span class="mut">Elles ne sonnent que si l’appli est ouverte ou récemment utilisée en arrière-plan.</span></p>'
@@ -3859,6 +3861,7 @@ function showUpcoming(force){
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">À venir aujourd’hui</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="margin:0 0 .4rem;font-weight:650">'+cap(fLongY(t))+'</p>';
  h+='<div style="margin:0 -1rem">'+u.ad.map(o=>rowHTML(o,t)).join('')+u.ts.map(x=>rowHTML(x.o,t)).join('')+'</div>';
  h+='<div class="btns"><button class="btn pri grow" data-act="close">Fermer</button><button class="btn" data-act="goday" data-date="'+t+'">Voir la journée</button></div>';
+ if(!force)h+='<button class="btn blk" data-act="remind-off" style="margin-top:.5rem">Ne plus afficher cette fenêtre à l’ouverture</button>';
  openSheet(h);
  META.lastRemind=Date.now();saveMeta();
 }
@@ -3911,6 +3914,7 @@ async function act(a,el,e){
   case 'help':openHelp();break;
   case 'hist':openHistory(false);break;
   case 'hist-all':openHistory(true);break;
+  case 'remind-off':S.remind=false;saveSet();closeSheet();toast('Fenêtre désactivée. Réactive-la dans Réglages → Affichage');break;
   case 'wn-ok':closeSheet();if(S.remind&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
   case 'force-update':forceUpdate();break;
   case 'jump':{const x=document.getElementById(el.dataset.t);if(x&&x.tagName==='DETAILS'){x.open=true;V.optOpen=true}if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
