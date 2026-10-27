@@ -511,8 +511,21 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 
 /* 1.16.4 sauvegarde en haut */
 .sgrid #data-card .bk-more{margin-top:.5rem}
-.sgrid #data-card .bk-more summary{cursor:pointer;color:var(--acc,#2563eb);font-weight:600;font-size:.88rem;padding:.3rem 0}
+.sgrid #data-card .bk-more summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.88rem;padding:.3rem 0}
 .sgrid #data-card .warn{margin-top:.3rem}
+
+/* 1.16.5 options complémentaires */
+.sgrid .opt-wrap{margin:.7rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:.2rem .6rem .4rem}
+.sgrid .opt-wrap>summary{cursor:pointer;font-weight:700;padding:.6rem .1rem;list-style:none;font-size:.95rem}
+.sgrid .opt-wrap>summary::-webkit-details-marker{display:none}
+.sgrid .opt-wrap>summary::after{content:'＋';float:right;color:var(--accent)}
+.sgrid .opt-wrap[open]>summary::after{content:'－'}
+.sgrid .opt-wrap>summary small{display:block;font-weight:400;opacity:.7;font-size:.78rem;margin-top:.1rem;padding-right:1.5rem}
+.sgrid .opt-wrap .card{box-shadow:none;margin:.5rem 0}
+.sgrid .opt-wrap>summary{display:block!important}.sgrid .opt-wrap>summary small{display:block!important}
+.sgrid .opt-wrap>summary{position:relative}
+.sgrid .opt-wrap>summary::after{position:absolute;right:.2rem;top:.6rem;float:none}
+.sgrid .warn b:not(:first-child){display:inline}
 
 </style>
 </head>
@@ -555,12 +568,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.4';
+const APP_VERSION='1.16.5';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.5',d:'27/10/2026',items:[
+  'Réglages : les fonctions qu’on utilise moins souvent (modèles et garde alternée, horaires de travail, aide à l’adresse) sont rangées dans « Options complémentaires », un bloc repliable. L’écran est plus court et va à l’essentiel.',
+  'La carte « Installer l’appli » n’est plus répétée dans les Réglages (le rappel d’installation existe déjà à l’ouverture). Le bouton d’installation reste dans « Démo et aide » quand l’appareil le permet, et le mode d’emploi explique toujours comment installer.']},
  {v:'1.16.4',d:'27/10/2026',items:[
   'La sauvegarde est maintenant tout en haut des Réglages, avec deux boutons simples : Sauvegarder et Restaurer.',
   'Sur iPhone et Android, « Sauvegarder » ouvre directement le menu de partage : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier la fois suivante. Sur ordinateur (Chrome, Edge), la fenêtre se rouvre au même emplacement.']},
@@ -2052,7 +2068,7 @@ async function openMap(p){
 /* ---------- Réglages : sections, raccourcis, outils développeur ---------- */
 const sec=(id,t)=>'<h2 class="sect" id="'+id+'">'+esc(t)+'</h2>';
 function settingsJump(){
- const J=[['data-card','Sauvegarde'],['s-aff','Affichage'],['s-agenda','Mon agenda'],['s-cal','Calendriers'],['s-rap','Rappels'],['s-aide','Aide']];
+ const J=[['data-card','Sauvegarde'],['s-aff','Affichage'],['s-agenda','Mon agenda'],['s-cal','Calendriers'],['s-rap','Rappels'],['s-opt','Options'],['s-aide','Aide']];
  return '<div class="jump">'+J.map(j=>'<button type="button" class="chip" data-act="jump" data-t="'+j[0]+'">'+j[1]+'</button>').join('')+'</div>';
 }
 function devCard(){
@@ -3635,8 +3651,6 @@ function settingsView(){
  h+=sec('s-agenda','Mon agenda');
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
- h+=tplCard();
- h+=rotCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
  h+=msCard();
  h+=importCard();
@@ -3644,7 +3658,7 @@ h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
   '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
   '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
- h+=sec('s-rap','Rappels et adresse');
+ h+=sec('s-rap','Rappels');
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
@@ -3654,8 +3668,12 @@ h+='<div class="card" id="ics-card">'+
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
    :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
   '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
+ h+='<details class="opt-wrap" id="s-opt"'+(V.optOpen?' open':'')+'><summary>Options complémentaires <small>modèles, garde alternée, horaires de travail, aide à l’adresse</small></summary>';
+ h+=tplCard();
+ h+=rotCard();
  h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
- h+=sec('s-aide','Aide et partage')+guideCard()+installCard()+ficheCard();
+ h+='</details>';
+ h+=sec('s-aide','Aide et partage')+guideCard()+ficheCard();
  h+='<div class="card"><h3>Démo et aide</h3>'+
   (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
   '<button class="btn blk" data-act="help">'+ic('help')+' Mode d’emploi et historique</button>'+
@@ -3734,6 +3752,7 @@ function enterDemo(){demo=true;EV=demoData();V.date=today();render();toast('Mode
 function exitDemo(){demo=false;loadData();V.date=today();render()}
 
 /* ---------- Sauvegarde, restauration, .ics ---------- */
+document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='s-opt')V.optOpen=e.target.open},true);
 function backupDone(){
  META.lastBackup=Date.now();META.dirtySince=null;META.snooze=0;saveMeta();
 }
@@ -3894,7 +3913,7 @@ async function act(a,el,e){
   case 'hist-all':openHistory(true);break;
   case 'wn-ok':closeSheet();if(S.remind&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
   case 'force-update':forceUpdate();break;
-  case 'jump':{const x=document.getElementById(el.dataset.t);if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
+  case 'jump':{const x=document.getElementById(el.dataset.t);if(x&&x.tagName==='DETAILS'){x.open=true;V.optOpen=true}if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'fiche-share':ficheShare();break;
   case 'fiche-view':window.open(ficheBase()+'presentation.html','_blank');break;
   case 'fiche-copy':ficheCopy(ficheBase());break;
