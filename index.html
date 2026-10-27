@@ -532,6 +532,19 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .olrow .dotc,.dotc{-webkit-appearance:none;appearance:none;width:1.6rem;height:1.6rem;border:0;padding:0;border-radius:50%;background:none;flex:none;cursor:pointer}
 .dotc::-webkit-color-swatch-wrapper{padding:0}.dotc::-webkit-color-swatch{border:2px solid var(--line);border-radius:50%}.dotc::-moz-color-swatch{border:2px solid var(--line);border-radius:50%}
 .ocat-d>summary{cursor:pointer;display:block;padding:.2rem 0 .4rem}
+/* 1.16.9 gérer les calendriers Outlook */
+.olcal{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--line)}
+.olcal:last-child{border-bottom:0}
+.olcal .dot{width:1rem;height:1rem;border-radius:50%;flex:none}
+.olc-t{flex:1;min-width:0}.olc-t b{display:block;overflow-wrap:anywhere}.olc-t small{display:block;color:var(--muted);font-size:.76rem}
+.olcal .btn.sm{padding:.3rem .6rem;font-size:.82rem;min-height:0}
+.cpick{display:flex;flex-wrap:wrap;gap:.5rem;margin:.3rem 0 .6rem}
+.cpick label{cursor:pointer}.cpick input{position:absolute;opacity:0;pointer-events:none}
+.cpick span{display:block;width:2rem;height:2rem;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 1px var(--line)}
+.cpick input:checked+span{border-color:var(--text);box-shadow:0 0 0 2px var(--surface) inset}
+.warn b:not(:first-child){display:inline}
+.dupg{padding:.4rem 0;border-bottom:1px solid var(--bd,rgba(128,128,128,.25))}
+.dupg small{display:block;opacity:.7;margin:.1rem 0 .25rem}
 
 </style>
 </head>
@@ -574,12 +587,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.8';
+const APP_VERSION='1.16.9';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.9',d:'27/10/2026',items:[
+  'Outlook : tu peux maintenant gérer tes calendriers depuis l’appli. Réglages → Outlook → « Gérer mes calendriers Outlook » : créer un calendrier (nom et couleur), le renommer, changer sa couleur, ou le supprimer. La suppression demande de retaper le nom, car elle efface tous les événements du calendrier dans Outlook. Le calendrier par défaut, ceux en lecture seule et ceux d’un autre compte sont protégés.',
+  'Doublons : le nettoyage cherche maintenant dans tous tes calendriers Outlook (pas seulement « Agenda (appli) »), repère aussi les titres écrits un peu différemment, et te montre la liste avec des cases à cocher avant de supprimer. Un exemplaire de chaque est toujours gardé. Nouveau bouton « Chercher les doublons dans l’appli ». L’envoi vers Outlook n’envoie plus deux fois deux événements identiques.']},
  {v:'1.16.8',d:'27/10/2026',items:[
   'Écran large (iPad en paysage, ordinateur) : nouveau réglage « Panneau de droite » (Réglages → Affichage). Sur « Non », le mini-calendrier et la liste de la journée disparaissent et le mois, la semaine ou le jour prennent toute la largeur : les titres sont moins coupés.']},
  {v:'1.16.7',d:'27/10/2026',items:[
@@ -1599,7 +1615,11 @@ async function msSync(silent){
   const cal=await msEnsureCal();
   const from=add(today(),-31),to=add(today(),366);
   const want={};
-  for(const o of occs(from,to)){if(o.ev.src==='ol')continue;const p=msPayload(o);p.singleValueExtendedProperties=[{id:MS_PROP,value:o.ev.id+'|'+o.date}];want[o.ev.id+'|'+o.date]={cal:o.ev.ocal||cal,p,h:hash32(JSON.stringify(p.categories&&p.categories.length?p:Object.assign({},p,{categories:undefined})))}}
+  const seenSig=new Set();
+  for(const o of occs(from,to)){if(o.ev.src==='ol')continue;const p=msPayload(o);
+   const sig=[o.ev.ocal||cal,norm(p.subject).trim(),p.start.dateTime,p.end.dateTime,p.isAllDay].join('|');
+   if(seenSig.has(sig))continue;seenSig.add(sig); /* deux événements identiques dans l'appli : un seul envoi (et le doublon déjà dans Outlook est supprimé) */
+   p.singleValueExtendedProperties=[{id:MS_PROP,value:o.ev.id+'|'+o.date}];want[o.ev.id+'|'+o.date]={cal:o.ev.ocal||cal,p,h:hash32(JSON.stringify(p.categories&&p.categories.length?p:Object.assign({},p,{categories:undefined})))}}
   const reqs=[];
   /* anti-doublons : si cet appareil ne connaît pas encore un événement, on regarde d'abord ce que les autres appareils ont déjà envoyé */
   const need=Object.keys(want).filter(k=>!MSA.map[k]);
@@ -1663,7 +1683,9 @@ function msCard(){
   h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
    '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
    '<button class="btn pri blk" data-act="ms-pull">'+ic('down')+' Récupérer depuis Outlook</button>'+
-   '<button class="btn blk sm" data-act="ol-dedupe">Nettoyer les doublons dans Outlook</button>'+
+   '<button class="btn blk sm" data-act="app-dupes">Chercher les doublons dans l’appli</button>'+
+   '<button class="btn blk sm" data-act="ol-dedupe">Chercher les doublons dans Outlook (tous les calendriers)</button>'+
+   '<button class="btn blk sm" data-act="ol-cals">Gérer mes calendriers Outlook (créer, modifier, supprimer)…</button>'+
    '<button class="btn blk sm" data-act="ol-manage">Voir mes catégories et calendriers Outlook…</button>'+
    (MSA.catsFull?'':'<button class="btn blk sm" data-act="ms-connect">Reconnecter pour lire toutes mes catégories Outlook</button>')+
    '<button class="btn blk sm" data-act="ms-import">Choisir les calendriers à récupérer…</button>'+
@@ -1753,39 +1775,7 @@ async function olFindOurs(calIds){
  return out;
 }
 /* Nettoie les doublons du calendrier « Agenda (appli) » (créés avant la protection anti-doublons) */
-async function olDedupe(){
- if(demo){toast('Quitte d’abord le mode démo');return}
- if(!msConnected()){toast('Connecte d’abord Outlook');return}
- if(msBusy)return;
- msBusy=true;toast('Recherche des doublons dans Outlook…',4000);
- try{
-  const cal=await msEnsureCal();
-  const groups=new Map();let url='/me/calendars/'+cal+'/events?$select=id,subject,start,end,isAllDay&$top=200&$expand='+encodeURIComponent("singleValueExtendedProperties($filter=id eq '"+MS_PROP+"')"),n=0,tot=0;
-  while(url&&n<40){
-   const j=await msFetch(url,{headers:{Prefer:'outlook.timezone="UTC"'}});n++;
-   for(const x of (j.value||[])){tot++;const k=[x.subject,x.start&&x.start.dateTime,x.end&&x.end.dateTime,x.isAllDay].join('|');if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)}
-   url=j['@odata.nextLink']||null;
-  }
-  const mapped=new Set(Object.values(MSA.map).map(m=>m.id));
-  const del=[];
-  for(const arr of groups.values()){
-   if(arr.length<2)continue;
-   arr.sort((a,b)=>(mapped.has(b.id)?2:0)+((b.singleValueExtendedProperties||[]).length?1:0)-((mapped.has(a.id)?2:0)+((a.singleValueExtendedProperties||[]).length?1:0)));
-   del.push(...arr.slice(1).map(x=>x.id));
-  }
-  msBusy=false;
-  if(!del.length){toast('Aucun doublon trouvé dans « '+MS_CAL_NAME+' » ('+tot+' événements vérifiés)',5000);return}
-  const r=await ask({title:'Supprimer les doublons ?',text:del.length+' doublon'+(del.length>1?'s':'')+' trouvé'+(del.length>1?'s':'')+' dans le calendrier Outlook « '+MS_CAL_NAME+' » (même titre, même date, même heure). Un exemplaire de chaque est conservé. Les autres calendriers ne sont pas touchés ; les suppressions vont dans « Éléments supprimés » d’Outlook.',btns:[{label:'Supprimer les doublons',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
-  if(r!=='y')return;
-  msBusy=true;let ok=0;
-  for(let i=0;i<del.length;i+=20){
-   const res=await msBatch(del.slice(i,i+20).map((id,j)=>({id:String(j),method:'DELETE',url:'/me/events/'+id})));
-   ok+=res.filter(z=>(z.status>=200&&z.status<300)||z.status===404).length;
-  }
-  toast(ok+' doublon'+(ok>1?'s':'')+' supprimé'+(ok>1?'s':''),5000);
- }catch(e){toast('Nettoyage impossible : '+(e.message||'erreur'),6000)}
- finally{msBusy=false}
-}
+function olDedupe(){return olDedupeAll()}
 
 /* ---------- Impression (jour, semaine, mois, 2 semaines) ---------- */
 function prRows(day){
@@ -3425,6 +3415,172 @@ async function gardeWizard(){
  V.date=c.start;render();toast('Garde alternée créée');
 }
 
+/* ========= Gérer ses calendriers Outlook depuis l'appli (créer, modifier, supprimer) ========= */
+const OL_CAL_CHOICES=[['auto','Bleu Outlook'],['lightBlue','Bleu clair'],['lightGreen','Vert'],['lightOrange','Orange'],['lightYellow','Jaune'],['lightTeal','Turquoise'],['lightPink','Rose'],['lightRed','Rouge'],['lightBrown','Marron'],['lightGray','Gris']];
+function olCalMine(c){const a=(c.owner&&c.owner.address)||'';return !a||!MSA.acct||a.toLowerCase()===String(MSA.acct).toLowerCase()}
+function olCalInfo(c){
+ const own=olCalMine(c),app=c.id===MSA.calId||c.name===MS_CAL_NAME;
+ const ro=c.canEdit===false;
+ const tags=[];if(c.isDefaultCalendar)tags.push('par défaut');if(app)tags.push('géré par l’appli');if(!own)tags.push('partagé avec toi');if(ro)tags.push('lecture seule');
+ return{app,own,ro,tags,canEdit:!ro&&own&&!app,lockName:!!c.isDefaultCalendar,canDel:!ro&&own&&!app&&!c.isDefaultCalendar};
+}
+function olCalColor(c){return (S.olCol||{})['cal:'+c.id]||calHex(c)||'#0078d4'}
+async function olCalsFetch(){const j=await msFetch('/me/calendars?$select=id,name,canEdit,color,hexColor,isDefaultCalendar,owner&$top=100');return j.value||[]}
+async function olCalsManage(){
+ if(demo){toast('Quitte d’abord le mode démo');return}
+ if(!msConnected()){toast('Connecte d’abord Outlook');return}
+ toast('Lecture d’Outlook…',2000);
+ let list;try{list=await olCalsFetch()}catch(e){toast('Lecture impossible : '+e.message,5000);return}
+ for(let guard=0;guard<40;guard++){
+  const root=$('#dlg');let pending=null;
+  const rows=list.map(c=>{const i=olCalInfo(c);
+   return '<div class="olcal"><span class="dot" style="background:'+olCalColor(c)+'"></span><div class="olc-t"><b>'+esc(c.name)+'</b>'+(i.tags.length?'<small>'+esc(i.tags.join(' · '))+'</small>':'')+'</div>'+
+    (i.canEdit?'<button type="button" class="btn sm" data-oc="edit" data-id="'+esc(c.id)+'">Modifier</button>':'')+
+    (i.canDel?'<button type="button" class="btn sm dng" data-oc="del" data-id="'+esc(c.id)+'">Supprimer</button>':'')+'</div>'}).join('');
+  const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Tes calendriers Outlook ('+list.length+'). Ce que tu fais ici est fait directement dans ton compte Outlook.</p><div class="olbox">'+rows+'</div><p class="hint" style="margin:.5rem 0 0">Le calendrier par défaut, ceux en lecture seule et ceux d’un autre compte ne peuvent pas être supprimés ici.</p>';
+  const h=e=>{const b=e.target.closest&&e.target.closest('[data-oc]');if(!b)return;e.stopImmediatePropagation();e.preventDefault();pending={a:b.dataset.oc,id:b.dataset.id};const f=root.querySelector('[data-v="2"]');if(f)f.click()};
+  root.addEventListener('click',h,true);
+  const v=await ask({title:'Mes calendriers Outlook',html,btns:[{label:'Créer un calendrier',value:'new',cls:'pri'},{label:'Mettre à jour la liste',value:'ref'},{label:'Fermer',value:null}]});
+  root.removeEventListener('click',h,true);
+  if(pending){const c=list.find(x=>x.id===pending.id);if(c){if(pending.a==='edit')await olCalEdit(c);else if(pending.a==='del')await olCalDelete(c)}}
+  else if(v==='new')await olCalEdit(null);
+  else if(v!=='ref')break;
+  try{list=await olCalsFetch()}catch(e){toast('Lecture impossible : '+e.message,5000);break}
+ }
+ try{await olCatsRefresh()}catch(e){}
+ if(V.view==='settings')render();
+}
+async function olCalEdit(c){
+ const create=!c,info=c?olCalInfo(c):{lockName:false};
+ const cur=c?(c.color&&c.color!=='auto'?c.color:'auto'):'auto';
+ const hexOf=k=>CAL_COL[k]||'#0078d4';
+ const html='<label class="lbl" for="oc-n">Nom du calendrier</label><input class="in" id="oc-n" maxlength="80" autocomplete="off" value="'+esc(c?c.name:'')+'"'+(info.lockName?' disabled':'')+' placeholder="Ex. Garde alternée" style="margin:.2rem 0 .6rem">'+
+  '<span class="lbl">Couleur</span><div class="cpick">'+OL_CAL_CHOICES.map(([k,l])=>'<label title="'+esc(l)+'"><input type="radio" name="oc-col" value="'+k+'"'+(k===cur?' checked':'')+'><span style="background:'+hexOf(k)+'"></span></label>').join('')+'</div>'+
+  (info.lockName?'<p class="hint">Le nom du calendrier par défaut ne peut pas être changé.</p>':'');
+ const root=$('#dlg');let data=null;
+ const h=e=>{const b=e.target.closest&&e.target.closest('[data-v="0"]');if(!b)return;
+  const n=(root.querySelector('#oc-n').value||'').trim();
+  if(!n){e.stopImmediatePropagation();e.preventDefault();toast('Donne un nom au calendrier');return}
+  const r=root.querySelector('input[name=oc-col]:checked');data={name:n,color:r?r.value:'auto'}};
+ root.addEventListener('click',h,true);
+ const v=await ask({title:create?'Nouveau calendrier Outlook':'Modifier le calendrier',html,btns:[{label:create?'Créer':'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',h,true);
+ if(v!=='ok'||!data)return;
+ try{
+  if(create){
+   const n=await msFetch('/me/calendars',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:data.name,color:data.color})});
+   if(n&&n.id){S.olCol=S.olCol||{};S.olCol['cal:'+n.id]=hexOf(data.color);saveSet()}
+   toast('Calendrier « '+data.name+' » créé dans Outlook',3500);
+  }else{
+   const body={color:data.color};if(!info.lockName&&data.name!==c.name)body.name=data.name;
+   await msFetch('/me/calendars/'+encodeURIComponent(c.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   S.olCol=S.olCol||{};S.olCol['cal:'+c.id]=hexOf(data.color);saveSet();
+   toast('Calendrier modifié',3000);
+  }
+ }catch(e){toast('Outlook a refusé : '+e.message,6000)}
+}
+async function olCalDelete(c){
+ const n=EV.filter(e=>e.ocal===c.id).length;
+ const html='<div class="warn"><b>⚠️ Irréversible</b>Supprimer « '+esc(c.name)+' » efface <b>tous les événements qu’il contient dans Outlook</b>, sur tous tes appareils. L’appli ne peut pas les récupérer.'+(n?'<br>'+n+' événement'+(n>1?'s':'')+' de l’appli '+(n>1?'sont':'est')+' rangé'+(n>1?'s':'')+' dans ce calendrier : '+(n>1?'ils restent':'il reste')+' dans l’appli, mais '+(n>1?'ne seront':'ne sera')+' plus envoyé'+(n>1?'s':'')+' vers ce calendrier.':'')+'</div>'+
+  '<label class="lbl" for="oc-c">Pour confirmer, retape le nom exact du calendrier :</label><input class="in" id="oc-c" autocomplete="off" placeholder="'+esc(c.name)+'" style="margin:.2rem 0 .4rem">';
+ const root=$('#dlg');
+ const h=e=>{const b=e.target.closest&&e.target.closest('[data-v="0"]');if(!b)return;
+  if((root.querySelector('#oc-c').value||'').trim().toLowerCase()!==c.name.trim().toLowerCase()){e.stopImmediatePropagation();e.preventDefault();toast('Le nom ne correspond pas : rien n’est supprimé',3500)}};
+ root.addEventListener('click',h,true);
+ const v=await ask({title:'Supprimer ce calendrier ?',html,btns:[{label:'Supprimer définitivement',value:'del',cls:'dng'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',h,true);
+ if(v!=='del')return;
+ try{
+  await msFetch('/me/calendars/'+encodeURIComponent(c.id),{method:'DELETE'});
+  S.olHide=(S.olHide||[]).filter(k=>k!=='k:'+c.id);S.olCals=(S.olCals||[]).filter(k=>k!==c.id);if(S.olCol)delete S.olCol['cal:'+c.id];saveSet();
+  let ch=false;for(const e of EV)if(e.ocal===c.id){e.ocal='';ch=true}
+  for(const k of Object.keys(MSA.map||{}))if(MSA.map[k].cal===c.id)delete MSA.map[k];
+  if(ch)saveData();msSave();
+  toast('Calendrier « '+c.name+' » supprimé d’Outlook',4000);
+ }catch(e){toast('Outlook a refusé : '+e.message,6000)}
+}
+
+/* ========= Doublons : dans Outlook (tous les calendriers) et dans l'appli ========= */
+const dupNorm=s=>norm(String(s||'').replace(/\s+/g,' ')).trim();
+function dupKey(x){
+ const ad=!!x.isAllDay,sd=String((x.start&&x.start.dateTime)||''),ed=String((x.end&&x.end.dateTime)||'');
+ return [dupNorm(x.subject),ad,ad?sd.slice(0,10):sd.slice(0,16),ad?ed.slice(0,10):ed.slice(0,16)].join('|');
+}
+async function olDedupeAll(){
+ if(demo){toast('Quitte d’abord le mode démo');return}
+ if(!msConnected()){toast('Connecte d’abord Outlook');return}
+ if(msBusy)return;
+ msBusy=true;toast('Recherche des doublons dans tous tes calendriers Outlook…',5000);
+ let groups=[],tot=0,ncal=0;
+ try{
+  const cals=(await olCalsFetch()).filter(c=>c.canEdit!==false&&olCalMine(c));
+  const mapped=new Set(Object.values(MSA.map||{}).map(m=>m.id));
+  const all=new Map();
+  for(const c of cals){
+   ncal++;
+   let url='/me/calendars/'+encodeURIComponent(c.id)+'/events?$select=id,subject,start,end,isAllDay&$top=200&$expand='+encodeURIComponent("singleValueExtendedProperties($filter=id eq '"+MS_PROP+"')"),n=0;
+   while(url&&n<40){
+    const j=await msFetch(url,{headers:{Prefer:'outlook.timezone="UTC"'}});n++;
+    for(const x of (j.value||[])){tot++;x._cal=c;const k=dupKey(x);if(!all.has(k))all.set(k,[]);all.get(k).push(x)}
+    url=j['@odata.nextLink']||null;
+   }
+  }
+  const score=x=>(mapped.has(x.id)?2:0)+((x.singleValueExtendedProperties||[]).length?1:0);
+  for(const arr of all.values()){
+   if(arr.length<2)continue;
+   arr.sort((a,b)=>score(b)-score(a));
+   const byCal=new Map();for(const x of arr){if(!byCal.has(x._cal.id))byCal.set(x._cal.id,[]);byCal.get(x._cal.id).push(x)}
+   const same=[],cross=[];
+   for(const l of byCal.values()){l.slice(1).forEach(x=>same.push(x))}
+   if(byCal.size>1)for(const l of byCal.values())cross.push(l[0]);
+   groups.push({ref:arr[0],same,cross});
+  }
+ }catch(e){msBusy=false;toast('Recherche impossible : '+(e.message||'erreur'),6000);return}
+ msBusy=false;
+ if(!groups.length){toast('Aucun doublon trouvé ('+tot+' événements vérifiés dans '+ncal+' calendrier'+(ncal>1?'s':'')+')',6000);return}
+ const fd=x=>{const s=(x.start&&x.start.dateTime||'').slice(0,10),e=(x.end&&x.end.dateTime||'').slice(0,10);const f=d=>d?d.slice(8,10)+'/'+d.slice(5,7):'';return x.isAllDay?(f(s)+(e&&e!==s?' → '+f(e):'')):f(s)+' '+(x.start.dateTime||'').slice(11,16)+' UTC'};
+ let h='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">'+tot+' événements vérifiés dans '+ncal+' calendrier'+(ncal>1?'s':'')+'. Même titre, mêmes dates. <b>Un exemplaire de chaque est toujours conservé.</b></p><div class="olbox">';
+ let any=false;
+ for(const g of groups){
+  const title=g.ref.subject||'(sans titre)';
+  if(g.same.length){any=true;h+='<div class="dupg"><b>'+esc(title)+'</b><small>'+esc(fd(g.ref))+'</small>'+g.same.map(x=>'<label class="olrow"><input type="checkbox" class="dup-c" data-id="'+esc(x.id)+'" data-g="'+esc(g.ref.id)+'" checked><span>Copie en trop dans « '+esc(x._cal.name)+' »</span></label>').join('')+'</div>'}
+  if(g.cross.length){h+='<div class="dupg"><b>'+esc(title)+'</b><small>'+esc(fd(g.ref))+' · dans plusieurs calendriers (peut être voulu)</small>'+g.cross.map((x,i)=>'<label class="olrow"><input type="checkbox" class="dup-c" data-id="'+esc(x.id)+'" data-g="X'+esc(g.ref.id)+'"><span>Supprimer la copie de « '+esc(x._cal.name)+' »</span></label>').join('')+'</div>'}
+ }
+ h+='</div><p class="hint" style="margin:.5rem 0 0">Coché = sera supprimé d’Outlook (sur tous tes appareils). Les copies « dans plusieurs calendriers » ne sont pas cochées : choisis toi-même.</p>';
+ const root=$('#dlg');let sel=[];
+ const hh=e=>{const b=e.target.closest&&e.target.closest('[data-v="0"]');if(!b)return;
+  const by={};root.querySelectorAll('.dup-c').forEach(i=>{(by[i.dataset.g]=by[i.dataset.g]||[]).push(i)});
+  sel=[];for(const k in by){const l=by[k];const ch=l.filter(i=>i.checked);if(k[0]==='X'&&ch.length===l.length)ch.pop();ch.forEach(i=>sel.push(i.dataset.id))}};
+ root.addEventListener('click',hh,true);
+ const v=await ask({title:'Doublons trouvés',html:h,btns:[{label:'Supprimer les doublons cochés',value:'del',cls:'dng'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',hh,true);
+ if(v!=='del'||!sel.length){if(v==='del')toast('Rien de coché : rien n’est supprimé');return}
+ msBusy=true;let ok=0;
+ try{
+  for(let i=0;i<sel.length;i+=20){
+   const res=await msBatch(sel.slice(i,i+20).map((id,j)=>({id:String(j),method:'DELETE',url:'/me/events/'+id})));
+   ok+=res.filter(z=>(z.status>=200&&z.status<300)||z.status===404).length;
+  }
+  for(const k of Object.keys(MSA.map||{}))if(sel.includes(MSA.map[k].id))delete MSA.map[k];
+  msSave();
+  toast(ok+' doublon'+(ok>1?'s':'')+' supprimé'+(ok>1?'s':'')+' d’Outlook',5000);
+ }catch(e){toast('Suppression incomplète : '+(e.message||'erreur'),6000)}
+ finally{msBusy=false}
+}
+/* doublons dans l'appli elle-même (la source des doublons envoyés à Outlook) */
+async function appDupes(){
+ const g=new Map();
+ for(const e of EV){const k=[dupNorm((e.icon?e.icon+' ':'')+e.title),e.start,e.end,e.allDay?1:0,e.startTime||'',e.endTime||'',JSON.stringify(e.rec||null),e.ocal||''].join('|');if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
+ const extra=[];for(const l of g.values())if(l.length>1)l.slice(1).forEach(x=>extra.push(x));
+ if(!extra.length){toast('Aucun doublon dans l’appli ('+EV.length+' événements vérifiés)',5000);return}
+ const r=await ask({title:'Doublons dans l’appli',text:extra.length+' événement'+(extra.length>1?'s':'')+' en double (même titre, mêmes dates et heures). On en garde un seul de chaque. Si tu es connecté à Outlook, les copies envoyées en trop seront aussi retirées d’Outlook à la prochaine synchronisation.',btns:[{label:'Supprimer '+extra.length+' doublon'+(extra.length>1?'s':''),value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ const ids=new Set(extra.map(x=>x.id));EV=EV.filter(x=>!ids.has(x.id));saveData();
+ toast(extra.length+' doublon'+(extra.length>1?'s':'')+' supprimé'+(extra.length>1?'s':'')+' de l’appli',4000);
+ if(typeof msSchedule==='function')msSchedule();
+ render();
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -3723,6 +3879,8 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
+ h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li></ul>');
+ h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
@@ -4027,7 +4185,9 @@ async function act(a,el,e){
   case 'ms-sync':msSync(false);break;
   case 'ms-import':msImport();break;
   case 'ol-manage':olManage();break;
+  case 'ol-cals':olCalsManage();break;
   case 'ol-dedupe':olDedupe();break;
+  case 'app-dupes':appDupes();break;
   case 'pickocal':$$('#f-ocal .chip').forEach(c=>c.classList.toggle('on',c===el));break;
   case 'ms-pull':msPullNow();break;
   case 'xl-import':$('#fi-xl').value='';$('#fi-xl').click();break;
