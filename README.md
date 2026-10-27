@@ -21,6 +21,7 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
 - Apparence à ta couleur : couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge, dates plus lisibles
 - Aide à l’adresse facultative (France, service public, désactivée par défaut) : adresses complètes proposées, ton texte gardé si elle est introuvable
+- Modèles d’événements (on ne change que la date) et garde alternée (un week-end ou une semaine sur 2, début et fin au choix)
 - Mode plein écran (œil), jour J mis en valeur, vue 2 semaines lisible (mots coupés avec tiret)
 - Sélecteur d'emojis intégré (catégories, recherche en français, récents) + emoji par défaut par catégorie
 - Import d'autres calendriers : depuis Outlook (lecture de ses autres calendriers, sens Outlook → appli) et depuis un fichier Excel / CSV / ODS (SheetJS, Apache-2.0, `lib/xlsx.core.min.js`, chargé uniquement à l'import) avec reconnaissance automatique des colonnes

@@ -473,6 +473,13 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .adr-l button svg{flex:none;margin-top:.15rem;color:var(--accent)}
 .adr-on{display:inline-flex;gap:.4rem;align-items:center;color:var(--accent);font-weight:700;padding:.35rem .1rem}
 
+/* Modèles et garde alternée */
+.tpl-l{display:flex;flex-direction:column;gap:.4rem;margin:.5rem 0}
+.tpl-i{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:.8rem;padding:.5rem .7rem;background:var(--surface)}
+.dlgbox .gd{max-height:55vh;overflow:auto;margin:.2rem 0 .6rem;padding-right:.2rem}
+.dlgbox .gd .g2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.gv{border:1.5px solid var(--line);border-radius:.8rem;padding:.6rem;margin:.5rem 0;background:var(--surface)}
+
 </style>
 </head>
 <body>
@@ -514,12 +521,17 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.15.0';
+const APP_VERSION='1.16.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.0',d:'27/10/2026',items:[
+  'Nouveau : modèles d’événements. Dans la fiche d’un événement, « Enregistrer comme modèle » ; dans « Nouvel événement », une rangée Modèles remplit tout (titre, emoji, lieu, heures, durée, rappel) : tu ne changes que la date. À gérer dans Réglages → Modèles.',
+  'Nouveau : garde alternée. Choisis « Un week-end sur 2 », « Une semaine sur 2 » ou personnalisé, le jour et l’heure de début et de fin, à partir de quelle date et jusqu’à quand : l’appli crée toutes les gardes d’un coup, et l’on peut modifier une seule garde ou toute la série.',
+  'Garde alternée : périodes de vacances à part (pas de garde, toute la période, 1re ou 2e moitié) : les gardes normales de la période sont retirées et remplacées.',
+  'Les modèles sont inclus dans la sauvegarde.']},
  {v:'1.15.0',d:'27/10/2026',items:[
   'Nouveau : aide à l’adresse (facultative, France). Dans « Lieu », après quelques lettres, l’appli propose des adresses complètes ; tu touches la bonne et c’est rempli. Si l’adresse est fausse ou introuvable, ton texte est gardé tel quel.',
   'Désactivée par défaut et jamais envoyée sans ton accord : si tu l’actives, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale (gratuit, sans pub, sans compte). Désactivable dans Réglages.',
@@ -711,7 +723,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -3201,6 +3213,108 @@ async function adrEnable(){
  if(r==='on'){S.adrAide=true;saveSet();adrHint();toast('Aide à l’adresse activée');const i=$('#f-place');if(i&&i.value.trim().length>=4)adrInput(i)}
 }
 
+/* ---------- Modèles d'événements + assistant « Garde alternée » ---------- */
+const TPL_WD=[['1','Lundi'],['2','Mardi'],['3','Mercredi'],['4','Jeudi'],['5','Vendredi'],['6','Samedi'],['0','Dimanche']];
+function tplList(){return Array.isArray(S.tpls)?S.tpls:(S.tpls=[])}
+function tplRow(){
+ const l=tplList();
+ return '<div class="fld tplrow"><span class="lbl">Modèles</span><div class="chips">'+l.map((t,i)=>'<button type="button" class="chip" data-act="tpl-use" data-i="'+i+'">'+(t.icon?esc(t.icon)+' ':'')+esc(t.name)+'</button>').join('')+'<button type="button" class="chip" data-act="garde">'+ic('plus')+' Garde alternée…</button></div></div>';
+}
+function tplCard(){
+ const l=tplList();
+ return '<div class="card" id="tpl-card"><h3>Modèles et garde alternée</h3><p class="mut" style="margin-top:0">Un modèle remplit tout d’un coup (titre, emoji, lieu, heures, durée…) : tu ne changes que la date. Ils sont dans la fiche « Nouvel événement » et dans la sauvegarde.</p>'+
+  (l.length?'<div class="tpl-l">'+l.map((t,i)=>'<div class="tpl-i"><span>'+(t.icon?esc(t.icon)+' ':'')+'<b>'+esc(t.name)+'</b>'+(t.rec?' <small class="mut">· 1 semaine sur 2</small>':'')+'</span><span><button class="btn sm" data-act="tpl-ren" data-i="'+i+'">Renommer</button> <button class="btn sm dng" data-act="tpl-del" data-i="'+i+'">Supprimer</button></span></div>').join('')+'</div>':'<p class="mut">Aucun modèle pour l’instant. Dans la fiche d’un événement, touche « Enregistrer comme modèle ».</p>')+
+  '<button class="btn blk" data-act="garde">'+ic('plus')+' Créer une garde alternée</button></div>';
+}
+async function tplSave(){
+ const b=readForm();const nm=await tplName(b.title==='Sans titre'?'':b.title);if(nm==null)return;
+ tplList().push({id:uid(),name:nm,title:b.title,icon:b.icon||'',cat:b.cat,place:b.place,note:b.note,allDay:b.allDay,startTime:b.startTime,endTime:b.endTime,dur:Math.max(0,diff(b.end,b.start)),alarm:b.alarm,rec:b.rec&&b.rec.type!=='cycle'?Object.assign({},b.rec,{days:[],until:null}):null});
+ saveSet();toast('Modèle « '+nm+' » enregistré');
+}
+async function tplName(cur){
+ let val=null;const root=$('#dlg');
+ const h=e=>{const x=e.target.closest('[data-v="0"]');if(!x)return;const n=(($('#tp-n')||{}).value||'').trim().slice(0,40);if(!n){e.stopImmediatePropagation();e.preventDefault();toast('Donne un nom au modèle');return}val=n};
+ root.addEventListener('click',h,true);
+ const r=await ask({title:'Nom du modèle',html:'<input class="in" id="tp-n" maxlength="40" placeholder="Ex. Garde week-end" autocomplete="off" value="'+esc(cur||'')+'" style="margin:.2rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',h,true);
+ return r==='ok'?val:null;
+}
+function tplUse(i){
+ const t=tplList()[i];if(!t)return;
+ const d=($('#f-sd')||{}).value||V.date;
+ closeSheet();
+ setTimeout(()=>openEditor({date:RX_D.test(d)?d:V.date,copy:{title:t.title,allDay:t.allDay,startTime:t.startTime,endTime:t.endTime,place:t.place,note:t.note,cat:t.cat,icon:t.icon,alarm:t.alarm,start:'2000-01-01',end:add('2000-01-01',t.dur||0)},tpl:t}),200);
+}
+async function tplRename(i){const t=tplList()[i];if(!t)return;const n=await tplName(t.name);if(n==null)return;t.name=n;saveSet();render()}
+async function tplDel(i){const t=tplList()[i];if(!t)return;const r=await ask({title:'Supprimer le modèle ?',text:'« '+t.name+' » sera supprimé. Les événements déjà créés ne changent pas.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){tplList().splice(i,1);saveSet();render()}}
+
+/* Garde alternée : un seul événement qui se répète une semaine sur deux */
+function gardeCalc(v){
+ const sdow=+v.sd_,edow=+v.ed_;let span=(edow-sdow+7)%7;if(span===0)span=7;
+ let d=RX_D.test(v.from)?v.from:V.date;for(let k=0;k<7&&dow(d)!==sdow;k++)d=add(d,1);
+ return{start:d,end:add(d,span),span,sdow};
+}
+function gardeRead(){const g=id=>($('#'+id)||{}).value;return{title:(g('gd-t')||'').trim(),icon:g('gd-i')||'',sd_:g('gd-sd'),st:g('gd-st')||'18:00',ed_:g('gd-ed'),et:g('gd-et')||'18:00',from:g('gd-from'),um:g('gd-um'),until:g('gd-until'),cat:g('gd-cat'),tpl:($('#gd-tpl')||{}).checked,vac:$$('#gd-vac .gv').map(r=>({a:r.querySelector('.gv-a').value,b:r.querySelector('.gv-b').value,t:r.querySelector('.gv-t').value}))}}
+function gardePrev(){
+ const p=$('#gd-prev');if(!p)return;const v=gardeRead();const c=gardeCalc(v);
+ const wd=(n)=>(TPL_WD.find(x=>+x[0]===n)||['','' ])[1].toLowerCase();
+ p.innerHTML='<b>Première garde :</b> du '+esc(fLongY(c.start))+' à '+esc(v.st)+' au '+esc(fLongY(c.end))+' à '+esc(v.et)+'.<br><b>Ensuite :</b> une semaine sur 2'+(v.um==='until'&&RX_D.test(v.until)?', jusqu’au '+esc(fLongY(v.until)):', sans date de fin')+'.'+(v.vac.length?'<br><b>Vacances :</b> '+v.vac.length+' période'+(v.vac.length>1?'s':'')+' à part.':'');
+}
+async function gardeWizard(){
+ const wsel=(id,v)=>'<select class="in" id="'+id+'">'+TPL_WD.map(x=>'<option value="'+x[0]+'"'+(x[0]===String(v)?' selected':'')+'>'+x[1]+'</option>').join('')+'</select>';
+ const f0=($('#f-sd')||{}).value;const from=RX_D.test(f0)?f0:V.date;
+ const cat=S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id;
+ const html='<div class="gd">'+
+  '<div class="fld"><label class="lbl" for="gd-t">Titre</label><input class="in" id="gd-t" maxlength="60" placeholder="Ex. Garde de Léo" autocomplete="off"></div>'+
+  '<div class="fld"><label class="lbl" for="gd-i">Emoji (facultatif)</label><input class="in" id="gd-i" maxlength="8" placeholder="👶" style="max-width:6rem"></div>'+
+  '<div class="fld"><label class="lbl" for="gd-p">Rythme</label><select class="in" id="gd-p"><option value="we">Un week-end sur 2</option><option value="sem">Une semaine sur 2</option><option value="perso">Personnalisé</option></select></div>'+
+  '<div class="g2"><div class="fld"><label class="lbl" for="gd-sd">Début : jour</label>'+wsel('gd-sd',5)+'</div><div class="fld"><label class="lbl" for="gd-st">à</label><input class="in" type="time" id="gd-st" value="18:00"></div></div>'+
+  '<div class="g2"><div class="fld"><label class="lbl" for="gd-ed">Fin : jour</label>'+wsel('gd-ed',0)+'</div><div class="fld"><label class="lbl" for="gd-et">à</label><input class="in" type="time" id="gd-et" value="18:00"></div></div>'+
+  '<div class="fld"><label class="lbl" for="gd-from">La garde commence à partir du</label><input class="in" type="date" id="gd-from" value="'+from+'"><p class="hint">Choisis la date de la première garde (ou un jour avant : l’appli prend le premier jour de début qui suit).</p></div>'+
+  '<div class="fld"><label class="lbl" for="gd-um">Fin des gardes</label><select class="in" id="gd-um"><option value="until">À une date</option><option value="never">Jamais</option></select><input class="in" style="margin-top:.5rem" type="date" id="gd-until" value="'+add(from,365)+'"></div>'+
+  '<div class="fld"><label class="lbl" for="gd-cat">Catégorie</label><select class="in" id="gd-cat">'+S.cats.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===cat?' selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select></div>'+
+  '<div class="fld"><span class="lbl">Vacances (facultatif)</span><p class="hint" style="margin-top:0">Pour une période où la garde change (vacances scolaires, juillet-août…).</p><div id="gd-vac"></div><button type="button" class="btn blk sm" data-gv="add">'+ic('plus')+' Ajouter une période</button></div>'+
+  '<div class="tgl-row"><b>Enregistrer aussi comme modèle</b><label class="tgl"><input type="checkbox" id="gd-tpl"></label></div>'+
+  '<div class="info" id="gd-prev" style="display:block;margin:.6rem 0"></div></div>';
+ const root=$('#dlg');let out=null;
+ const onI=e=>{
+  if(e.target.id==='gd-p'){const p=e.target.value;const set=(a,b,c,d)=>{$('#gd-sd').value=a;$('#gd-ed').value=b;$('#gd-st').value=c;$('#gd-et').value=d};if(p==='we'){set(5,0,'18:00','18:00')}else if(p==='sem'){set(5,5,'18:00','18:00')}}
+  gardePrev();
+ };
+ const vacRow=()=>{const d=document.createElement('div');d.className='gv';d.innerHTML='<div class="g2"><div><label class="lbl">Du</label><input class="in gv-a" type="date" value="'+add(($('#gd-from')||{}).value||V.date,0)+'"></div><div><label class="lbl">Au</label><input class="in gv-b" type="date" value="'+add(($('#gd-from')||{}).value||V.date,14)+'"></div></div><select class="in gv-t" style="margin-top:.4rem"><option value="none">Pas de garde pendant cette période</option><option value="all">Garde toute la période</option><option value="h1">Garde la 1re moitié</option><option value="h2">Garde la 2e moitié</option></select><button type="button" class="btn sm dng" data-gv="del" style="margin-top:.4rem">Retirer</button>';$('#gd-vac').appendChild(d);gardePrev()};
+ const onC=e=>{
+  const gvb=e.target.closest('[data-gv]');
+  if(gvb){e.preventDefault();e.stopImmediatePropagation();if(gvb.dataset.gv==='add'){if($$('#gd-vac .gv').length<8)vacRow()}else{gvb.closest('.gv').remove();gardePrev()}return}
+  const x=e.target.closest('[data-v="0"]');if(!x)return;const v=gardeRead();
+  for(const q of v.vac){if(!RX_D.test(q.a)||!RX_D.test(q.b)||q.b<q.a){e.stopImmediatePropagation();e.preventDefault();toast('Dates de vacances invalides');return}}
+  if(!RX_D.test(v.from)||(v.um==='until'&&!RX_D.test(v.until))){e.stopImmediatePropagation();e.preventDefault();toast('Date invalide');return}
+  const c=gardeCalc(v);if(v.um==='until'&&v.until<c.start){e.stopImmediatePropagation();e.preventDefault();toast('La date de fin est avant la première garde');return}
+  if(c.span<=0||(c.span===7&&false)){return}
+  out={v,c}};
+ root.addEventListener('input',onI);root.addEventListener('change',onI);root.addEventListener('click',onC,true);
+ setTimeout(gardePrev,30);
+ const r=await ask({title:'Garde alternée',html,btns:[{label:'Créer les gardes',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('input',onI);root.removeEventListener('change',onI);root.removeEventListener('click',onC,true);
+ if(r!=='ok'||!out)return;
+ const {v,c}=out;
+ const title=v.title||'Garde';
+ const base={title,icon:iconClean(v.icon),cat:v.cat,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,start:c.start,end:c.end,alarm:S.defAlarm,
+  rec:{type:'weekly',interval:2,days:[c.sdow],on:1,off:0,until:v.um==='until'?v.until:null}};
+ const ex=[];const extra=[];
+ for(const q of v.vac){
+  for(let d=c.start;d<=q.b&&(!base.rec.until||d<=base.rec.until);d=add(d,14))if(add(d,c.span)>=q.a&&d<=q.b)ex.push(d);
+  const n=diff(q.b,q.a),mid=add(q.a,Math.floor(n/2));
+  const mk=(a,b)=>extra.push(Object.assign({},base,{id:uid(),start:a,end:b,rec:null,ex:[]}));
+  if(q.t==='all')mk(q.a,q.b);else if(q.t==='h1')mk(q.a,mid);else if(q.t==='h2')mk(mid,q.b);
+ }
+ EV.push(cleanEvent(Object.assign({id:uid()},base,{ex})));
+ extra.forEach(x=>{const k=cleanEvent(x);if(k)EV.push(k)});
+ if(v.tpl)tplList().push({id:uid(),name:title,title,icon:iconClean(v.icon),cat:v.cat,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,dur:c.span,alarm:S.defAlarm,rec:{type:'weekly',interval:2,days:[],on:1,off:0,until:null}});
+ S.lastCat=v.cat;saveSet();touch();
+ if(SHEET_OPEN)closeSheet();
+ V.date=c.start;render();toast('Garde alternée créée');
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -3302,7 +3416,7 @@ function openEditor(opt){
   else if(sd===today()){const m=Math.min(1350,Math.ceil((nowMin()+1)/30)*30);st=hm(m)}
   const s=tmin(st),e=Math.min(1439,s+60);
   f={title:'',allDay:false,sd,st,ed:sd,et:hm(e),place:'',note:'',icon:'',cat:S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id,rec:null,alarm:S.defAlarm};
-  if(opt.copy){const c=opt.copy;Object.assign(f,{title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
+  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
  }
  ED={id:ev?ev.id:null,occ:ev?(opt.occDate||ev.start):null,snap:{sd:f.sd,st:f.st,ed:f.ed,et:f.et}};
  const r=f.rec||{type:'none',interval:1,days:[],on:3,off:2,until:null};
@@ -3310,6 +3424,7 @@ function openEditor(opt){
  const dayIdx=weekHead();
  const sel=(id,opts,v)=>'<select class="in" id="'+id+'">'+opts.map(o=>'<option value="'+o[0]+'"'+(String(o[0])===String(v)?' selected':'')+'>'+o[1]+'</option>').join('')+'</select>';
  let h='<div class="sh-h"><b style="font-size:1.1rem;color:var(--text)">'+(ev?'Modifier l’événement':'Nouvel événement')+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ if(!ev)h+=tplRow();
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
  h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'<button type="button" class="chip cat'+(f.cat==='-'?' on':'')+'" style="--c:#94a3b8" data-act="pickcat" data-id="-">Sans catégorie</button></div></div>';
@@ -3328,6 +3443,7 @@ function openEditor(opt){
   '<div class="fld"><label class="lbl" for="f-um">Fin de la répétition</label>'+sel('f-um',[['never','Jamais'],['until','À une date']],r.until?'until':'never')+'<input class="in'+(r.until?'':' hide')+'" style="margin-top:.5rem" type="date" id="f-until" value="'+(r.until||add(f.sd,90))+'"></div></div></div>';
  h+='<div class="fld"><label class="lbl" for="f-alarm">Rappel</label><select class="in" id="f-alarm">'+alarmOpts(f.allDay,f.alarm)+'</select></div>';
  h+='<div class="tgl-row" style="margin-top:.6rem"><b>Me proposer de l’ajouter au calendrier du téléphone<small style="display:block;font-weight:500;color:var(--muted)">Après l’enregistrement, ton téléphone te demande dans quel calendrier (iCloud, Outlook…).</small></b><label class="tgl"><input type="checkbox" id="f-phone"'+(S.askPhone?' checked':'')+'></label></div>';
+ h+='<button type="button" class="btn blk" data-act="tpl-save" style="margin-top:.8rem">'+ic('plus')+' Enregistrer comme modèle</button>';
  h+='<div class="sticky-save"><button class="btn grow" data-act="close">Annuler</button><button class="btn pri grow" data-act="save">Enregistrer</button></div>';
  if(ev)h+='<button class="btn dng blk" data-act="delfromedit">'+ic('trash')+' Supprimer</button>';
  openSheet(h,'full');
@@ -3437,6 +3553,7 @@ function settingsView(){
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=sec('s-aff','Affichage et rappels');
  h+=lookCard(seg);
+ h+=tplCard();
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
@@ -3495,6 +3612,7 @@ function openHelp(hist){
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Appli seulement</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
+ h+=d('Modèles et garde alternée','<ul><li><b>Modèle</b> : dans la fiche d’un événement, touche « Enregistrer comme modèle ». Ensuite, dans « Nouvel événement », touche le modèle : tout est rempli, tu changes seulement la date.</li><li><b>Garde alternée</b> : touche « Garde alternée… » (dans Nouvel événement ou Réglages → Modèles), choisis le rythme, les jours et heures de début et de fin, à partir de quand et jusqu’à quand. Les gardes sont créées d’un coup.</li><li><b>Vacances</b> : ajoute une période (du… au…) avec « Pas de garde », « Garde toute la période », « 1re moitié » ou « 2e moitié » : les gardes normales de la période sont remplacées.</li><li>Pour changer une seule garde, ouvre-la et choisis « Cette occurrence seulement ».</li><li>Gérer ou supprimer un modèle : Réglages → Modèles et garde alternée.</li></ul>');
  h+=d('Plein écran (œil)','<ul><li>Touche l’<b>œil</b> en haut : les boutons du haut et du bas disparaissent et le calendrier occupe tout l’écran.</li><li>Pour revenir, touche l’<b>œil barré</b> en haut à droite (ou la touche Échap sur ordinateur).</li><li>Glisser à gauche ou à droite change de mois/semaine/jour.</li></ul>');
  h+=d('Choisir un emoji','<ul><li>Dans l’éditeur d’un événement, touche <b>＋ Plus…</b> : catégories, recherche par mot (« dentiste », « avion »…) et tes emojis récents.</li><li>Tu peux aussi taper ou coller un emoji de ton clavier dans le champ.</li><li><b>Réglages → Catégories</b> : le bouton à côté du nom fixe l’emoji par défaut de la catégorie.</li></ul>');
  h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
@@ -3572,6 +3690,7 @@ async function restoreFile(file){
  }else{
   const ids=new Set(EV.map(e=>e.id));let n=0;
   b.events.forEach(e=>{const i=EV.findIndex(x=>x.id===e.id);if(i>=0)EV[i]=e;else{EV.push(e);n++}});
+  if(b.settings&&Array.isArray(b.settings.tpls)){const T=tplList();b.settings.tpls.forEach(t=>{if(t&&t.name&&!T.some(x=>x.id===t.id))T.push(t)});saveSet()}
   if(b.settings&&b.settings.cats){b.settings.cats.forEach(c=>{if(!S.cats.some(x=>x.id===c.id))S.cats.push(c)});saveSet()}
  }
  saveData();META.dirtySince=null;META.lastBackup=Date.now();saveMeta();
@@ -3739,6 +3858,11 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
+  case 'tpl-use':tplUse(+el.dataset.i);break;
+  case 'tpl-save':tplSave();break;
+  case 'tpl-ren':tplRename(+el.dataset.i);break;
+  case 'tpl-del':tplDel(+el.dataset.i);break;
+  case 'garde':gardeWizard();break;
   case 'adr-on':adrEnable();break;
   case 'adr-pick':adrPick(+el.dataset.i);break;
   case 'look-reset':S.acc='';S.bgk='';S.weCol='';S.holi=1;S.dsty='normal';saveSet();setTheme();render();toast('Apparence par défaut');break;
