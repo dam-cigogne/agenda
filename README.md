@@ -1,5 +1,7 @@
 # AgenDam
 
+**Pourquoi AgenDam ?** Gratuite, sans publicité, sans compte, aucune donnée collectée (aucun serveur). Un mois lisible d'un coup d'œil (titres entiers, emoji, jour J), des rotations de travail sur mesure, import Outlook / Excel / CSV, envoi vers le calendrier Outlook et la catégorie de son choix, impression A4 d'une page.
+
 AgenDam : agenda et emploi du temps simple et lisible, installable sur iPhone et Android (PWA).
 Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donnée collectée** : tout reste sur l'appareil.
 
@@ -17,9 +19,10 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Envoi vers le calendrier du téléphone : choix précis des événements (période, catégorie, cases), choix du calendrier par le téléphone, « Mettre à jour » après modification (réglable)
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
+- Mode plein écran (œil), jour J mis en valeur, vue 2 semaines lisible (mots coupés avec tiret)
 - Sélecteur d'emojis intégré (catégories, recherche en français, récents) + emoji par défaut par catégorie
 - Import d'autres calendriers : depuis Outlook (lecture de ses autres calendriers, sens Outlook → appli) et depuis un fichier Excel / CSV / ODS (SheetJS, Apache-2.0, `lib/xlsx.core.min.js`, chargé uniquement à l'import) avec reconnaissance automatique des colonnes
-- Connexion facultative à Outlook / Microsoft : envoi de l'agenda vers un calendrier à part (sens unique, directement vers le compte de l'utilisateur, aucun serveur intermédiaire)
+- Connexion facultative à Outlook / Microsoft : envoi vers le calendrier Outlook choisi pour chaque événement (ou « Agenda (appli) »), catégorie Outlook au choix, anti-doublons (marque propriétaire sur chaque événement), nettoyage des doublons ; directement vers le compte de l'utilisateur, aucun serveur intermédiaire
 - Mode sombre, recherche, mode démo, aide « ? » intégrée avec historique des versions
 
 ## Limites à connaître

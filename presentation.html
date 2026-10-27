@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AgenDam · emploi du temps simple et lisible</title>
-<meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : jour, semaine, 2 semaines, mois, rotations sur mesure, impression, rappels, import/export .ics. Aucune donnée collectée.">
+<meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : mois lisible d’un coup d’œil, rotations sur mesure, emojis au choix, Outlook, Excel, impression. Sans publicité, aucune donnée collectée.">
 <meta name="theme-color" content="#2f5bea">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -60,17 +60,31 @@ a{color:var(--accent)}
     <img src="screenshots/semaine-sombre.png" alt="Mode sombre">
   </div>
 
+  <section id="difference">
+    <h2>Ce qui la rend différente</h2>
+    <div class="grid">
+      <div class="card"><h3>Gratuite, sans pub, sans compte</h3><p><b>Ici :</b> aucune publicité, aucun abonnement, aucun compte à créer, aucune donnée collectée. <b>Souvent ailleurs :</b> publicité, version payante ou compte obligatoire.</p></div>
+      <div class="card"><h3>Tes données restent chez toi</h3><p><b>Ici :</b> tout est enregistré sur ton appareil, il n’existe aucun serveur de l’appli. <b>Souvent ailleurs :</b> tes événements transitent par les serveurs de l’éditeur.</p></div>
+      <div class="card"><h3>Un mois qu’on lit d’un coup d’œil</h3><p><b>Ici :</b> titres en entier, bandeaux sur plusieurs jours, emoji, jour J encadré, mode plein écran (l’œil). <b>Souvent ailleurs :</b> des points de couleur ou des titres tronqués.</p></div>
+      <div class="card"><h3>Tes rotations, sur mesure</h3><p><b>Ici :</b> tu crées ton cycle (matin / soir / nuit, repos, heures) et il se place tout seul. <b>Souvent ailleurs :</b> il faut tout saisir à la main, jour après jour.</p></div>
+      <div class="card"><h3>Tu choisis où ça va</h3><p><b>Ici :</b> pour chaque événement, le calendrier Outlook de destination, sa catégorie Outlook, ou « Appli seulement ». Pas de doublons à l’envoi. <b>Souvent ailleurs :</b> tout part au même endroit.</p></div>
+      <div class="card"><h3>Tu rapatries ton ancien agenda</h3><p><b>Ici :</b> import depuis Outlook ou depuis n’importe quel fichier Excel / CSV, avec reconnaissance des colonnes et liste à cocher avant d’importer. Les jours identiques sont regroupés en une barre.</p></div>
+      <div class="card"><h3>Un emoji pour chaque chose</h3><p><b>Ici :</b> un sélecteur avec recherche en français (« dentiste », « avion »…) et un emoji par défaut par catégorie.</p></div>
+      <div class="card"><h3>Sur tous tes appareils, même hors ligne</h3><p><b>Ici :</b> iPhone, Android, tablette, ordinateur, avec installation depuis le navigateur, sans magasin d’applis. L’appli marche sans connexion.</p></div>
+    </div>
+  </section>
+
   <section>
     <h2>Ce que fait l’appli</h2>
     <div class="grid">
       <div class="card"><h3>Jour, semaine, 2 semaines, mois</h3><p>Des vues nettes, en gros caractères, lisibles d’un coup d’œil, sur téléphone, tablette ou ordinateur. La vue « 2 semaines » donne beaucoup de place aux titres.</p></div>
       <div class="card"><h3>Un mois qu’on lit vraiment</h3><p>Les titres sont écrits en entier (sur plusieurs lignes quand il y a de la place), avec une barre de couleur par catégorie. Un événement sur plusieurs jours forme un seul bandeau avec son nom complet.</p></div>
-      <div class="card"><h3>Un emoji par événement</h3><p>🦷 dentiste, 🎂 anniversaire, 🏖️ vacances… Un coup d’œil suffit pour repérer ce qu’on fait.</p></div>
+      <div class="card"><h3>Un emoji par événement</h3><p>🦷 dentiste, 🎂 anniversaire, 🏖️ vacances… Un sélecteur intégré avec recherche en français, et un emoji par défaut pour chaque catégorie. Un coup d’œil suffit pour repérer ce qu’on fait.</p></div>
       <div class="card"><h3>Tes rotations, sur mesure</h3><p>Tu crées toi-même ton cycle : jours travaillés, repos, matin / soir / nuit, heures, emoji. Des modèles (3 jours / 2 repos, 2-2-2-4) pour démarrer. Facultatif.</p></div>
       <div class="card"><h3>Répétitions et rappels</h3><p>Tous les jours, semaines, mois, ans. « À venir aujourd’hui » à l’ouverture et notifications quand la plateforme le permet.</p></div>
       <div class="card"><h3>Impression, une page par vue</h3><p>Jour, semaine, 2 semaines ou mois : une seule page A4, bien lisible, avec l’heure devant chaque rendez-vous.</p></div>
       <div class="card"><h3>Vers le calendrier du téléphone</h3><p>Tu choisis ce que tu envoies (par période, catégorie, case à cocher), et ton téléphone te laisse choisir le calendrier : iCloud, Outlook, Google…</p></div>
-      <div class="card"><h3>Outlook (facultatif)</h3><p>Envoi de ton agenda vers un calendrier Outlook à part, directement vers ton compte, sans serveur intermédiaire.</p></div>
+      <div class="card"><h3>Outlook (facultatif)</h3><p>Envoi de ton agenda vers le calendrier Outlook de ton choix, avec sa catégorie Outlook, sans doublons, et récupération de tes calendriers Outlook dans l’appli. Directement avec ton compte, sans serveur intermédiaire.</p></div>
       <div class="card"><h3>Sauvegarde, recherche, mode sombre</h3><p>Sauvegarde .json, import et export .ics, recherche en quelques lettres, thème clair, sombre ou automatique.</p></div>
     </div>
   </section>
@@ -144,7 +158,7 @@ a{color:var(--accent)}
   <div class="card"><h3>Importer d’ailleurs</h3><p>Tu as déjà un agenda ? Rapatrie-le : depuis Outlook en un geste, ou depuis n’importe quel fichier Excel ou CSV (Google Agenda, autre appli…). Les colonnes sont reconnues automatiquement et les doublons ignorés.</p></div>
   <div class="card"><h3>Direction vers le rendez-vous</h3><p>Un événement a un lieu ? Touche-le : Plans, Google Maps ou Waze s’ouvre avec l’adresse prête.</p></div>
   <div class="card"><h3>Partager l’appli</h3><p>Dans la roue crantée ⚙ → <b>Fiche de l’appli</b> : 3 affiches (claire, sombre, avec l’appli) et une carte d’aperçu, à envoyer avec « Partager avec le descriptif », « Voir la fiche » ou « Copier le lien ». Le <b>Guide d’utilisation</b> et « Installer l’appli » sont au même endroit.</p></div>
-  <footer>AgenDam · gratuit, sans publicité · version 1.13.7 · <a href="./">Ouvrir l’appli</a></footer>
+  <footer>AgenDam · gratuit, sans publicité · version 1.13.8 · <a href="./">Ouvrir l’appli</a></footer>
 </div>
 </body>
 </html>
