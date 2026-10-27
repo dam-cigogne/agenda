@@ -509,6 +509,11 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .sgrid .tpl-i{padding:.35rem .55rem}
 .sgrid .jump{gap:.3rem}
 
+/* 1.16.4 sauvegarde en haut */
+.sgrid #data-card .bk-more{margin-top:.5rem}
+.sgrid #data-card .bk-more summary{cursor:pointer;color:var(--acc,#2563eb);font-weight:600;font-size:.88rem;padding:.3rem 0}
+.sgrid #data-card .warn{margin-top:.3rem}
+
 </style>
 </head>
 <body>
@@ -550,12 +555,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.3';
+const APP_VERSION='1.16.4';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.4',d:'27/10/2026',items:[
+  'La sauvegarde est maintenant tout en haut des Réglages, avec deux boutons simples : Sauvegarder et Restaurer.',
+  'Sur iPhone et Android, « Sauvegarder » ouvre directement le menu de partage : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier la fois suivante. Sur ordinateur (Chrome, Edge), la fenêtre se rouvre au même emplacement.']},
  {v:'1.16.3',d:'27/10/2026',items:[
   'Réglages plus simples et plus compacts : boutons, curseurs, champs et catégories moins gros, cartes plus serrées, tout reste lisible.',
   'Ce qu’on utilise le plus est en haut : Affichage et couleurs, puis Mon agenda (catégories, modèles, horaires). Rappels et aide à l’adresse sont maintenant vers la fin.']},
@@ -2044,7 +2052,7 @@ async function openMap(p){
 /* ---------- Réglages : sections, raccourcis, outils développeur ---------- */
 const sec=(id,t)=>'<h2 class="sect" id="'+id+'">'+esc(t)+'</h2>';
 function settingsJump(){
- const J=[['s-aff','Affichage'],['s-agenda','Mon agenda'],['s-cal','Calendriers'],['s-data','Données'],['s-rap','Rappels'],['s-aide','Aide']];
+ const J=[['data-card','Sauvegarde'],['s-aff','Affichage'],['s-agenda','Mon agenda'],['s-cal','Calendriers'],['s-rap','Rappels'],['s-aide','Aide']];
  return '<div class="jump">'+J.map(j=>'<button type="button" class="chip" data-act="jump" data-t="'+j[0]+'">'+j[1]+'</button>').join('')+'</div>';
 }
 function devCard(){
@@ -3610,6 +3618,11 @@ function settingsView(){
  const perm=('Notification' in window)?Notification.permission:'indisponible';
  let h='';
  h+=settingsJump();
+ h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3>'+
+  '<p class="mut" style="margin:.1rem 0 .2rem">'+(META.lastBackup?'Dernière sauvegarde : <b>'+fmtDate(META.lastBackup)+'</b>':'<b>Aucune sauvegarde pour le moment.</b>')+'</p>'+
+  '<button class="btn pri blk" data-act="bk-save">'+ic('down')+' Sauvegarder</button>'+
+  '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer</button>'+
+  '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
  h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
@@ -3631,13 +3644,6 @@ h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
   '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
   '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
- h+=sec('s-data','Mes données');
- h+='<div class="card" id="data-card"><h3>Sauvegarde et plusieurs appareils</h3>'+
-  '<div class="warn"><b>⚠️ Les appareils ne se synchronisent PAS tout seuls.</b>Tes événements restent sur chaque appareil. Pour retrouver ton agenda sur un autre téléphone :<ol><li>Sur le premier appareil : <b>Sauvegarder</b> (fichier « '+BACKUP_FILE+' »).</li><li>Envoie ce fichier à l’autre appareil (mail, AirDrop, messagerie, cloud…).</li><li>Sur l’autre appareil : <b>Restaurer</b>.</li></ol>Refais-le après chaque grosse modification. Les deux agendas ne se fusionnent jamais d’eux-mêmes.</div>'+
-  '<p class="mut">'+(META.lastBackup?'Dernière sauvegarde : '+fmtDate(META.lastBackup):'Aucune sauvegarde pour le moment.')+'</p>'+
-  '<button class="btn pri blk" data-act="bk-save">'+ic('down')+' Sauvegarder (.json)</button>'+
-  (canShareFiles()?'<button class="btn blk" data-act="bk-share">'+ic('share')+' Envoyer la sauvegarde…</button>':'')+
-  '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer une sauvegarde</button></div>';
  h+=sec('s-rap','Rappels et adresse');
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="tgl-row"><b>Afficher « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
@@ -3734,7 +3740,14 @@ function backupDone(){
 async function doBackup(share){
  if(demo){toast('Quitte d’abord le mode démo');return}
  const text=JSON.stringify(backupObj(),null,1);
- if(share){const r=await shareFile(BACKUP_FILE,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(BACKUP_FILE,'application/json',text)}}
+ if(!share&&canShareFiles())share=true;
+ let done=false;
+ if(!share&&window.showSaveFilePicker){
+  try{const h=await window.showSaveFilePicker({suggestedName:BACKUP_FILE,id:'agd-sauvegarde',startIn:'documents',types:[{description:'Sauvegarde AgenDam',accept:{'application/json':['.json']}}]});
+   const w=await h.createWritable();await w.write(text);await w.close();done=true}
+  catch(e){if(e&&e.name==='AbortError')return}}
+ if(done){}
+ else if(share){const r=await shareFile(BACKUP_FILE,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(BACKUP_FILE,'application/json',text)}}
  else downloadFile(BACKUP_FILE,'application/json',text);
  backupDone();
  await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+BACKUP_FILE+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
