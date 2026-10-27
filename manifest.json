@@ -1,8 +1,8 @@
 {
   "id": "/agenda/",
-  "name": "Agenda · emploi du temps simple et lisible",
-  "short_name": "Agenda",
-  "description": "Agenda et emploi du temps gratuit, lisible et privé. Jour, semaine, mois. Aucune donnée collectée.",
+  "name": "AgenDam · emploi du temps simple et lisible",
+  "short_name": "AgenDam",
+  "description": "AgenDam, agenda et emploi du temps gratuit, lisible et privé. Jour, semaine, mois. Aucune donnée collectée.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",
@@ -68,6 +68,17 @@
       "name": "Mois",
       "short_name": "Mois",
       "url": "./?view=month",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "2 semaines",
+      "short_name": "2 sem.",
+      "url": "./?view=fort",
       "icons": [
         {
           "src": "icons/icon-192.png",

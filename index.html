@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Agenda · emploi du temps simple et lisible</title>
-<meta name="description" content="Agenda et emploi du temps gratuit, lisible et privé : vues jour, semaine et mois, rappels, import/export .ics. Aucune donnée collectée, tout reste sur votre appareil.">
+<title>AgenDam · emploi du temps simple et lisible</title>
+<meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : vues jour, semaine et mois, rappels, import/export .ics. Aucune donnée collectée, tout reste sur votre appareil.">
 <meta name="theme-color" content="#2f5bea">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Agenda">
+<meta name="apple-mobile-web-app-title" content="AgenDam">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Agenda – emploi du temps simple et lisible">
+<meta property="og:title" content="AgenDam – emploi du temps simple et lisible">
 <meta property="og:description" content="Jour, semaine, mois en gros caractères, rotations de travail, impression, envoi vers ton calendrier. Gratuit, sans publicité, aucune donnée collectée.">
 <meta property="og:image" content="https://dam-cigogne.github.io/agenda/apercu.png">
 <meta property="og:url" content="https://dam-cigogne.github.io/agenda/">
@@ -407,12 +407,15 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.7.0',d:'27/10/2026',items:[
+  'L’appli s’appelle désormais AgenDam (nom, icône d’accueil, impression, fiche à partager, aperçu des liens). Tes données ne changent pas.'
+ ]},
  {v:'1.6.0',d:'27/10/2026',items:[
   'Choisir précisément quoi envoyer au calendrier du téléphone : filtre par période et catégorie, cases à cocher, puis envoi',
   'À la création d’un événement : option « Me proposer de l’ajouter au calendrier du téléphone » (le téléphone te laisse choisir iCloud, Outlook…). Si tu modifies ensuite l’événement, un bouton « Mettre à jour » te le propose. Tout se règle (activer / désactiver) dans Réglages',
@@ -687,7 +690,7 @@ function vevent(ev,uidv,sd,ed,withRec,stampv){
 }
 function buildICS(list){
  const stampv=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
- const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Agenda agd//FR','CALSCALE:GREGORIAN','X-WR-CALNAME:Agenda'];
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Agenda agd//FR','CALSCALE:GREGORIAN','X-WR-CALNAME:AgenDam'];
  for(const ev of list){
   if(ev.rec&&ev.rec.type==='cycle'){
    const from=add(today(),-60),to=ev.rec.until||add(today(),400);
@@ -1333,7 +1336,7 @@ function printCurrent(){
  let z=$('#printzone');
  if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
  z.className='pz '+(land?'land':'port');
- z.innerHTML='<h1>'+esc(t[0])+' <small>'+esc(t[1])+'</small></h1>'+printBody(v,V.date)+'<p class="pr-f">Agenda · imprimé le '+fmtDate(Date.now())+'</p>';
+ z.innerHTML='<h1>'+esc(t[0])+' <small>'+esc(t[1])+'</small></h1>'+printBody(v,V.date)+'<p class="pr-f">AgenDam · imprimé le '+fmtDate(Date.now())+'</p>';
  let st=$('#pgstyle');
  if(!st){st=document.createElement('style');st.id='pgstyle';document.head.appendChild(st)}
  st.textContent='@page{size:A4 '+(land?'landscape':'portrait')+';margin:10mm}';
@@ -1500,7 +1503,7 @@ async function rotDel(id){
 
 /* ---------- Guide, installation, fiche à partager (Réglages) ---------- */
 const FICHE_IMGS=[['affiches/affiche-claire.png','Affiche claire'],['affiches/affiche-sombre.png','Affiche sombre'],['affiches/affiche-appli.png','Affiche avec l’appli'],['apercu.png','Carte d’aperçu',1]];
-const FICHE_TXT='Agenda : un emploi du temps simple et lisible, en gros caractères. Jour, semaine, 2 semaines, mois, rotations de travail sur mesure, impression en une page, envoi vers ton calendrier. Gratuit, sans publicité, aucune donnée collectée : tout reste sur ton téléphone.';
+const FICHE_TXT='AgenDam : un emploi du temps simple et lisible, en gros caractères. Jour, semaine, 2 semaines, mois, rotations de travail sur mesure, impression en une page, envoi vers ton calendrier. Gratuit, sans publicité, aucune donnée collectée : tout reste sur ton téléphone.';
 const ficheBase=()=>new URL('./',location.href).href;
 function guideCard(){
  return '<div class="card"><h3>Guide d’utilisation</h3><p class="mut" style="margin-top:0">Comment marche chaque partie de l’appli, expliqué simplement. Le bouton <b>?</b> en haut de l’écran ouvre aussi le guide.</p>'+
@@ -1524,7 +1527,7 @@ async function ficheCopy(txt,msg){
 }
 async function ficheShare(){
  const url=ficheBase();
- if(navigator.share){try{await navigator.share({title:'Agenda',text:FICHE_TXT,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+ if(navigator.share){try{await navigator.share({title:'AgenDam',text:FICHE_TXT,url});return}catch(e){if(e&&e.name==='AbortError')return}}
  ficheCopy(FICHE_TXT+'\n'+url,'Descriptif et lien copiés');
 }
 async function ficheImg(path){
@@ -1793,7 +1796,7 @@ function settingsView(){
   (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
   '<button class="btn blk" data-act="help">'+ic('help')+' Mode d’emploi et historique</button>'+
   (installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
- h+='<div class="card"><h3>À propos</h3><p><b>Agenda</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
+ h+='<div class="card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
   '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div><div style="height:2rem"></div>';
  return{html:h,fixed:false};
 }
@@ -1818,7 +1821,7 @@ function openHelp(hist){
  h+=d('Installer sur iPhone ou Android','<p><b>iPhone (Safari)</b> : ouvre le lien dans <b>Safari</b> → bouton Partager (carré avec flèche) → <b>Sur l’écran d’accueil</b> → Ajouter.</p><p><b>Android (Chrome)</b> : ouvre le lien → menu ⋮ → <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</p><p>Une fois installée, l’appli fonctionne <b>sans connexion</b>.</p>');
  h+=d('Confidentialité et stockage','<ul><li>Aucun compte, aucun serveur, aucune publicité, aucune statistique : tes données restent sur l’appareil.</li><li>Sur iPhone, Safari peut effacer les données d’un site non installé après environ 7 jours sans visite. <b>Installe l’appli sur l’écran d’accueil et sauvegarde</b> pour ne rien perdre.</li></ul>');
  h+='<details id="hist"'+(hist?' open':'')+'><summary>Historique des versions</summary>'+CHANGELOG.map(c=>'<div class="ver"><b>Version '+c.v+' · '+c.d+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('')+'</details>';
- h+='<p class="mut" style="margin-top:1rem">Agenda · version '+APP_VERSION+'</p>';
+ h+='<p class="mut" style="margin-top:1rem">AgenDam · version '+APP_VERSION+'</p>';
  openSheet(h,'full');
  if(hist){const x=$('#hist');if(x)x.scrollIntoView()}
 }

@@ -1,6 +1,6 @@
-# Agenda
+# AgenDam
 
-Agenda et emploi du temps simple et lisible, installable sur iPhone et Android (PWA).
+AgenDam : agenda et emploi du temps simple et lisible, installable sur iPhone et Android (PWA).
 Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donnée collectée** : tout reste sur l'appareil.
 
 - Appli : https://dam-cigogne.github.io/agenda/
