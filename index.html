@@ -470,12 +470,17 @@ details.msd .mut{font-size:.85rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.13.1';
+const APP_VERSION='1.13.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.13.2',d:'27/10/2026',items:[
+  'Catégorie Outlook : l’éditeur affiche maintenant tes vraies catégories (celles déjà utilisées sur tes événements Outlook) au lieu des 6 couleurs standard, même sans reconnexion',
+  'Nouveau bouton « ＋ Autre nom… » pour saisir le nom exact d’une catégorie Outlook',
+  'Réglages → Outlook : bouton « Reconnecter pour lire toutes mes catégories Outlook » (donne la liste complète du compte, y compris les catégories pas encore utilisées)'
+ ]},
  {v:'1.13.1',d:'27/10/2026',items:[
   'Import : les jours identiques d’un événement « journée entière » (ex. « Congé supplémentaire » du 2 au 15) sont regroupés en une seule barre sur plusieurs jours, y compris pour ce qui a déjà été importé ; titres un peu moins coupés en vue Mois',
   'Import Outlook : les nouvelles catégories créées reprennent la couleur de la catégorie Outlook'
@@ -1457,6 +1462,7 @@ function msCard(){
   h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
    '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
    '<button class="btn pri blk" data-act="ms-pull">'+ic('down')+' Récupérer depuis Outlook</button>'+
+   (MSA.catsFull?'':'<button class="btn blk sm" data-act="ms-connect">Reconnecter pour lire toutes mes catégories Outlook</button>')+
    '<button class="btn blk sm" data-act="ms-import">Choisir les calendriers à récupérer…</button>'+
    '<div class="set-row"><span class="lbl">Envoi automatique après chaque modification</span>'+seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0)+'</div>'+
    '<div class="set-row"><span class="lbl">Récupérer mes calendriers Outlook à l’ouverture</span>'+seg('olAuto',[[1,'Oui'],[0,'Non']],S.olAuto?1:0)+'</div>'+
@@ -1479,8 +1485,15 @@ function olCatList(){
 }
 async function olCatsRefresh(){
  if(!msConnected()||demo)return false;
- try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);msSave();return true}
- catch(e){return false}
+ try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);MSA.catsFull=true;msSave();return true}
+ catch(e){}
+ /* repli (autorisation pas encore donnée) : catégories déjà utilisées sur tes événements Outlook */
+ try{
+  const seen=new Set();let url='/me/events?$select=categories&$top=500',n=0;
+  while(url&&n<4){const j=await msFetch(url);for(const x of (j.value||[]))for(const c of (x.categories||[]))seen.add(String(c).slice(0,60));url=j['@odata.nextLink']||null;n++}
+  if(seen.size){const old=new Map((MSA.cats||[]).map(c=>[c.name,c]));MSA.cats=[...seen].sort((a,b)=>a.localeCompare(b)).map(nm=>old.get(nm)||{name:nm,color:''});MSA.catsFull=false;msSave();return true}
+ }catch(e){}
+ return false
 }
 
 /* ---------- Impression (jour, semaine, mois, 2 semaines) ---------- */
@@ -3040,7 +3053,7 @@ function openEditor(opt){
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
  h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'</div></div>';
- if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">Catégorie Outlook (facultatif)</span><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Choisis « Appli seulement » pour ne pas mettre de catégorie dans Outlook : l’événement garde sa catégorie de l’appli.</p></div>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur)}})}
+ if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">Catégorie Outlook (facultatif)</span><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Choisis « Appli seulement » pour ne pas mettre de catégorie dans Outlook : l’événement garde sa catégorie de l’appli.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></div>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur)}})}
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-sd">Début</label><input class="in" type="date" id="f-sd" value="'+f.sd+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-st">Heure</label><input class="in" type="time" id="f-st" value="'+f.st+'"></div></div>';
  h+='<div class="g2"><div class="fld"><label class="lbl" for="f-ed">Fin</label><input class="in" type="date" id="f-ed" value="'+f.ed+'"></div><div class="fld timeonly'+(f.allDay?' hide':'')+'"><label class="lbl" for="f-et">Heure</label><input class="in" type="time" id="f-et" value="'+f.et+'"></div></div>';
@@ -3072,7 +3085,7 @@ function recUI(){
 function ocatChips(cur){
  const names=olCatList();if(cur&&!names.includes(cur))names.unshift(cur);
  const col=n=>{const c=(MSA.cats||[]).find(x=>x.name===n);return c&&OL_COL[c.color]||'#94a3b8'};
- return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Appli seulement</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('');
+ return '<button type="button" class="chip cat'+(cur?'':' on')+'" style="--c:#94a3b8" data-act="pickocat" data-o="">Appli seulement</button>'+names.map(n=>'<button type="button" class="chip cat'+(n===cur?' on':'')+'" style="--c:'+col(n)+'" data-act="pickocat" data-o="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="chip cat" style="--c:#94a3b8" data-act="ocatnew">＋ Autre nom…</button>';
 }
 const OL_COL={preset0:'#e74856',preset1:'#f7630c',preset2:'#8e562e',preset3:'#ffb900',preset4:'#13a10e',preset5:'#00b7c3',preset6:'#6b69d6',preset7:'#8764b8',preset8:'#0078d4',preset9:'#555555',preset10:'#6e7b8b',preset11:'#2d7d9a',preset12:'#5c2d91',preset13:'#c239b3',preset14:'#ca5010',preset15:'#005b70',preset16:'#7a7574',preset17:'#b4009e',preset18:'#4a5459',preset19:'#d13438',preset20:'#e3008c',preset21:'#00cc6a',preset22:'#038387',preset23:'#d83b01',preset24:'#0063b1'};
 function readForm(){
@@ -3439,6 +3452,9 @@ async function act(a,el,e){
   case 'pickcat':{$$('#f-cats .chip').forEach(c=>c.classList.toggle('on',c===el));
    const i=$('#f-icon'),cc=S.cats.find(x=>x.id===ds_.id);
    if(i&&cc&&cc.icon&&(!i.value||S.cats.some(x=>x.icon===i.value)))i.value=cc.icon;break}
+  case 'ocatnew':{ask({title:'Catégorie Outlook',html:'<input class="in" id="oc-n" maxlength="60" placeholder="Nom exact de la catégorie" autocomplete="off" style="margin:.2rem 0 .6rem">',btns:[{label:'Choisir',value:'ok',cls:'pri'},{label:'Annuler',value:null}]}).then(v=>{});
+   const root=$('#dlg'),h=e=>{const b=e.target.closest('[data-v="0"]');if(!b)return;root.removeEventListener('click',h,true);const n=(($('#oc-n')||{}).value||'').trim().slice(0,60);if(!n)return;const c=$('#f-ocats');if(!c)return;const cur=$$('#f-ocats .chip').find(x=>x.dataset.o===n);if(cur){$$('#f-ocats .chip').forEach(x=>x.classList.toggle('on',x===cur))}else{const bt=document.createElement('button');bt.type='button';bt.className='chip cat on';bt.dataset.act='pickocat';bt.dataset.o=n;bt.style.setProperty('--c','#94a3b8');bt.textContent=n;$$('#f-ocats .chip').forEach(x=>x.classList.remove('on'));c.insertBefore(bt,c.querySelector('[data-act=ocatnew]'))}};
+   root.addEventListener('click',h,true);break}
   case 'pickocat':$$('#f-ocats .chip').forEach(c=>c.classList.toggle('on',c===el));break;
   case 'emopick':{const i=$('#f-icon');pickEmoji(i?i.value:'').then(v=>{if(v==null||!i)return;if(v==='none')i.value='';else{i.value=v;emoRemember(v)}});break}
   case 'catemo':{const c=S.cats[+ds_.i];if(!c)break;pickEmoji(c.icon||'').then(v=>{if(v==null)return;if(v==='none')delete c.icon;else{c.icon=v;emoRemember(v)}saveSet();render()});break}
