@@ -51,3 +51,4 @@ Toutes les clés de stockage et noms de cache commencent par `agd-` (les autres 
 Le manifeste (id, icônes 192 / 512 / maskable, captures, raccourcis) et le service worker sont prêts pour une application Android par TWA (PWABuilder ou Bubblewrap). À prévoir à ce moment-là : le fichier `.well-known/assetlinks.json` doit être servi à la **racine du domaine** (pour `github.io`, cela demande un dépôt `dam-cigogne.github.io` ou un domaine personnalisé), une politique de confidentialité (voir `presentation.html#confidentialite`) et un compte développeur Google Play.
 
 - Fiche à partager : affiches (`affiches/`) + carte d’aperçu, guide et installation dans Réglages
+- Lieu d’un rendez-vous : itinéraire en un geste (Plans, Google Maps, Waze)
