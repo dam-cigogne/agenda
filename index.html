@@ -23,12 +23,12 @@
 <style>
 :root{
   --bg:#f5f6f8;--surface:#fff;--surface2:#eef0f4;--text:#10151c;--muted:#5b6574;--line:#e2e6ec;--line2:#eef1f5;
-  --accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.10);--todaybg:rgba(47,91,234,.045);
+  --accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.10);--todaybg:rgba(47,91,234,.09);--todayc:rgba(47,91,234,.16);
   --danger:#d92d20;--warn:#f59e0b;--shadow:0 10px 40px rgba(16,24,40,.22);--scale:1;
 }
 html[data-theme=dark]{
   --bg:#0d1117;--surface:#161b22;--surface2:#212833;--text:#eef1f5;--muted:#9aa5b4;--line:#2b3340;--line2:#202731;
-  --accent:#7b97ff;--on-accent:#0b1020;--accent-soft:rgba(123,151,255,.16);--todaybg:rgba(123,151,255,.07);
+  --accent:#7b97ff;--on-accent:#0b1020;--accent-soft:rgba(123,151,255,.16);--todaybg:rgba(123,151,255,.13);--todayc:rgba(123,151,255,.24);
   --danger:#ff6b5f;--shadow:0 10px 40px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -51,7 +51,7 @@ input,select,textarea{font:inherit;color:inherit}
 .pill{padding:.45rem .8rem;border:1.5px solid var(--line);border-radius:999px;font-weight:700;font-size:.82rem}
 
 @media(max-width:560px){
-  #top{display:grid;grid-template-columns:1fr auto auto auto;row-gap:.35rem;padding-bottom:.55rem}
+  #top{display:grid;grid-template-columns:1fr auto auto auto auto;row-gap:.35rem;padding-bottom:.55rem}
   #top>#gearbtn{grid-column:4;grid-row:1}
   #top>.ib[data-act=help]{grid-column:3;grid-row:1}
   #top>.ib[data-act=print]{grid-column:2;grid-row:1}
@@ -183,6 +183,8 @@ input,select,textarea{font:inherit;color:inherit}
 .bgc{border-left:1px solid var(--line2);display:block;width:100%;height:100%}
 .bgc.out{background:var(--surface2)}
 .bgc.sel{background:var(--accent-soft)}
+.bgc.today{background:var(--todayc);box-shadow:inset 0 0 0 2px var(--accent);border-radius:.35rem}
+.mn.today{box-shadow:0 0 0 3px var(--todayc)}
 .mn{justify-self:end;align-self:start;font-size:.78rem;font-weight:750;line-height:1.25;padding:.05rem .3rem;margin:.12rem .12rem 0 0;border-radius:999px;min-width:1.45rem;text-align:center}
 .mn.today{background:var(--accent);color:var(--on-accent)}
 .mn.out{color:var(--muted);opacity:.65}
@@ -328,7 +330,7 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .pz .mband{border:1px solid rgba(0,0,0,.4)}
 .pz .ml{background:#fff;border:1px solid #bbb;border-left:3px solid var(--c);color:#000}
 .pz .mband,.pz .ml{font-size:8.5pt}.pz .mn{font-size:10pt}
-.pz .bgc.sel{background:none}
+.pz .bgc.sel,.pz .bgc.today{background:none;box-shadow:none}
 .pzshot{position:absolute;left:-30000px;top:0;background:#fff;color:#000;box-sizing:border-box;padding:10mm;font-size:11pt;line-height:1.3;--bg:#fff;--surface:#fff;--surface2:#eef0f4;--text:#000;--muted:#444;--line:#8a8f98;--line2:#c9ccd2;--accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.1)}
 .pzshot.land{width:297mm;height:210mm}.pzshot.port{width:210mm;height:297mm}
 @media print{
@@ -483,12 +485,15 @@ body.focus #body{padding-top:calc(env(safe-area-inset-top,0px) + 3.1rem)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.13.6';
+const APP_VERSION='1.13.7';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.13.7',d:'27/10/2026',items:[
+  'Le jour d’aujourd’hui est beaucoup plus visible : case colorée avec un cadre, numéro entouré d’un halo (vues Mois et 2 semaines), colonne plus marquée en vue Semaine'
+ ]},
  {v:'1.13.6',d:'27/10/2026',items:[
   'Outlook : fin des doublons à l’envoi. Chaque événement envoyé porte maintenant une marque invisible ; si un autre appareil (ou une réinstallation) ne le connaît pas, l’appli retrouve l’événement dans Outlook au lieu d’en créer un deuxième, et supprime les exemplaires en trop',
   'Nouveau bouton Réglages → Outlook → « Nettoyer les doublons dans Outlook » : supprime les doublons déjà créés dans le calendrier « Agenda (appli) » (un exemplaire conservé, tes autres calendriers ne sont pas touchés)',
@@ -1215,7 +1220,7 @@ function monthViewTitles(fort,pr){
   let bg='<span class="wn">'+wk+'</span>';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
-   bg+='<button class="bgc'+(d===V.date?' sel':'')+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" data-act="selday" data-date="'+d+'" aria-label="'+fLong(d)+'"></button>';
+   bg+='<button class="bgc'+(d===V.date?' sel':'')+(d===t?' today':'')+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" data-act="selday" data-date="'+d+'" aria-label="'+fLong(d)+'"></button>';
   }
   h+='<div class="mw"><div class="mw-bg">'+bg+'</div><div class="mw-fg">'+fg+'</div></div>';
  }
