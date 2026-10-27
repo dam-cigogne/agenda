@@ -461,12 +461,15 @@ details.msd .mut{font-size:.85rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.12.0';
+const APP_VERSION='1.12.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.12.1',d:'27/10/2026',items:[
+  'Bouton « Récupérer depuis Outlook » directement dans la carte Outlook, à côté d’« Envoyer maintenant » (un geste pour relire les calendriers déjà choisis)'
+ ]},
  {v:'1.12.0',d:'27/10/2026',items:[
   'Import depuis Outlook : lis tes autres calendriers Outlook (rendez-vous, vacances, calendriers partagés…) et ajoute-les dans AgenDam, avec une catégorie par calendrier',
   'Import depuis un fichier Excel ou CSV (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, lieu, notes, catégorie, rappel), te laisse les corriger et ignore les doublons',
@@ -1397,10 +1400,12 @@ function msCard(){
   h=h.replace('<div class="card"><h3>Outlook / Microsoft</h3>','<details class="card dev msd"><summary><b>Outlook / Microsoft</b> <span class="mut" style="font-weight:600">· connecté'+(MSA.last?' · dernier envoi '+fmtDate(MSA.last):'')+'</span></summary>');
   h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
    '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
+   '<button class="btn pri blk" data-act="ms-pull">'+ic('down')+' Récupérer depuis Outlook</button>'+
+   '<button class="btn blk sm" data-act="ms-import">Choisir les calendriers à récupérer…</button>'+
    '<div class="set-row"><span class="lbl">Envoi automatique après chaque modification</span>'+seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0)+'</div>'+
    '<div class="set-row"><span class="lbl">Récupérer mes calendriers Outlook à l’ouverture</span>'+seg('olAuto',[[1,'Oui'],[0,'Non']],S.olAuto?1:0)+'</div>'+
    '<p class="mut" style="font-size:.85rem;margin:.1rem 0 .5rem">'+((S.olCals||[]).length?'Relit les '+S.olCals.length+' calendrier'+(S.olCals.length>1?'s':'')+' choisi'+(S.olCals.length>1?'s':'')+' lors du dernier import (Réglages → Importer un autre calendrier).':'Fais d’abord un import « Depuis Outlook » : l’appli retient tes choix pour les relire ensuite.')+'</p>'+
-   '<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem">Sens unique : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (période : 1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés. Ce qui est modifié dans Outlook sur ces événements est écrasé au prochain envoi.</p>'+
+   '<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem"><b>Envoyer</b> : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (1 mois en arrière à 1 an en avant) ; tes autres calendriers ne sont jamais touchés. <b>Récupérer</b> : Outlook → appli, depuis les calendriers que tu choisis ; rien n’est modifié dans Outlook.</p>'+
    '<button class="btn blk" data-act="ms-disc">Déconnecter Outlook</button>';
  }
  return h+(msConnected()&&msClientId()?'</details>':'</div>');
@@ -2006,6 +2011,20 @@ async function olPull(calList,per,catFlag,silent){
  touch();render();
  toast((silent?'Outlook : ':'')+fresh.length+' ajouté'+(fresh.length>1?'s':'')+(upd.length?' · '+upd.length+' mis à jour':'')+(made?' · '+made+' catégorie'+(made>1?'s':'')+' créée'+(made>1?'s':''):''),5000);
 }
+/* Bouton « Récupérer depuis Outlook » : relit tout de suite les calendriers déjà choisis (sinon ouvre le choix) */
+async function msPullNow(){
+ if(demo){toast('Quitte d’abord le mode démo');return}
+ if(!msConnected()){toast('Connecte d’abord Outlook');return}
+ if(!(S.olCals||[]).length){msImport();return}
+ let cals;
+ try{
+  toast('Lecture d’Outlook…',3000);
+  const l=await msFetch('/me/calendars?$select=id,name&$top=100');
+  cals=(l.value||[]).filter(c=>S.olCals.includes(c.id));
+ }catch(e){toast('Outlook injoignable : '+e.message,6000);return}
+ if(!cals.length){msImport();return}
+ await olPull(cals,S.olPer||'m1',S.olCat!==false,false);
+}
 /* Récupération automatique à l'ouverture (si activée) : relit les calendriers choisis lors du dernier import manuel */
 async function olAuto(){
  if(demo||!msConnected()||!S.olAuto||!(S.olCals||[]).length)return;
@@ -2570,6 +2589,7 @@ async function act(a,el,e){
   case 'ms-connect':msConnect();break;
   case 'ms-sync':msSync(false);break;
   case 'ms-import':msImport();break;
+  case 'ms-pull':msPullNow();break;
   case 'xl-import':$('#fi-xl').value='';$('#fi-xl').click();break;
   case 'ms-disc':msDisconnect();break;
   case 'ms-saveid':{const v=($('#ms-cid')||{}).value||'';if(/^[0-9a-f-]{36}$/i.test(v.trim())){S.msClientId=v.trim();saveSet();render();toast('Identifiant enregistré')}else toast('Identifiant invalide (36 caractères avec des tirets)');break}
