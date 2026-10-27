@@ -590,12 +590,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.11';
+const APP_VERSION='1.16.12';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.12',d:'28/10/2026',items:[
+  'Couleur des événements : nouveau réglage (Réglages → Affichage) « Catégorie » ou « Calendrier Outlook ». Sur « Calendrier Outlook », chaque événement (importé ou envoyé) prend la couleur de son calendrier Outlook dans le jour, la semaine, le mois et la liste.',
+  'Calendriers Outlook : en plus des 10 couleurs d’Outlook, tu peux choisir une couleur libre (sélecteur de couleur) qui sert dans l’appli.']},
  {v:'1.16.11',d:'27/10/2026',items:[
   'Outlook : partager un calendrier par adresse mail. Réglages → Outlook → « Gérer mes calendriers Outlook » → bouton « Partager » : tu saisis l’adresse, tu choisis « Peut modifier » ou « Lecture seule », et Outlook envoie l’invitation. Tu vois aussi avec qui c’est partagé et tu peux retirer un partage. Si Outlook refuse, l’appli te l’explique (reconnexion ou partage depuis Outlook).']},
  {v:'1.16.10',d:'27/10/2026',items:[
@@ -823,7 +826,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -834,6 +837,14 @@ const saveMeta=()=>{if(!demo)ls.set(K.meta,META)};
 const saveData=()=>{if(demo)return true;const ok=ls.set(K.data,{v:1,events:EV});if(!ok)toast('⚠️ Enregistrement impossible (stockage plein ou bloqué)');else msSchedule();return ok};
 function touch(){saveData();if(!demo){if(!META.dirtySince)META.dirtySince=Date.now();saveMeta()}}
 const NOCAT={id:'-',name:'Sans catégorie',color:'#94a3b8'};
+/* Couleur d'un événement : celle de sa catégorie, ou (réglage « Couleur des événements ») celle de son calendrier Outlook */
+function evCol(ev){
+ if(S.colBy==='cal'&&typeof MSA!=='undefined'&&MSA&&MSA.token){
+  const id=ev.ocal||ev.oc||(ev.src==='ol'?'':MSA.calId||'');
+  if(id){const c=(S.olCol||{})['cal:'+id]||(MSA.calById||{})[id];if(c)return c}
+ }
+ return catOf(ev.cat).color;
+}
 const catOf=id=>id==='-'?NOCAT:(S.cats.find(c=>c.id===id)||S.cats[S.cats.length-1]);
 
 /* ---------- Événements ---------- */
@@ -1186,7 +1197,7 @@ function titles(){
 
 /* ---------- Blocs communs ---------- */
 function rowHTML(o,day){
- const ev=o.ev,c=catOf(ev.cat).color;
+ const ev=o.ev,c=evCol(ev);
  let t1,t2='';
  if(o.allDay)t1='Journée';
  else{const s=o.date===day?o.s:0,e=o.endDate===day?o.e:1440;t1=hm(s);t2=hm2(e)}
@@ -1220,7 +1231,7 @@ function gridHTML(days,hh,opts){
   h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+dayCls(d)+'" title="'+esc(holName(d))+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b></button>').join('')+'</div>';
  }
  if(anyAd){
-  h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip" style="--c:'+catOf(o.ev.cat).color+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
+  h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip" style="--c:'+evCol(o.ev)+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
  }
  h+='</div>';
  h+='<div class="tg-body"><div class="tg-hours">'+Array.from({length:23},(_,i)=>'<span style="top:calc(var(--hh)*'+(i+1)+')">'+pad(i+1)+':00</span>').join('')+'</div>';
@@ -1231,7 +1242,7 @@ function gridHTML(days,hh,opts){
    const o=it.o,ev=o.ev,dur=it.e-it.s,sm=dur<=50||(cols>1&&dur<=60);
    const top=it.s/1440*100,ht=Math.max(dur,20)/1440*100,w=100/it.cols,l=it.col*w;
    const tt=hm(it.s)+'–'+hm2(it.e);
-   h+='<button class="ev'+(sm?' sm':'')+'" style="--c:'+catOf(ev.cat).color+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
+   h+='<button class="ev'+(sm?' sm':'')+'" style="--c:'+evCol(ev)+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
     (sm?(cols===1?'<span class="tt">'+tt+'</span>':''):'<small>'+tt+'</small>'+(ev.place&&cols===1?'<small>'+esc(ev.place)+'</small>':''))+'</button>';
   }
   if(d===t)h+='<div class="nowline" style="top:'+(nowMin()/1440*100)+'%"></div>';
@@ -1290,7 +1301,7 @@ function monthViewDots(){
   const all=[...ad,...ts.map(x=>x.o)];
   const shown=all.slice(0,4),more=all.length-shown.length;
   const wk=[0,6].includes(dow(d));
-  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+catOf(o.ev.cat).color+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
+  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+evCol(o.ev)+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
  }
  h+='</div></div>'+dayListHTML(V.date,{inMain:true,openBtn:true});
  return{html:h,fixed:false};
@@ -1377,7 +1388,7 @@ function monthViewTitles(fort,pr){
   }
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
-   const o=b.o,col=catOf(o.ev.cat).color;
+   const o=b.o,col=evCol(o.ev);
    fg+='<i class="mband'+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc<1?';--bsc:'+best.sc:'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
   });
   timed.forEach((arr,c)=>{
@@ -1389,7 +1400,7 @@ function monthViewTitles(fort,pr){
    const shown=Math.min(arr.length,Math.max(0,Math.floor(L/ln)));
    hid[c]+=arr.length-shown;
    if(!shown)return;
-   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml" data-date="'+o.date+'" style="--c:'+catOf(o.ev.cat).color+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
+   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
   });
   hid.forEach((n,c)=>{if(n>0)fg+='<span class="mhid" style="grid-row:1;grid-column:'+(c+2)+'">+'+n+'</span>'});
   let bg='<span class="wn">'+wk+'</span>';
@@ -1727,7 +1738,7 @@ async function olCatsRefresh(){
  if(!msConnected()||demo)return false;
  let got=false;
  try{const c=await msFetch('/me/calendars?$select=id,name,canEdit,color,hexColor&$top=100');const all=(c.value||[]).map(x=>({id:x.id,name:String(x.name||'').slice(0,80),col:calHex(x),ok:x.canEdit!==false}));
-  MSA.cals=all.filter(x=>x.ok).map(x=>({id:x.id,name:x.name,col:x.col}));MSA.calCol={};all.forEach(x=>{if(x.col)MSA.calCol[x.name]=x.col});msSave()}catch(e){}
+  MSA.cals=all.filter(x=>x.ok).map(x=>({id:x.id,name:x.name,col:x.col}));MSA.calCol={};MSA.calById={};all.forEach(x=>{if(x.col){MSA.calCol[x.name]=x.col;MSA.calById[x.id]=x.col}});msSave()}catch(e){}
  try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);MSA.catsFull=true;msSave();return true}
  catch(e){}
  /* repli (autorisation pas encore donnée) : catégories déjà utilisées sur tes événements Outlook */
@@ -3479,12 +3490,13 @@ async function olCalEdit(c){
  const hexOf=k=>CAL_COL[k]||'#0078d4';
  const html='<label class="lbl" for="oc-n">Nom du calendrier</label><input class="in" id="oc-n" maxlength="80" autocomplete="off" value="'+esc(c?c.name:'')+'"'+(info.lockName?' disabled':'')+' placeholder="Ex. Garde alternée" style="margin:.2rem 0 .6rem">'+
   '<span class="lbl">Couleur</span><div class="cpick">'+OL_CAL_CHOICES.map(([k,l])=>'<label title="'+esc(l)+'"><input type="radio" name="oc-col" value="'+k+'"'+(k===cur?' checked':'')+'><span style="background:'+hexOf(k)+'"></span></label>').join('')+'</div>'+
+  '<span class="lbl" style="margin-top:.7rem;display:block">Ou une couleur de ton choix (dans l’appli)</span><div style="display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .1rem"><input type="color" id="oc-hex" value="'+(c?olCalColor(c):hexOf(cur))+'" style="width:3rem;height:2.4rem;padding:0;border:0;background:none"><small class="mut">Outlook n’accepte que les 10 couleurs ci-dessus ; ta couleur libre sert dans AgenDam (lignes de l’agenda).</small></div>'+
   (info.lockName?'<p class="hint">Le nom du calendrier par défaut ne peut pas être changé.</p>':'');
  const root=$('#dlg');let data=null;
  const h=e=>{const b=e.target.closest&&e.target.closest('[data-v="0"]');if(!b)return;
   const n=(root.querySelector('#oc-n').value||'').trim();
   if(!n){e.stopImmediatePropagation();e.preventDefault();toast('Donne un nom au calendrier');return}
-  const r=root.querySelector('input[name=oc-col]:checked');data={name:n,color:r?r.value:'auto'}};
+  const r=root.querySelector('input[name=oc-col]:checked');const hx=root.querySelector('#oc-hex'),col0=r?r.value:'auto';data={name:n,color:col0,hex:(hx&&hx.value&&hx.value.toLowerCase()!==(c?olCalColor(c):hexOf(cur)).toLowerCase())?hx.value.toLowerCase():hexOf(col0)}};
  root.addEventListener('click',h,true);
  const v=await ask({title:create?'Nouveau calendrier Outlook':'Modifier le calendrier',html,btns:[{label:create?'Créer':'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  root.removeEventListener('click',h,true);
@@ -3492,12 +3504,12 @@ async function olCalEdit(c){
  try{
   if(create){
    const n=await msFetch('/me/calendars',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:data.name,color:data.color})});
-   if(n&&n.id){S.olCol=S.olCol||{};S.olCol['cal:'+n.id]=hexOf(data.color);saveSet()}
+   if(n&&n.id){S.olCol=S.olCol||{};S.olCol['cal:'+n.id]=data.hex;saveSet()}
    toast('Calendrier « '+data.name+' » créé dans Outlook',3500);
   }else{
    const body={color:data.color};if(!info.lockName&&data.name!==c.name)body.name=data.name;
    await msFetch('/me/calendars/'+encodeURIComponent(c.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-   S.olCol=S.olCol||{};S.olCol['cal:'+c.id]=hexOf(data.color);saveSet();
+   S.olCol=S.olCol||{};S.olCol['cal:'+c.id]=data.hex;saveSet();
    toast('Calendrier modifié',3000);
   }
  }catch(e){toast('Outlook a refusé : '+e.message,6000)}
@@ -3698,7 +3710,7 @@ function openDetail(o){
  if(!o)return;
  CUR={id:o.ev.id,date:o.date};
  const ev=o.ev,c=catOf(ev.cat);
- let h='<div class="sh-h" style="--c:'+c.color+'"><i class="cdot"></i><span>'+esc(c.name)+'</span><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+evT(ev)+'</h2>';
+ let h='<div class="sh-h" style="--c:'+evCol(ev)+'"><i class="cdot"></i><span>'+esc(c.name)+'</span><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+evT(ev)+'</h2>';
  h+='<div class="info">'+ic('clock')+'<div><b>'+esc(whenText(o))+'</b></div></div>';
  if(ev.rec)h+='<div class="info">'+ic('repeat')+'<div>'+esc(recText(ev))+'</div></div>';
  if(ev.place)h+='<div class="info tap" role="button" tabindex="0" data-act="map" data-p="'+esc(ev.place)+'">'+ic('pin')+'<div>'+esc(ev.place)+'<small class="maphint">Itinéraire : Plans, Google Maps, Waze…</small></div></div>';
@@ -3893,6 +3905,7 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Premier jour de la semaine</span>'+seg('weekStart',[[1,'Lundi'],[0,'Dimanche']],S.weekStart)+'</div>'+
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Panneau de droite (iPad paysage, ordinateur)</span>'+seg('side',[[1,'Afficher'],[0,'Masquer']],S.side===0?0:1)+'</div>'+
+  '<div class="set-row"><span class="lbl">Couleur des événements</span>'+seg('colBy',[['cat','Catégorie'],['cal','Calendrier Outlook']],S.colBy==='cal'?'cal':'cat')+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Calendrier Outlook » : chaque événement prend la couleur de son calendrier Outlook (à connecter dans Réglages).</p>'+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div></div>';
  h+=lookCard(seg);
  h+=sec('s-agenda','Mon agenda');
@@ -3943,7 +3956,7 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
- h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li></ul>');
+ h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
  h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
