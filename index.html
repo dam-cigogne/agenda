@@ -521,12 +521,14 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.0';
+const APP_VERSION='1.16.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.1',d:'27/10/2026',items:[
+  'Garde alternée et modèles : tu peux maintenant choisir le calendrier Outlook et la catégorie Outlook (comme dans la fiche d’un événement). Les modèles les retiennent aussi.']},
  {v:'1.16.0',d:'27/10/2026',items:[
   'Nouveau : modèles d’événements. Dans la fiche d’un événement, « Enregistrer comme modèle » ; dans « Nouvel événement », une rangée Modèles remplit tout (titre, emoji, lieu, heures, durée, rappel) : tu ne changes que la date. À gérer dans Réglages → Modèles.',
   'Nouveau : garde alternée. Choisis « Un week-end sur 2 », « Une semaine sur 2 » ou personnalisé, le jour et l’heure de début et de fin, à partir de quelle date et jusqu’à quand : l’appli crée toutes les gardes d’un coup, et l’on peut modifier une seule garde ou toute la série.',
@@ -3228,7 +3230,7 @@ function tplCard(){
 }
 async function tplSave(){
  const b=readForm();const nm=await tplName(b.title==='Sans titre'?'':b.title);if(nm==null)return;
- tplList().push({id:uid(),name:nm,title:b.title,icon:b.icon||'',cat:b.cat,place:b.place,note:b.note,allDay:b.allDay,startTime:b.startTime,endTime:b.endTime,dur:Math.max(0,diff(b.end,b.start)),alarm:b.alarm,rec:b.rec&&b.rec.type!=='cycle'?Object.assign({},b.rec,{days:[],until:null}):null});
+ tplList().push({id:uid(),name:nm,title:b.title,icon:b.icon||'',cat:b.cat,ocat:b.ocat||'',ocal:b.ocal||'',place:b.place,note:b.note,allDay:b.allDay,startTime:b.startTime,endTime:b.endTime,dur:Math.max(0,diff(b.end,b.start)),alarm:b.alarm,rec:b.rec&&b.rec.type!=='cycle'?Object.assign({},b.rec,{days:[],until:null}):null});
  saveSet();toast('Modèle « '+nm+' » enregistré');
 }
 async function tplName(cur){
@@ -3243,7 +3245,7 @@ function tplUse(i){
  const t=tplList()[i];if(!t)return;
  const d=($('#f-sd')||{}).value||V.date;
  closeSheet();
- setTimeout(()=>openEditor({date:RX_D.test(d)?d:V.date,copy:{title:t.title,allDay:t.allDay,startTime:t.startTime,endTime:t.endTime,place:t.place,note:t.note,cat:t.cat,icon:t.icon,alarm:t.alarm,start:'2000-01-01',end:add('2000-01-01',t.dur||0)},tpl:t}),200);
+ setTimeout(()=>openEditor({date:RX_D.test(d)?d:V.date,copy:{ocat:t.ocat,ocal:t.ocal,title:t.title,allDay:t.allDay,startTime:t.startTime,endTime:t.endTime,place:t.place,note:t.note,cat:t.cat,icon:t.icon,alarm:t.alarm,start:'2000-01-01',end:add('2000-01-01',t.dur||0)},tpl:t}),200);
 }
 async function tplRename(i){const t=tplList()[i];if(!t)return;const n=await tplName(t.name);if(n==null)return;t.name=n;saveSet();render()}
 async function tplDel(i){const t=tplList()[i];if(!t)return;const r=await ask({title:'Supprimer le modèle ?',text:'« '+t.name+' » sera supprimé. Les événements déjà créés ne changent pas.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){tplList().splice(i,1);saveSet();render()}}
@@ -3254,11 +3256,17 @@ function gardeCalc(v){
  let d=RX_D.test(v.from)?v.from:V.date;for(let k=0;k<7&&dow(d)!==sdow;k++)d=add(d,1);
  return{start:d,end:add(d,span),span,sdow};
 }
-function gardeRead(){const g=id=>($('#'+id)||{}).value;return{title:(g('gd-t')||'').trim(),icon:g('gd-i')||'',sd_:g('gd-sd'),st:g('gd-st')||'18:00',ed_:g('gd-ed'),et:g('gd-et')||'18:00',from:g('gd-from'),um:g('gd-um'),until:g('gd-until'),cat:g('gd-cat'),tpl:($('#gd-tpl')||{}).checked,vac:$$('#gd-vac .gv').map(r=>({a:r.querySelector('.gv-a').value,b:r.querySelector('.gv-b').value,t:r.querySelector('.gv-t').value}))}}
+function gardeRead(){const g=id=>($('#'+id)||{}).value;return{title:(g('gd-t')||'').trim(),icon:g('gd-i')||'',sd_:g('gd-sd'),st:g('gd-st')||'18:00',ed_:g('gd-ed'),et:g('gd-et')||'18:00',from:g('gd-from'),um:g('gd-um'),until:g('gd-until'),cat:g('gd-cat'),tpl:($('#gd-tpl')||{}).checked,ocat:g('gd-oc')||'',ocal:g('gd-ocal')||'',vac:$$('#gd-vac .gv').map(r=>({a:r.querySelector('.gv-a').value,b:r.querySelector('.gv-b').value,t:r.querySelector('.gv-t').value}))}}
 function gardePrev(){
  const p=$('#gd-prev');if(!p)return;const v=gardeRead();const c=gardeCalc(v);
  const wd=(n)=>(TPL_WD.find(x=>+x[0]===n)||['','' ])[1].toLowerCase();
  p.innerHTML='<b>Première garde :</b> du '+esc(fLongY(c.start))+' à '+esc(v.st)+' au '+esc(fLongY(c.end))+' à '+esc(v.et)+'.<br><b>Ensuite :</b> une semaine sur 2'+(v.um==='until'&&RX_D.test(v.until)?', jusqu’au '+esc(fLongY(v.until)):', sans date de fin')+'.'+(v.vac.length?'<br><b>Vacances :</b> '+v.vac.length+' période'+(v.vac.length>1?'s':'')+' à part.':'');
+}
+function gardeOl(){
+ if(!(typeof msConnected==='function'&&msConnected()&&!demo))return '';
+ const cals=olCalList(),cats=olCatList();
+ return '<div class="fld"><label class="lbl" for="gd-ocal">Calendrier Outlook</label><select class="in" id="gd-ocal"><option value="">Agenda (appli seulement)</option>'+cals.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('')+'</select></div>'+
+  '<div class="fld"><label class="lbl" for="gd-oc">Catégorie Outlook (facultatif)</label><select class="in" id="gd-oc"><option value="">Aucune</option>'+cats.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('')+'</select></div>';
 }
 async function gardeWizard(){
  const wsel=(id,v)=>'<select class="in" id="'+id+'">'+TPL_WD.map(x=>'<option value="'+x[0]+'"'+(x[0]===String(v)?' selected':'')+'>'+x[1]+'</option>').join('')+'</select>';
@@ -3273,6 +3281,7 @@ async function gardeWizard(){
   '<div class="fld"><label class="lbl" for="gd-from">La garde commence à partir du</label><input class="in" type="date" id="gd-from" value="'+from+'"><p class="hint">Choisis la date de la première garde (ou un jour avant : l’appli prend le premier jour de début qui suit).</p></div>'+
   '<div class="fld"><label class="lbl" for="gd-um">Fin des gardes</label><select class="in" id="gd-um"><option value="until">À une date</option><option value="never">Jamais</option></select><input class="in" style="margin-top:.5rem" type="date" id="gd-until" value="'+add(from,365)+'"></div>'+
   '<div class="fld"><label class="lbl" for="gd-cat">Catégorie</label><select class="in" id="gd-cat">'+S.cats.map(c=>'<option value="'+esc(c.id)+'"'+(c.id===cat?' selected':'')+'>'+esc(c.name)+'</option>').join('')+'</select></div>'+
+  gardeOl()+
   '<div class="fld"><span class="lbl">Vacances (facultatif)</span><p class="hint" style="margin-top:0">Pour une période où la garde change (vacances scolaires, juillet-août…).</p><div id="gd-vac"></div><button type="button" class="btn blk sm" data-gv="add">'+ic('plus')+' Ajouter une période</button></div>'+
   '<div class="tgl-row"><b>Enregistrer aussi comme modèle</b><label class="tgl"><input type="checkbox" id="gd-tpl"></label></div>'+
   '<div class="info" id="gd-prev" style="display:block;margin:.6rem 0"></div></div>';
@@ -3298,7 +3307,7 @@ async function gardeWizard(){
  if(r!=='ok'||!out)return;
  const {v,c}=out;
  const title=v.title||'Garde';
- const base={title,icon:iconClean(v.icon),cat:v.cat,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,start:c.start,end:c.end,alarm:S.defAlarm,
+ const base={title,icon:iconClean(v.icon),cat:v.cat,ocat:v.ocat,ocal:v.ocal,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,start:c.start,end:c.end,alarm:S.defAlarm,
   rec:{type:'weekly',interval:2,days:[c.sdow],on:1,off:0,until:v.um==='until'?v.until:null}};
  const ex=[];const extra=[];
  for(const q of v.vac){
@@ -3309,7 +3318,7 @@ async function gardeWizard(){
  }
  EV.push(cleanEvent(Object.assign({id:uid()},base,{ex})));
  extra.forEach(x=>{const k=cleanEvent(x);if(k)EV.push(k)});
- if(v.tpl)tplList().push({id:uid(),name:title,title,icon:iconClean(v.icon),cat:v.cat,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,dur:c.span,alarm:S.defAlarm,rec:{type:'weekly',interval:2,days:[],on:1,off:0,until:null}});
+ if(v.tpl)tplList().push({id:uid(),name:title,title,icon:iconClean(v.icon),cat:v.cat,ocat:v.ocat,ocal:v.ocal,place:'',note:'',allDay:false,startTime:v.st,endTime:v.et,dur:c.span,alarm:S.defAlarm,rec:{type:'weekly',interval:2,days:[],on:1,off:0,until:null}});
  S.lastCat=v.cat;saveSet();touch();
  if(SHEET_OPEN)closeSheet();
  V.date=c.start;render();toast('Garde alternée créée');
@@ -3416,7 +3425,7 @@ function openEditor(opt){
   else if(sd===today()){const m=Math.min(1350,Math.ceil((nowMin()+1)/30)*30);st=hm(m)}
   const s=tmin(st),e=Math.min(1439,s+60);
   f={title:'',allDay:false,sd,st,ed:sd,et:hm(e),place:'',note:'',icon:'',cat:S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id,rec:null,alarm:S.defAlarm};
-  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
+  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{ocat:c.ocat||'',ocal:c.ocal||'',title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
  }
  ED={id:ev?ev.id:null,occ:ev?(opt.occDate||ev.start):null,snap:{sd:f.sd,st:f.st,ed:f.ed,et:f.et}};
  const r=f.rec||{type:'none',interval:1,days:[],on:3,off:2,until:null};
