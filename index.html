@@ -32,13 +32,13 @@ html[data-theme=dark]{
   --danger:#ff6b5f;--shadow:0 10px 40px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{font-size:calc(17px*var(--scale));-webkit-text-size-adjust:100%}
+html{font-size:calc(17px*var(--scale)*var(--dev,1));-webkit-text-size-adjust:100%}
 html,body{margin:0;height:100%;overscroll-behavior:none}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.35}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
 input,select,textarea{font:inherit;color:inherit}
 .ic{width:1.45rem;height:1.45rem;flex:none}
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:1500px;margin:0 auto;background:var(--bg)}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:calc(1500px*var(--dev,1));margin:0 auto;background:var(--bg);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 
 /* header */
 #top{display:flex;align-items:center;gap:.15rem;padding:calc(env(safe-area-inset-top,0px) + .55rem) .6rem .5rem .95rem;background:var(--surface);border-bottom:1px solid var(--line)}
@@ -310,29 +310,33 @@ details ul,details ol{padding-left:1.2rem;margin:.3rem 0}
 html[data-theme=dark] .tst{background:#eef1f5;color:#10151c}
 html[data-theme=dark] .tst button{color:#2f5bea}
 #printzone{display:none}
+/* mise en page des impressions (écran = capture PDF, papier = @media print) */
+.pz h1{font-size:20pt;margin:0 0 .5rem;font-weight:800}.pz h1 small{font-size:12pt;font-weight:600;color:#444;margin-left:.4rem}
+.pz .pr-f{margin:.8rem 0 0;font-size:8pt;color:#555;text-align:right}
+.pz .pr-d{break-inside:avoid;margin:0 0 .5rem}.pz .pr-d h2{font-size:12pt;margin:.4rem 0 .15rem;border-bottom:1.5px solid #000;padding-bottom:.1rem}
+.pz .pr-e{margin:.2rem 0;color:#666}
+.pz .pr-r{display:flex;gap:.5rem;align-items:flex-start;padding:.2rem 0;break-inside:avoid;border-bottom:1px solid #ddd}
+.pz .pr-t{flex:0 0 3.4rem;font-size:10.5pt}.pz .pr-t small{display:block;font-weight:500;color:#444}
+.pz .pr-b{flex:0 0 5px;align-self:stretch;border-radius:3px;background:var(--c)}
+.pz .pr-x{flex:1;min-width:0}.pz .pr-x small{display:block;color:#333;font-size:9.5pt}.pz .pr-n{white-space:pre-line;color:#444}
+.pz .mo2{display:flex;flex-direction:column;height:166mm;min-height:0}
+.pz .mo2-h{position:static;padding:.2rem 0;border-bottom:1.5px solid #000;color:#000}
+.pz .mw{flex:1 1 0;min-height:0;overflow:hidden;border-top:1px solid #8a8f98}
+.pz .mcol{font-size:8pt!important}
+.pz .mo2.big .mcol{font-size:10pt!important}.pz .mo2.big .mband{font-size:10.5pt}
+.pz .mhid{font-size:8pt}
+.pz .mband{border:1px solid rgba(0,0,0,.4)}
+.pz .ml{background:#fff;border:1px solid #bbb;border-left:3px solid var(--c);color:#000}
+.pz .mband,.pz .ml{font-size:8.5pt}.pz .mn{font-size:10pt}
+.pz .bgc.sel{background:none}
+.pzshot{position:absolute;left:-30000px;top:0;background:#fff;color:#000;box-sizing:border-box;padding:10mm;font-size:11pt;line-height:1.3;--bg:#fff;--surface:#fff;--surface2:#eef0f4;--text:#000;--muted:#444;--line:#8a8f98;--line2:#c9ccd2;--accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.1)}
+.pzshot.land{width:297mm;height:210mm}.pzshot.port{width:210mm;height:297mm}
 @media print{
+ html{font-size:17px!important}
  html,body{height:auto!important;background:#fff!important;color:#000!important;overflow:visible!important}
  #app,#sheet,#dlg,#toast{display:none!important}
  #printzone{display:block;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11pt;line-height:1.3;
   --bg:#fff;--surface:#fff;--surface2:#eef0f4;--text:#000;--muted:#444;--line:#8a8f98;--line2:#c9ccd2;--accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.1);color:#000;background:#fff}
- .pz h1{font-size:20pt;margin:0 0 .5rem;font-weight:800}.pz h1 small{font-size:12pt;font-weight:600;color:#444;margin-left:.4rem}
- .pz .pr-f{margin:.8rem 0 0;font-size:8pt;color:#555;text-align:right}
- .pz .pr-d{break-inside:avoid;margin:0 0 .5rem}.pz .pr-d h2{font-size:12pt;margin:.4rem 0 .15rem;border-bottom:1.5px solid #000;padding-bottom:.1rem}
- .pz .pr-e{margin:.2rem 0;color:#666}
- .pz .pr-r{display:flex;gap:.5rem;align-items:flex-start;padding:.2rem 0;break-inside:avoid;border-bottom:1px solid #ddd}
- .pz .pr-t{flex:0 0 3.4rem;font-size:10.5pt}.pz .pr-t small{display:block;font-weight:500;color:#444}
- .pz .pr-b{flex:0 0 5px;align-self:stretch;border-radius:3px;background:var(--c)}
- .pz .pr-x{flex:1;min-width:0}.pz .pr-x small{display:block;color:#333;font-size:9.5pt}.pz .pr-n{white-space:pre-line;color:#444}
- .pz .mo2{display:flex;flex-direction:column;height:166mm;min-height:0}
- .pz .mo2-h{position:static;padding:.2rem 0;border-bottom:1.5px solid #000;color:#000}
- .pz .mw{flex:1 1 0;min-height:0;overflow:hidden;border-top:1px solid #8a8f98}
- .pz .mcol{font-size:8pt!important}
- .pz .mo2.big .mcol{font-size:10pt!important}.pz .mo2.big .mband{font-size:10.5pt}
- .pz .mhid{font-size:8pt}
- .pz .mband{border:1px solid rgba(0,0,0,.4)}
- .pz .ml{background:#fff;border:1px solid #bbb;border-left:3px solid var(--c);color:#000}
- .pz .mband,.pz .ml{font-size:8.5pt}.pz .mn{font-size:10pt}
- .pz .bgc.sel{background:none}
 }
 
 .icorow{display:flex;flex-direction:column;gap:.5rem}
@@ -380,6 +384,40 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 details.dev summary{cursor:pointer;padding:.1rem 0}
 details.dev[open] summary{margin-bottom:.5rem}
 
+/* ===== Adaptation à l'appareil : téléphone, tablette, ordinateur, grand écran ===== */
+@media(min-width:1280px){:root{--dev:1.05}}
+@media(min-width:1700px){:root{--dev:1.18}}
+@media(min-width:2200px){:root{--dev:1.35}}
+/* grande tablette / ordinateur : onglets en colonne à gauche */
+@media(min-width:1000px) and (min-height:560px){
+  #app{display:grid;grid-template-columns:5.4rem minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}
+  #top{grid-column:2;grid-row:1}
+  #banner{grid-column:2;grid-row:2}
+  #body{grid-column:2;grid-row:3}
+  #tabs{grid-column:1;grid-row:1/-1;flex-direction:column;justify-content:flex-start;gap:.25rem;border-top:0;border-right:1px solid var(--line);padding:.8rem .35rem}
+  #tabs button{flex:none;padding:.75rem 0 .6rem;border-radius:.9rem}
+  #tabs button.on{background:var(--accent-soft)}
+  #tabs em{font-size:.74rem}
+}
+/* souris : survol */
+@media(hover:hover) and (pointer:fine){
+  .ib:hover,.pill:hover,#tabs button:hover{background:var(--surface2)}
+  #tabs button.on:hover{background:var(--accent-soft)}
+  .btn:hover{filter:brightness(.97)}
+  .selrow:hover,.rowx:hover{background:var(--surface2)}
+}
+/* réglages sur 2 colonnes quand il y a la place */
+@media(min-width:1000px){
+  .sgrid{columns:2 22rem;column-gap:1.2rem;padding:0 .8rem}
+  .sgrid .card{break-inside:avoid}
+  .sgrid .sect,.sgrid .jump{column-span:all}
+}
+/* petits écrans en paysage : on gagne de la hauteur */
+@media(max-height:480px) and (orientation:landscape){
+  #top{padding-top:calc(env(safe-area-inset-top,0px) + .25rem);padding-bottom:.25rem}
+  #tabs button{padding:.25rem 0 .2rem}#tabs em{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -418,12 +456,17 @@ details.dev[open] summary{margin-bottom:.5rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.9.0';
+const APP_VERSION='1.10.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.10.0',d:'27/10/2026',items:[
+  'Impression corrigée sur iPhone et iPad : l’appli prépare un PDF d’une page A4 à imprimer ou partager (la fenêtre d’impression directe ne marche pas dans une appli installée sur iOS)',
+  'Affichage adapté à l’appareil : onglets à gauche et réglages sur 2 colonnes sur grande tablette et ordinateur, texte et grilles agrandis sur grand écran, mode paysage compact sur téléphone',
+  'Raccourcis clavier sur ordinateur (flèches, T, J, S, M, D, C, N, P, ?)'
+ ]},
  {v:'1.9.0',d:'27/10/2026',items:[
   'Réglages réorganisés par thèmes : Mon agenda, Affichage et rappels, Calendriers, Mes données, Aide et partage, À propos (avec des raccourcis en haut)',
   'À l’ouverture après une mise à jour, une fenêtre « Nouveautés » résume ce qui a changé',
@@ -1353,6 +1396,50 @@ function printBody(v,d){
  if(v==='day')return prRows(d)||'<p class="pr-e">Rien de prévu ce jour-là.</p>';
  return monthViewTitles(v==='week'?'wk':v==='fort',true).html;
 }
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function loadH2C(){
+ if(window.html2canvas)return Promise.resolve();
+ return new Promise((ok,ko)=>{const s=document.createElement('script');s.src='lib/html2canvas.min.js';s.onload=ok;s.onerror=()=>ko(new Error('lib'));document.head.appendChild(s)});
+}
+function pdfFromJpeg(jpg,w,h,land){
+ const enc=s=>new TextEncoder().encode(s),W=land?841.89:595.28,H=land?595.28:841.89;
+ const parts=[],off=[];let len=0;
+ const put=u=>{parts.push(u);len+=u.length};
+ const obj=(n,body)=>{off[n]=len;put(enc(n+' 0 obj\n'));put(typeof body==='string'?enc(body):body);put(enc('\nendobj\n'))};
+ put(enc('%PDF-1.4\n'));
+ obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+ obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+ obj(3,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>');
+ const cs='q '+W+' 0 0 '+H+' 0 0 cm /Im0 Do Q';
+ obj(4,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
+ off[5]=len;put(enc('5 0 obj\n<< /Type /XObject /Subtype /Image /Width '+w+' /Height '+h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+jpg.length+' >>\nstream\n'));put(jpg);put(enc('\nendstream\nendobj\n'));
+ const xr=len;let x='xref\n0 6\n0000000000 65535 f \n';
+ for(let n=1;n<=5;n++)x+=String(off[n]).padStart(10,'0')+' 00000 n \n';
+ put(enc(x+'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF'));
+ const out=new Uint8Array(len);let p=0;for(const u of parts){out.set(u,p);p+=u.length}
+ return out;
+}
+async function printPDF(html,land,name){
+ toast('Préparation du PDF…',5000);
+ let shot;
+ const fs0=document.documentElement.style.fontSize;
+ try{
+  await loadH2C();
+  shot=document.createElement('div');shot.className='pz pzshot '+(land?'land':'port');shot.innerHTML=html;document.body.appendChild(shot);
+  document.documentElement.style.fontSize='17px';
+  await new Promise(r=>setTimeout(r,150));
+  const cv=await html2canvas(shot,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false});
+  const b64=cv.toDataURL('image/jpeg',0.92).split(',')[1];
+  const bin=atob(b64),jpg=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)jpg[i]=bin.charCodeAt(i);
+  const pdf=pdfFromJpeg(jpg,cv.width,cv.height,land);
+  const file=new File([pdf],name,{type:'application/pdf'});
+  const r=await ask({title:'Impression prête',text:'Le PDF d’une page A4 est prêt. Touche le bouton, puis choisis « Imprimer » (ou Mail, Enregistrer dans Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
+  if(r!=='s')return;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);
+ }catch(e){toast('Impression impossible ici : '+(e&&e.message?e.message:'erreur'),6000)}
+ finally{document.documentElement.style.fontSize=fs0;if(shot)shot.remove()}
+}
 async function printCurrent(){
  if(!['day','week','month','fort'].includes(V.view)){
   const r=await ask({title:'Imprimer quoi ?',html:'<p class="mut" style="margin:.2rem 0 .6rem">Choisis la vue à imprimer (une seule page A4).</p>',btns:[{label:'Le jour',value:'day',cls:'pri'},{label:'La semaine',value:'week'},{label:'Le mois',value:'month'},{label:'Les 2 semaines',value:'fort'},{label:'Annuler',value:null}]});
@@ -1361,10 +1448,12 @@ async function printCurrent(){
  }
  const v=V.view;
  const t=titles(),land=(v!=='day');
+ const html='<h1>'+esc(t[0])+' <small>'+esc(t[1])+'</small></h1>'+printBody(v,V.date)+'<p class="pr-f">AgenDam · imprimé le '+fmtDate(Date.now())+'</p>';
+ if(isIOS()){printPDF(html,land,'agendam-'+v+'.pdf');return}
  let z=$('#printzone');
  if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
  z.className='pz '+(land?'land':'port');
- z.innerHTML='<h1>'+esc(t[0])+' <small>'+esc(t[1])+'</small></h1>'+printBody(v,V.date)+'<p class="pr-f">AgenDam · imprimé le '+fmtDate(Date.now())+'</p>';
+ z.innerHTML=html;
  let st=$('#pgstyle');
  if(!st){st=document.createElement('style');st.id='pgstyle';document.head.appendChild(st)}
  st.textContent='@page{size:A4 '+(land?'landscape':'portrait')+';margin:10mm}';
@@ -1896,7 +1985,7 @@ h+='<div class="card" id="ics-card">'+
  h+='<div class="card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
   '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
  h+=devCard()+'<div style="height:2rem"></div>';
- return{html:h,fixed:false};
+ return{html:'<div class="sgrid">'+h+'</div>',fixed:false};
 }
 
 /* ---------- Aide ---------- */
@@ -1914,7 +2003,8 @@ function openHelp(hist){
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Envoyer vers le calendrier du téléphone','<ul><li>Dans <b>Réglages → Calendrier du téléphone → Choisir les événements à envoyer</b> : filtre par période ou catégorie, décoche ce que tu ne veux pas, puis touche <b>Envoyer</b>.</li><li>Le téléphone affiche alors sa page « Ajouter » : <b>c’est lui qui te laisse choisir le calendrier</b> (iCloud, Outlook…).</li><li>Dans la fiche d’un événement, <b>Au calendrier</b> envoie cet événement seul. Dans l’éditeur, le bouton « Me proposer de l’ajouter au calendrier du téléphone » le fait juste après l’enregistrement.</li><li>C’est un envoi, pas une synchronisation : après une modification, l’appli te propose « Mettre à jour » pour renvoyer l’événement. Cette proposition s’active ou se désactive dans <b>Réglages</b> (ou événement par événement dans l’éditeur).</li><li>Sur <b>Android</b>, le téléphone ouvre en général Google Agenda ou l’agenda Samsung pour confirmer l’ajout.</li></ul>');
  h+=d('Aller à l’adresse d’un rendez-vous','<ul><li>Quand un événement a un <b>lieu</b> (champ « Lieu »), ouvre-le (le jour même, ou n’importe quand) : la ligne du lieu est cliquable.</li><li>Touche-la : choisis <b>Plans</b> (Apple), <b>Google Maps</b> ou <b>Waze</b> ; l’appli choisie s’ouvre avec l’adresse prête. Tu peux aussi <b>copier l’adresse</b>.</li><li>Plus l’adresse est complète (numéro, rue, ville), plus le résultat est précis.</li></ul>');
- h+=d('Imprimer','<ul><li>Touche l’icône <b>imprimante</b> en haut. Depuis Jour, Semaine, Mois ou 2 sem., elle imprime la vue affichée ; depuis les autres écrans, elle te demande <b>quoi imprimer</b>. <b>Une seule page</b> par impression.</li><li>Le jour s’imprime en <b>portrait</b> (avec lieu et notes) ; la semaine, le mois et les 2 semaines en <b>paysage</b>, avec l’heure devant chaque rendez-vous.</li><li>Si une case est trop chargée, « +2 » indique les événements qui ne rentrent pas : passe alors par la vue Jour.</li><li>Sur <b>iPhone</b> : si rien ne s’ouvre, touche Partager puis « Imprimer », ou « Enregistrer dans Fichiers » pour faire un PDF.</li></ul>');
+ h+=d('Ordinateur, tablette et grand écran','<ul><li>L’affichage s’adapte à l’appareil : téléphone (onglets en bas), tablette et ordinateur (onglets à gauche, mini-calendrier et journée à droite, réglages sur deux colonnes), grand écran (texte et grilles agrandis).</li><li><b>Raccourcis clavier</b> sur ordinateur : flèches ← → (période précédente / suivante), <b>T</b> aujourd’hui, <b>J</b> jour, <b>S</b> semaine, <b>M</b> mois, <b>D</b> 2 semaines, <b>C</b> ou <b>/</b> chercher, <b>N</b> nouvel événement, <b>P</b> imprimer, <b>?</b> aide.</li></ul>');
+ h+=d('Imprimer','<ul><li>Touche l’icône <b>imprimante</b> en haut. Depuis Jour, Semaine, Mois ou 2 sem., elle imprime la vue affichée ; depuis les autres écrans, elle te demande <b>quoi imprimer</b>. <b>Une seule page</b> par impression.</li><li><b>Sur iPhone et iPad</b> : l’appli prépare un <b>PDF d’une page A4</b> ; touche « Imprimer / Partager le PDF », puis <b>Imprimer</b> dans le menu (ou Mail, Enregistrer dans Fichiers…). Sur ordinateur et Android, la fenêtre d’impression s’ouvre directement.</li><li>Le jour s’imprime en <b>portrait</b> (avec lieu et notes) ; la semaine, le mois et les 2 semaines en <b>paysage</b>, avec l’heure devant chaque rendez-vous.</li><li>Si une case est trop chargée, « +2 » indique les événements qui ne rentrent pas : passe alors par la vue Jour.</li><li>Sur <b>iPhone</b> : si rien ne s’ouvre, touche Partager puis « Imprimer », ou « Enregistrer dans Fichiers » pour faire un PDF.</li></ul>');
  h+=d('Ajouter à l’agenda du téléphone','<ul><li>Réglages → <b>Ajouter à mon agenda</b>. Sur <b>iPhone</b>, choisis « Calendrier » puis « Tout ajouter ». Sur <b>Android</b>, ouvre le fichier avec Google Agenda ou Outlook.</li><li>C’est un <b>envoi unique</b>, pas une synchronisation : refais-le après une modification (les événements déjà présents sont mis à jour par l’agenda, selon l’appli). L’intérêt : les rappels de l’agenda natif sont fiables, même appli fermée.</li></ul>');
  h+=d('Import et export .ics','<ul><li><b>Exporter</b> : crée un fichier .ics (calendrier standard) avec tes événements, leurs répétitions et leurs rappels. Les rotations sont exportées jour par jour (environ 14 mois).</li><li><b>Importer</b> : lis un fichier .ics venant de Google Agenda, Apple, Outlook… Les événements déjà présents ne sont pas dupliqués. Les fuseaux horaires sont lus comme heure locale.</li></ul>');
  h+=d('Installer sur iPhone ou Android','<p><b>iPhone (Safari)</b> : ouvre le lien dans <b>Safari</b> → bouton Partager (carré avec flèche) → <b>Sur l’écran d’accueil</b> → Ajouter.</p><p><b>Android (Chrome)</b> : ouvre le lien → menu ⋮ → <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</p><p>Une fois installée, l’appli fonctionne <b>sans connexion</b>.</p>');
@@ -2164,6 +2254,19 @@ function welcome(){
 }
 
 /* ---------- Écouteurs ---------- */
+document.addEventListener('keydown',e=>{
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const t=e.target,tag=t&&t.tagName;
+ if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;
+ if(SHEET_OPEN||$('#dlg').innerHTML)return;
+ const k=e.key.toLowerCase();
+ const B={arrowleft:'prev',arrowright:'next',t:'today',n:'new',p:'print'};
+ const Vw={j:'day',s:'week',m:'month',d:'fort'};
+ if(B[k]){e.preventDefault();const b=document.querySelector('[data-act='+B[k]+']');if(b)b.click()}
+ else if(Vw[k]){e.preventDefault();go(Vw[k])}
+ else if(k==='/'||k==='c'){e.preventDefault();go('search')}
+ else if(k==='?'||k==='h'){e.preventDefault();openHelp()}
+});
 document.addEventListener('click',e=>{
  const t=e.target.closest('[data-act]');
  if(t){act(t.dataset.act,t,e);return}

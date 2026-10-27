@@ -53,3 +53,4 @@ Le manifeste (id, icônes 192 / 512 / maskable, captures, raccourcis) et le serv
 - Fiche à partager : affiches (`affiches/`) + carte d’aperçu, guide et installation dans Réglages
 - Lieu d’un rendez-vous : itinéraire en un geste (Plans, Google Maps, Waze)
 - Fenêtre « Nouveautés » après chaque mise à jour, historique complet et outils développeur dans Réglages
+- Affichage adapté au téléphone, à la tablette, à l’ordinateur et au grand écran ; impression en PDF sur iPhone/iPad (bibliothèque html2canvas, licence MIT, incluse dans `lib/`)

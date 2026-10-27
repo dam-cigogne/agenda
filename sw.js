@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '1.9.0';
+const VERSION = '1.10.0';
 const CACHE = 'agd-cache-v' + VERSION;
 const ASSETS = [
   './',
@@ -12,7 +12,8 @@ const ASSETS = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
-  'icons/apple-touch-icon.png'
+  'icons/apple-touch-icon.png',
+  'lib/html2canvas.min.js'
 ];
 
 self.addEventListener('install', e => {
