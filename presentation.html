@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Agenda · emploi du temps simple et lisible</title>
-<meta name="description" content="Agenda et emploi du temps gratuit, lisible et privé : jour, semaine, mois, rappels, import/export .ics. Aucune donnée collectée.">
+<meta name="description" content="Agenda et emploi du temps gratuit, lisible et privé : jour, semaine, 2 semaines, mois, rotations sur mesure, impression, rappels, import/export .ics. Aucune donnée collectée.">
 <meta name="theme-color" content="#2f5bea">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -46,27 +46,32 @@ a{color:var(--accent)}
 <header class="hero"><div class="wrap">
   <div class="brand"><img src="icons/icon-192.png" alt=""> Agenda</div>
   <h1>Ton emploi du temps,<br>simple et lisible.</h1>
-  <p>Jour, semaine et mois en gros caractères. Gratuit, sans publicité, et rien ne quitte ton téléphone.</p>
+  <p>Jour, semaine, 2 semaines et mois en gros caractères. Gratuit, sans publicité, et rien ne quitte ton téléphone.</p>
   <a class="btn w" href="./">Ouvrir l’appli</a><a class="btn o" href="./?demo=1">Voir la démo</a>
 </div></header>
 
 <div class="wrap">
   <div class="shots" aria-label="Captures d’écran (données d’exemple)">
+    <img src="screenshots/mois.png" alt="Vue mois avec titres, emoji et bandeaux sur plusieurs jours">
+    <img src="screenshots/deux-semaines.png" alt="Vue deux semaines">
     <img src="screenshots/semaine.png" alt="Vue semaine">
-    <img src="screenshots/mois.png" alt="Vue mois">
     <img src="screenshots/jour.png" alt="Vue jour">
+    <img src="screenshots/rotation.png" alt="Création d’une rotation de travail sur mesure">
     <img src="screenshots/semaine-sombre.png" alt="Mode sombre">
   </div>
 
   <section>
     <h2>Ce que fait l’appli</h2>
     <div class="grid">
-      <div class="card"><h3>Jour, semaine, mois</h3><p>Des vues nettes, en gros caractères, lisibles d’un coup d’œil, sur téléphone, tablette ou ordinateur.</p></div>
-      <div class="card"><h3>Tu mets ce que tu veux, le temps que tu veux</h3><p>Titre, lieu, note, couleur par catégorie, durée libre, plusieurs jours, journée entière.</p></div>
-      <div class="card"><h3>Répétitions et rotations</h3><p>Tous les jours, semaines, mois, ans, ou rotation « 3 jours de travail, 2 jours de repos ».</p></div>
-      <div class="card"><h3>Rappels</h3><p>« À venir aujourd’hui » à l’ouverture et notifications quand la plateforme le permet.</p></div>
-      <div class="card"><h3>Sauvegarde et partage</h3><p>Sauvegarde .json, import et export .ics, et envoi direct vers un calendrier Outlook (facultatif).</p></div>
-      <div class="card"><h3>Recherche, mode sombre</h3><p>Retrouve un événement en quelques lettres. Thème clair, sombre ou automatique.</p></div>
+      <div class="card"><h3>Jour, semaine, 2 semaines, mois</h3><p>Des vues nettes, en gros caractères, lisibles d’un coup d’œil, sur téléphone, tablette ou ordinateur. La vue « 2 semaines » donne beaucoup de place aux titres.</p></div>
+      <div class="card"><h3>Un mois qu’on lit vraiment</h3><p>Les titres sont écrits en entier (sur plusieurs lignes quand il y a de la place), avec une barre de couleur par catégorie. Un événement sur plusieurs jours forme un seul bandeau avec son nom complet.</p></div>
+      <div class="card"><h3>Un emoji par événement</h3><p>🦷 dentiste, 🎂 anniversaire, 🏖️ vacances… Un coup d’œil suffit pour repérer ce qu’on fait.</p></div>
+      <div class="card"><h3>Tes rotations, sur mesure</h3><p>Tu crées toi-même ton cycle : jours travaillés, repos, matin / soir / nuit, heures, emoji. Des modèles (3 jours / 2 repos, 2-2-2-4) pour démarrer. Facultatif.</p></div>
+      <div class="card"><h3>Répétitions et rappels</h3><p>Tous les jours, semaines, mois, ans. « À venir aujourd’hui » à l’ouverture et notifications quand la plateforme le permet.</p></div>
+      <div class="card"><h3>Impression, une page par vue</h3><p>Jour, semaine, 2 semaines ou mois : une seule page A4, bien lisible, avec l’heure devant chaque rendez-vous.</p></div>
+      <div class="card"><h3>Vers le calendrier du téléphone</h3><p>Tu choisis ce que tu envoies (par période, catégorie, case à cocher), et ton téléphone te laisse choisir le calendrier : iCloud, Outlook, Google…</p></div>
+      <div class="card"><h3>Outlook (facultatif)</h3><p>Envoi de ton agenda vers un calendrier Outlook à part, directement vers ton compte, sans serveur intermédiaire.</p></div>
+      <div class="card"><h3>Sauvegarde, recherche, mode sombre</h3><p>Sauvegarde .json, import et export .ics, recherche en quelques lettres, thème clair, sombre ou automatique.</p></div>
     </div>
   </section>
 
@@ -85,6 +90,34 @@ a{color:var(--accent)}
     </div>
     <div class="warn"><b>⚠️ Plusieurs appareils : pas de synchronisation automatique</b>
       L’agenda reste sur chaque appareil. Pour le retrouver ailleurs : <b>Réglages → Sauvegarder</b> sur le premier appareil, envoie le fichier « agenda-sauvegarde.json », puis <b>Réglages → Restaurer</b> sur le second.</div>
+  </section>
+
+  <section id="tutos">
+    <h2>Mode d’emploi rapide</h2>
+    <div class="grid">
+      <div class="card"><h3>Créer ma rotation de travail</h3><ol>
+        <li><b>Roue crantée ⚙ (en haut à droite) → Rotations de travail → Créer une rotation</b>.</li>
+        <li>Choisis un modèle (ou pars de zéro) et donne le <b>premier jour du cycle</b> et la <b>durée</b>.</li>
+        <li>Règle les <b>étapes</b> dans l’ordre : nom, nombre de jours, travail ou repos, emoji, heures si besoin (fin avant début = poste de nuit).</li>
+        <li><b>Enregistrer</b> : les jours se placent dans l’agenda. « Modifier » ou « Supprimer » à tout moment.</li></ol></div>
+      <div class="card"><h3>Envoyer vers le calendrier du téléphone</h3><ol>
+        <li><b>Réglages → Choisir quoi envoyer au téléphone</b>.</li>
+        <li>Filtre par période ou catégorie, décoche ce que tu ne veux pas.</li>
+        <li>Touche <b>Envoyer</b> : le téléphone affiche sa page « Ajouter » et te laisse <b>choisir le calendrier</b>.</li>
+        <li>Pour un seul événement : bouton <b>Au calendrier</b> dans sa fiche. À la création, un interrupteur te le propose (réglable ou désactivable).</li></ol>
+        <p>C’est un envoi, pas une synchronisation : après une modification, l’appli propose « Mettre à jour ».</p></div>
+      <div class="card"><h3>Connecter Outlook (facultatif)</h3><ol>
+        <li><b>Réglages → Outlook / Microsoft → Se connecter</b> avec ton compte Outlook, Hotmail ou Live.</li>
+        <li>Accepte l’accès au calendrier, puis <b>Envoyer maintenant</b>.</li>
+        <li>Un calendrier « Agenda (appli) » apparaît dans Outlook. Pour le voir dans l’appli Calendrier de l’iPhone : <b>Réglages iPhone → Calendrier → Comptes → Ajouter un compte → Outlook</b>.</li></ol>
+        <p>Sens unique (appli → Outlook). La connexion expire au bout de quelques jours : il faut alors se reconnecter.</p></div>
+      <div class="card"><h3>Imprimer</h3><ol>
+        <li>Choisis la vue : Jour, Semaine, 2 sem. ou Mois.</li>
+        <li>Touche l’icône <b>imprimante</b> en haut.</li>
+        <li>Sur iPhone, si rien ne s’ouvre : <b>Partager → Imprimer</b>, ou « Enregistrer dans Fichiers » pour un PDF.</li></ol>
+        <p>Une seule page A4 par impression.</p></div>
+    </div>
+    <div class="shots" style="margin-top:1rem" aria-label="Exemple d’impression (données d’exemple)"><img src="screenshots/impression.png" alt="Exemple d’impression du mois" style="height:20rem;border-radius:.6rem"></div>
   </section>
 
   <section>
@@ -106,7 +139,8 @@ a{color:var(--accent)}
     </div>
   </section>
 
-  <footer>Agenda · gratuit, sans publicité · version 1.4.1 · <a href="./">Ouvrir l’appli</a></footer>
+  <div class="card"><h3>Partager l’appli</h3><p>Dans la roue crantée ⚙ → <b>Fiche de l’appli</b> : 3 affiches (claire, sombre, avec l’appli) et une carte d’aperçu, à envoyer avec « Partager avec le descriptif », « Voir la fiche » ou « Copier le lien ». Le <b>Guide d’utilisation</b> et « Installer l’appli » sont au même endroit.</p></div>
+  <footer>Agenda · gratuit, sans publicité · version 1.6.0 · <a href="./">Ouvrir l’appli</a></footer>
 </div>
 </body>
 </html>

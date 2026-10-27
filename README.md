@@ -11,7 +11,10 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 
 - Vues Jour, Semaine, 2 semaines, Mois (mois avec titres, bandeaux multi-jours, numéros de semaine) ; écran de démarrage au choix ; colonnes et panneau latéral sur tablette / ordinateur
 - Événements : emoji au choix, titre, début / fin, lieu, note, catégorie colorée (modifiable), journée entière, plusieurs jours
-- Répétitions : jours, semaines (jours au choix), mois, années, rotations travail / repos
+- Répétitions : jours, semaines (jours au choix), mois, années, rotation simple travail / repos
+- Rotations de travail sur mesure (étapes, jours, heures, emoji, poste de nuit, modèles) dans Réglages (roue crantée ⚙ en haut à droite)
+- Impression d'une page A4 par vue (Jour, Semaine, 2 semaines, Mois)
+- Envoi vers le calendrier du téléphone : choix précis des événements (période, catégorie, cases), choix du calendrier par le téléphone, « Mettre à jour » après modification (réglable)
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
 - Connexion facultative à Outlook / Microsoft : envoi de l'agenda vers un calendrier à part (sens unique, directement vers le compte de l'utilisateur, aucun serveur intermédiaire)
@@ -46,3 +49,5 @@ Toutes les clés de stockage et noms de cache commencent par `agd-` (les autres 
 ## Préparer le Play Store (plus tard)
 
 Le manifeste (id, icônes 192 / 512 / maskable, captures, raccourcis) et le service worker sont prêts pour une application Android par TWA (PWABuilder ou Bubblewrap). À prévoir à ce moment-là : le fichier `.well-known/assetlinks.json` doit être servi à la **racine du domaine** (pour `github.io`, cela demande un dépôt `dam-cigogne.github.io` ou un domaine personnalisé), une politique de confidentialité (voir `presentation.html#confidentialite`) et un compte développeur Google Play.
+
+- Fiche à partager : affiches (`affiches/`) + carte d’aperçu, guide et installation dans Réglages
