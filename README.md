@@ -17,6 +17,7 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Envoi vers le calendrier du téléphone : choix précis des événements (période, catégorie, cases), choix du calendrier par le téléphone, « Mettre à jour » après modification (réglable)
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
+- Import d'autres calendriers : depuis Outlook (lecture de ses autres calendriers, sens Outlook → appli) et depuis un fichier Excel / CSV / ODS (SheetJS, Apache-2.0, `lib/xlsx.core.min.js`, chargé uniquement à l'import) avec reconnaissance automatique des colonnes
 - Connexion facultative à Outlook / Microsoft : envoi de l'agenda vers un calendrier à part (sens unique, directement vers le compte de l'utilisateur, aucun serveur intermédiaire)
 - Mode sombre, recherche, mode démo, aide « ? » intégrée avec historique des versions
 
