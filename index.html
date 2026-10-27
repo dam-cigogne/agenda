@@ -461,12 +461,15 @@ details.msd .mut{font-size:.85rem}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.12.1';
+const APP_VERSION='1.12.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.12.2',d:'27/10/2026',items:[
+  'Imports Outlook et Excel/CSV : une vraie page liste tous les événements (date, heure, lieu, calendrier) avec une case à cocher chacun, une recherche, « Tout cocher / Tout décocher » et le nombre choisi avant d’importer'
+ ]},
  {v:'1.12.1',d:'27/10/2026',items:[
   'Bouton « Récupérer depuis Outlook » directement dans la carte Outlook, à côté d’« Envoyer maintenant » (un geste pour relire les calendriers déjà choisis)'
  ]},
@@ -1920,21 +1923,62 @@ async function importSheet(file){
   el.innerHTML=(ready?'<p style="margin:.4rem 0"><b>'+fresh.length+'</b> événement'+(fresh.length>1?'s':'')+' à ajouter'+(st.dup?' · '+st.dup+' déjà présent'+(st.dup>1?'s':''):'')+(st.bad?' · '+st.bad+' ligne'+(st.bad>1?'s':'')+' illisible'+(st.bad>1?'s':'')+' (date non reconnue)':'')+'</p>'+
    fresh.slice(0,4).map(e=>'<div class="mut" style="font-size:.85rem;padding:.2rem 0;border-top:1px solid var(--line2)">'+esc(e.title.slice(0,40))+' · '+fShort(e.start)+(e.end!==e.start?' → '+fShort(e.end):'')+' · '+(e.allDay?'journée':e.startTime)+(e._cat?' · '+esc(e._cat.slice(0,18)):'')+'</div>').join('')
    :'<p class="mut" style="margin:.4rem 0">Choisis au moins la colonne du <b>titre</b> et celle de la <b>date de début</b>.</p>');
-  const b=root.querySelector('[data-v="0"]');if(b){b.disabled=!ready||!fresh.length;b.textContent='Importer ('+(ready?fresh.length:0)+')'}
+  const b=root.querySelector('[data-v="0"]');if(b){b.disabled=!ready||!fresh.length;b.textContent='Suivant : choisir les événements ('+(ready?fresh.length:0)+')'}
   const cc=$('#xl-catrow');if(cc)cc.hidden=st.map.cat<0;
  };
  const h=e=>{const t=e.target;if(t.dataset&&t.dataset.xl){st.map[t.dataset.xl]=+t.value;prev()}else if(t.id==='xl-create'){st.create=t.checked}};
  const p=ask({title:'Importer un tableau',html:'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">« '+esc(file.name.slice(0,40))+' » · '+body.length+' ligne'+(body.length>1?'s':'')+'. J’ai reconnu les colonnes ; corrige-les si besoin.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .5rem">'+sel+'</div><label id="xl-catrow" class="tgl-row" style="margin:.5rem 0 0;font-size:.88rem"><span>Créer une catégorie pour chaque nom inconnu</span><input type="checkbox" id="xl-create" checked></label><div id="xl-prev"></div>',
-  btns:[{label:'Importer',value:'go',cls:'pri'},{label:'Annuler',value:null}]});
+  btns:[{label:'Suivant',value:'go',cls:'pri'},{label:'Annuler',value:null}]});
  root.addEventListener('change',h);
  prev();
  const r=await p;root.removeEventListener('change',h);
  if(r!=='go'||!st.fresh||!st.fresh.length)return;
+ const pk=await pickImport({title:'Importer le tableau',intro:'Décoche ce que tu ne veux pas dans AgenDam.',items:st.fresh.map(e=>({e,upd:false}))});
+ if(!pk||!pk.length)return;
+ const chosen=pk.map(x=>x.e);
  if(demo)demo=false;
- const made=resolveCats(st.fresh,st.create);
- const out=st.fresh.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean);
+ const made=resolveCats(chosen,st.create);
+ const out=chosen.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean);
  EV.push(...out);touch();render();
  toast(out.length+' événement'+(out.length>1?'s':'')+' importé'+(out.length>1?'s':'')+(made?' · '+made+' catégorie'+(made>1?'s':'')+' créée'+(made>1?'s':''):''),5000);
+}
+
+
+/* ---------- Page de choix : liste claire des événements à importer (cases à cocher) ---------- */
+function pickImport(o){
+ return new Promise(res=>{
+  const items=o.items.slice().sort((a,b)=>a.e.start.localeCompare(b.e.start)||a.e.startTime.localeCompare(b.e.startTime));
+  const on=new Set(items.map((_,i)=>i));let q='';
+  const root=$('#sheet');
+  const vis=()=>items.map((it,i)=>({it,i})).filter(x=>!q||norm(x.it.e.title+' '+x.it.e.place+' '+(x.it.e._cat||'')).includes(q));
+  const row=x=>{const e=x.it.e;
+   return '<button type="button" class="selrow'+(on.has(x.i)?' on':'')+'" data-pk="t" data-i="'+x.i+'"><span class="selck"></span><span class="selx"><b>'+evT(e)+(x.it.upd?' <span class="mut" style="font-weight:700;font-size:.78rem">· mis à jour</span>':'')+'</b><small>'+fShort(e.start)+(e.end!==e.start?' → '+fShort(e.end):'')+' · '+(e.allDay?'Journée':e.startTime+'–'+e.endTime)+(e.place?' · '+esc(e.place):'')+(e._cat?' · '+esc(e._cat):'')+'</small></span></button>'};
+  const bits=()=>{
+   const n=items.filter((_,i)=>on.has(i)).length;
+   const b=$('#pk-ok');if(b){b.textContent='Importer ('+n+')';b.disabled=!n}
+   const c=$('#pk-cnt');if(c)c.textContent=items.length+' événement'+(items.length>1?'s':'')+' · '+n+' coché'+(n>1?'s':'');
+  };
+  const draw=()=>{const l=$('#pk-list');if(l){const v=vis();l.innerHTML=v.length?v.map(row).join(''):'<p class="empty">Aucun événement avec cette recherche.</p>'}bits()};
+  openSheet('<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">'+esc(o.title)+'</b><span class="sp1"></span><button class="x" data-pk="x" aria-label="Fermer">'+ic('x')+'</button></div>'+
+   '<p class="mut" style="margin:0 0 .3rem">'+esc(o.intro||'')+'</p>'+
+   '<div class="fld" style="margin:.4rem 0"><input class="in" id="pk-q" type="search" placeholder="Chercher dans la liste…" autocomplete="off"></div>'+
+   '<div class="selbar"><span id="pk-cnt" class="mut"></span><span><button class="btn sm" data-pk="all">Tout cocher</button> <button class="btn sm" data-pk="none">Tout décocher</button></span></div>'+
+   '<div id="pk-list"></div>'+
+   '<div class="sticky-save"><button class="btn grow" data-pk="x">Annuler</button><button class="btn pri grow" id="pk-ok" data-pk="ok">Importer</button></div>','full');
+  const cleanup=()=>{root.removeEventListener('click',h);root.removeEventListener('input',inp);mo.disconnect()};
+  const h=e=>{
+   const t=e.target.closest('[data-pk]');if(!t)return;const k=t.dataset.pk;
+   if(k==='t'){const i=+t.dataset.i;if(on.has(i))on.delete(i);else on.add(i);t.classList.toggle('on',on.has(i));bits()}
+   else if(k==='all'){vis().forEach(x=>on.add(x.i));draw()}
+   else if(k==='none'){vis().forEach(x=>on.delete(x.i));draw()}
+   else if(k==='x'){cleanup();closeSheet();res(null)}
+   else if(k==='ok'){const out=items.filter((_,i)=>on.has(i));cleanup();closeSheet();res(out)}
+  };
+  const inp=e=>{if(e.target.id==='pk-q'){q=norm(e.target.value).trim();draw()}};
+  const mo=new MutationObserver(()=>{if(!root.firstChild){cleanup();res(null)}});
+  root.addEventListener('click',h);root.addEventListener('input',inp);mo.observe(root,{childList:true});
+  draw();
+ });
 }
 
 /* ---------- Outlook -> AgenDam (lecture de tes autres calendriers Outlook) ---------- */
@@ -2001,15 +2045,17 @@ async function olPull(calList,per,catFlag,silent){
   else fresh.push(e);
  }
  if(!fresh.length&&!upd.length){if(!silent)toast('Déjà à jour : rien de nouveau dans Outlook'+(dup?' ('+dup+' déjà présent'+(dup>1?'s':'')+')':''),5000);return}
+ let F=fresh,U=upd;
  if(!silent){
-  const go=await ask({title:'Importer depuis Outlook',text:fresh.length+' événement'+(fresh.length>1?'s':'')+' à ajouter'+(upd.length?', '+upd.length+' à mettre à jour':'')+(dup?', '+dup+' déjà présent'+(dup>1?'s':'')+' (ignoré'+(dup>1?'s':'')+')':'')+'. Ce qui a été supprimé dans Outlook n’est pas supprimé ici.',btns:[{label:'Importer',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
-  if(go!=='y')return;
+  const pk=await pickImport({title:'Importer depuis Outlook',intro:(dup?dup+' déjà présent'+(dup>1?'s':'')+' (ignoré'+(dup>1?'s':'')+'). ':'')+'Décoche ce que tu ne veux pas. Ce qui a été supprimé dans Outlook n’est pas supprimé ici.',items:fresh.map(e=>({e,upd:false})).concat(upd.map(e=>({e,upd:true})))});
+  if(!pk||!pk.length)return;
+  F=pk.filter(x=>!x.upd).map(x=>x.e);U=pk.filter(x=>x.upd).map(x=>x.e);
  }
- const made=resolveCats(fresh.concat(upd),catFlag);
- for(const e of upd)Object.assign(byId.get(e.id),{title:e.title,allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:e.place,note:e.note,alarm:e.alarm});
- EV.push(...fresh.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean));
+ const made=resolveCats(F.concat(U),catFlag);
+ for(const e of U)Object.assign(byId.get(e.id),{title:e.title,allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:e.place,note:e.note,alarm:e.alarm});
+ EV.push(...F.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean));
  touch();render();
- toast((silent?'Outlook : ':'')+fresh.length+' ajouté'+(fresh.length>1?'s':'')+(upd.length?' · '+upd.length+' mis à jour':'')+(made?' · '+made+' catégorie'+(made>1?'s':'')+' créée'+(made>1?'s':''):''),5000);
+ toast((silent?'Outlook : ':'')+F.length+' ajouté'+(F.length>1?'s':'')+(U.length?' · '+U.length+' mis à jour':'')+(made?' · '+made+' catégorie'+(made>1?'s':'')+' créée'+(made>1?'s':''):''),5000);
 }
 /* Bouton « Récupérer depuis Outlook » : relit tout de suite les calendriers déjà choisis (sinon ouvre le choix) */
 async function msPullNow(){
@@ -2320,7 +2366,7 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
- h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; les événements arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, vérifie l’aperçu, puis importe. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
+ h+=d('Importer un autre calendrier (Outlook, Excel, CSV)','<ul><li><b>Réglages → Importer un autre calendrier</b>.</li><li><b>Depuis Outlook</b> (après connexion) : tu coches les calendriers à lire et la période ; une page liste ensuite tous les événements trouvés et tu coches ceux à ajouter (recherche, tout cocher / décocher) ; ils arrivent dans AgenDam, une catégorie par calendrier. Ça ne modifie rien dans Outlook. Option « Récupérer à l’ouverture » (carte Outlook) : l’appli relit seule les calendriers choisis lors du dernier import, au plus une fois toutes les 10 minutes. Ce qui est supprimé dans Outlook n’est pas supprimé ici, et ce qui vient d’Outlook n’est pas renvoyé dans « Agenda (appli) ».</li><li><b>Depuis un fichier Excel ou CSV</b> (.xlsx, .xls, .ods, .csv) : l’appli reconnaît les colonnes (titre, dates, heures, toute la journée, lieu, notes, catégorie, rappel). Corrige-les dans la fenêtre si besoin, puis une page liste les événements : décoche ceux que tu ne veux pas avant d’importer. Les dates sont lues en jour/mois/année (le format américain est reconnu quand il est évident).</li><li>Les doublons sont ignorés : tu peux réimporter le même fichier sans risque.</li><li>Dans Excel : une ligne par événement, une ligne d’en-têtes en haut. Tu peux exporter n’importe quel calendrier (Google Agenda, Outlook…) en CSV puis l’importer ici.</li></ul>');
  h+=d('Envoyer vers le calendrier du téléphone','<ul><li>Dans <b>Réglages → Calendrier du téléphone → Choisir les événements à envoyer</b> : filtre par période ou catégorie, décoche ce que tu ne veux pas, puis touche <b>Envoyer</b>.</li><li>Le téléphone affiche alors sa page « Ajouter » : <b>c’est lui qui te laisse choisir le calendrier</b> (iCloud, Outlook…).</li><li>Dans la fiche d’un événement, <b>Au calendrier</b> envoie cet événement seul. Dans l’éditeur, le bouton « Me proposer de l’ajouter au calendrier du téléphone » le fait juste après l’enregistrement.</li><li>C’est un envoi, pas une synchronisation : après une modification, l’appli te propose « Mettre à jour » pour renvoyer l’événement. Cette proposition s’active ou se désactive dans <b>Réglages</b> (ou événement par événement dans l’éditeur).</li><li>Sur <b>Android</b>, le téléphone ouvre en général Google Agenda ou l’agenda Samsung pour confirmer l’ajout.</li><li>Sur <b>ordinateur</b>, « Au calendrier » propose : <b>Outlook.com</b> (hotmail, live), <b>Outlook travail/école</b>, <b>Google Agenda</b> (l’événement arrive déjà rempli, il suffit d’enregistrer) ou le <b>fichier .ics</b> pour Outlook installé, <b>iCloud</b> ou Apple (iCloud n’a pas de lien direct : sur Mac le .ics s’ouvre dans Calendrier, sur PC dans Outlook). Pour plusieurs événements d’un coup, utilise le .ics.</li></ul>');
  h+=d('Aller à l’adresse d’un rendez-vous','<ul><li>Quand un événement a un <b>lieu</b> (champ « Lieu »), ouvre-le (le jour même, ou n’importe quand) : la ligne du lieu est cliquable.</li><li>Touche-la : choisis <b>Plans</b> (Apple), <b>Google Maps</b> ou <b>Waze</b> ; l’appli choisie s’ouvre avec l’adresse prête. Tu peux aussi <b>copier l’adresse</b>.</li><li>Plus l’adresse est complète (numéro, rue, ville), plus le résultat est précis.</li></ul>');
  h+=d('Ordinateur, tablette et grand écran','<ul><li>L’affichage s’adapte à l’appareil : téléphone (onglets en bas), tablette et ordinateur (onglets à gauche, mini-calendrier et journée à droite, réglages sur deux colonnes), grand écran (texte et grilles agrandis).</li><li><b>Raccourcis clavier</b> sur ordinateur : flèches ← → (période précédente / suivante), <b>T</b> aujourd’hui, <b>J</b> jour, <b>S</b> semaine, <b>M</b> mois, <b>D</b> 2 semaines, <b>C</b> ou <b>/</b> chercher, <b>N</b> nouvel événement, <b>P</b> imprimer, <b>?</b> aide.</li></ul>');
