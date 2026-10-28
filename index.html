@@ -590,12 +590,15 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.13';
+const APP_VERSION='1.16.14';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.14',d:'28/10/2026',items:[
+  'Couleurs et noms des calendriers Outlook : mis à jour automatiquement à l’ouverture et après chaque envoi/récupération (plus besoin d’ouvrir la gestion des calendriers). Les anciennes couleurs mémorisées dans l’appli ne cachent plus celles d’Outlook.',
+  'Calendriers à « couleur automatique » (Outlook choisit sans la communiquer) : nouveau bouton « Fixer les couleurs automatiques » dans la gestion des calendriers, pour que Outlook et l’appli affichent la même couleur.']},
  {v:'1.16.13',d:'28/10/2026',items:[
   'Outlook : dans la liste « Importer depuis Outlook », le bouton « Ne plus proposer les décochés » retire définitivement les événements que tu ne veux pas (jours fériés, anniversaires…). Ils ne reviennent plus à chaque ouverture. Réglages → Outlook → « Tout reproposer » annule. Pour un calendrier entier, décoche-le dans « Importer depuis Outlook ».']},
  {v:'1.16.12',d:'28/10/2026',items:[
@@ -608,7 +611,7 @@ const CHANGELOG=[
   'Nouveau réglage « À l’ouverture : récupérer Outlook » → « Me montrer » : à chaque ouverture, une fenêtre te liste ce qui a été ajouté, modifié ou supprimé dans Outlook (rien ne s’affiche s’il n’y a rien de nouveau). « Auto » récupère sans rien demander.']},
  {v:'1.16.9',d:'27/10/2026',items:[
   'Outlook : tu peux maintenant gérer tes calendriers depuis l’appli. Réglages → Outlook → « Gérer mes calendriers Outlook » : créer un calendrier (nom et couleur), le renommer, changer sa couleur, ou le supprimer. La suppression demande de retaper le nom, car elle efface tous les événements du calendrier dans Outlook. Le calendrier par défaut, ceux en lecture seule et ceux d’un autre compte sont protégés.',
-  'Doublons : le nettoyage cherche maintenant dans tous tes calendriers Outlook (pas seulement « Agenda (appli) »), repère aussi les titres écrits un peu différemment, et te montre la liste avec des cases à cocher avant de supprimer. Un exemplaire de chaque est toujours gardé. Nouveau bouton « Chercher les doublons dans l’appli ». L’envoi vers Outlook n’envoie plus deux fois deux événements identiques.']},
+  'Doublons : le nettoyage cherche maintenant dans tous tes calendriers Outlook (pas seulement « Agenda (appli) »), repère aussi les titres écrits un peu différemment, et te montre la liste avec des cases à cocher avant de supprimer. Un exemplaire de chaque est toujours gardé. Nouveau bouton « Chercher les doublons dans l’appli » (il repère aussi l’événement de l’appli et sa copie importée d’Outlook, et garde celui de l’appli). L’envoi vers Outlook n’envoie plus deux fois deux événements identiques.']},
  {v:'1.16.8',d:'27/10/2026',items:[
   'Écran large (iPad en paysage, ordinateur) : nouveau réglage « Panneau de droite » (Réglages → Affichage). Sur « Non », le mini-calendrier et la liste de la journée disparaissent et le mois, la semaine ou le jour prennent toute la largeur : les titres sont moins coupés.']},
  {v:'1.16.7',d:'27/10/2026',items:[
@@ -1675,6 +1678,7 @@ async function msSync(silent){
    if(!silent&&reqs.length>20)toast('Envoi vers Outlook… '+Math.min(i+20,reqs.length)+'/'+reqs.length,4000);
   }
   MSA.last=Date.now();MSA.err=err?(err+' élément(s) non envoyés'):'';msSave();
+  try{await olCatsRefresh()}catch(e){}
   if(!silent)toast(reqs.length?('Outlook à jour : '+add_+' ajouté'+(add_>1?'s':'')+', '+upd+' modifié'+(upd>1?'s':'')+', '+del+' supprimé'+(del>1?'s':'')+(err?' · '+err+' erreur(s)':'')):'Outlook déjà à jour',5000);
  }catch(e){
   MSA.err=e.message||'Erreur';msSave();
@@ -1740,8 +1744,11 @@ const calColOf=c=>(S.olCol||{})['cal:'+c.id]||c.col||'#0078d4';
 async function olCatsRefresh(){
  if(!msConnected()||demo)return false;
  let got=false;
- try{const c=await msFetch('/me/calendars?$select=id,name,canEdit,color,hexColor&$top=100');const all=(c.value||[]).map(x=>({id:x.id,name:String(x.name||'').slice(0,80),col:calHex(x),ok:x.canEdit!==false}));
-  MSA.cals=all.filter(x=>x.ok).map(x=>({id:x.id,name:x.name,col:x.col}));MSA.calCol={};MSA.calById={};all.forEach(x=>{if(x.col){MSA.calCol[x.name]=x.col;MSA.calById[x.id]=x.col}});msSave()}catch(e){}
+ try{const c=await msFetch('/me/calendars?$select=id,name,canEdit,color,hexColor&$top=100');const all=(c.value||[]).map(x=>({id:x.id,name:String(x.name||'').slice(0,80),col:calHex(x),auto:(!x.color||x.color==='auto')&&!/^#[0-9a-f]{6}$/i.test(x.hexColor||''),ok:x.canEdit!==false}));
+  MSA.cals=all.filter(x=>x.ok).map(x=>({id:x.id,name:x.name,col:x.col}));MSA.calCol={};MSA.calById={};MSA.calAuto={};all.forEach(x=>{if(x.col){MSA.calCol[x.name]=x.col;MSA.calById[x.id]=x.col}if(x.auto)MSA.calAuto[x.id]=1});
+  /* anciennes couleurs « prédéfinies » mémorisées dans l'appli : Outlook fait foi, on les retire (les couleurs libres choisies restent) */
+  {const pre=new Set(Object.values(CAL_COL).map(v=>v.toLowerCase()));let ch=false;for(const k of Object.keys(S.olCol||{}))if(k.startsWith('cal:')&&pre.has(String(S.olCol[k]).toLowerCase())){delete S.olCol[k];ch=true}if(ch)saveSet()}
+  msSave()}catch(e){}
  try{const j=await msFetch('/me/outlook/masterCategories');MSA.cats=(j.value||[]).map(c=>({name:String(c.displayName||'').slice(0,60),color:c.color||''})).filter(c=>c.name);MSA.catsFull=true;msSave();return true}
  catch(e){}
  /* repli (autorisation pas encore donnée) : catégories déjà utilisées sur tes événements Outlook */
@@ -2507,6 +2514,7 @@ async function msPullNow(){
 }
 /* Récupération automatique à l'ouverture (si activée) : relit les calendriers choisis lors du dernier import manuel */
 async function olAuto(){
+ olColorsAuto();
  if(demo||!msConnected()||!S.olAuto||!(S.olCals||[]).length)return;
  if(Date.now()-(MSA.pullAt||0)<10*60*1000)return;
  MSA.pullAt=Date.now();msSave();
@@ -3461,7 +3469,7 @@ function olCalMine(c){const a=(c.owner&&c.owner.address)||'';return !a||!MSA.acc
 function olCalInfo(c){
  const own=olCalMine(c),app=c.id===MSA.calId||c.name===MS_CAL_NAME;
  const ro=c.canEdit===false;
- const tags=[];if(c.isDefaultCalendar)tags.push('par défaut');if(app)tags.push('géré par l’appli');if(!own)tags.push('partagé avec toi');if(ro)tags.push('lecture seule');
+ const tags=[];if(c.isDefaultCalendar)tags.push('par défaut');if(app)tags.push('géré par l’appli');if(!own)tags.push('partagé avec toi');if(ro)tags.push('lecture seule');if((c.color==='auto'||!c.color)&&!/^#[0-9a-f]{6}$/i.test(c.hexColor||''))tags.push('couleur automatique');
  return{app,own,ro,tags,canEdit:!ro&&own&&!app,lockName:!!c.isDefaultCalendar,canDel:!ro&&own&&!app&&!c.isDefaultCalendar};
 }
 function olCalColor(c){return (S.olCol||{})['cal:'+c.id]||calHex(c)||'#0078d4'}
@@ -3481,10 +3489,11 @@ async function olCalsManage(){
   const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Tes calendriers Outlook ('+list.length+'). Ce que tu fais ici est fait directement dans ton compte Outlook.</p><div class="olbox">'+rows+'</div><p class="hint" style="margin:.5rem 0 0">Le calendrier par défaut, ceux en lecture seule et ceux d’un autre compte ne peuvent pas être supprimés ici.</p>';
   const h=e=>{const b=e.target.closest&&e.target.closest('[data-oc]');if(!b)return;e.stopImmediatePropagation();e.preventDefault();pending={a:b.dataset.oc,id:b.dataset.id};const f=root.querySelector('[data-v="2"]');if(f)f.click()};
   root.addEventListener('click',h,true);
-  const v=await ask({title:'Mes calendriers Outlook',html,btns:[{label:'Créer un calendrier',value:'new',cls:'pri'},{label:'Mettre à jour la liste',value:'ref'},{label:'Fermer',value:null}]});
+  const v=await ask({title:'Mes calendriers Outlook',html,btns:[{label:'Créer un calendrier',value:'new',cls:'pri'},{label:'Mettre à jour la liste',value:'ref'},{label:'Fixer les couleurs automatiques',value:'fix'},{label:'Fermer',value:null}]});
   root.removeEventListener('click',h,true);
   if(pending){const c=list.find(x=>x.id===pending.id);if(c){if(pending.a==='edit')await olCalEdit(c);else if(pending.a==='share')await olCalShare(c);else if(pending.a==='del')await olCalDelete(c)}}
   else if(v==='new')await olCalEdit(null);
+  else if(v==='fix')await olCalFixColors(list);
   else if(v!=='ref')break;
   try{list=await olCalsFetch()}catch(e){toast('Lecture impossible : '+e.message,5000);break}
  }
@@ -3612,7 +3621,9 @@ async function olDedupeAll(){
 /* doublons dans l'appli elle-même (la source des doublons envoyés à Outlook) */
 async function appDupes(){
  const g=new Map();
- for(const e of EV){const k=[dupNorm((e.icon?e.icon+' ':'')+e.title),e.start,e.end,e.allDay?1:0,e.startTime||'',e.endTime||'',JSON.stringify(e.rec||null),e.ocal||''].join('|');if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
+ for(const e of EV){const k=[dupNorm((e.icon?e.icon+' ':'')+e.title),e.start,e.end,e.allDay?1:0,e.startTime||'',e.endTime||'',JSON.stringify(e.rec||null)].join('|');if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
+ /* on garde en priorité l'événement créé dans l'appli (pas la copie importée d'Outlook) ; le calendrier n'entre pas dans la comparaison */
+ for(const l of g.values())l.sort((a,b)=>((a.src==='ol')-(b.src==='ol'))||((b.ocal?1:0)-(a.ocal?1:0)))
  const extra=[];for(const l of g.values())if(l.length>1)l.slice(1).forEach(x=>extra.push(x));
  if(!extra.length){toast('Aucun doublon dans l’appli ('+EV.length+' événements vérifiés)',5000);return}
  const r=await ask({title:'Doublons dans l’appli',text:extra.length+' événement'+(extra.length>1?'s':'')+' en double (même titre, mêmes dates et heures). On en garde un seul de chaque. Si tu es connecté à Outlook, les copies envoyées en trop seront aussi retirées d’Outlook à la prochaine synchronisation.',btns:[{label:'Supprimer '+extra.length+' doublon'+(extra.length>1?'s':''),value:'y',cls:'dng'},{label:'Annuler',value:null}]});
@@ -3662,6 +3673,36 @@ async function olCalShare(c){
    if(e.status===403||e.status===401||/Forbidden|Access|denied|scope|Authorization/i.test(t))await ask({title:'Partage non autorisé',html:'<p>Outlook refuse le partage depuis l’appli (autorisation manquante ou type de compte).</p><p>Solutions : te <b>déconnecter puis reconnecter</b> à Outlook dans Réglages (pour accepter les nouvelles autorisations), ou partager ce calendrier depuis Outlook (clic droit sur le calendrier → Partage et autorisations).</p>',btns:[{label:'OK',value:null}]});
   }
  }
+}
+
+/* Mise à jour automatique des couleurs et noms des calendriers Outlook (au plus toutes les 10 min) */
+async function olColorsAuto(){
+ if(demo||!msConnected())return;
+ if(Date.now()-(MSA.colAt||0)<10*60*1000)return;
+ MSA.colAt=Date.now();msSave();
+ const before=JSON.stringify([MSA.calById,MSA.cals,S.olCol]);
+ try{await olCatsRefresh()}catch(e){return}
+ if(before!==JSON.stringify([MSA.calById,MSA.cals,S.olCol]))render();
+}
+/* « Couleur automatique » : Outlook choisit lui-même la couleur et ne la communique pas. On en fixe une (même couleur dans Outlook et dans l'appli) */
+async function olCalFixColors(list){
+ const L=list.filter(c=>olCalMine(c)&&c.canEdit!==false&&(c.color==='auto'||!c.color)&&!/^#[0-9a-f]{6}$/i.test(c.hexColor||''));
+ if(!L.length){toast('Aucune couleur automatique à fixer',3500);return}
+ const pal=OL_CAL_CHOICES.filter(x=>x[0]!=='auto').map(x=>x[0]);
+ const used=new Set(list.filter(c=>c.color&&c.color!=='auto').map(c=>c.color));
+ const free=pal.filter(k=>!used.has(k)).concat(pal);
+ const html='<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Pour ces calendriers, Outlook choisit la couleur tout seul sans la dire à l’appli. Choisis-en une : elle sera la même dans Outlook et dans AgenDam. <b>Ça change la couleur affichée dans Outlook.</b></p>'+
+  L.map((c,i)=>'<div class="olcal"><span class="dot" style="background:'+CAL_COL[free[i%free.length]]+'"></span><div class="olc-t"><b>'+esc(c.name)+'</b></div><select class="in oc-fx" data-id="'+esc(c.id)+'" style="max-width:9.5rem">'+OL_CAL_CHOICES.filter(x=>x[0]!=='auto').map(([k,l])=>'<option value="'+k+'"'+(k===free[i%free.length]?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select></div>').join('');
+ const root=$('#dlg');let chosen=[];
+ const h=e=>{const b=e.target.closest&&e.target.closest('[data-v="0"]');if(!b)return;chosen=[...root.querySelectorAll('.oc-fx')].map(s=>({id:s.dataset.id,color:s.value}))};
+ root.addEventListener('click',h,true);
+ const v=await ask({title:'Fixer les couleurs',html,btns:[{label:'Appliquer dans Outlook',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',h,true);
+ if(v!=='ok')return;
+ let ok=0,ko=0;
+ for(const x of chosen){try{await msFetch('/me/calendars/'+encodeURIComponent(x.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({color:x.color})});ok++}catch(e){ko++}}
+ try{await olCatsRefresh()}catch(e){}
+ toast(ok+' couleur'+(ok>1?'s':'')+' fixée'+(ok>1?'s':'')+(ko?' · '+ko+' refusée'+(ko>1?'s':''):''),4500);
 }
 
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
@@ -3963,7 +4004,7 @@ function openHelp(hist){
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
- h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li></ul>');
+ h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
  h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
