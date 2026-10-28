@@ -599,6 +599,10 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 .sfold .mut{font-size:.85rem;margin:.2rem 0 0}
 .ms-acct{margin:.1rem 0 .2rem}.warn-t{color:var(--danger)}
 .msd .btn.blk{display:block;width:100%;margin-top:.8rem}
+/* événements mis en valeur */
+.hio{outline:2.5px solid var(--text);outline-offset:-2px}
+.hib,.hib b,.hib .rx b{font-weight:900}
+.mband.hio{outline-offset:-2px}
 
 </style>
 </head>
@@ -642,12 +646,14 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.26';
+const APP_VERSION='1.16.27';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.27',d:'28/10/2026',items:[
+  'Événements importants : dans la fiche d’un événement, « Mettre en valeur » te laisse choisir un contour épais, du gras et/ou une étoile ★. Visible dans le mois, la semaine, le jour et les listes.']},
  {v:'1.16.26',d:'28/10/2026',items:[
   'Réglages remis au propre : la carte Outlook est classée par sujet (état, Envoyer / Récupérer, synchronisation, calendriers et catégories, nettoyage), avec des lignes claires et les textes longs repliés sous « Comment ça marche ? ». Même présentation pour Sauvegarde, Calendrier du téléphone, Anniversaires, Importer, Fichier .ics, Guide et Démo. Aucune fonction retirée.']},
  {v:'1.16.25',d:'28/10/2026',items:[
@@ -876,7 +882,8 @@ const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
-const evT=ev=>(ev.icon?esc(ev.icon)+' ':'')+esc(ev.title);
+const evT=ev=>(ev.hi&4?'★ ':'')+(ev.icon?esc(ev.icon)+' ':'')+esc(ev.title);
+const hiCls=ev=>(ev.hi&1?' hio':'')+(ev.hi&2?' hib':'');
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 
@@ -955,7 +962,7 @@ function cleanEvent(x){
  if(!x||typeof x!=='object')return null;
  const ev={id:String(x.id||uid()),title:String(x.title||'Sans titre').slice(0,200),allDay:!!x.allDay,start:x.start,end:x.end||x.start,
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
-  cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),rec:null,ex:[],alarm:null};
+  cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),hi:((+x.hi)||0)&7,rec:null,ex:[],alarm:null};
  if(Array.isArray(x.mids)&&x.mids.length>1)ev.mids=x.mids.map(String).slice(0,400);
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
@@ -1300,7 +1307,7 @@ function rowHTML(o,day){
  let sub='';
  if(o.dur>0)sub+='<small>'+fShort(o.date)+' → '+fShort(o.endDate)+'</small>';
  if(ev.place)sub+='<small>'+ic('pin')+esc(ev.place)+'</small>';
- return '<button class="row" style="--c:'+c+'" data-act="open" data-o="'+reg(o)+'"><span class="rt"><b'+(o.allDay?' class="ad"':'')+'>'+t1+'</b>'+(t2?'<small>'+t2+'</small>':'')+'</span><i class="bar"></i><span class="rx"><b>'+evT(ev)+'</b>'+sub+'</span></button>';
+ return '<button class="row'+hiCls(ev)+'" style="--c:'+c+'" data-act="open" data-o="'+reg(o)+'"><span class="rt"><b'+(o.allDay?' class="ad"':'')+'>'+t1+'</b>'+(t2?'<small>'+t2+'</small>':'')+'</span><i class="bar"></i><span class="rx"><b>'+evT(ev)+'</b>'+sub+'</span></button>';
 }
 function dayRows(day,list){
  const {ad,ts}=segs(list||occs(day,day),day);
@@ -1327,7 +1334,7 @@ function gridHTML(days,hh,opts){
   h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+dayCls(d)+'" title="'+esc(holName(d))+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b>'+bdMark(d)+'</button>').join('')+'</div>';
  }
  if(anyAd){
-  h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip" style="--c:'+evCol(o.ev)+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
+  h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip'+hiCls(o.ev)+'" style="--c:'+evCol(o.ev)+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
  }
  h+='</div>';
  h+='<div class="tg-body"><div class="tg-hours">'+Array.from({length:23},(_,i)=>'<span style="top:calc(var(--hh)*'+(i+1)+')">'+pad(i+1)+':00</span>').join('')+'</div>';
@@ -1338,7 +1345,7 @@ function gridHTML(days,hh,opts){
    const o=it.o,ev=o.ev,dur=it.e-it.s,sm=dur<=50||(cols>1&&dur<=60);
    const top=it.s/1440*100,ht=Math.max(dur,20)/1440*100,w=100/it.cols,l=it.col*w;
    const tt=hm(it.s)+'–'+hm2(it.e);
-   h+='<button class="ev'+(sm?' sm':'')+'" style="--c:'+evCol(ev)+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
+   h+='<button class="ev'+(sm?' sm':'')+hiCls(ev)+'" style="--c:'+evCol(ev)+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
     (sm?(cols===1?'<span class="tt">'+tt+'</span>':''):'<small>'+tt+'</small>'+(ev.place&&cols===1?'<small>'+esc(ev.place)+'</small>':''))+'</button>';
   }
   if(d===t)h+='<div class="nowline" style="top:'+(nowMin()/1440*100)+'%"></div>';
@@ -1487,7 +1494,7 @@ function monthViewTitles(fort,pr){
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
    const o=b.o,col=evCol(o.ev);
-   fg+='<i class="mband'+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc<1?';--bsc:'+best.sc:'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
+   fg+='<i class="mband'+hiCls(o.ev)+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc<1?';--bsc:'+best.sc:'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
   });
   timed.forEach((arr,c)=>{
    if(!arr.length)return;
@@ -1498,7 +1505,7 @@ function monthViewTitles(fort,pr){
    const shown=Math.min(arr.length,Math.max(0,Math.floor(L/ln)));
    hid[c]+=arr.length-shown;
    if(!shown)return;
-   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
+   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml'+hiCls(o.ev)+'" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.hi&4?'★\u00a0':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
   });
   hid.forEach((n,c)=>{if(n>0)fg+='<span class="mhid" style="grid-row:1;grid-column:'+(c+2)+'">+'+n+'</span>'});
   let bg='<span class="wn">'+wk+'</span>';
@@ -4488,14 +4495,14 @@ function openEditor(opt){
  if(ev){
   const sd=opt.occDate||ev.start,dur=Math.max(0,diff(ev.end,ev.start));
   f={title:ev.title,allDay:ev.allDay,sd,st:ev.startTime,ed:add(sd,dur),et:ev.endTime,place:ev.place,note:ev.note,cat:ev.cat,icon:ev.icon||'',
-   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||''};
+   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',hi:ev.hi||0};
  }else{
   const sd=opt.date||V.date;let st='09:00';
   if(opt.startMin!=null)st=hm(Math.min(1380,opt.startMin));
   else if(sd===today()){const m=Math.min(1350,Math.ceil((nowMin()+1)/30)*30);st=hm(m)}
   const s=tmin(st),e=Math.min(1439,s+60);
   f={title:'',allDay:false,sd,st,ed:sd,et:hm(e),place:'',note:'',icon:'',cat:S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id,rec:null,alarm:S.defAlarm};
-  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{ocat:c.ocat||'',ocal:c.ocal||'',title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
+  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{hi:c.hi||0,ocat:c.ocat||'',ocal:c.ocal||'',title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat,icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
  }
  ED={id:ev?ev.id:null,occ:ev?(opt.occDate||ev.start):null,snap:{sd:f.sd,st:f.st,ed:f.ed,et:f.et}};
  const r=f.rec||{type:'none',interval:1,days:[],on:3,off:2,until:null};
@@ -4506,6 +4513,7 @@ function openEditor(opt){
  if(!ev)h+=tplRow();
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
  h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
+ h+='<div class="fld"><span class="lbl">Mettre en valeur (événement important)</span><div class="chips" id="f-hi">'+[[1,'Contour'],[2,'Gras'],[4,'★ Étoile']].map(x=>'<button type="button" class="chip'+((f.hi||0)&x[0]?' on':'')+'" data-act="pickhi" data-b="'+x[0]+'">'+x[1]+'</button>').join('')+'</div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'<button type="button" class="chip cat'+(f.cat==='-'?' on':'')+'" style="--c:#94a3b8" data-act="pickcat" data-id="-">Sans catégorie</button></div></div>';
  if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">📅 Ranger dans quel calendrier Outlook ?</span><div class="chips" id="f-ocal">'+ocalChips(f.ocal||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Le calendrier, c’est le « dossier » dans Outlook (Agenda (appli), RDV, Vacance DAM…).</p></div>';h+='<details class="fld ocat-d"'+(f.ocat?' open':'')+'><summary class="lbl">🏷️ Étiquette de couleur Outlook (facultatif)</summary><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">L’étiquette, c’est la couleur affichée sur l’événement dans Outlook. « Aucune » = pas d’étiquette (l’événement garde sa catégorie de l’appli). Calendrier et étiquette sont deux choses séparées.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></details>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur);const k=$('#f-ocal');if(k){const cc=($('#f-ocal .chip.on')||{dataset:{}}).dataset.o||'';k.innerHTML=ocalChips(cc)}}})}
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
@@ -4561,7 +4569,7 @@ function readForm(){
  }
  const cat=($('#f-cats .chip.on')||{dataset:{}}).dataset.id||S.cats[0].id;
  return{title:g('f-title').value.trim()||'Sans titre',allDay,start:g('f-sd').value,end:g('f-ed').value,startTime:g('f-st').value||'09:00',endTime:g('f-et').value||'10:00',
-  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
+  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',hi:$$('#f-hi .chip.on').reduce((a,c)=>a|(+c.dataset.b||0),0),rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
 }
 async function saveEditor(){
  const b=readForm();
@@ -4693,6 +4701,7 @@ function openHelp(hist){
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">Mode d’emploi</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+=d('Démarrer','<ul><li><b>Jour, Semaine, Mois, 2 sem., Chercher</b> : onglets en bas. <b>Réglages</b> : l’icône d’engrenage en haut à droite. Les flèches et « Aujourd’hui » en haut changent de période. Tu peux aussi glisser le doigt à gauche ou à droite.</li><li><b>+</b> (bouton rond) crée un événement. Dans la vue Jour, touche aussi un créneau vide pour en créer un à cette heure.</li><li>Touche un événement pour voir le détail, le modifier, le dupliquer, l’exporter ou le supprimer.</li><li>Dans le mois, touche un jour pour voir sa liste, touche « Ouvrir la journée » pour le détail heure par heure.</li></ul>',true);
  h+=d('Créer un événement','<ul><li><b>Titre, catégorie (couleur), lieu, note.</b> Les catégories se modifient dans Réglages.</li><li><b>Début et fin</b> : n’importe quelle durée, même sur plusieurs jours. Les boutons 30 min / 1 h / 2 h… règlent la fin d’un geste.</li><li><b>Journée entière</b> : pour un anniversaire, un congé, un voyage.</li><li><b>Rappel</b> : voir la section « Rappels ».</li></ul>');
+ h+=d('Événements importants','<ul><li>Dans la fiche d’un événement, <b>Mettre en valeur</b> : choisis <b>Contour</b> (cadre épais), <b>Gras</b> et/ou <b>★ Étoile</b>. Tu peux en cocher un, deux ou les trois.</li><li>Ça se voit dans le mois, la semaine, le jour et les listes. Ça reste dans l’appli (pas envoyé à Outlook).</li></ul>');
  h+=d('Répétitions et rotations','<ul><li>Tous les jours, semaines (avec choix des jours), mois, ans, avec un intervalle (ex. toutes les 2 semaines) et une date de fin facultative.</li><li><b>Rotation travail / repos</b> : indique le nombre de jours travaillés puis de repos (ex. 3 puis 2). Le cycle part de la date de début et se répète. Pratique pour des horaires en rotation.</li><li>Modifier ou supprimer un événement répété : tu choisis « cette occurrence », « celle-ci et les suivantes » ou « toute la série ».</li></ul>');
  h+=d('Rappels et notifications','<ul><li><b>À l’ouverture</b> : un écran « À venir aujourd’hui » liste ce qu’il reste à faire dans la journée (désactivable dans Réglages).</li><li><b>Notifications</b> : elles s’affichent quand l’appli est ouverte ou récemment active. <b>Quand l’appli est fermée, aucun rappel ne sonne</b> : une appli web sans serveur ne peut pas le garantir, surtout sur iPhone (notifications possibles seulement depuis l’écran d’accueil, iOS 16.4 minimum).</li><li><b>Solution fiable</b> : exporte en .ics et ouvre le fichier avec l’agenda natif du téléphone, qui gère les alarmes lui-même.</li></ul>');
  h+=d('Plusieurs appareils et sauvegarde','<div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Chaque appareil a sa propre copie de ton agenda.</div><ol><li>Appareil A : Réglages → <b>Sauvegarder (.json)</b>.</li><li>Envoie le fichier « '+BACKUP_FILE+' » à l’appareil B.</li><li>Appareil B : Réglages → <b>Restaurer</b>, puis choisis « Remplacer » ou « Fusionner ».</li></ol><p>Sauvegarde aussi régulièrement par sécurité : si tu vides les données du navigateur ou changes de téléphone, la sauvegarde est la seule copie. Le fichier porte toujours le même nom ; si ton téléphone en garde plusieurs, il ajoute « (1) », « (2) »… à la fin.</p>');
@@ -5018,6 +5027,7 @@ async function act(a,el,e){
   case 'ol-dedupe':olDedupe();break;
   case 'app-dupes':appDupes();break;
   case 'ol-ign-reset':S.olIgn=[];saveSet();toast('Tout sera de nouveau proposé',3000);render();break;
+  case 'pickhi':el.classList.toggle('on');break;
   case 'pickocal':$$('#f-ocal .chip').forEach(c=>c.classList.toggle('on',c===el));break;
   case 'ms-pull':msPullNow();break;
   case 'xl-import':$('#fi-xl').value='';$('#fi-xl').click();break;
