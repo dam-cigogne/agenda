@@ -622,12 +622,15 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.18';
+const APP_VERSION='1.16.19';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.19',d:'28/10/2026',items:[
+  'Anniversaires : les idées cadeaux d’une personne protégée ne s’affichent plus jamais dans la liste ni dans le rappel : on ne les voit que dans sa fiche, une fois le code (ou Face ID) saisi.',
+  'Le déverrouillage ne dure que 2 minutes, et la liste se reverrouille quand tu la fermes. Après la création du code, la personne protégée est cachée tout de suite. Pour changer ou retirer le code, il faut d’abord le saisir.']},
  {v:'1.16.18',d:'28/10/2026',items:[
   'Anniversaires : la protection se choisit personne par personne. Dans la fiche, la case « 🔒 Protéger cette personne » cache son nom et ses idées cadeaux (liste, bandeau du jour, rappel, PDF) tant que le code ou Face ID n’a pas été utilisé. Les autres personnes restent visibles sans code. Les personnes protégées ne sont pas envoyées au calendrier du téléphone.',
   'PDF des anniversaires corrigé : il est maintenant écrit directement en texte (léger, accents corrects, plusieurs pages si besoin), ce qui évite le blocage sur « Préparation du PDF… » sur iPhone.']},
@@ -3892,14 +3895,17 @@ function bdGifts(b){
  const n=String(b.note||'').trim();if(!n)return [];
  return n.split(/\s*(?:^|\s)[-•;]\s+|\n/).map(s=>s.replace(/^[-•]\s*/,'').trim()).filter(Boolean).map(t=>({t,x:0}));
 }
-const bdGiftTxt=b=>{if(bdHide(b))return '';const g=bdGifts(b);if(!g.length)return '';const p=g.filter(x=>!x.x);return p.length?'🎁 '+p.map(x=>x.t).join(', '):'🎁 tout est acheté ✓'};
+const bdGiftTxt=b=>{if(b.p)return '';const g=bdGifts(b);if(!g.length)return '';const p=g.filter(x=>!x.x);return p.length?'🎁 '+p.map(x=>x.t).join(', '):'🎁 tout est acheté ✓'};
 
 /* ---------- Code de protection (cache les noms, pas un vrai chiffrement) ---------- */
-let BD_OK=false;
+let BD_OK=false,BD_T=0;
+/* déverrouillé pour 2 minutes seulement, puis tout se recache */
+function bdUnlock(){BD_OK=true;clearTimeout(BD_T);BD_T=setTimeout(()=>{BD_OK=false;const bl=$('#sheet .bdrow');if(bl&&SHEET_OPEN)bdShow();render()},120000)}
+function bdRelock(){BD_OK=false;clearTimeout(BD_T)}
 const bdLocked=()=>!!S.bdPin&&!BD_OK;
 const bdHide=b=>!!(b&&b.p)&&bdLocked();
 const bdName=b=>bdHide(b)?'🔒 Anniversaire protégé':b.n;
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.bdPin){BD_OK=false}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.bdPin){bdRelock()}});
 async function bdHash(pin,salt){
  const s=salt+':'+pin;
  try{if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}}catch(e){}
@@ -3936,22 +3942,23 @@ async function bdAskPin(title,extra,confirm2){
 async function bdGate(){
  if(!S.bdPin||BD_OK)return true;
  let msg='';
- if(S.bdBio&&await bdBioCheck()){BD_OK=true;render();return true}
+ if(S.bdBio&&await bdBioCheck()){bdUnlock();render();return true}
  for(;;){
   const {r,a}=await bdAskPin('Anniversaires protégés',msg);
-  if(r==='bio'){if(await bdBioCheck()){BD_OK=true;render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
+  if(r==='bio'){if(await bdBioCheck()){bdUnlock();render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
   if(r==='forgot'){
    const f=await ask({title:'Code oublié',html:'<p style="margin:.2rem 0 .5rem">Il n’existe aucun moyen de retrouver le code. Tu peux <b>effacer la liste des anniversaires et le code</b>, puis recommencer (ta sauvegarde .json, si tu en as une, les contient encore).</p>',btns:[{label:'Effacer la liste et le code',value:'y',cls:'danger'},{label:'Annuler',value:null}]});
-   if(f==='y'){S.bd=[];S.bdPin='';S.bdBio='';saveSet();BD_OK=true;render();toast('Liste et code effacés');return true}
+   if(f==='y'){S.bd=[];S.bdPin='';S.bdBio='';saveSet();bdRelock();render();toast('Liste et code effacés');return true}
    return false;
   }
   if(r!=='ok')return false;
   const salt=String(S.bdPin).split(':')[0];
-  if(a&&await bdHash(a,salt)===String(S.bdPin).split(':')[1]){BD_OK=true;render();return true}
+  if(a&&await bdHash(a,salt)===String(S.bdPin).split(':')[1]){bdUnlock();render();return true}
   msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Code incorrect, réessaie.</p>';
  }
 }
 async function bdSetPin(){
+ if(S.bdPin&&!(await bdGate()))return;
  const cur=!!S.bdPin;
  if(cur){
   const r=await ask({title:'Code de protection',text:'Un code protège actuellement tes anniversaires.',btns:[{label:'Changer le code',value:'chg',cls:'pri'},{label:'Retirer le code',value:'off'},{label:'Annuler',value:null}]});
@@ -3962,7 +3969,7 @@ async function bdSetPin(){
  if(r!=='ok')return;
  if(!/^\d{4,8}$/.test(a)){toast('Le code doit faire 4 à 8 chiffres');return bdSetPin()}
  if(a!==b){toast('Les deux codes sont différents');return bdSetPin()}
- const salt=uid();S.bdPin=salt+':'+await bdHash(a,salt);BD_OK=true;saveSet();render();toast('🔒 Code enregistré');
+ const salt=uid();S.bdPin=salt+':'+await bdHash(a,salt);bdRelock();saveSet();render();toast('🔒 Code enregistré');
 }
 
 function bdMark(date){return bdOn(date).length?'<em class="bd" title="Anniversaire">🎂</em>':''}
@@ -4310,7 +4317,7 @@ async function bdAct(a,el){
    else toast('Activation annulée ou refusée',5000);
    bdShow();break}
   case 'bd-pin':await bdSetPin();bdShow();break;
-  case 'bd-lock':BD_OK=false;closeSheet();render();toast('🔒 Verrouillé');break;
+  case 'bd-lock':bdRelock();closeSheet();render();toast('🔒 Verrouillé');break;
   case 'bd-rem':{
    const v=+dd.v;let r=Array.isArray(S.bdRem)?S.bdRem.slice():[0,1,7];
    r=r.includes(v)?r.filter(x=>x!==v):r.concat([v]);S.bdRem=r.sort((x,y)=>x-y);saveSet();bdShow();break}
@@ -4356,6 +4363,7 @@ function openSheet(html,cls){
  return root;
 }
 function closeSheet(){
+ if(typeof bdRelock==='function'&&S.bdPin&&$('#sheet .bdrow'))bdRelock();
  if(!SHEET_OPEN){$('#sheet').innerHTML='';return}
  SHEET_OPEN=false;$('#sheet').innerHTML='';
  try{if(history.state&&history.state.sheet)history.back()}catch(e){}
