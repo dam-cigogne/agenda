@@ -622,12 +622,15 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.17';
+const APP_VERSION='1.16.18';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.18',d:'28/10/2026',items:[
+  'Anniversaires : la protection se choisit personne par personne. Dans la fiche, la case « 🔒 Protéger cette personne » cache son nom et ses idées cadeaux (liste, bandeau du jour, rappel, PDF) tant que le code ou Face ID n’a pas été utilisé. Les autres personnes restent visibles sans code. Les personnes protégées ne sont pas envoyées au calendrier du téléphone.',
+  'PDF des anniversaires corrigé : il est maintenant écrit directement en texte (léger, accents corrects, plusieurs pages si besoin), ce qui évite le blocage sur « Préparation du PDF… » sur iPhone.']},
  {v:'1.16.17',d:'28/10/2026',items:[
   'Anniversaires : le bouton « Ajouter » est maintenant tout en haut de la liste.',
   'Idées cadeaux en liste à cocher : une ligne par idée, tu coches quand c’est acheté. L’ancienne note (« - vélo - planète ») est transformée toute seule en liste. Les idées restantes apparaissent dans la liste et dans le rappel à l’ouverture.',
@@ -3889,11 +3892,13 @@ function bdGifts(b){
  const n=String(b.note||'').trim();if(!n)return [];
  return n.split(/\s*(?:^|\s)[-•;]\s+|\n/).map(s=>s.replace(/^[-•]\s*/,'').trim()).filter(Boolean).map(t=>({t,x:0}));
 }
-const bdGiftTxt=b=>{const g=bdGifts(b);if(!g.length)return '';const p=g.filter(x=>!x.x);return p.length?'🎁 '+p.map(x=>x.t).join(', '):'🎁 tout est acheté ✓'};
+const bdGiftTxt=b=>{if(bdHide(b))return '';const g=bdGifts(b);if(!g.length)return '';const p=g.filter(x=>!x.x);return p.length?'🎁 '+p.map(x=>x.t).join(', '):'🎁 tout est acheté ✓'};
 
 /* ---------- Code de protection (cache les noms, pas un vrai chiffrement) ---------- */
 let BD_OK=false;
 const bdLocked=()=>!!S.bdPin&&!BD_OK;
+const bdHide=b=>!!(b&&b.p)&&bdLocked();
+const bdName=b=>bdHide(b)?'🔒 Anniversaire protégé':b.n;
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.bdPin){BD_OK=false}});
 async function bdHash(pin,salt){
  const s=salt+':'+pin;
@@ -3933,7 +3938,7 @@ async function bdGate(){
  let msg='';
  if(S.bdBio&&await bdBioCheck()){BD_OK=true;render();return true}
  for(;;){
-  const {r,a}=await bdAskPin('Anniversaires verrouillés',msg);
+  const {r,a}=await bdAskPin('Anniversaires protégés',msg);
   if(r==='bio'){if(await bdBioCheck()){BD_OK=true;render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
   if(r==='forgot'){
    const f=await ask({title:'Code oublié',html:'<p style="margin:.2rem 0 .5rem">Il n’existe aucun moyen de retrouver le code. Tu peux <b>effacer la liste des anniversaires et le code</b>, puis recommencer (ta sauvegarde .json, si tu en as une, les contient encore).</p>',btns:[{label:'Effacer la liste et le code',value:'y',cls:'danger'},{label:'Annuler',value:null}]});
@@ -3963,8 +3968,7 @@ async function bdSetPin(){
 function bdMark(date){return bdOn(date).length?'<em class="bd" title="Anniversaire">🎂</em>':''}
 function bdDayHTML(date){
  const l=bdOn(date);if(!l.length)return '';
- if(bdLocked())return '<button class="bdb" data-act="bd-open">🔒 Anniversaire (touche pour déverrouiller)</button>';
- return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>';
+ return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>';
 }
 function bdIn(days){return days===0?'aujourd’hui':days===1?'demain':'dans '+days+' jours'}
 function bdLines(){
@@ -3979,12 +3983,11 @@ function bdLines(){
 function bdDue(){return S.bdOn!==false&&META.bdDay!==today()&&bdLines().length>0}
 function bdRowsHTML(){
  const l=bdLines();if(!l.length)return '';
- if(bdLocked())return '<div class="bdl">'+l.map(x=>'<div class="bdr"><span>🔒</span><div><b>Un anniversaire '+bdIn(x.days)+'</b><small>Touche « Voir tous les anniversaires » et saisis ton code</small></div></div>').join('')+'</div>';
- return '<div class="bdl">'+l.map(x=>{const g=bdGiftTxt(x.b);return '<div class="bdr"><span>🎂</span><div><b>'+esc(x.b.n)+'</b>'+(bdAgeTxt(x.b,x.date)?', '+bdAgeTxt(x.b,x.date):'')+'<small>'+bdIn(x.days)+' · '+pd(x.date).getDate()+' '+ML[pd(x.date).getMonth()]+(g?' · '+esc(g):'')+'</small></div></div>'}).join('')+'</div>';
+ return '<div class="bdl">'+l.map(x=>{const hid=bdHide(x.b),g=bdGiftTxt(x.b);return '<div class="bdr"><span>'+(hid?'🔒':'🎂')+'</span><div><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b>'+(!hid&&bdAgeTxt(x.b,x.date)?', '+bdAgeTxt(x.b,x.date):'')+'<small>'+bdIn(x.days)+' · '+pd(x.date).getDate()+' '+ML[pd(x.date).getMonth()]+(g?' · '+esc(g):'')+'</small></div></div>'}).join('')+'</div>';
 }
 
 /* ---------- Écran « Anniversaires » ---------- */
-async function bdOpen(){if(await bdGate())bdShow()}
+function bdOpen(){bdShow()}
 function bdShow(){
  const t=today(),list=bdClean().map(b=>({b,nx:bdNext(b,t)})).sort((a,b)=>a.nx<b.nx?-1:a.nx>b.nx?1:a.b.n.localeCompare(b.b.n));
  const rem=Array.isArray(S.bdRem)?S.bdRem:[0,1,7];
@@ -3993,8 +3996,8 @@ function bdShow(){
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">🎂 Anniversaires</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+='<button class="btn pri blk" data-act="bd-add" style="margin-top:0">'+ic('plus')+' Ajouter un anniversaire</button>';
  if(list.length){
-  h+='<div style="margin:.4rem -1rem 0">'+list.map(x=>{const dd=diff(x.nx,t),a=bdAge(x.b,x.nx),g=bdGiftTxt(x.b);
-   return '<button class="bdrow" data-act="bd-edit" data-id="'+esc(x.b.id)+'"><span class="bdi">🎂</span><div class="rt"><b>'+esc(x.b.n)+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'}).join('')+'</div>';
+  h+='<div style="margin:.4rem -1rem 0">'+list.map(x=>{const dd=diff(x.nx,t),hid=bdHide(x.b),a=bdAge(x.b,x.nx),g=bdGiftTxt(x.b);
+   return '<button class="bdrow" data-act="bd-edit" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'}).join('')+'</div>';
  }else h+='<p class="mut" style="margin:.6rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
  h+='<div style="height:.4rem"></div>';
  if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
@@ -4004,7 +4007,8 @@ function bdShow(){
  h+='<b style="display:block;margin:.8rem 0 .2rem">Rappel à l’ouverture de l’appli</b><div class="seg" style="flex-wrap:wrap">'+chip(0,'Le jour J')+chip(1,'La veille')+chip(3,'3 jours avant')+chip(7,'1 semaine avant')+'</div>';
  h+='<div class="seg" style="margin-top:.4rem"><button data-act="bd-on" data-v="1" class="'+(S.bdOn!==false?'on':'')+'">Rappels activés</button><button data-act="bd-on" data-v="0" class="'+(S.bdOn===false?'on':'')+'">Désactivés</button></div>';
  h+='<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem">Une appli fermée ne peut pas t’envoyer de notification : le rappel s’affiche quand tu ouvres l’appli (une fois par jour). Pour une vraie sonnerie, utilise le bouton « calendrier du téléphone ».</p>';
- h+='<button class="btn blk" data-act="bd-pin">'+(S.bdPin?'🔒 Code activé : changer ou retirer':'🔒 Protéger par un code (cacher les noms)')+'</button>';
+ h+='<b style="display:block;margin:.8rem 0 .2rem">🔒 Protéger certaines personnes</b><p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Dans la fiche d’une personne, coche « Protéger » : son nom et ses idées cadeaux sont cachés tant que tu n’as pas saisi ton code (ou utilisé Face ID). Les autres restent visibles.</p>';
+ h+='<button class="btn blk" data-act="bd-pin">'+(S.bdPin?'Code activé : changer ou retirer':'Créer mon code…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-bio">'+(S.bdBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-lock">Verrouiller maintenant</button>';
  h+='<button class="btn blk" data-act="close">Fermer</button>';
@@ -4023,7 +4027,8 @@ async function bdEdit(id){
   '<div style="flex:1.3"><label style="font-weight:650">Année</label><input id="bd-y" type="number" min="1900" max="2100" inputmode="numeric" placeholder="facultatif" '+inp+' value="'+(cur&&cur.y?cur.y:'')+'"></div></div>'+
   '<p class="mut" style="font-size:.82rem;margin:.2rem 0 .4rem">Avec l’année de naissance, l’âge est calculé tout seul.</p>'+
   '<label style="display:block;margin:.3rem 0 .2rem;font-weight:650">🎁 Idées cadeaux <span class="mut" style="font-weight:400">(coche quand c’est acheté)</span></label><div id="bd-g">'+gifts.map(g=>grow(g.t,g.x)).join('')+'</div>'+
-  '<button type="button" id="bd-gadd" class="btn blk sm" style="margin:.3rem 0 .5rem">+ Ajouter une idée</button>';
+  '<button type="button" id="bd-gadd" class="btn blk sm" style="margin:.3rem 0 .5rem">+ Ajouter une idée</button>'+
+  '<label style="display:flex;gap:.5rem;align-items:center;margin:.2rem 0 .6rem;font-weight:650"><input type="checkbox" id="bd-pr" style="width:1.4rem;height:1.4rem"'+(cur&&cur.p?' checked':'')+'> 🔒 Protéger cette personne <span class="mut" style="font-weight:400;font-size:.85rem">(nom et idées cachés sans le code)</span></label>';
  let got=null;
  const root=$('#dlg');
  const h=e=>{
@@ -4033,7 +4038,7 @@ async function bdEdit(id){
   const mx=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];
   if(!n||!(d>=1&&d<=mx)){e.stopPropagation();e.preventDefault();toast('Indique un nom et un jour valide');return}
   const g=$$('#bd-g .bdgr').map(r=>({t:r.querySelector('.bdgt').value.trim(),x:r.querySelector('.bdgc').checked?1:0})).filter(x=>x.t);
-  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:'',g};
+  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:'',g,p:$('#bd-pr').checked?1:0};
  };
  const gh=e=>{
   if(e.target.closest('#bd-gadd')){e.stopPropagation();const w=$('#bd-g');w.insertAdjacentHTML('beforeend',grow('',0));const i=w.querySelectorAll('.bdgt');i[i.length-1].focus();return}
@@ -4048,14 +4053,22 @@ async function bdEdit(id){
  if(r==='del'&&cur){S.bd=bdClean().filter(b=>b.id!==cur.id);saveSet();toast('Anniversaire supprimé')}
  else if(r==='ok'&&got){
   const o=Object.assign({id:cur?cur.id:'b'+uid()},got);
+  if(o.p&&!S.bdPin){toast('Crée d’abord un code pour protéger cette personne',4000);await bdSetPin();if(!S.bdPin){o.p=0;toast('Pas de code : la personne n’est pas protégée',5000)}}
   S.bd=bdClean().filter(b=>b.id!==o.id).concat([o]);saveSet();toast('🎂 Enregistré')
  }
  render();bdShow();
 }
 
 /* ---------- Impression / PDF ---------- */
-function bdPrintHTML(){
- const L=bdClean().slice().sort((a,b)=>a.m-b.m||a.d-b.d||a.n.localeCompare(b.n));
+async function bdPrintList(){
+ let L=bdClean();
+ if(L.some(b=>b.p)&&bdLocked()){
+  const ok=await bdGate();
+  if(!ok){L=L.filter(b=>!b.p);toast('Les personnes protégées ne sont pas incluses',5000)}
+ }
+ return L.slice().sort((a,b)=>a.m-b.m||a.d-b.d||a.n.localeCompare(b.n));
+}
+function bdPrintHTML(L){
  const y0=new Date().getFullYear();
  const blocks=[];
  for(let m=1;m<=12;m++){
@@ -4065,15 +4078,90 @@ function bdPrintHTML(){
    return '<div style="margin:.15rem 0;font-size:10.5pt"><b>'+b.d+'</b> · '+esc(b.n)+(a!=null&&a>=0?' <span style="color:#555">('+a+' an'+(a>1?'s':'')+' en '+y0+')</span>':'')+
     (g.length?'<div style="margin:.05rem 0 .1rem .9rem;font-size:9.5pt;color:#333">'+g.map(x=>(x.x?'☑ ':'☐ ')+esc(x.t)).join(' &nbsp; ')+'</div>':'')+'</div>'}).join('')+'</div>');
  }
- const half=Math.ceil(blocks.length/2);
  const wt=blocks.reduce((s,b)=>s+b.length,0);let acc=0,cut=blocks.length;
  for(let i=0;i<blocks.length;i++){acc+=blocks[i].length;if(acc>=wt/2){cut=i+1;break}}
  return '<h1>🎂 Anniversaires <small>'+L.length+' personne'+(L.length>1?'s':'')+'</small></h1><div style="display:flex;gap:1.2rem;align-items:flex-start"><div style="flex:1;min-width:0">'+blocks.slice(0,cut).join('')+'</div><div style="flex:1;min-width:0">'+blocks.slice(cut).join('')+'</div></div><p class="pr-f">AgenDam · imprimé le '+fmtDate(Date.now())+'</p>';
 }
+/* PDF écrit à la main (texte, Helvetica) : léger, plusieurs pages, sans capture d'écran */
+const CP1252={'€':0x80,'‚':0x82,'ƒ':0x83,'„':0x84,'…':0x85,'†':0x86,'‡':0x87,'ˆ':0x88,'‰':0x89,'Š':0x8A,'‹':0x8B,'Œ':0x8C,'Ž':0x8E,'‘':0x91,'’':0x92,'“':0x93,'”':0x94,'•':0x95,'–':0x96,'—':0x97,'˜':0x98,'™':0x99,'š':0x9A,'›':0x9B,'œ':0x9C,'ž':0x9E,'Ÿ':0x9F};
+function pdfStr(t){
+ let o='(';
+ for(const ch of String(t)){
+  let c=ch.codePointAt(0);
+  if(CP1252[ch]!=null)c=CP1252[ch];else if(c>255||(c>=0x80&&c<0xA0))c=0x3F;
+  if(c===0x28||c===0x29||c===0x5C)o+='\\'+ch;
+  else if(c<32)o+=' ';
+  else if(c>126)o+='\\'+c.toString(8).padStart(3,'0');
+  else o+=ch;
+ }
+ return o+')';
+}
+function bdPDF(L){
+ const W=595,H=842,M=42,colW=(W-2*M-24)/2,y0=new Date().getFullYear();
+ const pages=[];let cur=null,col=0,y=0;
+ const top=H-M-34,bot=M+22;
+ const newPage=first=>{cur=[];pages.push(cur);col=0;y=first?top-30:top;
+  if(first){cur.push('BT /F2 20 Tf '+M+' '+(H-M-8)+' Td '+pdfStr('Anniversaires')+' Tj ET');
+   cur.push('BT /F1 11 Tf '+(M+140)+' '+(H-M-8)+' Td '+pdfStr(L.length+' personne'+(L.length>1?'s':''))+' Tj ET')}};
+ const X=()=>M+col*(colW+24);
+ const need=h=>{if(y-h<bot){if(col===0){col=1;y=pages.length===1?top-30:top}else newPage(false)}};
+ const wrap=(t,n)=>{const w=[];let l='';for(const word of String(t).split(' ')){if((l+' '+word).trim().length>n&&l){w.push(l);l=word}else l=(l+' '+word).trim()}if(l)w.push(l);return w};
+ newPage(true);
+ for(let m=1;m<=12;m++){
+  const l=L.filter(b=>b.m===m);if(!l.length)continue;
+  need(60);
+  cur.push('BT /F2 12.5 Tf '+X()+' '+y+' Td '+pdfStr(cap(ML[m-1]))+' Tj ET');
+  cur.push('0.5 w '+X()+' '+(y-3)+' m '+(X()+colW)+' '+(y-3)+' l S');
+  y-=18;
+  for(const b of l){
+   const a=b.y?y0-b.y:null,g=bdGifts(b);
+   const head=b.d+'  '+b.n+(a!=null&&a>=0?'  ('+a+' an'+(a>1?'s':'')+' en '+y0+')':'');
+   const hl=wrap(head,44),gl=g.length?wrap(g.map(x=>(x.x?'[x] ':'[ ] ')+x.t).join('    '),52):[];
+   need(14*hl.length+12*gl.length+4);
+   hl.forEach((t,i)=>{cur.push('BT /F1 10.5 Tf '+(X()+(i?12:0))+' '+y+' Td '+pdfStr(t)+' Tj ET');y-=14});
+   gl.forEach(t=>{cur.push('BT /F1 9.5 Tf '+(X()+12)+' '+y+' Td 0.25 g '+pdfStr(t)+' Tj 0 g ET');y-=12});
+   y-=3;
+  }
+  y-=6;
+ }
+ const foot='AgenDam - imprimé le '+fmtDate(Date.now());
+ pages.forEach((c,i)=>c.push('BT /F1 8 Tf 0.4 g '+M+' '+(M-6)+' Td '+pdfStr(foot+(pages.length>1?'  -  page '+(i+1)+'/'+pages.length:''))+' Tj 0 g ET'));
+ /* assemblage */
+ const objs=[];const add=s=>{objs.push(s);return objs.length};
+ add('<< /Type /Catalog /Pages 2 0 R >>');
+ add('PAGES');
+ add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+ add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ const kids=[];
+ for(const c of pages){
+  const st=c.join('\n');
+  const cid=add('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');
+  const pid=add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+cid+' 0 R >>');
+  kids.push(pid+' 0 R');
+ }
+ objs[1]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+kids.length+' >>';
+ let out='%PDF-1.4\n';const off=[];
+ objs.forEach((o,i)=>{off.push(out.length);out+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+ const xr=out.length;
+ out+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+ const u=new Uint8Array(out.length);for(let i=0;i<out.length;i++)u[i]=out.charCodeAt(i)&255;
+ return u;
+}
 async function bdPrint(){
  if(!bdClean().length)return;
- const html=bdPrintHTML();
- if(isIOS()||/Android/i.test(navigator.userAgent)){printPDF(html,false,'anniversaires-agendam.pdf');return}
+ const L=await bdPrintList();
+ if(!L.length){toast('Rien à imprimer');return}
+ if(isIOS()||/Android/i.test(navigator.userAgent)){
+  try{
+   const file=new File([bdPDF(L)],'anniversaires-agendam.pdf',{type:'application/pdf'});
+   const r=await ask({title:'PDF prêt',text:L.length+' anniversaire'+(L.length>1?'s':'')+'. Touche le bouton, puis choisis « Imprimer » (ou Enregistrer dans Fichiers, Mail…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
+   if(r!=='s')return;
+   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});return}catch(e){if(e&&e.name==='AbortError')return}}
+   const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);
+  }catch(e){toast('PDF impossible ici : '+(e&&e.message?e.message:'erreur'),6000)}
+  return;
+ }
+ const html=bdPrintHTML(L);
  let z=$('#printzone');
  if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
  z.className='pz port';z.innerHTML=html;
@@ -4169,11 +4257,11 @@ async function bdImportVCF(file){
 }
 
 /* ---------- Export .ics avec alarme (iPhone, Android, ordinateur) ---------- */
-function bdICS(){
+function bdICS(list){
  const stampv=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Agenda agd//FR','CALSCALE:GREGORIAN','X-WR-CALNAME:Anniversaires AgenDam'];
  const y0=new Date().getFullYear();
- for(const b of bdClean()){
+ for(const b of (list||bdClean())){
   const st=bdDateIn(b,y0),en=add(st,1);
   L.push('BEGIN:VEVENT','UID:bd-'+b.id+'@agd.agenda','DTSTAMP:'+stampv,'DTSTART;VALUE=DATE:'+icsD(st),'DTEND;VALUE=DATE:'+icsD(en),
    'SUMMARY:'+icsEsc('🎂 Anniversaire de '+b.n),'RRULE:FREQ=YEARLY','TRANSP:TRANSPARENT','CATEGORIES:Anniversaire');
@@ -4187,16 +4275,17 @@ function bdICS(){
  return L.map(fold).join('\r\n')+'\r\n';
 }
 async function bdExport(){
- if(!bdClean().length){toast('Ajoute d’abord des anniversaires');return}
+ const nprot=bdClean().filter(b=>b.p).length,nexp=bdClean().length-nprot;
+ if(!nexp){toast(nprot?'Les personnes protégées ne sont pas envoyées au calendrier du téléphone':'Ajoute d’abord des anniversaires',5000);return}
  const ios=isIOS(),and=/Android/i.test(navigator.userAgent);
  const steps=ios
   ?'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Touche « Envoyer le fichier », puis choisis <b>Calendrier</b> (ou enregistre dans Fichiers puis ouvre-le).</li><li>Touche <b>Ajouter tout</b> en bas, et choisis un calendrier dédié (crée « Anniversaires » dans Calendrier pour pouvoir le masquer ou le supprimer d’un geste).</li></ol>'
   :and
   ?'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Touche « Envoyer le fichier », puis choisis <b>Google Agenda</b> ou <b>Samsung Calendar</b> (ou ouvre le fichier téléchargé).</li><li>Confirme l’ajout. Pour avoir un calendrier à part sur Android : crée « Anniversaires » dans Google Agenda sur ordinateur, puis <i>Paramètres → Importer et exporter</i> et choisis ce calendrier.</li></ol><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Sur Android, l’alarme exacte dépend de l’appli : vérifie dans un anniversaire qu’une notification est bien présente, sinon règle la notification par défaut des événements « toute la journée » dans l’appli Agenda.</p>'
   :'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Le fichier .ics se télécharge.</li><li>Google Agenda : <i>Paramètres → Importer et exporter</i>. Outlook : <i>Ajouter un calendrier → Charger depuis un fichier</i>. Apple Calendrier : double-clic.</li></ol>';
- const r=await ask({title:'Anniversaires dans ton téléphone',html:'<p style="margin:.2rem 0">'+bdClean().length+' anniversaire'+(bdClean().length>1?'s':'')+' : chacun revient <b>chaque année</b>, avec une alarme <b>la veille à 18 h</b> et <b>le jour même à 9 h</b>.</p>'+steps+'<p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Si tu ajoutes des personnes plus tard, refais l’export : les anciens sont mis à jour (même identifiant). Pour repartir à zéro, supprime d’abord le calendrier « Anniversaires » du téléphone.</p>',btns:[{label:isPhoneOS()?'Envoyer le fichier':'Télécharger le fichier .ics',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'Anniversaires dans ton téléphone',html:'<p style="margin:.2rem 0">'+nexp+' anniversaire'+(nexp>1?'s':'')+' : chacun revient <b>chaque année</b>, avec une alarme <b>la veille à 18 h</b> et <b>le jour même à 9 h</b>.</p>'+steps+(nprot?'<p class="mut" style="font-size:.85rem;margin:0 0 .5rem">🔒 '+nprot+' personne'+(nprot>1?'s protégées ne sont':' protégée n’est')+' pas envoyée'+(nprot>1?'s':'')+' : le calendrier du téléphone n’est pas protégé par ton code.</p>':'')+'<p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Si tu ajoutes des personnes plus tard, refais l’export : les anciens sont mis à jour (même identifiant). Pour repartir à zéro, supprime d’abord le calendrier « Anniversaires » du téléphone.</p>',btns:[{label:isPhoneOS()?'Envoyer le fichier':'Télécharger le fichier .ics',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  if(r!=='ok')return;
- const text=bdICS(),name='anniversaires-agendam.ics';
+ const text=bdICS(bdClean().filter(b=>!b.p)),name='anniversaires-agendam.ics';
  if(isPhoneOS()){const x=await shareFile(name,'text/calendar',text);if(x==='cancel')return;if(!x)downloadFile(name,'text/calendar',text)}
  else downloadFile(name,'text/calendar',text);
  toast('Fichier prêt : ouvre-le pour l’ajouter à ton calendrier',6000);
@@ -4208,7 +4297,7 @@ async function bdAct(a,el){
  switch(a){
   case 'bd-open':bdOpen();break;
   case 'bd-add':bdEdit(null);break;
-  case 'bd-edit':bdEdit(dd.id);break;
+  case 'bd-edit':{const pb=bdClean().find(x=>x.id===dd.id);if(pb&&bdHide(pb)&&!(await bdGate()))break;bdEdit(dd.id);break}
   case 'bd-conv':bdConvert();break;
   case 'bd-vcf':$('#fi-vcf').value='';$('#fi-vcf').click();break;
   case 'bd-exp':bdExport();break;
@@ -4534,7 +4623,7 @@ function openHelp(hist){
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
- h+=d('Anniversaires','<ul><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Idées cadeaux</b> : dans la fiche, une ligne par idée avec une case à cocher (acheté). Les idées restantes s’affichent dans la liste et dans le rappel. Elles ne partent pas dans le calendrier du téléphone.</li><li><b>Code de protection</b> : « Protéger par un code » cache les noms (liste, bandeau du jour, rappel) tant que le code n’est pas saisi, et l’appli se reverrouille quand tu la quittes. Attention : ce n’est <b>pas un chiffrement</b>, il arrête le curieux qui a ton téléphone ouvert, pas un expert. Les sauvegardes .json et l’export du calendrier ne sont pas protégés. <b>Face ID / empreinte</b> : une fois le code créé, « Déverrouiller avec Face ID / empreinte » l’active (iPhone 16 et + de iOS conseillé, Android avec un verrouillage d’écran). Si la reconnaissance échoue, le code sert de secours. Code oublié : seule solution, effacer la liste et recommencer (ou restaurer une sauvegarde).</li><li><b>Imprimer</b> : « Imprimer / PDF de tous les anniversaires » donne une page A4 classée par mois, avec les idées cadeaux.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
+ h+=d('Anniversaires','<ul><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Idées cadeaux</b> : dans la fiche, une ligne par idée avec une case à cocher (acheté). Les idées restantes s’affichent dans la liste et dans le rappel. Elles ne partent pas dans le calendrier du téléphone.</li><li><b>Protéger une personne</b> : crée ton code (Anniversaires → « Créer mon code »), puis dans la fiche d’une personne coche « 🔒 Protéger cette personne ». Son nom et ses idées cadeaux sont alors cachés (liste, bandeau du jour, rappel, PDF) tant que tu n’as pas saisi le code ; les autres personnes restent visibles. L’appli se reverrouille quand tu la quittes. Les personnes protégées ne sont pas envoyées au calendrier du téléphone. Attention : ce n’est <b>pas un chiffrement</b>, il arrête le curieux qui a ton téléphone ouvert, pas un expert, et les sauvegardes .json ne sont pas protégées. <b>Face ID / empreinte</b> : une fois le code créé, « Déverrouiller avec Face ID / empreinte » l’active (iPhone 16 et + de iOS conseillé, Android avec un verrouillage d’écran). Si la reconnaissance échoue, le code sert de secours. Code oublié : seule solution, effacer la liste et recommencer (ou restaurer une sauvegarde).</li><li><b>Imprimer</b> : « Imprimer / PDF de tous les anniversaires » donne un PDF A4 classé par mois (plusieurs pages si besoin), avec les idées cadeaux. Les personnes protégées n’y sont que si tu saisis le code.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
  h+=d('Vue Jour : 3 affichages, déplacer, chevauchements','<ul><li><b>Heures</b> : la grille habituelle. <b>Jour entier</b> : toute la journée tient à l’écran avec les horaires. <b>Liste</b> : événements triés, plages libres, ⚠ si deux événements se chevauchent.</li><li><b>Déplacer</b> : appui long sur un événement (≈ 0,5 s), puis glisse. L’heure s’affiche pendant le déplacement. Pas pour les événements répétés ni importés d’Outlook : ouvre leur fiche.</li><li><b>Avertissement</b> : si l’horaire est déjà pris, l’appli te le dit avant d’enregistrer.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
  h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
