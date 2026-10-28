@@ -623,12 +623,14 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.21';
+const APP_VERSION='1.16.22';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.22',d:'28/10/2026',items:[
+  'Outlook : quand tu rouvres un événement pour le modifier, le calendrier Outlook et l’étiquette choisis sont maintenant bien retrouvés (avant, l’éditeur retombait sur « Agenda (appli) » et un nouvel enregistrement écrasait ton choix).']},
  {v:'1.16.21',d:'28/10/2026',items:[
   'Anniversaires : la protection ne cache plus que les idées cadeaux. Le nom, la date et l’âge d’une personne protégée restent toujours visibles (liste, jour, rappel, PDF, calendrier du téléphone) ; une icône 🔒 indique qu’elle est protégée. Sa fiche (avec les idées cadeaux) ne s’ouvre qu’avec le code ou Face ID.']},
  {v:'1.16.20',d:'28/10/2026',items:[
@@ -4446,7 +4448,7 @@ function openEditor(opt){
  if(ev){
   const sd=opt.occDate||ev.start,dur=Math.max(0,diff(ev.end,ev.start));
   f={title:ev.title,allDay:ev.allDay,sd,st:ev.startTime,ed:add(sd,dur),et:ev.endTime,place:ev.place,note:ev.note,cat:ev.cat,icon:ev.icon||'',
-   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm};
+   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',src:ev.src||''};
  }else{
   const sd=opt.date||V.date;let st='09:00';
   if(opt.startMin!=null)st=hm(Math.min(1380,opt.startMin));
