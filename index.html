@@ -580,6 +580,25 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 .bdgr .bdgt{flex:1;min-width:0}
 .bdgx{flex:none;border:0;background:none;color:inherit;font-size:1.1rem;padding:.4rem .5rem;opacity:.7}
 .bdh{padding:.35rem 1rem .15rem;font-weight:800;font-size:.85rem;opacity:.7;text-transform:uppercase;letter-spacing:.04em}
+/* Réglages : lignes claires */
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;text-align:left;padding:.75rem .1rem;border-top:1px solid var(--line,rgba(128,128,128,.22));background:none;color:inherit;font:inherit}
+.mrow:first-of-type{border-top:0}
+.mrow b{font-weight:650;display:block}
+.mrow small,.srow small{display:block;color:var(--muted);font-size:.8rem;font-weight:400;margin-top:.1rem}
+.mrow i{font-style:normal;color:var(--muted);font-size:1.4rem;line-height:1}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.7rem 0 .3rem}
+.pbtn{border-radius:.95rem;padding:.8rem .4rem;text-align:center;font-weight:750;background:var(--accent);color:#fff;font:inherit;font-weight:750;display:flex;flex-direction:column;align-items:center;gap:.1rem}
+.pbtn small{font-weight:500;font-size:.74rem;opacity:.9}
+.pbtn.alt{background:var(--surface2);color:var(--text)}
+.pbtn svg{width:1.05em;height:1.05em;vertical-align:-.15em}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:.7rem;padding:.7rem .1rem;border-top:1px solid var(--line,rgba(128,128,128,.22));flex-wrap:wrap}
+.srow>span{flex:1 1 9rem;min-width:0}.srow>span b{font-weight:650;display:block}
+.srow .seg{flex:0 0 auto}
+.shead{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:1rem .1rem .1rem}
+.sfold{margin:.5rem 0 .3rem}.sfold summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.88rem;padding:.3rem 0}
+.sfold .mut{font-size:.85rem;margin:.2rem 0 0}
+.ms-acct{margin:.1rem 0 .2rem}.warn-t{color:var(--danger)}
+.msd .btn.blk{display:block;width:100%;margin-top:.8rem}
 
 </style>
 </head>
@@ -623,12 +642,14 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.25';
+const APP_VERSION='1.16.26';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.26',d:'28/10/2026',items:[
+  'Réglages remis au propre : la carte Outlook est classée par sujet (état, Envoyer / Récupérer, synchronisation, calendriers et catégories, nettoyage), avec des lignes claires et les textes longs repliés sous « Comment ça marche ? ». Même présentation pour Sauvegarde, Calendrier du téléphone, Anniversaires, Importer, Fichier .ics, Guide et Démo. Aucune fonction retirée.']},
  {v:'1.16.25',d:'28/10/2026',items:[
   'Outlook : plus de doublon quand tu ranges dans un autre calendrier un événement venu d’Outlook. Après ton changement, l’appli envoie la nouvelle version dans le bon calendrier et retire l’ancienne d’Outlook. Pour les événements déjà importés avant cette version, fais une fois « Récupérer depuis Outlook » pour que ça marche aussi pour eux.']},
  {v:'1.16.24',d:'28/10/2026',items:[
@@ -1782,21 +1803,23 @@ function msCard(){
   h+='<p class="mut" style="margin-top:0">Envoie ton agenda vers un calendrier Outlook (compte Outlook, Hotmail, Live), visible ensuite sur l’iPhone, Android et Outlook. L’appli parle directement à Microsoft, sans intermédiaire.</p>'+(MSA.err?'<p class="mut"><b>'+esc(MSA.err)+'</b></p>':'')+'<button class="btn pri blk" data-act="ms-connect">'+ic('share')+' Se connecter à Outlook</button>';
  }else{
   h=h.replace('<div class="card"><h3>Outlook / Microsoft</h3>','<details class="card dev msd"'+(window.__msOpen?' open':'')+'><summary><b>Outlook / Microsoft</b> <span class="mut" style="font-weight:600">· connecté'+(MSA.last?' · dernier envoi '+fmtDate(MSA.last):'')+'</span></summary>');
-  h+='<p style="margin:.1rem 0 .4rem"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .5rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last):'Aucun envoi pour le moment')+(MSA.err?' · <b>'+esc(MSA.err)+'</b>':'')+'</p>'+
-   '<button class="btn pri blk" data-act="ms-sync">'+ic('up')+' Envoyer maintenant</button>'+
-   '<button class="btn pri blk" data-act="ms-pull">'+ic('down')+' Récupérer depuis Outlook</button>'+
-   '<button class="btn blk sm" data-act="app-dupes">Chercher les doublons dans l’appli</button>'+
-   '<button class="btn blk sm" data-act="ol-dedupe">Chercher les doublons dans Outlook (tous les calendriers)</button>'+
-   '<button class="btn blk sm" data-act="ol-cals">Gérer mes calendriers Outlook (créer, modifier, supprimer)…</button>'+
-   '<button class="btn blk sm" data-act="ol-manage">Voir mes catégories et calendriers Outlook…</button>'+
-   (MSA.catsFull?'':'<button class="btn blk sm" data-act="ms-connect">Reconnecter pour lire toutes mes catégories Outlook</button>')+
-   '<button class="btn blk sm" data-act="ms-import">Choisir les calendriers à récupérer…</button>'+
-   '<div class="set-row"><span class="lbl">Envoi automatique après chaque modification</span>'+seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0)+'</div>'+
-   ((S.olIgn||[]).length?'<div class="set-row"><span class="lbl">Événements Outlook ignorés : '+S.olIgn.length+'</span><button class="btn sm" data-act="ol-ign-reset">Tout reproposer</button></div>':'')+
-   '<div class="set-row"><span class="lbl">À l’ouverture : récupérer Outlook</span>'+seg('olAuto',[[0,'Non'],[1,'Auto'],[2,'Me montrer']],S.olAuto===2?2:S.olAuto?1:0)+'</div>'+
-   '<p class="mut" style="font-size:.85rem;margin:.1rem 0 .5rem">'+((S.olCals||[]).length?'Relit les '+S.olCals.length+' calendrier'+(S.olCals.length>1?'s':'')+' choisi'+(S.olCals.length>1?'s':'')+' lors du dernier import (Réglages → Importer un autre calendrier).':'Fais d’abord un import « Depuis Outlook » : l’appli retient tes choix pour les relire ensuite.')+'</p>'+
-   '<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem"><b>Envoyer</b> : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (1 mois en arrière à 1 an en avant) ; tes autres calendriers ne sont jamais touchés. <b>Récupérer</b> : Outlook → appli, depuis les calendriers que tu choisis ; rien n’est modifié dans Outlook.</p>'+
-   '<button class="btn blk" data-act="ms-disc">Déconnecter Outlook</button>';
+  const nc=(S.olCals||[]).length,ni=(S.olIgn||[]).length;
+  h+='<p class="ms-acct"><b>Connecté</b>'+(MSA.acct?' : '+esc(MSA.acct):'')+'</p><p class="mut" style="margin:0 0 .2rem">'+(MSA.last?'Dernier envoi : '+fmtDate(MSA.last)+(MSA.err?' · <b class="warn-t">'+esc(MSA.err)+'</b>':' · sans erreur'):'Aucun envoi pour le moment'+(MSA.err?' · <b class="warn-t">'+esc(MSA.err)+'</b>':''))+'</p>'+
+   pair(pbtn('ms-sync',ic('up')+' Envoyer','appli → Outlook'),pbtn('ms-pull',ic('down')+' Récupérer','Outlook → appli'))+
+   shead('Synchronisation')+
+   srow('Envoi automatique','Après chaque modification',seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0))+
+   srow('À l’ouverture de l’appli','Récupérer les nouveautés d’Outlook',seg('olAuto',[[0,'Non'],[1,'Auto'],[2,'Voir']],S.olAuto===2?2:S.olAuto?1:0))+
+   mrow('ms-import','Calendriers à récupérer',nc?nc+' calendrier'+(nc>1?'s':'')+' choisi'+(nc>1?'s':''):'Fais d’abord un import pour les choisir')+
+   shead('Mes calendriers et catégories')+
+   mrow('ol-manage','Voir mes calendriers et catégories','Couleurs, noms, ce qui s’affiche')+
+   mrow('ol-cals','Créer, renommer, supprimer un calendrier','')+
+   (MSA.catsFull?'':mrow('ms-connect','Reconnecter pour lire toutes mes catégories','Une seule fois'))+
+   shead('Nettoyage')+
+   mrow('app-dupes','Chercher les doublons dans l’appli','')+
+   mrow('ol-dedupe','Chercher les doublons dans Outlook','Tous les calendriers')+
+   (ni?srow('Événements ignorés ('+ni+')','Ceux que tu as refusé d’importer','<button type="button" class="btn sm" data-act="ol-ign-reset">Tout reproposer</button>'):'')+
+   sfold('Comment ça marche ?','<b>Envoyer</b> : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (1 mois en arrière à 1 an en avant) ; tes autres calendriers ne sont jamais touchés, sauf pour retirer l’ancienne copie d’un événement importé que tu as rangé ailleurs. <b>Récupérer</b> : Outlook → appli, depuis les calendriers que tu choisis ; rien n’est modifié dans Outlook.')+
+   '<button class="btn blk dng" data-act="ms-disc">Déconnecter Outlook</button>';
  }
  return h+(msConnected()&&msClientId()?'</details>':'</div>');
 }
@@ -2026,11 +2049,11 @@ async function askPhone(ev,upd){
 }
 
 function phoneCard(){
- return '<div class="card"><h3>Calendrier du téléphone</h3><p class="mut" style="margin-top:0">Envoie tes événements vers le calendrier de ton téléphone (iCloud, Outlook, Google…). Ton téléphone te demande dans quel calendrier les ranger.</p>'+
-  '<div class="tgl-row"><b>Me proposer de l’ajouter au calendrier du téléphone<small style="display:block;font-weight:500;color:var(--muted)">Après l’enregistrement d’un événement, ton téléphone te demande dans quel calendrier (iCloud, Outlook…).</small></b><label class="tgl"><input type="checkbox" data-chg="askPhone"'+(S.askPhone?' checked':'')+'></label></div>'+
-  '<button class="btn blk pri" data-act="sel-open">'+ic('month')+' Choisir les événements à envoyer…</button>'+
-  '<button class="btn blk" data-act="ics-add">'+ic('share')+' Tout envoyer</button>'+
-  '<p class="mut" style="margin:.2rem 0 0;font-size:.85rem">Envoi unique, pas une synchronisation : une modification faite d’un côté n’apparaît pas de l’autre (un bouton « Mettre à jour » te le propose).</p></div>';
+ return '<div class="card"><h3>Calendrier du téléphone</h3>'+
+  '<div class="tgl-row"><b>Me proposer de l’ajouter au calendrier du téléphone<small style="display:block;font-weight:500;color:var(--muted)">Après l’enregistrement d’un événement (iCloud, Outlook…).</small></b><label class="tgl"><input type="checkbox" data-chg="askPhone"'+(S.askPhone?' checked':'')+'></label></div>'+
+  mrow('sel-open','Choisir les événements à envoyer','Tu coches ce que tu veux')+
+  mrow('ics-add','Tout envoyer','Tous les événements d’un coup')+
+  sfold('Comment ça marche ?','Envoie tes événements vers le calendrier de ton téléphone (iCloud, Outlook, Google…). Ton téléphone te demande dans quel calendrier les ranger. C’est un envoi unique, pas une synchronisation : une modification faite d’un côté n’apparaît pas de l’autre (un bouton « Mettre à jour » te le propose).')+'</div>';
 }
 
 /* ---------- Rotations de travail personnalisées ---------- */
@@ -2132,8 +2155,8 @@ const FICHE_IMGS=[['affiches/affiche-claire.png','Affiche claire'],['affiches/af
 const FICHE_TXT='AgenDam : un emploi du temps simple et lisible, en gros caractères. Jour, semaine, 2 semaines, mois, rotations de travail sur mesure, impression en une page, envoi vers ton calendrier. Gratuit, sans publicité, aucune donnée collectée : tout reste sur ton téléphone.';
 const ficheBase=()=>new URL('./',location.href).href;
 function guideCard(){
- return '<div class="card"><h3>Guide d’utilisation</h3><p class="mut" style="margin-top:0">Comment marche chaque partie de l’appli, expliqué simplement. Le bouton <b>?</b> en haut de l’écran ouvre aussi le guide.</p>'+
-  '<button class="btn blk pri" data-act="help">Ouvrir le guide</button><button class="btn blk" data-act="hist">Historique des mises à jour</button></div>';
+ return '<div class="card"><h3>Guide d’utilisation</h3>'+
+  mrow('help','Ouvrir le guide','Aussi avec le bouton ? en haut de l’écran')+mrow('hist','Historique des mises à jour','Ce qui a changé, version par version')+'</div>';
 }
 function installCard(){
  return '<div class="card"><h3>Installer l’appli</h3>'+
@@ -2602,10 +2625,10 @@ async function olAuto(){
  }catch(e){}
 }
 function importCard(){
- return '<div class="card" id="imp-card"><h3>Importer un autre calendrier</h3><p class="mut" style="margin-top:0">Rapatrie dans AgenDam ce qui existe déjà ailleurs : Outlook, ou n’importe quel export Excel ou CSV (Google Agenda, Outlook, autre appli…). Rien n’est supprimé, les doublons sont ignorés.</p>'+
-  '<button class="btn blk pri" data-act="ms-import">'+ic('down')+' Depuis Outlook'+(msConnected()?'':' (connexion requise)')+'</button>'+
-  '<button class="btn blk" data-act="xl-import">'+ic('up')+' Depuis un fichier Excel ou CSV…</button>'+
-  '<p class="mut" style="margin:.2rem 0 0;font-size:.85rem">Excel/CSV : l’appli reconnaît les colonnes (titre, date, heure, lieu, notes, catégorie, rappel…) et te laisse les corriger avant d’importer. Fichiers .xlsx, .xls, .ods, .csv.</p></div>';
+ return '<div class="card" id="imp-card"><h3>Importer un autre calendrier</h3>'+
+  mrow('ms-import','Depuis Outlook',msConnected()?'Choisis les calendriers à lire':'Connexion requise')+
+  mrow('xl-import','Depuis un fichier Excel ou CSV','.xlsx, .xls, .ods, .csv')+
+  sfold('Comment ça marche ?','Rapatrie dans AgenDam ce qui existe déjà ailleurs. Rien n’est supprimé, les doublons sont ignorés. Excel/CSV : l’appli reconnaît les colonnes (titre, date, heure, lieu, notes, catégorie, rappel…) et te laisse les corriger avant d’importer.')+'</div>';
 }
 
 /* ---------- Sélecteur d'emojis : catégories, recherche en français, récents ---------- */
@@ -4356,7 +4379,7 @@ async function bdAct(a,el){
 }
 function bdCard(){
  const n=bdClean().length;
- return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3><p class="mut" style="margin-top:0">Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).</p><button class="btn blk pri" data-act="bd-open">Ouvrir les anniversaires'+(n?' ('+n+')':'')+'</button></div>';
+ return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3>'+mrow('bd-open','Ouvrir les anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant')+sfold('Comment ça marche ?','Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).')+'</div>';
 }
 
 /* recherche dans la liste (filtre sans recharger) */
@@ -4601,6 +4624,13 @@ function onEditorChange(e){
 
 /* ---------- Réglages ---------- */
 function fmtDate(ts){const d=new Date(ts);return d.getDate()+' '+MS[d.getMonth()]+' '+d.getFullYear()+' à '+pad(d.getHours())+':'+pad(d.getMinutes())}
+/* Présentation des réglages : lignes claires (titre + précision + contrôle), boutons doubles, textes longs repliés */
+const mrow=(act,title,sub,at)=>'<button type="button" class="mrow" data-act="'+act+'"'+(at||'')+'><span><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span><i aria-hidden="true">›</i></button>';
+const pbtn=(act,title,sub,cls)=>'<button type="button" class="pbtn'+(cls?' '+cls:'')+'" data-act="'+act+'">'+title+(sub?'<small>'+sub+'</small>':'')+'</button>';
+const pair=(a,b)=>'<div class="pair">'+a+b+'</div>';
+const srow=(title,sub,ctl,stack)=>'<div class="srow'+(stack?' stack':'')+'"><span><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span>'+ctl+'</div>';
+const shead=t=>'<div class="shead">'+t+'</div>';
+const sfold=(t,html)=>'<details class="sfold"><summary>'+t+'</summary><div class="mut">'+html+'</div></details>';
 function settingsView(){
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  const perm=('Notification' in window)?Notification.permission:'indisponible';
@@ -4608,8 +4638,7 @@ function settingsView(){
  h+=settingsJump();
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3>'+
   '<p class="mut" style="margin:.1rem 0 .2rem">'+(META.lastBackup?'Dernière sauvegarde : <b>'+fmtDate(META.lastBackup)+'</b>':'<b>Aucune sauvegarde pour le moment.</b>')+'</p>'+
-  '<button class="btn pri blk" data-act="bk-save">'+ic('down')+' Sauvegarder</button>'+
-  '<button class="btn blk" data-act="bk-restore">'+ic('up')+' Restaurer</button>'+
+  pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+
   '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
  h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
@@ -4632,8 +4661,7 @@ function settingsView(){
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
-  '<button class="btn blk" data-act="ics-export">'+ic('down')+' Exporter tout (.ics)</button>'+
-  '<button class="btn blk" data-act="ics-import">'+ic('up')+' Importer un fichier .ics</button></div>';
+  pair(pbtn('ics-export',ic('down')+' Exporter','Tout en .ics','alt'),pbtn('ics-import',ic('up')+' Importer','Un fichier .ics','alt'))+'</div>';
  h+=sec('s-rap','Rappels');
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
@@ -4650,8 +4678,8 @@ h+='<div class="card" id="ics-card">'+
  h+='</details>';
  h+=sec('s-aide','Aide et partage')+guideCard()+ficheCard();
  h+='<div class="card"><h3>Démo et aide</h3>'+
-  (demo?'<button class="btn blk" data-act="exitdemo">Quitter le mode démo</button>':'<button class="btn blk" data-act="demo">Voir le mode démo (données d’exemple)</button>')+
-  '<button class="btn blk" data-act="help">'+ic('help')+' Mode d’emploi et historique</button>'+
+  (demo?mrow('exitdemo','Quitter le mode démo',''):mrow('demo','Voir le mode démo','Avec des données d’exemple'))+
+  mrow('help','Mode d’emploi et historique','Le guide, expliqué simplement')+
   (installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
  h+='<div class="card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
   '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
