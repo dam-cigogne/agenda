@@ -603,6 +603,9 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 .hio{outline:2.5px solid var(--text);outline-offset:-2px}
 .hib,.hib b,.hib .rx b{font-weight:900}
 .mband.hio{outline-offset:-2px}
+/* aujourd'hui toujours bien lisible, même quand il tombe dans le mois voisin */
+.mn.today,.mn.today.out{color:var(--on-accent);opacity:1;font-weight:900}
+.mc.today.out{opacity:1}
 
 </style>
 </head>
@@ -646,12 +649,14 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.27';
+const APP_VERSION='1.16.28';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.28',d:'28/10/2026',items:[
+  'Mois : le numéro du jour d’aujourd’hui reste bien lisible (blanc sur fond coloré, en gras), même quand il apparaît dans la semaine d’un autre mois.']},
  {v:'1.16.27',d:'28/10/2026',items:[
   'Événements importants : dans la fiche d’un événement, « Mettre en valeur » te laisse choisir un contour épais, du gras et/ou une étoile ★. Visible dans le mois, la semaine, le jour et les listes.']},
  {v:'1.16.26',d:'28/10/2026',items:[
