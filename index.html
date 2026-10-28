@@ -590,12 +590,14 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.12';
+const APP_VERSION='1.16.13';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.13',d:'28/10/2026',items:[
+  'Outlook : dans la liste « Importer depuis Outlook », le bouton « Ne plus proposer les décochés » retire définitivement les événements que tu ne veux pas (jours fériés, anniversaires…). Ils ne reviennent plus à chaque ouverture. Réglages → Outlook → « Tout reproposer » annule. Pour un calendrier entier, décoche-le dans « Importer depuis Outlook ».']},
  {v:'1.16.12',d:'28/10/2026',items:[
   'Couleur des événements : nouveau réglage (Réglages → Affichage) « Catégorie » ou « Calendrier Outlook ». Sur « Calendrier Outlook », chaque événement (importé ou envoyé) prend la couleur de son calendrier Outlook dans le jour, la semaine, le mois et la liste.',
   'Calendriers Outlook : en plus des 10 couleurs d’Outlook, tu peux choisir une couleur libre (sélecteur de couleur) qui sert dans l’appli.']},
@@ -826,7 +828,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -1709,6 +1711,7 @@ function msCard(){
    (MSA.catsFull?'':'<button class="btn blk sm" data-act="ms-connect">Reconnecter pour lire toutes mes catégories Outlook</button>')+
    '<button class="btn blk sm" data-act="ms-import">Choisir les calendriers à récupérer…</button>'+
    '<div class="set-row"><span class="lbl">Envoi automatique après chaque modification</span>'+seg('msAuto',[[1,'Oui'],[0,'Non']],S.msAuto?1:0)+'</div>'+
+   ((S.olIgn||[]).length?'<div class="set-row"><span class="lbl">Événements Outlook ignorés : '+S.olIgn.length+'</span><button class="btn sm" data-act="ol-ign-reset">Tout reproposer</button></div>':'')+
    '<div class="set-row"><span class="lbl">À l’ouverture : récupérer Outlook</span>'+seg('olAuto',[[0,'Non'],[1,'Auto'],[2,'Me montrer']],S.olAuto===2?2:S.olAuto?1:0)+'</div>'+
    '<p class="mut" style="font-size:.85rem;margin:.1rem 0 .5rem">'+((S.olCals||[]).length?'Relit les '+S.olCals.length+' calendrier'+(S.olCals.length>1?'s':'')+' choisi'+(S.olCals.length>1?'s':'')+' lors du dernier import (Réglages → Importer un autre calendrier).':'Fais d’abord un import « Depuis Outlook » : l’appli retient tes choix pour les relire ensuite.')+'</p>'+
    '<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem"><b>Envoyer</b> : appli → Outlook, dans un calendrier à part nommé « '+MS_CAL_NAME+' » (1 mois en arrière à 1 an en avant) ; tes autres calendriers ne sont jamais touchés. <b>Récupérer</b> : Outlook → appli, depuis les calendriers que tu choisis ; rien n’est modifié dans Outlook.</p>'+
@@ -2338,6 +2341,7 @@ function pickImport(o){
   const bits=()=>{
    const n=items.filter((_,i)=>on.has(i)).length;
    const b=$('#pk-ok');if(b){b.textContent='Importer ('+n+')';b.disabled=!n}
+   const g=$('#pk-ign');if(g){const m=items.filter((x,i)=>!on.has(i)&&!x.upd).length;g.textContent=m?'Ne plus proposer les '+m+' décoché'+(m>1?'s':''):'Décoche ce que tu ne veux plus jamais voir';g.disabled=!m}
    const c=$('#pk-cnt');if(c)c.textContent=items.length+' événement'+(items.length>1?'s':'')+' · '+n+' coché'+(n>1?'s':'');
   };
   const draw=()=>{const l=$('#pk-list');if(l){const v=vis();l.innerHTML=v.length?v.map(row).join(''):'<p class="empty">Aucun événement avec cette recherche.</p>'}bits()};
@@ -2346,7 +2350,7 @@ function pickImport(o){
    '<div class="fld" style="margin:.4rem 0"><input class="in" id="pk-q" type="search" placeholder="Chercher dans la liste…" autocomplete="off"></div>'+
    '<div class="selbar"><span id="pk-cnt" class="mut"></span><span><button class="btn sm" data-pk="all">Tout cocher</button> <button class="btn sm" data-pk="none">Tout décocher</button></span></div>'+
    '<div id="pk-list"></div>'+
-   '<div class="sticky-save"><button class="btn grow" data-pk="x">Annuler</button><button class="btn pri grow" id="pk-ok" data-pk="ok">Importer</button></div>','full');
+   '<div class="sticky-save"><button class="btn grow" data-pk="x">Annuler</button><button class="btn pri grow" id="pk-ok" data-pk="ok">Importer</button></div>'+(o.ignoreBtn?'<button type="button" class="btn blk sm" id="pk-ign" data-pk="ign" style="margin-top:.4rem">Ne plus proposer les décochés</button>':''),'full');
   const cleanup=()=>{root.removeEventListener('click',h);root.removeEventListener('input',inp);mo.disconnect()};
   const h=e=>{
    const t=e.target.closest('[data-pk]');if(!t)return;const k=t.dataset.pk;
@@ -2355,6 +2359,7 @@ function pickImport(o){
    else if(k==='none'){vis().forEach(x=>on.delete(x.i));draw()}
    else if(k==='x'){cleanup();closeSheet();res(null)}
    else if(k==='ok'){const out=items.filter((_,i)=>on.has(i));cleanup();closeSheet();res(out)}
+   else if(k==='ign'){const out=items.filter((_,i)=>on.has(i));out.ignored=items.filter((x,i)=>!on.has(i)&&!x.upd);cleanup();closeSheet();res(out)}
   };
   const inp=e=>{if(e.target.id==='pk-q'){q=norm(e.target.value).trim();draw()}};
   const mo=new MutationObserver(()=>{if(!root.firstChild){cleanup();res(null)}});
@@ -2429,6 +2434,7 @@ function mergeLocal(){
  EV.length=0;EV.push(...rest,...m.map(cleanEvent).filter(Boolean));
  touch();render();return n;
 }
+const isIgn=e=>{const s=S.olIgn;return !!(s&&s.length&&[e.id,...(e.mids||[])].some(i=>s.includes(i)))};
 async function olPull(calList,per,catFlag,silent){
  const quiet=!!silent;silent=(silent===true); /* 'ask' = fenêtre à l'ouverture : on ne dit rien s'il n'y a rien de nouveau */
  mergeLocal();await olCatsRefresh();
@@ -2456,7 +2462,7 @@ async function olPull(calList,per,catFlag,silent){
   {const l=byId.get(e.id)||(e.mids||[]).map(m=>byId.get(m)).find(Boolean);if(l)e.id=l.id}
   if(byId.has(e.id)){if(olDiff(byId.get(e.id),e))upd.push(e)}
   else if(keys.has(evKey(e)))dup++;
-  else fresh.push(e);
+  else if(!isIgn(e))fresh.push(e);
  }
  /* Événements supprimés dans Outlook : importés d'un calendrier lu cette fois, dans la période lue, et absents maintenant */
  for(const e of all){const l=byId.get(e.id);if(l&&l.src==='ol'&&!l.oc&&e.oc)l.oc=e.oc}
@@ -2464,8 +2470,9 @@ async function olPull(calList,per,catFlag,silent){
  if(!fresh.length&&!upd.length&&!gone.length){if(!quiet)toast(all.length?'Déjà à jour : rien de nouveau dans Outlook'+(dup?' ('+dup+' déjà présent'+(dup>1?'s':'')+')':''):'Aucun événement trouvé sur cette période',5000);return}
  let F=fresh,U=upd;
  if(!silent&&(fresh.length||upd.length)){
-  const pk=await pickImport({title:'Importer depuis Outlook',intro:(dup?dup+' déjà présent'+(dup>1?'s':'')+' (ignoré'+(dup>1?'s':'')+'). ':'')+'Décoche ce que tu ne veux pas.',items:fresh.map(e=>({e,upd:false})).concat(upd.map(e=>({e,upd:true})))});
+  const pk=await pickImport({ignoreBtn:true,title:'Importer depuis Outlook',intro:(dup?dup+' déjà présent'+(dup>1?'s':'')+' (ignoré'+(dup>1?'s':'')+'). ':'')+'Décoche ce que tu ne veux pas.',items:fresh.map(e=>({e,upd:false})).concat(upd.map(e=>({e,upd:true})))});
   if(!pk){return}
+  if(pk.ignored&&pk.ignored.length){const s=new Set(S.olIgn||[]);for(const x of pk.ignored){s.add(x.e.id);for(const m of (x.e.mids||[]))s.add(m)}S.olIgn=[...s].slice(-4000);saveSet();toast(pk.ignored.length+' événement'+(pk.ignored.length>1?'s':'')+' ne seront plus proposés',4000)}
   F=pk.filter(x=>!x.upd).map(x=>x.e);U=pk.filter(x=>x.upd).map(x=>x.e);
  }
  const made=resolveCats(F.concat(U),catFlag);
@@ -3958,7 +3965,7 @@ function openHelp(hist){
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
- h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li></ul>');
+ h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
@@ -4266,6 +4273,7 @@ async function act(a,el,e){
   case 'ol-cals':olCalsManage();break;
   case 'ol-dedupe':olDedupe();break;
   case 'app-dupes':appDupes();break;
+  case 'ol-ign-reset':S.olIgn=[];saveSet();toast('Tout sera de nouveau proposé',3000);render();break;
   case 'pickocal':$$('#f-ocal .chip').forEach(c=>c.classList.toggle('on',c===el));break;
   case 'ms-pull':msPullNow();break;
   case 'xl-import':$('#fi-xl').value='';$('#fi-xl').click();break;
