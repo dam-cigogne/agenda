@@ -623,12 +623,16 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.23';
+const APP_VERSION='1.16.24';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.24',d:'28/10/2026',items:[
+  'Fiche d’un événement : quand tu l’as rangé dans un calendrier Outlook, son nom s’affiche en haut (à la place de « Sans catégorie »). Si l’événement a aussi une catégorie de l’appli, les deux sont indiqués.']},
+ {v:'1.16.24',d:'28/10/2026',items:[
+  'Outlook : la fiche d’un événement indique maintenant son calendrier Outlook (ex. « Extra commun famille ») et son étiquette. Avant, seule la couleur changeait et le titre du haut (la catégorie de l’appli) restait « Sans catégorie », ce qui donnait l’impression que le choix n’était pas pris en compte.']},
  {v:'1.16.23',d:'28/10/2026',items:[
   'Correction : sur un événement venant d’Outlook, le choix du calendrier et des étiquettes Outlook réapparaît dans l’éditeur (il avait disparu en 1.16.22).']},
  {v:'1.16.22',d:'28/10/2026',items:[
@@ -4409,10 +4413,13 @@ function openDetail(o){
  if(!o)return;
  CUR={id:o.ev.id,date:o.date};
  const ev=o.ev,c=catOf(ev.cat);
- let h='<div class="sh-h" style="--c:'+evCol(ev)+'"><i class="cdot"></i><span>'+esc(c.name)+'</span><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+evT(ev)+'</h2>';
+ const hOid=ev.ocal||ev.oc||'',hCal=hOid&&(MSA.cals||[]).find(k=>k.id===hOid),hTxt=hCal&&ev.ocal?(c.id==='-'?hCal.name:c.name+' · '+hCal.name):c.name;
+ let h='<div class="sh-h" style="--c:'+evCol(ev)+'"><i class="cdot"></i><span>'+esc(hTxt)+'</span><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+evT(ev)+'</h2>';
  h+='<div class="info">'+ic('clock')+'<div><b>'+esc(whenText(o))+'</b></div></div>';
  if(ev.rec)h+='<div class="info">'+ic('repeat')+'<div>'+esc(recText(ev))+'</div></div>';
  if(ev.place)h+='<div class="info tap" role="button" tabindex="0" data-act="map" data-p="'+esc(ev.place)+'">'+ic('pin')+'<div>'+esc(ev.place)+'<small class="maphint">Itinéraire : Plans, Google Maps, Waze…</small></div></div>';
+ {const oid=ev.ocal||ev.oc||'',oc=oid&&(MSA.cals||[]).find(k=>k.id===oid);
+  if(oc||ev.ocat)h+='<div class="info"><span aria-hidden="true" style="font-size:1.2rem;line-height:1">📅</span><div>'+(oc?'<b>'+esc(oc.name)+'</b><small class="mut" style="display:block">Calendrier Outlook</small>':'')+(ev.ocat?'<small class="mut" style="display:block">Étiquette Outlook : '+esc(ev.ocat)+'</small>':'')+'</div></div>'}
  if(ev.note)h+='<div class="info">'+ic('note')+'<div>'+esc(ev.note)+'</div></div>';
  if(ev.alarm!=null)h+='<div class="info">'+ic('bell')+'<div>'+esc(alarmLabel(ev.alarm,ev.allDay))+'</div></div>';
  h+='<div class="btns"><button class="btn pri grow" data-act="edit">'+ic('edit')+' Modifier</button><button class="btn" data-act="dup">'+ic('copy')+' Dupliquer</button><button class="btn" data-act="share1">'+ic('share')+' Au calendrier</button><button class="btn dng" data-act="del">'+ic('trash')+' Supprimer</button></div>';
