@@ -15,6 +15,8 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Événements : emoji au choix, titre, début / fin, lieu, note, catégorie colorée (modifiable), journée entière, plusieurs jours
 - Répétitions : jours, semaines (jours au choix), mois, années, rotation simple travail / repos
 - Rotations de travail sur mesure (étapes, jours, heures, emoji, poste de nuit, modèles) dans Réglages (roue crantée ⚙ en haut à droite)
+- Anniversaires à part (Réglages) : liste dédiée (nom, jour, mois, année facultative, note), 🎂 sur le jour, rappel à l’ouverture (J, veille, 3 jours, 1 semaine), conversion des événements « anniversaire » existants, import `.vcf` des contacts (BDAY), export `.ics` annuel avec alarmes (veille 18 h, jour 9 h) pour iPhone, Android et ordinateur ; stockage local dans les réglages (clé `agd-settings`, champ `bd`)
+- Vue Jour : trois affichages (Heures, Jour entier, Liste), déplacement d’un bloc par appui long, avertissement en cas de chevauchement
 - Impression d'une page A4 par vue (Jour, Semaine, 2 semaines, Mois)
 - Envoi vers le calendrier du téléphone : choix précis des événements (période, catégorie, cases), choix du calendrier par le téléphone, « Mettre à jour » après modification (réglable)
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme

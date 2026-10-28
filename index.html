@@ -548,6 +548,32 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .olcal{flex-wrap:wrap}
 .olcal .olc-t{flex:1 1 calc(100% - 2rem)}
 .olcal .olc-t+.btn{margin-left:1.5rem}
+.daywrap{display:flex;flex-direction:column;height:100%}
+.daywrap .tg-wrap{flex:1;min-height:0;height:auto}
+.daybar{padding:.35rem .8rem;background:var(--surface);border-bottom:1px solid var(--line)}
+.daybar .seg button{font-size:.82rem;padding:.35rem .4rem}
+.daylist{padding:.4rem .8rem 5rem}
+.dl-h{font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:.8rem 0 .2rem}
+.dl-gap{font-size:.78rem;color:var(--muted);text-align:center;padding:.15rem 0;border:1px dashed var(--line);border-radius:.6rem;margin:.2rem 0}
+.row.cfl{box-shadow:inset 0 0 0 2px #e0a100}
+.row.cfl::after{content:'⚠ chevauche';position:absolute;right:.5rem;top:.2rem;font-size:.7rem;font-weight:700;color:#b45309}
+.row{position:relative}
+.tg.fit .ev{display:flex;align-items:center;gap:.35rem;white-space:nowrap;overflow:hidden;padding:0 .35rem;line-height:1.1}
+.tg.fit .ev b{font-size:.78rem;overflow:hidden;text-overflow:ellipsis}
+.tg.fit .ev small{display:inline;font-size:.68rem;opacity:.75}
+.tg.fit .ev small:nth-of-type(2){display:none}
+.tg.fit .ev .tt{font-size:.68rem}
+.tg-col .ev{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.tg-col .ev.lift{z-index:30;box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:.95;transition:none;outline:2px solid var(--c)}
+.tg-col .ev .dragt{position:absolute;right:.3rem;top:-1.4rem;background:var(--text,#111);color:var(--bg,#fff);font-style:normal;font-size:.72rem;font-weight:700;padding:.1rem .4rem;border-radius:.5rem;white-space:nowrap}
+/* anniversaires 1.16.16 */
+em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
+.mc .n em.bd,.mn em.bd{font-size:.85em}
+.bdb{display:block;width:100%;margin-top:.4rem;padding:.4rem .6rem;border-radius:.7rem;border:1px solid var(--line,#8884);background:color-mix(in srgb,var(--acc,#6b8cff) 14%,transparent);color:inherit;font:inherit;font-weight:650;text-align:left}
+.bdl{margin:.2rem 0 .5rem}.bdr{display:flex;gap:.6rem;align-items:center;padding:.5rem .6rem;margin:.25rem 0;border-radius:.8rem;background:color-mix(in srgb,var(--acc,#6b8cff) 14%,transparent)}
+.bdr>span{font-size:1.5rem}.bdr small{display:block;opacity:.75}
+.bdrow{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;padding:.55rem 1rem;background:none;border:0;border-bottom:1px solid var(--line,#8883);color:inherit;font:inherit}
+.bdrow .rt{flex:1;min-width:0;text-align:left}.bdrow .rt b{display:block}.bdrow small{display:block;opacity:.75}.bdi{font-size:1.4rem}.bdd{font-weight:750;font-size:.9rem;white-space:nowrap}
 
 </style>
 </head>
@@ -585,17 +611,28 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 <div id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="fi-json" accept=".json,application/json" hidden>
 <input type="file" id="fi-ics" accept=".ics,text/calendar" hidden>
+<input type="file" id="fi-vcf" accept=".vcf,text/vcard,text/x-vcard" hidden>
 <input type="file" id="fi-xl" accept=".xlsx,.xls,.ods,.csv,.tsv,.txt,text/csv" hidden>
 <script>
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.14';
+const APP_VERSION='1.16.16';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.16',d:'28/10/2026',items:[
+  '🎂 Anniversaires : une liste à part (Réglages → Anniversaires), pour ne plus polluer l’agenda sans jamais les oublier. Nom, jour, mois, année facultative (l’âge se calcule tout seul), note (idée cadeau).',
+  'Un 🎂 apparaît sur le jour concerné (mois, 2 semaines, semaine, jour). À l’ouverture, l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix).',
+  'Tes événements « anniversaire » existants (agenda, catégorie, calendrier Outlook « Anniversaires ») peuvent être déplacés d’un coup dans la liste, avec une liste à cocher.',
+  'Import des anniversaires depuis tes contacts (fichier .vcf exporté depuis iPhone, Android, Google ou Outlook).',
+  'Export vers le calendrier du téléphone (iPhone, Android, ordinateur) : un événement qui revient chaque année, avec alarme la veille à 18 h et le jour même à 9 h.']},
+ {v:'1.16.15',d:'28/10/2026',items:[
+  'Vue Jour : trois affichages en haut — « Heures » (grille habituelle), « Jour entier » (toute la journée tient à l’écran, chaque événement avec son horaire) et « Liste » (tous les événements triés avec leurs horaires, les plages libres et les chevauchements signalés).',
+  'Vue Jour : appui long sur un bloc, puis glisse vers le haut ou le bas pour le déplacer (par pas de 15 minutes). Valable pour les événements d’une seule journée, sans répétition, créés dans l’appli.',
+  'Avertissement de chevauchement : quand tu enregistres un événement avec horaires pendant un autre, l’appli te prévient (« Attention : horaire déjà pris ») et te laisse choisir. Idem après un déplacement.']},
  {v:'1.16.14',d:'28/10/2026',items:[
   'Couleurs et noms des calendriers Outlook : mis à jour automatiquement à l’ouverture et après chaque envoi/récupération (plus besoin d’ouvrir la gestion des calendriers). Les anciennes couleurs mémorisées dans l’appli ne cachent plus celles d’Outlook.',
   'Calendriers à « couleur automatique » (Outlook choisit sans la communiquer) : nouveau bouton « Fixer les couleurs automatiques » dans la gestion des calendriers, pour que Outlook et l’appli affichent la même couleur.']},
@@ -831,7 +868,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',bd:[],bdRem:[0,1,7],bdOn:true,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -1230,10 +1267,10 @@ function gridHTML(days,hh,opts){
  const per=days.map(d=>segs(list,d));
  const anyAd=per.some(p=>p.ad.length);
  const t=today();
- let h='<div class="tg-wrap" id="tgw"><div class="tg'+(cols>1?' wk':'')+'" style="--cols:'+cols+';--hh:'+hh+'px;'+(opts.min?'--tgmin:'+opts.min+'px;':'')+'">';
+ let h='<div class="tg-wrap" id="tgw"><div class="tg'+(cols>1?' wk':'')+(opts.cls?' '+opts.cls:'')+'" style="--cols:'+cols+';--hh:'+hh+'px;'+(opts.min?'--tgmin:'+opts.min+'px;':'')+'">';
  h+='<div class="tg-top">';
  if(cols>1){
-  h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+dayCls(d)+'" title="'+esc(holName(d))+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b></button>').join('')+'</div>';
+  h+='<div class="tg-row"><div class="gut"></div>'+days.map(d=>'<button class="dh'+(d===t?' today':'')+dayCls(d)+'" title="'+esc(holName(d))+'" data-act="goday" data-date="'+d+'"><span>'+DS[dow(d)]+'</span><b>'+pd(d).getDate()+'</b>'+bdMark(d)+'</button>').join('')+'</div>';
  }
  if(anyAd){
   h+='<div class="tg-row"><div class="gut adlab">Journée</div>'+per.map(p=>'<div class="adc">'+p.ad.map(o=>'<button class="adchip" style="--c:'+evCol(o.ev)+'" data-act="open" data-o="'+reg(o)+'">'+evT(o.ev)+'</button>').join('')+'</div>').join('')+'</div>';
@@ -1267,8 +1304,10 @@ function afterGrid(per,hh,days){
 
 /* ---------- Vue jour ---------- */
 function dayView(){
- const g=gridHTML([V.date],72,{});
- return{html:g.html,fixed:true,after:()=>afterGrid(g.per,72,[V.date])};
+ const mode=S.dayMode==='fit'||S.dayMode==='list'?S.dayMode:'grid',bar=dayBarHTML();
+ if(mode==='list')return{html:bar+dayListHTML()};
+ const g=gridHTML([V.date],72,{cls:mode==='fit'?'fit':''});
+ return{html:'<div class="daywrap">'+bar+g.html+'</div>',fixed:true,after:()=>mode==='fit'?dayFitAfter(g.per,$('#tgw')):afterGrid(g.per,72,[V.date])};
 }
 /* ---------- Vue semaine ---------- */
 function weekDays(){const ws=mondayOf(V.date,S.weekStart);return Array.from({length:7},(_,i)=>add(ws,i))}
@@ -1283,7 +1322,7 @@ function weekView(){
  let h='<div class="wl">';
  for(const d of days){
   const rows=dayRows(d,list);
-  h+='<section class="wd'+(d===t?' today':'')+dayCls(d)+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||'<p class="empty">Rien de prévu</p>')+'</section>';
+  h+='<section class="wd'+(d===t?' today':'')+dayCls(d)+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+bdMark(d)+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||'<p class="empty">Rien de prévu</p>')+'</section>';
  }
  return{html:h+'</div>',fixed:false};
 }
@@ -1306,7 +1345,7 @@ function monthViewDots(){
   const all=[...ad,...ts.map(x=>x.o)];
   const shown=all.slice(0,4),more=all.length-shown.length;
   const wk=[0,6].includes(dow(d));
-  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+evCol(o.ev)+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
+  h+='<button class="mc'+(d===t?' today':'')+(d===V.date?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="selday" data-date="'+d+'"><span class="n">'+pd(d).getDate()+bdMark(d)+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+evCol(o.ev)+'"><span>'+evT(o.ev)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
  }
  h+='</div></div>'+dayListHTML(V.date,{inMain:true,openBtn:true});
  return{html:h,fixed:false};
@@ -1389,7 +1428,7 @@ function monthViewTitles(fort,pr){
   let fg='';
   for(let c=0;c<7;c++){
    const d=add(ws,c);
-   fg+='<b class="mn'+(d===t?' today':'')+dayCls(d)+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" style="grid-row:1;grid-column:'+(c+2)+'">'+(fort&&(pd(d).getDate()===1||(w===0&&c===0))?'<small>'+MS[pd(d).getMonth()]+'</small> ':'')+pd(d).getDate()+'</b>';
+   fg+='<b class="mn'+(d===t?' today':'')+dayCls(d)+(month!==null&&pd(d).getMonth()!==month?' out':'')+'" style="grid-row:1;grid-column:'+(c+2)+'">'+(fort&&(pd(d).getDate()===1||(w===0&&c===0))?'<small>'+MS[pd(d).getMonth()]+'</small> ':'')+bdMark(d)+pd(d).getDate()+'</b>';
   }
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
@@ -3705,6 +3744,351 @@ async function olCalFixColors(list){
  toast(ok+' couleur'+(ok>1?'s':'')+' fixée'+(ok>1?'s':'')+(ko?' · '+ko+' refusée'+(ko>1?'s':''):''),4500);
 }
 
+/* ========= Jour : déplacer un bloc (appui long), avertissement de chevauchement, vues « Journée entière » et « Liste » ========= */
+let DRAGGING=false,lastDrag=0;
+const hmin=t=>{t=String(t||'0:0').split(':');return (+t[0]||0)*60+(+t[1]||0)};
+
+/* événements horaires qui se chevauchent avec b (même forme qu'un événement : start,end,startTime,endTime,allDay) */
+function conflictsFor(b,ignoreId){
+ if(!b||b.allDay)return[];
+ const list=occs(b.start,b.end).filter(o=>o.ev.id!==ignoreId);
+ const out=[];
+ for(let d=b.start;d<=b.end;d=add(d,1)){
+  const s=d===b.start?hmin(b.startTime):0,e=d===b.end?hmin(b.endTime):1440;
+  for(const x of segs(list,d).ts){if(x.s<e&&x.e>s)out.push({title:(x.o.ev.icon?x.o.ev.icon+' ':'')+x.o.ev.title,time:hm(x.s)+'–'+hm2(x.e),date:d})}
+ }
+ return out;
+}
+function cflText(cf,max){
+ const seen=new Set(),l=[];
+ for(const c of cf){const k=c.title+c.time+c.date;if(seen.has(k))continue;seen.add(k);l.push(c)}
+ return l.slice(0,max||3).map(c=>'« '+c.title+' » '+c.time).join(', ')+(l.length>(max||3)?' …':'');
+}
+
+/* ----- barre de choix de la vue Jour ----- */
+function dayBarHTML(){
+ const m=S.dayMode==='fit'||S.dayMode==='list'?S.dayMode:'grid';
+ const b=(k,l)=>'<button data-act="set" data-k="dayMode" data-v="'+k+'" class="'+(m===k?'on':'')+'">'+l+'</button>';
+ return '<div class="daybar"><div class="seg">'+b('grid','Heures')+b('fit','Jour entier')+b('list','Liste')+'</div>'+bdDayHTML(V.date)+'</div>';
+}
+function dayListHTML(){
+ const d=V.date,list=occs(d,d),sg=segs(list,d);
+ const ts=sg.ts;
+ let h='<div class="daylist">';
+ if(!sg.ad.length&&!ts.length)return h+'<p class="empty">Rien de prévu ce jour.</p></div>';
+ if(sg.ad.length)h+='<div class="dl-h">Toute la journée</div>'+sg.ad.map(o=>rowHTML(o,d)).join('');
+ if(ts.length){
+  h+='<div class="dl-h">Horaires</div>';
+  let last=null;
+  for(const x of ts){
+   const over=ts.some(y=>y!==x&&y.s<x.e&&y.e>x.s);
+   if(last!==null&&x.s-last>=45)h+='<div class="dl-gap">libre '+hm(last)+' → '+hm2(x.s)+'</div>';
+   h+=rowHTML(x.o,d).replace('class="row"','class="row'+(over?' cfl':'')+'"');
+   last=Math.max(last===null?0:last,x.e);
+  }
+ }
+ return h+'</div>';
+}
+function dayFitAfter(per,w){
+ if(!w)return;
+ const t=w.querySelector('.tg'),top=w.querySelector('.tg-top');
+ let lo=6*60,hi=22*60;
+ per.forEach(p=>p.ts.forEach(x=>{lo=Math.min(lo,Math.floor((x.s-30)/60)*60);hi=Math.max(hi,Math.ceil((x.e+30)/60)*60)}));
+ lo=Math.max(0,lo);hi=Math.min(1440,hi);
+ const avail=w.clientHeight-(top?top.offsetHeight:0)-12;
+ const hh=Math.max(17,avail/((hi-lo)/60));
+ t.style.setProperty('--hh',hh+'px');
+ w.scrollTop=Math.max(0,lo/60*hh-10);
+}
+
+/* ----- déplacer un bloc : appui long puis glisser verticalement ----- */
+(function(){
+ let D=null,lastClick=0;
+ const wrap=()=>$('#tgw');
+ function start(x,y,target){
+  if(V.view!=='day'||D)return;
+  const el=target.closest&&target.closest('#tgw .ev');if(!el)return;
+  const o=getOcc(+el.dataset.o);if(!o||o.allDay||o.ev.rec||o.ev.src==='ol'||o.ev.start!==o.ev.end||demo&&false)return;
+  const tg=el.closest('.tg');
+  D={el,o,x,y,active:false,hh:parseFloat(getComputedStyle(tg).getPropertyValue('--hh'))||72,s0:o.s,dur:o.e-o.s,ns:o.s,sy:wrap().scrollTop};
+  D.timer=setTimeout(()=>{if(!D)return;D.active=true;DRAGGING=true;el.classList.add('lift');try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}label()},450);
+ }
+ function label(){
+  if(!D)return;let b=D.el.querySelector('.dragt');
+  if(!b){b=document.createElement('i');b.className='dragt';D.el.appendChild(b)}
+  b.textContent=hm(D.ns)+'–'+hm2(D.ns+D.dur);
+ }
+ function move(x,y,e){
+  if(!D)return;
+  if(!D.active){if(Math.hypot(x-D.x,y-D.y)>10){clearTimeout(D.timer);D=null}return}
+  if(e&&e.cancelable)e.preventDefault();
+  const w=wrap();
+  if(w){const r=w.getBoundingClientRect();if(y>r.bottom-50)w.scrollTop+=10;else if(y<r.top+90)w.scrollTop-=10}
+  const dy=y-D.y+((w?w.scrollTop:0)-D.sy);
+  const dm=Math.round(dy/D.hh*60/15)*15;
+  D.ns=Math.max(0,Math.min(1440-D.dur,D.s0+dm));
+  D.el.style.transform='translateY('+((D.ns-D.s0)/60*D.hh)+'px)';
+  label();
+ }
+ function end(){
+  if(!D)return;clearTimeout(D.timer);
+  const d=D;D=null;
+  if(!d.active)return;
+  DRAGGING=false;lastDrag=Date.now();lastClick=Date.now();
+  d.el.classList.remove('lift');d.el.style.transform='';
+  const b=d.el.querySelector('.dragt');if(b)b.remove();
+  if(d.ns===d.s0)return;
+  const ev=d.o.ev,old=[ev.startTime,ev.endTime];
+  ev.startTime=hm(d.ns);ev.endTime=hm(Math.min(d.ns+d.dur,1439));
+  touch();render();
+  const cf=conflictsFor(ev,ev.id);
+  toast('Déplacé à '+ev.startTime+'–'+hm2(d.ns+d.dur)+(cf.length?' · ⚠ chevauche '+cflText(cf,2):''),cf.length?6000:3500);
+ }
+ document.addEventListener('touchstart',e=>{if(e.touches.length===1)start(e.touches[0].clientX,e.touches[0].clientY,e.target);else{clearTimeout(D&&D.timer);D=null}},{passive:true});
+ document.addEventListener('touchmove',e=>{if(D)move(e.touches[0].clientX,e.touches[0].clientY,e)},{passive:false});
+ document.addEventListener('touchend',end);document.addEventListener('touchcancel',end);
+ document.addEventListener('mousedown',e=>{if(e.button===0)start(e.clientX,e.clientY,e.target)});
+ document.addEventListener('mousemove',e=>{if(D)move(e.clientX,e.clientY,e)});
+ document.addEventListener('mouseup',end);
+ document.addEventListener('contextmenu',e=>{if(D&&D.active)e.preventDefault()});
+ document.addEventListener('click',e=>{if(Date.now()-lastClick<700){e.preventDefault();e.stopImmediatePropagation()}},true);
+})();
+
+/* ---------- Anniversaires (1.16.16) : liste à part, rappels à l'ouverture, export avec alarme ---------- */
+const leapY=y=>(y%4===0&&y%100!==0)||y%400===0;
+function bdClean(){
+ if(!Array.isArray(S.bd))S.bd=[];
+ return S.bd.filter(b=>b&&b.n&&b.m>=1&&b.m<=12&&b.d>=1&&b.d<=31);
+}
+/* date de l'anniversaire pour une année donnée (29 fév. -> 28 fév. si année non bissextile) */
+function bdDateIn(b,y){let d=b.d;if(b.m===2&&d===29&&!leapY(y))d=28;return y+'-'+pad(b.m)+'-'+pad(d)}
+function bdNext(b,from){
+ const y=+from.slice(0,4);let x=bdDateIn(b,y);
+ if(x<from)x=bdDateIn(b,y+1);return x;
+}
+function bdAge(b,date){return b.y>0?(+date.slice(0,4))-b.y:null}
+function bdOn(date){
+ const y=+date.slice(0,4);
+ return bdClean().filter(b=>bdDateIn(b,y)===date);
+}
+const bdAgeTxt=(b,date)=>{const a=bdAge(b,date);return a!=null&&a>=0?(a<=1?a+' an':a+' ans'):''};
+function bdMark(date){return bdOn(date).length?'<em class="bd" title="Anniversaire">🎂</em>':''}
+function bdDayHTML(date){
+ const l=bdOn(date);if(!l.length)return '';
+ return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>';
+}
+function bdIn(days){return days===0?'aujourd’hui':days===1?'demain':'dans '+days+' jours'}
+function bdLines(){
+ if(S.bdOn===false)return [];
+ const rem=Array.isArray(S.bdRem)?S.bdRem:[0,1,7],t=today(),out=[];
+ for(const b of bdClean()){
+  const nx=bdNext(b,t),dd=diff(nx,t);
+  if(rem.includes(dd))out.push({b,date:nx,days:dd});
+ }
+ return out.sort((a,b)=>a.days-b.days||a.b.n.localeCompare(b.b.n));
+}
+function bdDue(){return S.bdOn!==false&&META.bdDay!==today()&&bdLines().length>0}
+function bdRowsHTML(){
+ const l=bdLines();if(!l.length)return '';
+ return '<div class="bdl">'+l.map(x=>'<div class="bdr"><span>🎂</span><div><b>'+esc(x.b.n)+'</b>'+(bdAgeTxt(x.b,x.date)?', '+bdAgeTxt(x.b,x.date):'')+'<small>'+bdIn(x.days)+' · '+pd(x.date).getDate()+' '+ML[pd(x.date).getMonth()]+(x.b.note?' · '+esc(x.b.note):'')+'</small></div></div>').join('')+'</div>';
+}
+
+/* ---------- Écran « Anniversaires » ---------- */
+function bdOpen(){
+ const t=today(),list=bdClean().map(b=>({b,nx:bdNext(b,t)})).sort((a,b)=>a.nx<b.nx?-1:a.nx>b.nx?1:a.b.n.localeCompare(b.b.n));
+ const rem=Array.isArray(S.bdRem)?S.bdRem:[0,1,7];
+ const chip=(v,l)=>'<button data-act="bd-rem" data-v="'+v+'" class="'+(rem.includes(v)?'on':'')+'">'+l+'</button>';
+ const nconv=bdCandidates().length;
+ let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">🎂 Anniversaires</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<p class="mut" style="margin:0 0 .5rem">Une liste à part : ils ne polluent plus ton agenda, mais ils ne sont jamais oubliés. Un 🎂 apparaît sur le jour, et un rappel s’affiche à l’ouverture de l’appli.</p>';
+ if(list.length){
+  h+='<div style="margin:0 -1rem">'+list.map(x=>{const dd=diff(x.nx,t),a=bdAge(x.b,x.nx);
+   return '<button class="bdrow" data-act="bd-edit" data-id="'+esc(x.b.id)+'"><span class="bdi">🎂</span><div class="rt"><b>'+esc(x.b.n)+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+(x.b.note?' · '+esc(x.b.note):'')+'</small></div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'}).join('')+'</div>';
+ }else h+='<p class="mut" style="margin:.4rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
+ h+='<button class="btn pri blk" data-act="bd-add">'+ic('plus')+' Ajouter un anniversaire</button>';
+ if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
+ h+='<button class="btn blk" data-act="bd-vcf">'+ic('up')+' Importer depuis mes contacts (fichier .vcf)…</button>';
+ h+='<b style="display:block;margin:.8rem 0 .2rem">Rappel à l’ouverture de l’appli</b><div class="seg" style="flex-wrap:wrap">'+chip(0,'Le jour J')+chip(1,'La veille')+chip(3,'3 jours avant')+chip(7,'1 semaine avant')+'</div>';
+ h+='<div class="seg" style="margin-top:.4rem"><button data-act="bd-on" data-v="1" class="'+(S.bdOn!==false?'on':'')+'">Rappels activés</button><button data-act="bd-on" data-v="0" class="'+(S.bdOn===false?'on':'')+'">Désactivés</button></div>';
+ h+='<p class="mut" style="font-size:.85rem;margin:.3rem 0 0">Une appli fermée ne peut pas t’envoyer de notification : le rappel s’affiche donc quand tu ouvres l’appli (une fois par jour). Pour une vraie sonnerie, utilise le bouton ci-dessous.</p>';
+ h+='<button class="btn blk" data-act="bd-exp" style="margin-top:.7rem"'+(list.length?'':' disabled')+'>🔔 Mettre dans le calendrier du téléphone avec alarme (iPhone et Android)…</button>';
+ h+='<button class="btn blk" data-act="close">Fermer</button>';
+ openSheet(h);
+}
+
+/* ---------- Ajouter / modifier ---------- */
+async function bdEdit(id){
+ const cur=id?bdClean().find(b=>b.id===id):null;
+ const inp='style="width:100%;font:inherit;padding:.55rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box"';
+ const html='<label style="display:block;margin:.3rem 0 .1rem;font-weight:650">Prénom ou nom</label><input id="bd-n" '+inp+' value="'+esc(cur?cur.n:'')+'" maxlength="60" autocomplete="off">'+
+  '<div style="display:flex;gap:.5rem;margin-top:.5rem"><div style="flex:1"><label style="font-weight:650">Jour</label><input id="bd-d" type="number" min="1" max="31" inputmode="numeric" '+inp+' value="'+(cur?cur.d:'')+'"></div>'+
+  '<div style="flex:2"><label style="font-weight:650">Mois</label><select id="bd-m" '+inp+'>'+ML.map((m,i)=>'<option value="'+(i+1)+'"'+(cur&&cur.m===i+1?' selected':'')+'>'+cap(m)+'</option>').join('')+'</select></div>'+
+  '<div style="flex:1.3"><label style="font-weight:650">Année</label><input id="bd-y" type="number" min="1900" max="2100" inputmode="numeric" placeholder="facultatif" '+inp+' value="'+(cur&&cur.y?cur.y:'')+'"></div></div>'+
+  '<p class="mut" style="font-size:.82rem;margin:.2rem 0 .4rem">Avec l’année de naissance, l’âge est calculé tout seul.</p>'+
+  '<label style="display:block;margin:.3rem 0 .1rem;font-weight:650">Note (idée cadeau…)</label><input id="bd-t" '+inp+' value="'+esc(cur?cur.note||'':'')+'" maxlength="80">';
+ let got=null;
+ const root=$('#dlg');
+ const h=e=>{
+  const b=e.target.closest('[data-v]');if(!b)return;
+  if(b.dataset.v!=='0')return; /* index du bouton « Enregistrer » */
+  const n=($('#bd-n').value||'').trim(),d=parseInt($('#bd-d').value),m=parseInt($('#bd-m').value),y=parseInt($('#bd-y').value)||0;
+  const mx=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];
+  if(!n||!(d>=1&&d<=mx)){e.stopPropagation();e.preventDefault();toast('Indique un nom et un jour valide');return}
+  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:($('#bd-t').value||'').trim()};
+ };
+ root.addEventListener('click',h,true);
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}];
+ if(cur)btns.splice(1,0,{label:'Supprimer',value:'del'});
+ const r=await ask({title:cur?'Modifier l’anniversaire':'Nouvel anniversaire',html,btns});
+ root.removeEventListener('click',h,true);
+ if(r==='del'&&cur){S.bd=bdClean().filter(b=>b.id!==cur.id);saveSet();toast('Anniversaire supprimé')}
+ else if(r==='ok'&&got){
+  const o=Object.assign({id:cur?cur.id:'b'+uid()},got);
+  S.bd=bdClean().filter(b=>b.id!==o.id).concat([o]);saveSet();toast('🎂 Enregistré')
+ }
+ render();bdOpen();
+}
+
+/* ---------- Conversion des événements « anniversaire » existants ---------- */
+const BD_RE=/anniv|birthday|🎂/i;
+function bdNameOf(t){
+ let n=String(t||'').replace(/[🎂🎈🎉🎁]/g,'').replace(/^\s*(joyeux\s+)?anniv(ersaire)?\.?\s*(de\s+|d['’]\s*|du\s+|des\s+)?/i,'').replace(/\s*[-–:(]*\s*anniv(ersaire)?\)?\s*$/i,'').replace(/\s*\(\d+\s*ans?\)\s*$/i,'').trim();
+ return n||String(t||'').trim();
+}
+function bdCandidates(){
+ const out=new Map();
+ for(const e of EV){
+  const c=catOf(e.cat);
+  if(!(BD_RE.test(e.title||'')||BD_RE.test((c&&c.name)||'')||BD_RE.test(e.ocal||'')||BD_RE.test(e.ocat||'')))continue;
+  if(!e.allDay)continue;
+  const n=bdNameOf(e.title),m=+e.start.slice(5,7),d=+e.start.slice(8,10);
+  const k=norm(n)+'|'+m+'|'+d;
+  if(bdClean().some(b=>norm(b.n)===norm(n)&&b.m===m&&b.d===d)){ /* déjà dans la liste : on propose quand même de retirer l'événement */ }
+  if(!out.has(k))out.set(k,{n,m,d,ids:[],evs:[]});
+  const g=out.get(k);g.ids.push(e.id);g.evs.push(e);
+ }
+ return [...out.values()].sort((a,b)=>a.m-b.m||a.d-b.d||a.n.localeCompare(b.n));
+}
+async function bdConvert(){
+ const c=bdCandidates();if(!c.length){toast('Aucun événement « anniversaire » trouvé');return}
+ const html='<p style="margin:.2rem 0 .5rem">Coche ceux à déplacer dans la liste des anniversaires. Les événements correspondants sont retirés de ton agenda (les imports Outlook ne reviendront pas).</p><div style="max-height:45vh;overflow:auto">'+
+  c.map((g,i)=>'<label style="display:flex;gap:.5rem;align-items:center;padding:.35rem 0;border-bottom:1px solid #8883"><input type="checkbox" class="bd-ck" data-i="'+i+'" checked><span><b>'+esc(g.n)+'</b> · '+g.d+' '+ML[g.m-1]+(g.ids.length>1?' <small>('+g.ids.length+' événements)</small>':'')+'</span></label>').join('')+'</div>';
+ let sel=null;const root=$('#dlg');
+ const h=e=>{const b=e.target.closest('[data-v]');if(b&&b.dataset.v==='0')sel=$$('.bd-ck').filter(x=>x.checked).map(x=>+x.dataset.i)};
+ root.addEventListener('click',h,true);
+ const r=await ask({title:'Déplacer vers Anniversaires',html,btns:[{label:'Déplacer les cochés',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',h,true);
+ if(r!=='ok'||!sel||!sel.length){bdOpen();return}
+ const ign=new Set(S.olIgn||[]),del=new Set();let added=0;
+ for(const i of sel){
+  const g=c[i];
+  if(!bdClean().some(b=>norm(b.n)===norm(g.n)&&b.m===g.m&&b.d===g.d)){S.bd=bdClean().concat([{id:'b'+uid(),n:g.n,m:g.m,d:g.d,y:0,note:''}]);added++}
+  for(const e of g.evs){del.add(e.id);if(e.src==='ol'){ign.add(e.id);for(const m of (e.mids||[]))ign.add(m)}}
+ }
+ S.olIgn=[...ign].slice(-4000);
+ EV=EV.filter(e=>!del.has(e.id));
+ saveSet();touch();render();
+ toast('🎂 '+added+' ajouté'+(added>1?'s':'')+', '+del.size+' événement'+(del.size>1?'s':'')+' retiré'+(del.size>1?'s':'')+' de l’agenda',6000);
+ bdOpen();
+}
+
+/* ---------- Import des contacts (.vcf) ---------- */
+function parseVCF(text){
+ const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').replace(/\n[ \t]/g,'').split('\n');
+ const out=[];let cur=null;
+ for(const ln of lines){
+  const u=ln.toUpperCase();
+  if(u.startsWith('BEGIN:VCARD')){cur={fn:'',n:'',bday:''};continue}
+  if(u.startsWith('END:VCARD')){if(cur&&cur.bday)out.push(cur);cur=null;continue}
+  if(!cur)continue;
+  const i=ln.indexOf(':');if(i<0)continue;
+  const key=ln.slice(0,i).split(';')[0].toUpperCase().replace(/^ITEM\d+\./,''),val=ln.slice(i+1).trim();
+  if(key==='FN')cur.fn=val;
+  else if(key==='N'){const p=val.split(';');cur.n=((p[1]||'')+' '+(p[0]||'')).trim()}
+  else if(key==='BDAY')cur.bday=val;
+ }
+ const res=[];
+ for(const c of out){
+  const v=c.bday.replace(/[^0-9T-]/g,'');
+  let y=0,m=0,d=0,mm;
+  if((mm=v.match(/^(\d{4})-?(\d{2})-?(\d{2})/))){y=+mm[1];m=+mm[2];d=+mm[3]}
+  else if((mm=v.match(/^--?-?(\d{2})-?(\d{2})/))){m=+mm[1];d=+mm[2]}
+  else continue;
+  if(y<1900||y>2100)y=0; /* Apple met 1604 quand l'année est inconnue */
+  const n=(c.fn||c.n||'').trim();
+  if(!n||m<1||m>12||d<1||d>31)continue;
+  res.push({n:n.slice(0,60),m,d,y});
+ }
+ return res;
+}
+async function bdImportVCF(file){
+ let txt='';try{txt=await file.text()}catch(e){toast('Lecture du fichier impossible');return}
+ const l=parseVCF(txt);
+ if(!l.length){toast('Aucun anniversaire trouvé dans ce fichier (contacts sans date de naissance ?)',6000);return}
+ const fresh=l.filter(x=>!bdClean().some(b=>norm(b.n)===norm(x.n)&&b.m===x.m&&b.d===x.d));
+ if(!fresh.length){toast('Tout est déjà dans la liste');return}
+ const r=await ask({title:'Importer '+fresh.length+' anniversaire'+(fresh.length>1?'s':''),html:'<div style="max-height:40vh;overflow:auto;margin:.3rem 0">'+fresh.slice(0,60).map(x=>'<div style="padding:.2rem 0">🎂 <b>'+esc(x.n)+'</b> · '+x.d+' '+ML[x.m-1]+(x.y?' '+x.y:'')+'</div>').join('')+(fresh.length>60?'<p class="mut">… et '+(fresh.length-60)+' autres</p>':'')+'</div>',btns:[{label:'Tout importer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='ok')return;
+ S.bd=bdClean().concat(fresh.map(x=>Object.assign({id:'b'+uid(),note:''},x)));saveSet();render();
+ toast('🎂 '+fresh.length+' anniversaire'+(fresh.length>1?'s':'')+' importé'+(fresh.length>1?'s':''));
+ bdOpen();
+}
+
+/* ---------- Export .ics avec alarme (iPhone, Android, ordinateur) ---------- */
+function bdICS(){
+ const stampv=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Agenda agd//FR','CALSCALE:GREGORIAN','X-WR-CALNAME:Anniversaires AgenDam'];
+ const y0=new Date().getFullYear();
+ for(const b of bdClean()){
+  const st=bdDateIn(b,y0),en=add(st,1);
+  L.push('BEGIN:VEVENT','UID:bd-'+b.id+'@agd.agenda','DTSTAMP:'+stampv,'DTSTART;VALUE=DATE:'+icsD(st),'DTEND;VALUE=DATE:'+icsD(en),
+   'SUMMARY:'+icsEsc('🎂 Anniversaire de '+b.n),'RRULE:FREQ=YEARLY','TRANSP:TRANSPARENT','CATEGORIES:Anniversaire');
+  if(b.note)L.push('DESCRIPTION:'+icsEsc(b.note));
+  /* le jour même à 9 h, et la veille à 18 h */
+  L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Anniversaire de '+b.n),'TRIGGER:PT9H','END:VALARM');
+  L.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc('Demain : anniversaire de '+b.n),'TRIGGER:-PT6H','END:VALARM');
+  L.push('END:VEVENT');
+ }
+ L.push('END:VCALENDAR');
+ return L.map(fold).join('\r\n')+'\r\n';
+}
+async function bdExport(){
+ if(!bdClean().length){toast('Ajoute d’abord des anniversaires');return}
+ const ios=isIOS(),and=/Android/i.test(navigator.userAgent);
+ const steps=ios
+  ?'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Touche « Envoyer le fichier », puis choisis <b>Calendrier</b> (ou enregistre dans Fichiers puis ouvre-le).</li><li>Touche <b>Ajouter tout</b> en bas, et choisis un calendrier dédié (crée « Anniversaires » dans Calendrier pour pouvoir le masquer ou le supprimer d’un geste).</li></ol>'
+  :and
+  ?'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Touche « Envoyer le fichier », puis choisis <b>Google Agenda</b> ou <b>Samsung Calendar</b> (ou ouvre le fichier téléchargé).</li><li>Confirme l’ajout. Pour avoir un calendrier à part sur Android : crée « Anniversaires » dans Google Agenda sur ordinateur, puis <i>Paramètres → Importer et exporter</i> et choisis ce calendrier.</li></ol><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Sur Android, l’alarme exacte dépend de l’appli : vérifie dans un anniversaire qu’une notification est bien présente, sinon règle la notification par défaut des événements « toute la journée » dans l’appli Agenda.</p>'
+  :'<ol style="margin:.3rem 0 .5rem 1.1rem;padding:0"><li>Le fichier .ics se télécharge.</li><li>Google Agenda : <i>Paramètres → Importer et exporter</i>. Outlook : <i>Ajouter un calendrier → Charger depuis un fichier</i>. Apple Calendrier : double-clic.</li></ol>';
+ const r=await ask({title:'Anniversaires dans ton téléphone',html:'<p style="margin:.2rem 0">'+bdClean().length+' anniversaire'+(bdClean().length>1?'s':'')+' : chacun revient <b>chaque année</b>, avec une alarme <b>la veille à 18 h</b> et <b>le jour même à 9 h</b>.</p>'+steps+'<p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Si tu ajoutes des personnes plus tard, refais l’export : les anciens sont mis à jour (même identifiant). Pour repartir à zéro, supprime d’abord le calendrier « Anniversaires » du téléphone.</p>',btns:[{label:isPhoneOS()?'Envoyer le fichier':'Télécharger le fichier .ics',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='ok')return;
+ const text=bdICS(),name='anniversaires-agendam.ics';
+ if(isPhoneOS()){const x=await shareFile(name,'text/calendar',text);if(x==='cancel')return;if(!x)downloadFile(name,'text/calendar',text)}
+ else downloadFile(name,'text/calendar',text);
+ toast('Fichier prêt : ouvre-le pour l’ajouter à ton calendrier',6000);
+}
+
+/* ---------- Actions ---------- */
+async function bdAct(a,el){
+ const dd=el.dataset;
+ switch(a){
+  case 'bd-open':bdOpen();break;
+  case 'bd-add':bdEdit(null);break;
+  case 'bd-edit':bdEdit(dd.id);break;
+  case 'bd-conv':bdConvert();break;
+  case 'bd-vcf':$('#fi-vcf').value='';$('#fi-vcf').click();break;
+  case 'bd-exp':bdExport();break;
+  case 'bd-on':S.bdOn=dd.v==='1';saveSet();bdOpen();break;
+  case 'bd-rem':{
+   const v=+dd.v;let r=Array.isArray(S.bdRem)?S.bdRem.slice():[0,1,7];
+   r=r.includes(v)?r.filter(x=>x!==v):r.concat([v]);S.bdRem=r.sort((x,y)=>x-y);saveSet();bdOpen();break}
+ }
+}
+function bdCard(){
+ const n=bdClean().length;
+ return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3><p class="mut" style="margin-top:0">Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).</p><button class="btn blk pri" data-act="bd-open">Ouvrir les anniversaires'+(n?' ('+n+')':'')+'</button></div>';
+}
+
 /* ========= Feuilles, éditeur, réglages, aide, démo, événements ========= */
 let swReg=null,installEv=null;
 
@@ -3880,6 +4264,7 @@ async function saveEditor(){
  if(b.end<b.start){toast('La fin est avant le début');return}
  if(!b.allDay&&stampOf(b.end,b.endTime)<=stampOf(b.start,b.startTime)){toast('L’heure de fin doit être après le début');return}
  const ev0=ED.id?findEv(ED.id):null;
+ if(!b.allDay){const cf=conflictsFor(b,ev0?ev0.id:null);if(cf.length){const r=await ask({title:'Attention : horaire déjà pris',html:'<p style="margin:.2rem 0 .6rem">Il y a déjà '+(cf.length>1?'des événements':'un événement')+' à cette période :</p><p style="margin:0 0 .6rem;font-weight:650">'+esc(cflText(cf,4))+'</p>',btns:[{label:'Enregistrer quand même',value:'y',cls:'pri'},{label:'Modifier l’horaire',value:null}]});if(r!=='y')return}}
  let target=b.start,saved=null;
  const wantPhone=!!($('#f-phone')&&$('#f-phone').checked);
  if(!ev0){saved=cleanEvent(Object.assign({id:uid()},b));EV.push(saved)}
@@ -3961,6 +4346,7 @@ function settingsView(){
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
  h+=msCard();
+ h+=bdCard();
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
@@ -4005,6 +4391,8 @@ function openHelp(hist){
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
+ h+=d('Anniversaires','<ul><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
+ h+=d('Vue Jour : 3 affichages, déplacer, chevauchements','<ul><li><b>Heures</b> : la grille habituelle. <b>Jour entier</b> : toute la journée tient à l’écran avec les horaires. <b>Liste</b> : événements triés, plages libres, ⚠ si deux événements se chevauchent.</li><li><b>Déplacer</b> : appui long sur un événement (≈ 0,5 s), puis glisse. L’heure s’affiche pendant le déplacement. Pas pour les événements répétés ni importés d’Outlook : ouvre leur fiche.</li><li><b>Avertissement</b> : si l’horaire est déjà pris, l’appli te le dit avant d’enregistrer.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
  h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
@@ -4164,14 +4552,18 @@ function upcomingToday(){
 function showUpcoming(force){
  if(demo&&!force)return;
  const u=upcomingToday();
- if(!u.ad.length&&!u.ts.length){if(force)toast('Rien de prévu pour le reste de la journée');return}
  const t=today();
+ const bdh=(force||(S.bdOn!==false&&META.bdDay!==t))?bdRowsHTML():'';
+ const noEv=!u.ad.length&&!u.ts.length;
+ if(noEv&&!bdh){if(force)toast('Rien de prévu pour le reste de la journée');return}
+ if(!S.remind&&!force&&noEv&&!bdh)return;
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">À venir aujourd’hui</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="margin:0 0 .4rem;font-weight:650">'+cap(fLongY(t))+'</p>';
- h+='<div style="margin:0 -1rem">'+u.ad.map(o=>rowHTML(o,t)).join('')+u.ts.map(x=>rowHTML(x.o,t)).join('')+'</div>';
+ if(bdh)h+=bdh+'<button class="btn blk sm" data-act="bd-open" style="margin:.2rem 0 .4rem">Voir tous les anniversaires</button>';
+ if(!noEv)h+='<div style="margin:0 -1rem">'+u.ad.map(o=>rowHTML(o,t)).join('')+u.ts.map(x=>rowHTML(x.o,t)).join('')+'</div>';
  h+='<div class="btns"><button class="btn pri grow" data-act="close">Fermer</button><button class="btn" data-act="goday" data-date="'+t+'">Voir la journée</button></div>';
- if(!force)h+='<button class="btn blk" data-act="remind-off" style="margin-top:.5rem">Ne plus afficher cette fenêtre à l’ouverture</button>';
+ if(!force&&S.remind)h+='<button class="btn blk" data-act="remind-off" style="margin-top:.5rem">Ne plus afficher cette fenêtre à l’ouverture</button>';
  openSheet(h);
- META.lastRemind=Date.now();saveMeta();
+ META.lastRemind=Date.now();if(bdh)META.bdDay=t;saveMeta();
 }
 const atTime=(d,m)=>{const x=pd(d);x.setMinutes(m);return x};
 function notify(title,body,tag){
@@ -4214,6 +4606,7 @@ function setSetting(k,v){
 }
 async function act(a,el,e){
  const ds_=el.dataset;
+ if(a.startsWith('bd-')){bdAct(a,el);return}
  switch(a){
   case 'prev':shift(-1);break;
   case 'next':shift(1);break;
@@ -4223,7 +4616,7 @@ async function act(a,el,e){
   case 'hist':openHistory(false);break;
   case 'hist-all':openHistory(true);break;
   case 'remind-off':S.remind=false;saveSet();closeSheet();toast('Fenêtre désactivée. Réactive-la dans Réglages → Affichage');break;
-  case 'wn-ok':closeSheet();if(S.remind&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
+  case 'wn-ok':closeSheet();if((S.remind||bdDue())&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
   case 'force-update':forceUpdate();break;
   case 'jump':{const x=document.getElementById(el.dataset.t);if(x&&x.tagName==='DETAILS'){x.open=true;V.optOpen=true}if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'fiche-share':ficheShare();break;
@@ -4371,6 +4764,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
  if(t.id==='fi-ics'&&t.files[0]){importICS(t.files[0]);return}
+ if(t.id==='fi-vcf'&&t.files[0]){bdImportVCF(t.files[0]);return}
  if(t.id==='fi-xl'&&t.files[0]){importSheet(t.files[0]);return}
 });
 document.addEventListener('input',e=>{
@@ -4391,6 +4785,7 @@ document.addEventListener('touchend',e=>{
  if(e.target.closest&&e.target.closest('.tg-wrap')&&$('#tgw').scrollWidth>$('#tgw').clientWidth+2)return;
  if(!e.target.closest||!e.target.closest('#main'))return;
  const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+ if(DRAGGING||Date.now()-lastDrag<900)return;
  if(Math.abs(dx)>70&&Math.abs(dy)<45&&Date.now()-tt<600)shift(dx<0?1:-1);
 },{passive:true});
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,150)});
@@ -4398,7 +4793,7 @@ document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible'){
   tick();olAuto();
   if(V.date!==today()&&V.view==='day'&&diff(today(),V.date)===1)V.date=today();
-  if(S.remind&&!demo&&Date.now()-META.lastRemind>60*60*1000&&!SHEET_OPEN)showUpcoming(false);
+  if((S.remind||bdDue())&&!demo&&Date.now()-META.lastRemind>60*60*1000&&!SHEET_OPEN)showUpcoming(false);
   render();
  }
 });
@@ -4435,7 +4830,7 @@ async function init(){
  if(!demo){
   if(!META.seen&&!EV.length){setTimeout(welcome,300);META.ver=APP_VERSION;saveMeta()}
   else if(META.ver!==APP_VERSION)setTimeout(()=>{if(!SHEET_OPEN)whatsNew()},400);
-  else if(S.remind)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},500);
+  else if(S.remind||bdDue())setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},500);
  }
 }
 init();
