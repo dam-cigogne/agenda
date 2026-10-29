@@ -22,6 +22,8 @@ Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donn
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
 - Apparence à ta couleur : couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge, dates plus lisibles
+- Vacances scolaires (zones A, B, C) : liseré coloré (couleur au choix) sur les jours de vacances ; calendrier officiel facultatif (data.education.gouv.fr, seule la zone est envoyée, cache `agd-vac`) et/ou périodes saisies à la main
+- Mois : mots longs coupés par syllabes, taille du texte des événements au choix (Petit, Normal, Grand)
 - Réglages simples : sauvegarde en haut (partage direct vers « Fichiers » sur iPhone/Android), boutons compacts, options rares dans « Options complémentaires » (repliable)
 - Écran large : panneau latéral (mini-calendrier et journée) masquable pour agrandir le mois
 - Couleurs Outlook : couleur de chaque calendrier lue depuis Outlook, couleurs de catégories modifiables

@@ -193,9 +193,9 @@ input,select,textarea{font:inherit;color:inherit}
 .mband{font-weight:700;padding:0 .3rem;border-radius:.3rem;background:var(--c);color:var(--ink)}
 .mband.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
 .mband.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
-.mcol{display:flex;flex-direction:column;gap:1px;min-width:0;margin:0 1px;align-self:start;overflow:hidden}
+.mcol{display:flex;flex-direction:column;gap:1px;min-width:0;margin:0 .5px;align-self:start;overflow:hidden}
 .mcol.l1 .ei{display:none}
-.ml{font-style:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);white-space:normal;overflow:hidden;overflow-wrap:anywhere;margin:0;font-weight:650;line-height:1.25;padding:0 .12rem 0 .2rem;border-left:3px solid var(--c);border-radius:.15rem;background:rgba(127,127,127,.13);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.ml{font-style:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--ln,1);white-space:normal;overflow:hidden;overflow-wrap:break-word;word-break:normal;-webkit-hyphens:manual;hyphens:manual;margin:0;font-weight:650;line-height:1.25;padding:0 .06rem 0 .14rem;border-left:2.5px solid var(--c);border-radius:.15rem;background:rgba(127,127,127,.13);background:color-mix(in srgb,var(--c) 16%,transparent)}
 .ml em{font-style:normal;color:var(--muted);font-weight:600}
 @media(min-width:700px){.mband{font-size:calc(.8rem*var(--bsc,1))}.mn{font-size:.9rem}}
 #body.mview #fab{width:3.1rem;height:3.1rem;right:.7rem;bottom:.7rem}
@@ -465,6 +465,16 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .lk small{font-size:.65rem;color:var(--muted);text-transform:uppercase}.lk .n{font-weight:800;font-size:1.1rem}
 .lk.we{background-color:var(--wec,var(--surface))}.lk .n.hol{color:var(--danger)}.lk.today .n{color:var(--accent)}
 
+/* Vacances scolaires : liseré en bas de la case */
+.bgc.vac,.mc.vac,.tg-col.vac,.wd.vac,.lk.vac,.mini button.vac{background-image:linear-gradient(var(--vacc,#f59e0b),var(--vacc,#f59e0b))!important;background-size:100% 4px!important;background-repeat:no-repeat!important;background-position:left bottom!important}
+.tg-col.vac{background-position:left top!important}
+.bgc.today.vac{box-shadow:inset 0 0 0 2px var(--accent),inset 0 -6px 0 var(--vacc,#f59e0b)}
+.mini button.vac{background-size:70% 3px!important;background-position:center bottom!important}
+.vac-prev{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:.3rem 0 .8rem}.vac-prev .lk{border-radius:0;border-right-width:0}.vac-prev .lk:first-child{border-radius:10px 0 0 10px}.vac-prev .lk:last-child{border-radius:0 10px 10px 0;border-right-width:1px}
+.vac-l{display:flex;flex-direction:column;gap:.15rem;margin:.25rem 0 .6rem}
+.vac-r{display:flex;align-items:center;gap:.55rem;padding:.3rem 0;border-bottom:1px solid var(--line2)}.vac-r>i{width:.35rem;align-self:stretch;border-radius:.2rem;flex:none}.vac-r>span{flex:1;min-width:0;display:flex;flex-direction:column}.vac-r small{color:var(--muted);font-size:.82rem}
+.vacb{margin-top:.3rem;font-size:.85rem;font-weight:650;padding:.2rem .55rem;border-radius:.5rem;border-left:4px solid var(--vacc,#f59e0b);background:var(--surface2);display:inline-block}
+
 /* Aide à l'adresse */
 .adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
 .adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
@@ -649,12 +659,20 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.28';
+const APP_VERSION='1.16.30';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'1.16.30',d:'29/10/2026',items:[
+  '🏖 Vacances scolaires : un liseré coloré souligne les jours de vacances de ta zone (A, B ou C) dans le mois, les 2 semaines, la semaine et le mini-calendrier. Le nom des vacances s’affiche sur la journée. Réglages → Vacances scolaires.',
+  'Deux façons de remplir : télécharger le calendrier officiel (data.education.gouv.fr, ministère de l’Éducation nationale ; seule la zone est envoyée, mise à jour une fois par mois) ou saisir tes périodes à la main (hors connexion, autre zone, pont…). Les deux peuvent se combiner.',
+  'Couleur du liseré au choix (8 couleurs ou n’importe quelle autre).']},
+ {v:'1.16.29',d:'29/10/2026',items:[
+  'Mois plus lisible : les mots longs sont coupés proprement par syllabes avec un tiret (« Anni-versaire », « Gyné-cologue ») au lieu d’être coupés au hasard (« Anniver / saire »).',
+  'Les événements du mois gagnent un peu de place sur les côtés : plus de lettres par ligne.',
+  'Nouveau réglage : Réglages → Affichage → « Texte des événements dans le mois » : Petit, Normal ou Grand.']},
  {v:'1.16.28',d:'28/10/2026',items:[
   'Mois : le numéro du jour d’aujourd’hui reste bien lisible (blanc sur fond coloré, en gras), même quand il apparaît dans la semaine d’un autre mois.']},
  {v:'1.16.27',d:'28/10/2026',items:[
@@ -888,6 +906,24 @@ const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
 const evT=ev=>(ev.hi&4?'★ ':'')+(ev.icon?esc(ev.icon)+' ':'')+esc(ev.title);
+/* coupure des mots longs par syllabes (tiret conditionnel \u00ad) : « Anni-versaire », « Gyné-cologue » */
+const HY_V='aàâäeéèêëiîïoôöuùûüyÿœæ',HY_KEEP=['bl','br','ch','cl','cr','dr','fl','fr','gl','gn','gr','ph','pl','pr','th','tr','vr'];
+function hyWord(w){
+ const L=w.toLowerCase(),n=L.length,isV=i=>HY_V.indexOf(L[i])>=0,cut=[];
+ let i=0;while(i<n&&!isV(i))i++;
+ while(i<n){
+  while(i<n&&isV(i))i++;
+  let j=i;while(j<n&&!isV(j))j++;
+  if(j>=n)break;
+  const c=L.slice(i,j),k=c.length;let p;
+  if(k===1)p=i;else if(HY_KEEP.indexOf(c.slice(-2))>=0)p=j-2;else p=j-1;
+  if(p>=3&&n-p>=4)cut.push(p);
+  i=j;
+ }
+ let o='',a=0;for(const p of cut){o+=w.slice(a,p)+'\u00ad';a=p}return o+w.slice(a);
+}
+const hyText=s=>String(s==null?'':s).replace(/[A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]{7,}/g,hyWord);
+const evTh=ev=>(ev.hi&4?'★ ':'')+(ev.icon?esc(ev.icon)+' ':'')+esc(hyText(ev.title));
 const hiCls=ev=>(ev.hi&1?' hio':'')+(ev.hi&2?' hib':'');
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
@@ -933,7 +969,7 @@ const DEF_CATS=[
  {id:'loisirs',name:'Sport & loisirs',color:'#ec4899'},
  {id:'autre',name:'Autre',color:'#64748b'}
 ];
-const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',bd:[],bdRem:[0,1,7],bdOn:true,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',adrAide:false,tpls:[],cats:DEF_CATS};
+const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',bd:[],bdRem:[0,1,7],bdOn:true,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',mTxt:1,vacOn:0,vacZone:'B',vacCol:'#f59e0b',vacMan:[],adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
@@ -1321,7 +1357,7 @@ function dayRows(day,list){
 function dayListHTML(day,opts){
  opts=opts||{};
  const rows=dayRows(day);
- return '<section class="dl'+(opts.inMain?' inmain':'')+'"><div class="dl-h"><div><b>'+cap(fLong(day))+'</b><small>'+relDay(day)+'</small></div><button class="btn sm" data-act="newon" data-date="'+day+'">'+ic('plus')+' Ajouter</button></div>'+
+ return '<section class="dl'+(opts.inMain?' inmain':'')+'"><div class="dl-h"><div><b>'+cap(fLong(day))+'</b><small>'+relDay(day)+(vacName(day)?' · 🏖 '+esc(vacName(day)):'')+'</small></div><button class="btn sm" data-act="newon" data-date="'+day+'">'+ic('plus')+' Ajouter</button></div>'+
   (rows||'<p class="empty">Rien de prévu ce jour-là.</p>')+
   (opts.openBtn?'<button class="btn blk" data-act="goday" data-date="'+day+'">Ouvrir la journée</button>':'')+'</section>';
 }
@@ -1429,8 +1465,9 @@ function monthViewTitles(fort,pr){
  const rowH=pr?627/rows:Math.max(fs*5,(mainH-fs*2.2)/rows);
  const tab=isTablet();
  const big=pr&&rows<=2;
- const bandH=pr?(big?20:17):fs*(fort?(tab?0.9:0.82):(tab?0.8:0.68))*1.46+1;
- const tFs=fort?(tab?0.86:0.76):(tab?0.74:0.62);
+ const mx=pr?1:(+S.mTxt||1);
+ const bandH=pr?(big?20:17):fs*(fort?(tab?0.9:0.82):(tab?0.8:0.68))*mx*1.46+1;
+ const tFs=(fort?(tab?0.86:0.76):(tab?0.74:0.62))*mx;
  const tlH=pr?(big?20:17):fs*tFs*1.25+1;
  const avail=pr?rowH-26:rowH-fs*1.55;
  let h='<div class="mo2'+(fort?' fort':'')+(pr?' pr':'')+(big?' big':'')+'" style="--rows:'+rows+'"><div class="mo2-h"><span></span>'+weekHead().map(d=>'<span>'+DS[d].replace('.','')+'</span>').join('')+'</div>';
@@ -1451,7 +1488,7 @@ function monthViewTitles(fort,pr){
   const anyT=timed.some(a=>a.length);
   /* bandeaux d'une seule colonne (étroits) : le titre passe sur 2-3 lignes au lieu d'être coupé */
   const cw=pr?(big?96:70):(((($('#main')||{}).clientWidth)||390)-fs*1.5)/7;
-  const bfs0=pr?(big?14:11):fs*(fort?(tab?0.82:0.66):(tab?0.8:0.7));
+  const bfs0=pr?(big?14:11):fs*(fort?(tab?0.82:0.66):(tab?0.8:0.7))*mx;
   /* essais : d'abord taille normale, puis bandeaux compacts ; les bandeaux (multi-jours) passent avant les petits événements */
   const trySearch=(sc,resv)=>{
    const bfs=bfs0*sc,bandHs=bandH*sc;
@@ -1499,7 +1536,7 @@ function monthViewTitles(fort,pr){
   bands.forEach(b=>{
    if(b.lane>=vis){for(let c=b.c0;c<=b.c1;c++)hid[c]++;return}
    const o=b.o,col=evCol(o.ev);
-   fg+='<i class="mband'+hiCls(o.ev)+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc<1?';--bsc:'+best.sc:'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(o.ev.title):evT(o.ev))+'</i>';
+   fg+='<i class="mband'+hiCls(o.ev)+(b.wl>1?' wn':'')+(o.date<ws?' cl':'')+(o.endDate>we?' cr':'')+'" data-date="'+o.date+'" style="grid-row:'+(2+b.lane)+';grid-column:'+(b.c0+2)+' / '+(b.c1+3)+';--c:'+col+';--ink:'+inkOn(col)+(best.sc*mx!==1?';--bsc:'+(best.sc*mx):'')+(b.wl>1?';--wl:'+b.wl:'')+'">'+((best.noIcon||b.ni)&&b.c0===b.c1?esc(b.wl>1?hyText(o.ev.title):o.ev.title):(b.wl>1?evTh(o.ev):evT(o.ev)))+'</i>';
   });
   timed.forEach((arr,c)=>{
    if(!arr.length)return;
@@ -1510,7 +1547,7 @@ function monthViewTitles(fort,pr){
    const shown=Math.min(arr.length,Math.max(0,Math.floor(L/ln)));
    hid[c]+=arr.length-shown;
    if(!shown)return;
-   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml'+hiCls(o.ev)+'" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.hi&4?'★\u00a0':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(o.ev.title)+'</i>').join('')+'</div>';
+   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml'+hiCls(o.ev)+'" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.hi&4?'★\u00a0':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(hyText(o.ev.title))+'</i>').join('')+'</div>';
   });
   hid.forEach((n,c)=>{if(n>0)fg+='<span class="mhid" style="grid-row:1;grid-column:'+(c+2)+'">+'+n+'</span>'});
   let bg='<span class="wn">'+wk+'</span>';
@@ -1531,7 +1568,7 @@ function miniMonth(){
  h+=weekHead().map(d=>'<span class="w">'+DS[d].charAt(0)+'</span>').join('');
  for(let i=0;i<rows*7;i++){
   const d=add(gs,i);const has=list.some(o=>o.date<=d&&o.endDate>=d);
-  h+='<button class="'+(d===t?'today ':'')+(d===V.date?'sel ':'')+(pd(d).getMonth()!==month?'out':'')+'" data-act="selday" data-date="'+d+'">'+pd(d).getDate()+(has?'<i></i>':'')+'</button>';
+  h+='<button class="'+(d===t?'today ':'')+(d===V.date?'sel ':'')+(pd(d).getMonth()!==month?'out':'')+(vacName(d)?' vac':'')+'" data-act="selday" data-date="'+d+'">'+pd(d).getDate()+(has?'<i></i>':'')+'</button>';
  }
  return h+'</div>';
 }
@@ -1583,7 +1620,7 @@ function bannerHTML(){
 
 /* ---------- Rendu principal ---------- */
 function render(){
- OCC.length=0;
+ OCC.length=0;VAC_IDX=null;
  const main=$('#main'),body=$('#body');
  const key=V.view+V.date+(isTablet()?'t':'p')+S.weekMode;
  const prevMain=main.scrollTop,tg=$('#tgw');
@@ -3393,7 +3430,7 @@ const lkLum=h=>{const [r,g,b]=lkRgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:M
 const lkA=(h,a)=>'rgba('+lkRgb(h).join(',')+','+a+')';
 function applyLook(dark){
  const st=document.documentElement.style,cl=document.documentElement.classList;
- const P=['--accent','--on-accent','--accent-soft','--todaybg','--todayc','--bg','--surface','--surface2','--line','--line2','--wec','--holc'];
+ const P=['--accent','--on-accent','--accent-soft','--todaybg','--todayc','--bg','--surface','--surface2','--line','--line2','--wec','--holc','--vacc'];
  P.forEach(p=>st.removeProperty(p));
  if(S.acc){const c=dark?lkMix(S.acc,'#ffffff',.35):S.acc;
   st.setProperty('--accent',c);st.setProperty('--on-accent',lkLum(c)>.5?'#0b1020':'#ffffff');
@@ -3407,6 +3444,7 @@ function applyLook(dark){
   st.setProperty('--line2',dark?lkMix(b,'#ffffff',.08):lkMix(b,'#000000',.06));}
  if(S.weCol)st.setProperty('--wec',lkA(S.weCol,dark?.24:.18));
  st.setProperty('--holc',lkA(dark?'#ff6b5f':'#d92d20',dark?.16:.09));
+ st.setProperty('--vacc',/^#[0-9a-f]{6}$/i.test(S.vacCol||'')?(dark?lkMix(S.vacCol,'#ffffff',.15):S.vacCol):'#f59e0b');
  cl.toggle('dst-big',S.dsty==='big');cl.toggle('dst-circle',S.dsty==='circle');
  const m=$('meta[name=theme-color]');if(m)m.content=dark?(S.bgk&&bg?bg[3]:'#161b22'):(S.acc||'#2f5bea');
 }
@@ -3424,7 +3462,122 @@ function holidaysOf(y){
 }
 const holName=d=>holidaysOf(+d.slice(0,4))[d]||'';
 const isHoliday=d=>!!holName(d);
-function dayCls(d){let c='';const w=dow(d);if(w===0||w===6)c+=' we';if(S.holi&&isHoliday(d))c+=' hol';return c}
+function dayCls(d){let c='';const w=dow(d);if(w===0||w===6)c+=' we';if(S.holi&&isHoliday(d))c+=' hol';if(vacName(d))c+=' vac';return c}
+
+/* ---------- Vacances scolaires (zones A, B, C) : liseré coloré sur les jours de vacances ----------
+   Source facultative : calendrier officiel du ministère de l'Éducation nationale (data.education.gouv.fr, open data).
+   Seule la zone choisie est envoyée. Périodes ajoutées à la main possibles (hors connexion, autre zone, Corse…). */
+const VAC_URL='https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records';
+const K_VAC=P+'vac';
+let VACD=ls.get(K_VAC,null),VAC_IDX=null,VAC_BUSY=false;
+const VAC_COLS=[['#f59e0b','Orange'],['#22c55e','Vert'],['#3b82f6','Bleu'],['#a855f7','Violet'],['#ec4899','Rose'],['#ef4444','Rouge'],['#14b8a6','Turquoise'],['#64748b','Gris']];
+const VAC_ACAD={A:'Besançon, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers',B:'Aix-Marseille, Amiens, Lille, Nancy-Metz, Nantes, Nice, Normandie, Orléans-Tours, Reims, Rennes, Strasbourg',C:'Créteil, Montpellier, Paris, Toulouse, Versailles'};
+function vacPeriods(){
+ const L=[];
+ if(VACD&&VACD.zone===S.vacZone&&Array.isArray(VACD.list))VACD.list.forEach(x=>L.push({a:x.a,b:x.b,n:x.n,off:1}));
+ (Array.isArray(S.vacMan)?S.vacMan:[]).forEach((x,i)=>L.push({a:x.a,b:x.b,n:x.n||'Vacances',i}));
+ return L.filter(x=>RX_D.test(x.a)&&RX_D.test(x.b)&&x.b>=x.a).sort((x,y)=>x.a<y.a?-1:x.a>y.a?1:0);
+}
+function vacIndex(){
+ if(VAC_IDX)return VAC_IDX;
+ const m={};
+ for(const x of vacPeriods()){let d=x.a,k=0;while(d<=x.b&&k<120){if(!m[d])m[d]=x.n;d=add(d,1);k++}}
+ return VAC_IDX=m;
+}
+const vacName=d=>S.vacOn?(vacIndex()[d]||''):'';
+const vacReset=()=>{VAC_IDX=null};
+/* date du jour (heure de Paris) à partir d'une date ISO de l'open data */
+function vacDay(v){
+ const t=String(v||'');if(/^\d{4}-\d{2}-\d{2}$/.test(t))return t;
+ const d=new Date(t);if(isNaN(d))return '';
+ try{const f=new Intl.DateTimeFormat('fr-CA',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);if(RX_D.test(f))return f}catch(e){}
+ return ds(d);
+}
+async function vacFetch(quiet){
+ if(VAC_BUSY)return false;
+ const z=['A','B','C'].includes(S.vacZone)?S.vacZone:'B';
+ const from=(new Date().getFullYear()-1)+'-08-01';
+ const F='description,start_date,end_date,population';
+ const url=VAC_URL+'?select='+encodeURIComponent(F)+'&where='+encodeURIComponent('zones="Zone '+z+'" and end_date>=date\''+from+'\' and population!="Enseignants"')+'&group_by='+encodeURIComponent(F)+'&order_by=start_date&limit=100';
+ VAC_BUSY=true;
+ try{
+  const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json(),seen={},list=[];
+  for(const x of (j.results||[])){
+   const n=String(x.description||'').trim();
+   if(!n||!/vacances|pont/i.test(n)||/^d[ée]but|^fin /i.test(n)||/enseignant/i.test(String(x.population||'')))continue;
+   const a=vacDay(x.start_date),e=vacDay(x.end_date);if(!a||!e)continue;
+   const b=e>a?add(e,-1):a;
+   const key=n+'|'+a;if(seen[key])continue;seen[key]=1;
+   list.push({a,b,n:n.replace(/'/g,'’').slice(0,60)});
+  }
+  if(!list.length)throw new Error('vide');
+  list.sort((x,y)=>x.a<y.a?-1:1);
+  VACD={zone:z,at:Date.now(),list};ls.set(K_VAC,VACD);vacReset();
+  if(!quiet)toast('Vacances scolaires zone '+z+' à jour ('+list.length+' périodes)');
+  return true;
+ }catch(e){
+  if(!quiet)toast('Calendrier officiel indisponible (hors connexion ?). Tu peux ajouter les périodes à la main.',6000);
+  return false;
+ }finally{VAC_BUSY=false;if(V.view==='settings'||!quiet)render()}
+}
+function vacAutoRefresh(){
+ if(!S.vacOn||!S.vacNet||demo)return;
+ const old=!VACD||VACD.zone!==S.vacZone||Date.now()-(VACD.at||0)>30*864e5;
+ if(old&&navigator.onLine!==false)vacFetch(true).then(ok=>{if(ok)render()});
+}
+async function vacEnable(){
+ const r=await ask({title:'🏖 Vacances scolaires',html:'<p style="margin:.3rem 0">Un liseré coloré souligne les jours de vacances scolaires de ta zone (A, B ou C) dans le mois, les 2 semaines et la semaine.</p><p style="margin:.3rem 0"><b>Calendrier officiel</b> : l’appli le télécharge sur <b>data.education.gouv.fr</b> (site du ministère de l’Éducation nationale, gratuit, sans compte). Seule ta zone est envoyée, rien d’autre. Mise à jour automatique une fois par mois.</p><p style="margin:.3rem 0"><b>À la main</b> : tu entres toi-même les dates, l’appli ne contacte personne.</p>',
+  btns:[{label:'Télécharger le calendrier officiel',value:'net',cls:'pri'},{label:'Je saisis les dates moi-même',value:'man'},{label:'Annuler',value:null}]});
+ if(!r){render();return}
+ S.vacOn=1;S.vacNet=r==='net'?1:0;saveSet();vacReset();applyLook(document.documentElement.getAttribute('data-theme')==='dark');
+ if(r==='net')await vacFetch(false);else{render();vacAddMan()}
+}
+async function vacAddMan(i){
+ const cur=i!=null&&S.vacMan&&S.vacMan[i]?S.vacMan[i]:{a:today(),b:add(today(),13),n:'Vacances'};
+ const vals={'vm-n':cur.n,'vm-a':cur.a,'vm-b':cur.b};
+ const p=ask({title:i!=null?'Modifier la période':'Ajouter une période de vacances',html:
+  '<label class="lbl" for="vm-n">Nom</label><input class="in" id="vm-n" maxlength="40" value="'+esc(cur.n)+'" placeholder="Vacances de Noël">'+
+  '<div class="pair" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.5rem 0 .8rem"><div><label class="lbl" for="vm-a">Premier jour</label><input class="in" type="date" id="vm-a" value="'+cur.a+'"></div><div><label class="lbl" for="vm-b">Dernier jour</label><input class="in" type="date" id="vm-b" value="'+cur.b+'"></div></div>'+
+  '<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Dernier jour = la veille de la reprise des cours (souvent un dimanche).</p>',
+  btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=root.onchange=e=>{if(e.target.id)vals[e.target.id]=e.target.value};
+ const r=await p;root.oninput=root.onchange=null;
+ if(r!=='ok')return;
+ const a=vals['vm-a'],b=vals['vm-b'],n=String(vals['vm-n']||'').trim().slice(0,40)||'Vacances';
+ if(!RX_D.test(a)||!RX_D.test(b)||b<a){toast('Dates invalides : le dernier jour doit être après le premier');return vacAddMan(i)}
+ if(diff(a,b)>100){toast('Période trop longue (100 jours maximum)');return vacAddMan(i)}
+ const L=Array.isArray(S.vacMan)?S.vacMan.slice():[];
+ if(i!=null&&L[i])L[i]={a,b,n};else L.push({a,b,n});
+ S.vacMan=L;S.vacOn=1;saveSet();vacReset();render();toast('Période enregistrée');
+}
+function vacCard(){
+ const on=!!S.vacOn,z=S.vacZone||'B',col=S.vacCol||VAC_COLS[0][0];
+ let h='<div class="card" id="vac-card"><h3>🏖 Vacances scolaires</h3>'+
+  '<div class="tgl-row"><b>Liseré sur les jours de vacances</b><label class="tgl"><input type="checkbox" data-chg="vacOn"'+(on?' checked':'')+'></label></div>';
+ if(!on)return h+'<p class="mut" style="margin:.3rem 0 0">Zones A, B ou C, calendrier officiel ou dates saisies à la main, couleur au choix.</p></div>';
+ const zb=k=>'<button data-act="set" data-k="vacZone" data-v="'+k+'" class="'+(z===k?'on':'')+'">Zone '+k+'</button>';
+ h+='<div class="set-row"><span class="lbl">Ma zone</span><div class="seg">'+zb('A')+zb('B')+zb('C')+'</div></div>'+
+  '<p class="mut" style="font-size:.82rem;margin:.1rem 0 .5rem">Zone '+z+' : académies de '+esc(VAC_ACAD[z])+'.</p>'+
+  '<span class="lbl">Couleur du liseré</span><div class="lk-sw">'+VAC_COLS.map(x=>'<button type="button" class="lk-c'+(col===x[0]?' on':'')+'" data-act="set" data-k="vacCol" data-v="'+x[0]+'" style="--c:'+x[0]+'" title="'+x[1]+'" aria-label="'+x[1]+'"></button>').join('')+
+  '<label class="lk-c cust'+(VAC_COLS.some(x=>x[0]===col)?'':' on')+'" title="Autre couleur" aria-label="Autre couleur">＋<input type="color" data-look="vacCol" value="'+col+'"></label></div>'+
+  '<div class="vac-prev">'+['Ven','Sam','Dim','Lun','Mar'].map((w,i)=>'<span class="lk'+(i?' vac':'')+(i===1||i===2?' we':'')+'"><small>'+w+'</small><span class="n">'+(17+i)+'</span></span>').join('')+'</div>';
+ /* source officielle */
+ const has=VACD&&VACD.zone===z&&VACD.list&&VACD.list.length;
+ if(S.vacNet){
+  h+='<div class="set-row"><span class="lbl">Calendrier officiel</span><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">'+(VAC_BUSY?'Téléchargement…':has?'Zone '+z+' : '+VACD.list.length+' périodes, jusqu’au '+esc(fLongY(VACD.list[VACD.list.length-1].b))+'. Mis à jour le '+esc(fmtDate(VACD.at))+'.':'Pas encore téléchargé pour la zone '+z+'.')+'</p>'+
+   '<div class="chips"><button class="chip" data-act="vac-dl">'+ic('down')+' Mettre à jour</button><button class="chip" data-act="vac-net0">Ne plus utiliser</button></div></div>';
+ }else{
+  h+='<div class="set-row"><span class="lbl">Calendrier officiel</span><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">Non utilisé : l’appli ne contacte personne.</p><button class="chip" data-act="vac-net1">'+ic('down')+' Télécharger (data.education.gouv.fr)</button></div>';
+ }
+ /* prochaines périodes */
+ const t=today(),all=vacPeriods(),next=all.filter(x=>x.b>=t).slice(0,6);
+ h+='<span class="lbl">Prochaines vacances</span>'+(next.length?'<div class="vac-l">'+next.map(x=>'<div class="vac-r"><i style="background:'+col+'"></i><span><b>'+esc(x.n)+'</b><small>du '+esc(fLongY(x.a))+' au '+esc(fLongY(x.b))+(x.off?'':' · ajoutée à la main')+'</small></span>'+(x.off?'':'<button class="x" data-act="vac-edit" data-i="'+x.i+'" aria-label="Modifier">'+ic('edit')+'</button><button class="x" data-act="vac-del" data-i="'+x.i+'" aria-label="Supprimer">'+ic('trash')+'</button>')+'</div>').join('')+'</div>':'<p class="mut" style="margin:.2rem 0 .5rem">Aucune période à venir'+(S.vacNet?'':' : télécharge le calendrier officiel ou ajoute tes dates')+'.</p>');
+ h+='<button class="btn blk sm" data-act="vac-add">'+ic('plus')+' Ajouter une période à la main</button>'+
+  '<p class="mut" style="font-size:.8rem;margin:.5rem 0 0">Utile hors connexion, pour une autre zone (garde, grands-parents) ou un pont. Les périodes ajoutées s’ajoutent au calendrier officiel.</p></div>';
+ return h;
+}
+
 function lookCard(seg){
  const sw=(k,list,cur)=>'<div class="lk-sw">'+list.map(x=>'<button type="button" class="lk-c'+((cur||'')===x[0]?' on':'')+'" data-act="set" data-k="'+k+'" data-v="'+x[0]+'" style="--c:'+(x[0]||(k==='acc'?LK_ACC[0][0]:'transparent'))+'" title="'+esc(x[1])+'" aria-label="'+esc(x[1])+'">'+(x[0]||k==='acc'?'':'∅')+'</button>').join('')+'<label class="lk-c cust" title="Autre couleur" aria-label="Autre couleur">＋<input type="color" data-look="'+k+'" value="'+(cur||'#2f5bea')+'"></label></div>';
  const bgs='<div class="chips">'+LK_BG.map(x=>'<button type="button" class="chip'+((S.bgk||'')===x[0]?' on':'')+'" data-act="set" data-k="bgk" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
@@ -3842,7 +3995,7 @@ function cflText(cf,max){
 function dayBarHTML(){
  const m=S.dayMode==='fit'||S.dayMode==='list'?S.dayMode:'grid';
  const b=(k,l)=>'<button data-act="set" data-k="dayMode" data-v="'+k+'" class="'+(m===k?'on':'')+'">'+l+'</button>';
- return '<div class="daybar"><div class="seg">'+b('grid','Heures')+b('fit','Jour entier')+b('list','Liste')+'</div>'+bdDayHTML(V.date)+'</div>';
+ return '<div class="daybar"><div class="seg">'+b('grid','Heures')+b('fit','Jour entier')+b('list','Liste')+'</div>'+bdDayHTML(V.date)+(vacName(V.date)?'<div class="vacb">🏖 '+esc(vacName(V.date))+' · zone '+esc(S.vacZone||'B')+'</div>':'')+'</div>';
 }
 function dayListHTML(){
  const d=V.date,list=occs(d,d),sg=segs(list,d);
@@ -4663,8 +4816,10 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Panneau de droite (iPad paysage, ordinateur)</span>'+seg('side',[[1,'Afficher'],[0,'Masquer']],S.side===0?0:1)+'</div>'+
   '<div class="set-row"><span class="lbl">Couleur des événements</span>'+seg('colBy',[['cat','Catégorie'],['cal','Calendrier Outlook']],S.colBy==='cal'?'cal':'cat')+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Calendrier Outlook » : chaque événement prend la couleur de son calendrier Outlook (à connecter dans Réglages).</p>'+
-  '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div></div>';
+  '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div>'+
+  '<div class="set-row"><span class="lbl">Texte des événements dans le mois</span>'+seg('mTxt',[[0.86,'Petit'],[1,'Normal'],[1.15,'Grand']],S.mTxt||1)+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Petit » affiche plus de lettres par ligne. Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</p></div>';
  h+=lookCard(seg);
+ h+=vacCard();
  h+=sec('s-agenda','Mon agenda');
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
@@ -4925,7 +5080,8 @@ function tick(){
 /* ---------- Actions ---------- */
 function setSetting(k,v){
  S[k]=v;saveSet();
- if(['theme','scale','acc','bgk','weCol','dsty','holi'].includes(k))setTheme();
+ if(['theme','scale','acc','bgk','weCol','dsty','holi','vacCol'].includes(k))setTheme();
+ if(k.indexOf('vac')===0){vacReset();if(k==='vacZone'&&S.vacOn&&S.vacNet)vacFetch(true)}
  render();
 }
 async function act(a,el,e){
@@ -4979,6 +5135,12 @@ async function act(a,el,e){
    const fe=fromStamp(stampOf(sd,st)+(+ds_.m));
    $('#f-ed').value=fe.d;$('#f-et').value=fe.t;
    ED.snap={sd,st,ed:fe.d,et:fe.t};break}
+  case 'vac-dl':vacFetch(false);render();break;
+  case 'vac-net1':S.vacNet=1;saveSet();vacFetch(false);render();break;
+  case 'vac-net0':{const r=await ask({title:'Ne plus utiliser le calendrier officiel ?',text:'Les vacances téléchargées seront retirées. Tes périodes ajoutées à la main restent.',btns:[{label:'Oui, retirer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){S.vacNet=0;saveSet();VACD=null;ls.del(K_VAC);vacReset();render()}break}
+  case 'vac-add':vacAddMan();break;
+  case 'vac-edit':vacAddMan(+ds_.i);break;
+  case 'vac-del':{const x=(S.vacMan||[])[+ds_.i];if(!x)break;const r=await ask({title:'Supprimer cette période ?',text:x.n+' : du '+fLongY(x.a)+' au '+fLongY(x.b),btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){S.vacMan=S.vacMan.filter((_,k)=>k!==+ds_.i);saveSet();vacReset();render()}break}
   case 'set':{const v=ds_.v;setSetting(ds_.k,v==='null'?null:(v!==''&&!isNaN(+v)?+v:v));break}
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
@@ -5085,6 +5247,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
  if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
+ if(t.dataset.chg==='vacOn'){if(t.checked)vacEnable();else setSetting('vacOn',0);return}
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
@@ -5152,6 +5315,7 @@ async function init(){
  setInterval(tick,30000);tick();
  setTimeout(()=>{if(!demo&&!S.mergeDone){S.mergeDone=1;saveSet();const n=mergeLocal();if(n)toast(n+' jour'+(n>1?'s':'')+' identique'+(n>1?'s':'')+' regroupé'+(n>1?'s':'')+' (événements importés)',5000)}},1200);
  setTimeout(olAuto,1500);
+ setTimeout(vacAutoRefresh,2500);
  if(!demo){
   if(!META.seen&&!EV.length){setTimeout(welcome,300);META.ver=APP_VERSION;saveMeta()}
   else if(META.ver!==APP_VERSION)setTimeout(()=>{if(!SHEET_OPEN)whatsNew()},400);
