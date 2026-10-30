@@ -845,12 +845,14 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.7.0';
+const APP_VERSION='2.7.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.7.1',d:'31/10/2026',items:[
+  '🔢 Rejoindre la famille connectée avec un code (ex. K7P4-9QX2), directement dans l’appli de l’écran d’accueil : plus besoin de lien qui s’ouvre dans Safari. Réglages → Famille et contacts → « 🔢 Code d’invitation » pour le donner, « 🔢 Rejoindre avec un code » pour le taper. Valable 7 jours.']},
  {v:'2.7.0',d:'31/10/2026',items:[
   '🔄 Famille connectée : tes listes (tâches, courses, menus, recettes, anniversaires, voyages) se mettent à jour toutes seules chez ta famille, à l’ouverture de l’appli et toutes les minutes quand elle est ouverte. Réglages → Famille et contacts → « Créer notre famille connectée », puis invite tes proches avec le lien. Sans compte.',
   '🔒 Chiffré de bout en bout : le petit serveur ne garde que des données illisibles. La clé ne voyage que dans le lien d’invitation. L’agenda (rendez-vous) reste sur chaque téléphone.']},
@@ -5185,7 +5187,7 @@ function openHelp(hist){
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses rapides','<ul><li><b>⭐ Mes habituels</b> : les articles que tu achètes le plus. Un toucher les ajoute à la liste (un second les retire).</li><li><b>📋 Listes types</b> : « Créer une liste type », colle ta liste depuis Notes. Ensuite un toucher l’ajoute aux courses (tu décoches ce que tu as).</li><li><b>🔁 Refaire mes dernières courses</b> : après « Vider le chariot », ce bouton remet tout ce que tu avais acheté.</li><li>En tapant un article, des suggestions apparaissent. <b>− / +</b> change la quantité.</li><li>En magasin : coche au fur et à mesure, puis « Vider le chariot ». <b>📤 Envoyer les courses</b> (en haut) les envoie à celui ou celle qui fait les courses.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
- h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>, puis <b>👪 Inviter dans la famille</b> : tes proches reçoivent un lien. En le touchant, ils rejoignent la famille (sans compte).</li><li>Ensuite, plus besoin d’envoyer : quand quelqu’un modifie une liste, les autres la reçoivent à l’ouverture de l’appli et toutes les minutes pendant qu’elle est ouverte. Un message indique qui a mis à jour quoi.</li><li><b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li>Tu choisis ce qui est partagé : tâches et courses, repas, anniversaires, voyages. L’agenda reste sur chaque téléphone.</li><li><b>Chiffré de bout en bout</b> : le serveur ne peut pas lire tes listes. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</li><li>iPhone avec l’appli sur l’écran d’accueil : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis 📥 Recevoir.</li></ul>');
+ h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> (une seule personne) : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>.</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> affiche un code de 8 caractères (valable 7 jours), à envoyer par SMS ou à dicter. Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. Pas de compte, et tout se passe dans l’appli (pas dans Safari).</li><li>Ensuite, plus besoin d’envoyer : quand quelqu’un modifie une liste, les autres la reçoivent à l’ouverture de l’appli et toutes les minutes pendant qu’elle est ouverte. Un message indique qui a mis à jour quoi.</li><li><b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li>Tu choisis ce qui est partagé : tâches et courses, repas, anniversaires, voyages. L’agenda reste sur chaque téléphone.</li><li><b>Chiffré de bout en bout</b> : le serveur ne peut pas lire tes listes. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</li><li>Sur iPhone, Safari et l’appli de l’écran d’accueil ne partagent pas leurs données : utilise toujours l’appli de l’écran d’accueil, et le code plutôt qu’un lien.</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -5526,6 +5528,8 @@ async function act(a,el,e){
   case 'me-set':meSet();break;
   case 'fam-inv':inviteFamily();break;
   case 'fam-create':famCreate();break;
+  case 'fam-code':famShowCode();break;
+  case 'fam-code-join':famCodeJoin();break;
   case 'fam-sync':famPull(true);break;
   case 'fam-quit':{const ok=await ask({title:'Quitter la famille connectée ?',text:'Tes listes restent sur ce téléphone, mais elles ne se mettront plus à jour avec la famille.',btns:[{label:'Quitter',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.fam=null;FAM_K=null;saveSet();render()}break}
   case 'tk-ppl':case 'ct-open':contactsManage();break;
@@ -6176,6 +6180,7 @@ async function sharePaste(){
   const v={t:''};const pr=ask({title:'📥 Recevoir un partage',html:'<p style="margin:.2rem 0 .5rem">Colle ici le lien reçu par SMS, WhatsApp ou mail (appui long → Coller).</p><textarea class="in" id="sh-in" rows="4" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Recevoir',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
   const root=$('#dlg');root.oninput=e=>{if(e.target.id==='sh-in')v.t=e.target.value};
   const r=await pr;root.oninput=null;if(r!=='ok')return;
+  if(famCodeNorm(v.t).length===8&&v.t.trim().length<=12){famCodeJoin(v.t);return}
   if(/#fam=/.test(v.t)){const m=v.t.match(/#fam=([A-Za-z0-9_-]+)(?:&by=([^&\s]*))?/);if(m){famJoin(m[1],decodeURIComponent(m[2]||''));return}}
   code=shCode(v.t);if(!code){toast('Ce n’est pas un lien de partage AgenDam',4000);return}
  }
@@ -6201,9 +6206,10 @@ async function meSet(){
 }
 async function inviteFamily(){
  if(!(await ensureMe()))return;
+ let fcode='';if(fam()){try{fcode=await famInvCode()}catch(e){}}
  const me=pplOf(S.meId),name=meName();
  const app=location.origin+location.pathname;
- const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.'+(fam()&&famJoinLink()?'\n\n🔄 Pour rejoindre notre famille connectée (nos listes à jour toutes seules) : une fois l’appli installée, touche ce lien, ou copie-le et colle-le dans l’appli (Réglages → Famille et contacts → 📥 Recevoir) :\n'+famJoinLink():'');
+ const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.'+(fcode?'\n\n🔄 Pour rejoindre notre famille connectée (nos listes à jour toutes seules) : une fois l’appli installée, ouvre-la depuis l’écran d’accueil → Réglages → Famille et contacts → « 🔢 Rejoindre avec un code » et tape : '+famCodeShow(fcode)+' (valable 7 jours).':(fam()&&famJoinLink()?'\n\n🔄 Pour rejoindre notre famille connectée : une fois l’appli installée, touche ce lien :\n'+famJoinLink():''));
  const dest=pplSorted().filter(p=>(p.tel||p.mail)&&p.id!==S.meId);
  const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'WhatsApp, Messages… (autre appli)',value:'share',cls:dest.length?'':'pri'},{label:'Copier le message',value:'copy'},{label:'✏️ Ce n’est pas '+(name||'moi')+' ? Changer le prénom',value:'me'},{label:'Annuler',value:null}]);
  const r=await ask({title:'👪 Inviter ma famille',html:'<p style="margin:.2rem 0 .5rem">Envoie à tes proches le lien de l’appli et les 3 étapes pour l’installer. Ensuite, vous pourrez vous envoyer listes, courses, menus et voyages avec <b>📤 Envoyer</b>.</p><details class="sh-prev"><summary>Voir le message</summary><textarea class="in" rows="8" readonly onfocus="this.select()" style="font-size:.82rem">'+esc(msg)+'</textarea></details>'+(dest.length?'':'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Ajoute d’abord tes proches (avec leur téléphone) dans « Mes contacts » pour leur envoyer un SMS en un geste.</p>'),btns});
@@ -6216,6 +6222,7 @@ async function inviteFamily(){
 function contactsCard(){
  const n=ppl().length;
  return '<div class="card" id="ct-card"><h3>👪 Famille et contacts</h3>'+mrow('fam-inv','👪 Inviter ma famille','Le lien de l’appli et les 3 étapes, par SMS')+mrow('me-set','👤 Ce téléphone est à',meName()||'Choisir qui utilise ce téléphone')+mrow('ct-open','Mes contacts',n?n+' contact'+(n>1?'s':''):'Conjoint(e), enfants, amis… pour distribuer les tâches')+
+  (famUrl()&&!fam()?mrow('fam-code-join','🔢 Rejoindre avec un code','Tu as reçu un code d’invitation à la famille connectée'):'')+
   mrow('sh-recv','📥 Recevoir un partage','Coller un lien reçu par SMS, WhatsApp ou mail')+
   sfold('Comment ça marche ?','Chaque contact a un prénom, un nom, son lien avec toi, un téléphone et un mail. Dans Tâches, tu choisis qui s’occupe de quoi. « 📤 Partager » (Tâches, Anniversaires) envoie un lien par SMS ou mail : la personne le touche et son AgenDam se met à jour, sans doublon. Les données voyagent dans le lien, sans serveur. Sur iPhone avec l’appli installée sur l’écran d’accueil : « copier » sur la page du lien, puis « 📥 Recevoir » dans l’appli.')+'</div>';
 }
@@ -7138,14 +7145,14 @@ async function famKeys(){
  return FAM_K={k:f.k,space,key};
 }
 async function famEnc(obj){
- const K=await famKeys(),iv=crypto.getRandomValues(new Uint8Array(12));
+ const FK=await famKeys(),iv=crypto.getRandomValues(new Uint8Array(12));
  const z=await shZip(obj);
- const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},K.key,new TextEncoder().encode(z)));
+ const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(z)));
  return{c:shB64.enc(c),iv:shB64.enc(iv)};
 }
 async function famDec(o){
- const K=await famKeys();
- const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},K.key,shB64.dec(o.c));
+ const FK=await famKeys();
+ const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
  return shUnzip(new TextDecoder().decode(p));
 }
 function famPack(doc){
@@ -7163,13 +7170,13 @@ async function famPush(){
  const f=fam();if(!f||!famUrl()||FAM_BUSY)return;
  FAM_BUSY=true;
  try{
-  const K=await famKeys();if(!f.sent)f.sent={};
+  const FK=await famKeys();if(!f.sent)f.sent={};
   for(const [doc] of FAM_DOCS){
    if(f.d&&f.d[doc]===0)continue;
    const P=famPack(doc),h=famHash(P);
    if(f.sent[doc]===h)continue;
    const body=await famEnc(P);body.by=meName();
-   const r=await fetch(famUrl()+'/s/'+K.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
    if(!r.ok)throw new Error('Serveur : '+r.status);
    f.sent[doc]=h;
   }
@@ -7180,8 +7187,8 @@ async function famPush(){
 async function famPull(manual){
  const f=fam();if(!f||!famUrl()||demo)return;
  try{
-  const K=await famKeys();
-  const r=await fetch(famUrl()+'/s/'+K.space+'?since='+(f.last||0),{cache:'no-store'});
+  const FK=await famKeys();
+  const r=await fetch(famUrl()+'/s/'+FK.space+'?since='+(f.last||0),{cache:'no-store'});
   if(!r.ok)throw new Error('Serveur : '+r.status);
   const j=await r.json();const got=[];
   for(const d of (j.docs||[])){
@@ -7208,28 +7215,83 @@ async function famCreate(){
  inviteFamily();
 }
 function famJoinLink(){const f=S.fam;return f&&f.k?location.origin+location.pathname+'#fam='+f.k+'&by='+encodeURIComponent(meName()):''}
-async function famJoin(k,by){
+async function famJoin(k,by,viaCode){
  if(!/^[A-Za-z0-9_-]{40,50}$/.test(k))return;
  if(S.fam&&S.fam.k===k&&S.fam.on){toast('Tu fais déjà partie de cette famille connectée');return}
- const iosWeb=isIOS()&&!isStandalone();
+ const iosWeb=!viaCode&&isIOS()&&!isStandalone();
  const btns=[{label:'Rejoindre la famille',value:'y',cls:'pri'}];if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy'});btns.push({label:'Annuler',value:null});
  const r=await ask({title:'🔄 Rejoindre la famille connectée',html:'<p style="margin:.2rem 0 .5rem"><b>'+esc(by||'Quelqu’un')+'</b> t’invite dans sa famille connectée : vos tâches, courses, menus, recettes, anniversaires et voyages se mettront à jour tout seuls entre vous.</p>'+(S.fam&&S.fam.k&&S.fam.on?'<p class="warn" style="margin:.2rem 0 .5rem">Tu fais déjà partie d’une autre famille connectée : tu la quitteras.</p>':'')+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari. Si tu utilises l’appli de l’écran d’accueil : touche « copier », ouvre AgenDam, puis Réglages → Famille et contacts → 📥 Recevoir.</p>':''),btns});
  if(r==='copy'){try{await navigator.clipboard.writeText(location.origin+location.pathname+'#fam='+k+'&by='+encodeURIComponent(by||''));toast('Copié ! Ouvre AgenDam puis 📥 Recevoir',6000)}catch(e){}return}
  if(r!=='y')return;
  S.fam={k,on:1,d:{taches:1,repas:1,anniv:1,voyages:1},last:0,sent:{}};saveSet();FAM_K=null;
+ await famPull(false);
  if(!S.meOk)await ensureMe();
- await famPull(false);await famPush();render();toast('Bienvenue dans la famille connectée 👋',5000);
+ await famPush();render();toast('Bienvenue dans la famille connectée 👋',5000);
 }
 function famCard(){
  const f=S.fam&&S.fam.k?S.fam:null;
  let h='<div class="card" id="fam-card"><h3>🔄 Famille connectée</h3>';
  if(!famUrl())return h+'<p class="mut" style="margin:.2rem 0">Bientôt disponible.</p></div>';
- if(!f||!f.on)return h+'<p class="mut" style="margin:.2rem 0 .6rem">Tes listes se mettent à jour toutes seules chez ta famille, chiffrées de bout en bout. Sans compte.</p><button class="btn pri blk" data-act="fam-create">Créer notre famille connectée</button><p class="mut" style="font-size:.82rem;margin:.4rem 0 0">Quelqu’un t’a déjà invité ? Touche son lien d’invitation, ou « 📥 Recevoir un partage » ci-dessus pour le coller.</p></div>';
+ if(!f||!f.on)return h+'<p class="mut" style="margin:.2rem 0 .6rem">Tes listes se mettent à jour toutes seules chez ta famille, chiffrées de bout en bout. Sans compte.</p><button class="btn pri blk" data-act="fam-code-join">🔢 J’ai reçu un code : rejoindre</button><button class="btn blk" style="margin-top:.5rem" data-act="fam-create">Créer notre famille connectée</button><p class="mut" style="font-size:.82rem;margin:.4rem 0 0">Une seule personne crée la famille, puis donne son code d’invitation aux autres.</p></div>';
  const t=x=>x?fmtDate(x):'jamais';
  h+='<p style="margin:.2rem 0 .4rem">'+(FAM_ERR?'⚠️ <b>Pas de connexion au serveur</b> ('+esc(FAM_ERR)+'). Les changements partiront dès que possible.':'✅ <b>Active</b>')+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Dernière réception : '+esc(t(f.pullAt))+' · dernier envoi : '+esc(t(f.pushAt))+'</p>';
  h+='<span class="lbl">Ce qui est partagé avec la famille</span>'+FAM_DOCS.map(([d,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="famdoc" data-d="'+d+'"'+(f.d&&f.d[d]===0?'':' checked')+'></label></div>').join('');
- h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="fam-inv">👪 Inviter dans la famille</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour maintenant</button><button class="chip" data-act="fam-quit">Quitter</button></div></div>';
+ h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="fam-code">🔢 Code d’invitation</button><button class="chip" data-act="fam-inv">👪 Inviter par SMS</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour maintenant</button><button class="chip" data-act="fam-quit">Quitter</button></div></div>';
  return h;
+}
+/* Code d'invitation : 8 caractères faciles à taper. La clé de la famille est chiffrée avec une clé tirée du code
+   (PBKDF2) et déposée 7 jours sur le serveur, à une adresse elle aussi tirée du code. Le serveur ne voit jamais le code. */
+const FAM_ABC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const famCodeNorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const famCodeShow=c=>c.slice(0,4)+'-'+c.slice(4);
+async function famCodeKeys(code){
+ const te=new TextEncoder();
+ const h=new Uint8Array(await crypto.subtle.digest('SHA-256',te.encode('agendam-invit:'+code)));
+ const id=[...h.slice(0,16)].map(b=>b.toString(16).padStart(2,'0')).join('');
+ const base=await crypto.subtle.importKey('raw',te.encode(code),'PBKDF2',false,['deriveKey']);
+ const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:te.encode('agendam-invitation'),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+ return{id,key};
+}
+async function famInvCode(){
+ const f=fam();if(!f||!famUrl())return '';
+ if(f.ic&&f.icAt&&Date.now()-f.icAt<6*864e5&&f.icK===f.k)return f.ic;
+ const r=crypto.getRandomValues(new Uint8Array(8));let code='';for(const b of r)code+=FAM_ABC[b%FAM_ABC.length];
+ const FK=await famCodeKeys(code),iv=crypto.getRandomValues(new Uint8Array(12));
+ const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify({k:f.k,by:meName()}))));
+ const res=await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:shB64.enc(c),iv:shB64.enc(iv)})});
+ if(!res.ok)throw new Error('Serveur : '+res.status);
+ f.ic=code;f.icAt=Date.now();f.icK=f.k;ls.set(K.set,S);
+ return code;
+}
+async function famCodeJoin(pre){
+ if(!famUrl())return;
+ let code=famCodeNorm(pre||'');
+ if(code.length!==8){
+  const v={t:''};const pr=ask({title:'🔢 Rejoindre avec un code',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2).</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center;text-transform:uppercase;margin-bottom:.6rem">',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='fc-in')v.t=e.target.value};
+  setTimeout(()=>{const i=$('#fc-in');if(i)i.focus()},120);
+  const r=await pr;root.oninput=null;if(r!=='ok')return;
+  code=famCodeNorm(v.t);
+ }
+ if(code.length!==8||[...code].some(ch=>!FAM_ABC.includes(ch))){toast('Ce code ne semble pas bon : 8 caractères, par exemple K7P4-9QX2',5000);return}
+ toast('Recherche de la famille…',2500);
+ try{
+  const FK=await famCodeKeys(code);
+  const res=await fetch(famUrl()+'/i/'+FK.id,{cache:'no-store'});
+  if(res.status===404){toast('Code inconnu ou expiré (7 jours). Demande un nouveau code.',6000);return}
+  if(!res.ok)throw new Error('Serveur : '+res.status);
+  const o=await res.json();
+  const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
+  const d=JSON.parse(new TextDecoder().decode(p));
+  await famJoin(d.k,d.by||'',true);
+ }catch(e){toast('Impossible de rejoindre : '+(e.message||'hors connexion'),5000)}
+}
+async function famShowCode(){
+ let code='';try{code=await famInvCode()}catch(e){toast('Pas de connexion au serveur',4000);return}
+ if(!code)return;
+ const r=await ask({title:'🔢 Code d’invitation',html:'<p style="margin:.2rem 0 .4rem">Dans <b>son appli AgenDam</b> (celle de l’écran d’accueil) : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;margin:.4rem 0 .3rem">'+famCodeShow(code)+'</p><p class="mut" style="font-size:.82rem;margin:0 0 .6rem;text-align:center">Valable 7 jours, pour toute la famille.</p>',btns:[{label:'👪 L’envoyer par SMS…',value:'inv',cls:'pri'},{label:'Copier le code',value:'copy'},{label:'Fermer',value:null}]});
+ if(r==='inv')inviteFamily();
+ if(r==='copy'){try{await navigator.clipboard.writeText(famCodeShow(code));toast('Code copié')}catch(e){}}
 }
 function famHash2(){const h=location.hash||'';const m=h.match(/^#fam=([A-Za-z0-9_-]+)(?:&by=([^&]*))?/);if(!m)return false;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}setTimeout(()=>famJoin(m[1],decodeURIComponent(m[2]||'')),400);return true}
 
