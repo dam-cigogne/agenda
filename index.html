@@ -639,6 +639,8 @@ body.agview .ttl b::after{content:" ▾";font-style:normal;font-size:.7em;color:
 .ck-nav{display:flex;gap:.6rem;margin-top:.6rem}.ck-nav .btn{flex:1;margin:0;font-size:1.15rem;padding:1rem .5rem}
 .chip.bmk{display:inline-flex;text-decoration:none;color:inherit;border-style:dashed;cursor:grab}
 
+.sh-prev{margin:.2rem 0 .6rem}.sh-prev summary{color:var(--accent);font-weight:700;cursor:pointer;margin-bottom:.3rem}
+
 /* Aide à l'adresse */
 .adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
 .adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
@@ -825,12 +827,15 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.5.1';
+const APP_VERSION='2.5.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.5.2',d:'31/10/2026',items:[
+  '📤 Un seul bouton « Envoyer » partout (tâches, courses, menu, recettes, anniversaires, voyages). En haut, tes proches enregistrés dans Famille et contacts : « 💬 SMS à … » en un geste.',
+  'Le message envoyé contient le texte lisible (même sans AgenDam) et le lien qui met à jour l’AgenDam de la personne. Il reste aussi WhatsApp et les autres applis, le fichier Excel (.csv) et « Copier ».']},
  {v:'2.5.1',d:'31/10/2026',items:[
   '🔗 Recettes : « Importer avec un lien » — colle le lien (Marmiton, 750g, Cookidoo…), l’appli ouvre la page et ton favori 📥 AgenDam fait le reste.',
   '📄 Exporter, dans chaque onglet : tes tâches, tes anniversaires, tes recettes (une ou toutes) et tes voyages partent en texte vers Notes, Messages ou un mail (lisible même sans AgenDam), ou en fichier Excel (.csv).']},
@@ -4493,7 +4498,7 @@ function bdHTML(inMain){
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-lock">Verrouiller maintenant</button>';
  if(!inMain)h+='<button class="btn blk" data-act="close">Fermer</button>';
  else h=h.replace('id="bd-list" style="margin:.4rem -1rem 0"','id="bd-list" style="margin:.4rem 0 0"');
- if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Partager les anniversaires (SMS, WhatsApp, mail)</button><button class="btn blk" data-act="ex-bd"'+(bdClean().length?'':' disabled')+'>📄 Exporter la liste (Notes, Excel)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
+ if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Envoyer les anniversaires (SMS, mail, Notes, Excel…)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
  return h;
 }
 
@@ -5139,7 +5144,7 @@ function openHelp(hist){
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Importer un autre calendrier → Chercher les doublons</b>.</li><li>L’appli cherche les événements avec le même titre (emoji, accents et majuscules ignorés), le même jour et la même heure.</li><li>Une liste apparaît : <b>coché = supprimé</b>. L’exemplaire le plus complet (note, lieu, catégorie) est gardé.</li></ul>');
  if(OL_ON)h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
- h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Partager le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
+ h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
@@ -5414,6 +5419,7 @@ async function act(a,el,e){
   case 'vy-print':{const v=vyOf(VY.id);if(v)vyPrint(v);break}
   case 'sh-vy':shareSend('vy',VY.id);break;
   case 'tk-imp':tkImport();break;
+  case 'sh-rcall':shareSend('rc');break;
   case 'ex-tk':exportAny('tk');break;
   case 'ex-bd':exportAny('bd');break;
   case 'ex-rc':exportAny('rc');break;
@@ -5730,7 +5736,7 @@ function tasksView(){
  const chip=(act,k,v,lbl,on)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-k="'+k+'" data-v="'+esc(v)+'">'+lbl+'</button>';
  let h='<div class="tk-wrap"><div class="tk-bar"><div class="chips tk-chips">'+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x).length+'</small>',!TKV.l)+
   L.map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
-  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Partager</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="ex-tk">📄 Exporter</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
+  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  const showList=!TKV.l;
@@ -6000,21 +6006,26 @@ async function shareSend(kind,arg){
  if(kind==='mn'&&!Object.keys(P.mn).length){toast('Le menu de cette semaine est vide');return}
  if(kind==='bd'&&!P.bd.length){toast('Aucun anniversaire à partager');return}
  const code=await shZip(P),url=shUrl(code);
- const txt=(S.me?S.me+' t’envoie':'Voici')+' « '+P.lbl+' » ('+shCount(P)+') pour AgenDam. Touche le lien pour mettre à jour ton appli :';
- const dest=pplSorted().filter(p=>p.tel||p.mail);
- const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id})).concat([{label:'Autre appli (WhatsApp, Messages, mail…)',value:'share',cls:dest.length?'':'pri'},{label:'Copier le lien',value:'copy'},{label:'Annuler',value:null}]);
- if(dest.length)btns[0].cls='pri';
+ const D=expData(kind,arg)||{title:P.lbl,txt:'',csv:'',file:'agendam'};
+ const intro=(meName()?meName()+' t’envoie':'Voici')+' « '+P.lbl+' »';
+ const short=D.txt.length>700?D.txt.slice(0,700).replace(/\n[^\n]*$/,'')+'\n…':D.txt;
+ const msg=intro+(short?' :\n\n'+short:'.')+'\n\n📲 Pour l’ajouter dans ton AgenDam, touche ce lien :\n'+url;
+ const dest=pplSorted().filter(p=>(p.tel||p.mail)&&p.id!==S.meId);
+ const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'WhatsApp, Messages, mail… (autre appli)',value:'share',cls:dest.length?'':'pri'},{label:'Fichier Excel (.csv)',value:'csv'},{label:'Copier le message',value:'copy'},{label:'Annuler',value:null}]);
  const big=url.length>6000;
- const r=await ask({title:'📤 Partager',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.lbl)+'</b> · '+esc(shCount(P))+'</p><p class="mut" style="margin:0 0 .6rem;font-size:.85rem">La personne touche le lien et son AgenDam se met à jour : ce qui est nouveau est ajouté, ce qui a changé est mis à jour, rien n’est en double. Les données sont dans le lien lui-même, elles ne passent par aucun serveur.'+(big?'<br><b>Lien long</b> : préfère WhatsApp ou le mail, un SMS risque de le couper.':'')+(dest.length?'':'<br>Astuce : ajoute le téléphone de tes proches dans « 👪 Famille » pour leur envoyer en un geste.')+'</p>',btns});
+ const r=await ask({title:'📤 Envoyer « '+P.lbl+' »',html:'<p style="margin:.2rem 0 .4rem">'+esc(shCount(P))+'. Le message contient <b>le texte lisible</b> (même sans AgenDam) et <b>un lien</b> : en le touchant, la personne l’ajoute dans son AgenDam, sans doublon.'+(big?' <b>Liste longue</b> : préfère WhatsApp ou le mail, un SMS risque de la couper.':'')+'</p>'+
+  (dest.length?'':'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Astuce : ajoute le téléphone de tes proches dans Réglages → Famille et contacts : un bouton « SMS à… » apparaîtra ici.</p>')+
+  '<details class="sh-prev"><summary>Voir le message</summary><textarea class="in" rows="6" readonly onfocus="this.select()" style="font-size:.82rem">'+esc(msg)+'</textarea></details>',btns});
  if(!r)return;
  const go=href=>{const a=document.createElement('a');a.href=href;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)};
  if(r.indexOf('to:')===0){const p=pplOf(r.slice(3));if(!p)return;
-  if(p.tel)go('sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(txt+' '+url));
-  else go('mailto:'+encodeURIComponent(p.mail)+'?subject='+encodeURIComponent('AgenDam : '+P.lbl)+'&body='+encodeURIComponent(txt+'\n'+url));
+  if(p.tel)go('sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(msg));
+  else go('mailto:'+encodeURIComponent(p.mail)+'?subject='+encodeURIComponent('AgenDam : '+P.lbl)+'&body='+encodeURIComponent(msg));
   return}
- if(r==='share'&&navigator.share){try{await navigator.share({title:'AgenDam : '+P.lbl,text:txt,url});return}catch(e){if(e&&e.name==='AbortError')return}}
- try{await navigator.clipboard.writeText(url);toast('Lien copié : colle-le dans un message',4000)}
- catch(e){await ask({title:'Copie le lien',html:'<textarea class="in" rows="4" readonly onfocus="this.select()">'+esc(url)+'</textarea>',btns:[{label:'Fermer',value:null}]})}
+ if(r==='csv'){if(!D.csv){toast('Pas de fichier Excel pour cet envoi');return}const name=D.file+'-agendam.csv',body='\ufeff'+D.csv;const ok=await shareFile(name,'text/csv',body);if(ok==='cancel')return;if(!ok)downloadFile(name,'text/csv',body);return}
+ if(r==='share'&&navigator.share){try{await navigator.share({title:'AgenDam : '+P.lbl,text:msg});return}catch(e){if(e&&e.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(msg);toast('Message copié : colle-le où tu veux',4000)}
+ catch(e){await ask({title:'Copie le message',html:'<textarea class="in" rows="6" readonly onfocus="this.select()">'+esc(msg)+'</textarea>',btns:[{label:'Fermer',value:null}]})}
 }
 /* fusion : stats seules (apply=false) ou application */
 function shMerge(P,apply){
@@ -6214,14 +6225,14 @@ function menuHTML(){
   const slot=(k,l)=>{const x=day[k],p=x&&pplOf(x.w);return '<button class="rp-sl'+(x&&mealTxt(x)?'':' empty')+'" data-act="rp-meal" data-d="'+d+'" data-k="'+k+'"><small>'+l+'</small><b>'+(x&&mealTxt(x)?esc(mealTxt(x)):'+ Ajouter')+'</b>'+(x&&(p||x.p)?'<em>'+(p?'<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>':'')+(x.p?' · '+x.p+' pers.':'')+'</em>':'')+'</button>'};
   h+='<section class="rp-day'+(d===t?' today':'')+'"><div class="rp-dh">'+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="rp-2">'+slot('m','Midi')+slot('s','Soir')+'</div></section>';
  }
- h+='<div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Partager le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
+ h+='<div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Envoyer le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
  return h;
 }
 function rcListHTML(){
  const q=norm(RV.q||'').trim();
  const L=rcAll().filter(r=>(!RV.tag||(r.tags||[]).includes(RV.tag))&&(!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')).includes(q))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
  const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))];
- let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><div class="chips" style="margin:-.1rem 0 .5rem"><button class="chip" data-act="rc-link">🔗 Importer avec un lien</button><button class="chip" data-act="rc-site">🌐 Bouton « AgenDam » pour les sites</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="ex-rc">📄 Exporter</button></div>'+
+ let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><div class="chips" style="margin:-.1rem 0 .5rem"><button class="chip" data-act="rc-link">🔗 Importer avec un lien</button><button class="chip" data-act="rc-site">🌐 Bouton « AgenDam » pour les sites</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="sh-rcall">📤 Envoyer mes recettes</button></div>'+
   '<input class="in" id="rc-q" type="search" placeholder="Chercher : nom, ingrédient, « rapide »…" value="'+esc(RV.q)+'" autocomplete="off">'+
   (used.length?'<div class="chips tk-chips" style="margin:.4rem 0"><button class="chip'+(RV.tag?'':' on')+'" data-act="rc-tag" data-v="">Toutes</button>'+used.map(t=>'<button class="chip'+(RV.tag===t?' on':'')+'" data-act="rc-tag" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'</div>':'');
  h+='<div id="rc-list">'+(L.length?L.map(r=>'<button class="rc-r" data-act="rc-open" data-id="'+esc(r.id)+'"><span class="rc-i">'+esc(r.ic||'🍽️')+'</span><span class="rc-x"><b>'+(r.fav?'⭐ ':'')+esc(r.t)+'</b><small>'+[r.tm?r.tm+' min':'',r.pp?r.pp+' pers.':'',(r.ing||[]).length+' ingrédient'+((r.ing||[]).length>1?'s':''),(r.tags||[]).join(', ')].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide. Ajoute-en une, ou colle une recette copiée depuis Notes, un site ou un message.')+'</p>')+'</div>';
@@ -6285,7 +6296,7 @@ function rcOpen(id){
  h+='<button class="btn pri blk" data-act="ck-open" data-id="'+esc(id)+'">👩‍🍳 Mode cuisine (plein écran)</button><button class="btn blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
  if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3><ol class="rc-st">'+r.st.map(x=>'<li>'+tmMark(x)+'</li>').join('')+'</ol>';
  h+='<div class="btns" style="margin-top:.6rem"><button class="btn grow" data-act="rc-plan" data-id="'+esc(id)+'">📅 Mettre au menu</button><button class="btn grow" data-act="rc-fav" data-id="'+esc(id)+'">'+(r.fav?'★ Favori':'☆ Favori')+'</button></div>'+
-  '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Partager</button></div><button class="btn blk" data-act="ex-rc1" data-id="'+esc(id)+'">📄 Exporter le texte (Notes, Messages)</button>'+
+  '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Envoyer</button></div>'+
   '<button class="btn dng blk" data-act="rc-del" data-id="'+esc(id)+'">'+ic('trash')+' Supprimer la recette</button>';
  openSheet(h);
 }
@@ -6542,7 +6553,7 @@ function vyDetailHTML(v){
   '<div class="vy-hd"><span class="vy-i">'+esc(v.ic||'🧳')+'</span><div><b>'+esc(v.t)+'</b><small>'+(v.a?esc(fLongY(v.a))+(v.b&&v.b!==v.a?' → '+esc(fLongY(v.b)):''):'Dates à choisir')+(v.lieu?' · '+esc(v.lieu):'')+'</small></div><button class="ib" data-act="vy-edit" aria-label="Modifier le voyage">'+ic('edit')+'</button></div>'+
   '<div class="seg rp-seg">'+sg('li','Listes'+(n?' '+x+'/'+n:''))+sg('pg','Programme')+sg('rp','Repas')+sg('in','Infos')+'</div>';
  if(VY.tab==='pg')h+=vyProgHTML(v);else if(VY.tab==='rp')h+=vyMealsHTML(v);else if(VY.tab==='in')h+=vyInfoHTML(v);else h+=vyListsHTML(v);
- h+='<div class="chips" style="margin:.8rem 0"><button class="chip" data-act="sh-vy">📤 Partager le voyage</button><button class="chip" data-act="vy-print">'+ic('print')+' Imprimer les listes</button><button class="chip" data-act="ex-vy">📄 Exporter</button><button class="chip" data-act="vy-del">'+ic('trash')+' Supprimer</button></div></div>';
+ h+='<div class="chips" style="margin:.8rem 0"><button class="chip" data-act="sh-vy">📤 Envoyer le voyage</button><button class="chip" data-act="vy-print">'+ic('print')+' Imprimer les listes</button><button class="chip" data-act="vy-del">'+ic('trash')+' Supprimer</button></div></div>';
  return h;
 }
 function vyListsHTML(v){
@@ -6911,6 +6922,17 @@ function expData(kind,arg){
   const txt=L.map(l=>l.n+'\n'+sel.filter(k=>k.l===l.id).map(k=>(k.x?'☑ ':'☐ ')+k.t+(k.d?' ('+fShort(k.d)+')':'')+(pplOf(k.w)?' – '+pplOf(k.w).n:'')).join('\n')).join('\n\n');
   const csv=['Liste;Tâche;Date;Qui;Revient;Fait'].concat(sel.map(k=>[tlOf(k.l).n,k.t,k.d||'',pplOf(k.w)?pplName(pplOf(k.w)):'',k.r?tkRepTxt(k.r):'',k.x?'oui':''].map(csvC).join(';'))).join('\n');
   return{title:TKV.l?tlOf(TKV.l).n:'Tâches',txt,csv,n:sel.length,file:'taches'};
+ }
+ if(kind==='co'){
+  const L=tkAll().filter(k=>k.l==='courses'&&!k.x);
+  const txt=RAYONS.map(r=>{const l=L.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]);return l.length?r[1]+'\n'+l.map(k=>'☐ '+k.t).join('\n'):''}).filter(Boolean).join('\n\n');
+  const csv=['Rayon;Article'].concat(L.map(k=>[rayLbl(k.ry||rayOf(k.ig?k.ig.n:k.t)).replace(/^\S+\s/,''),k.t].map(csvC).join(';'))).join('\n');
+  return{title:'Liste de courses',txt,csv,n:L.length,file:'courses'};
+ }
+ if(kind==='mn'){
+  const ws=rwStart(),rows=[];
+  for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d]||{};if(mealTxt(x.m)||mealTxt(x.s))rows.push([cap(DL[dow(d)])+' '+pd(d).getDate(),mealTxt(x.m),mealTxt(x.s)])}
+  return{title:'Menu de la semaine du '+fShort(ws),txt:rows.map(r=>r[0]+' : '+[r[1]?'midi '+r[1]:'',r[2]?'soir '+r[2]:''].filter(Boolean).join(' · ')).join('\n'),csv:['Jour;Midi;Soir'].concat(rows.map(r=>r.map(csvC).join(';'))).join('\n'),n:rows.length,file:'menu'};
  }
  if(kind==='bd'){
   const L=bdClean().slice().sort((a,b)=>a.m-b.m||a.d-b.d);
