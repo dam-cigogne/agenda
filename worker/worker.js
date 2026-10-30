@@ -36,6 +36,25 @@ export default {
       }
       return json(req, { error: 'méthode' }, 405);
     }
+    // Lire une recette sur un site (Marmiton, 750g…) : on ne renvoie que la recette trouvée (données schema.org), jamais la page
+    if (url.pathname === '/recette' && req.method === 'GET') {
+      const u = url.searchParams.get('u') || '';
+      if (!/^https?:\/\/[^\s]{4,2000}$/.test(u)) return json(req, { error: 'lien' }, 400);
+      let r;
+      try { r = await fetch(u, { headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1', 'Accept': 'text/html,application/xhtml+xml', 'Accept-Language': 'fr-FR,fr;q=0.9' }, redirect: 'follow' }) } catch (e) { return json(req, { error: 'injoignable' }, 502) }
+      if (!r.ok) return json(req, { error: 'page ' + r.status }, 502);
+      const html = (await r.text()).slice(0, 3000000);
+      const found = []; const re = /<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi; let mm;
+      while ((mm = re.exec(html))) { try { found.push(JSON.parse(mm[1].trim())) } catch (e) { } }
+      let rec = null;
+      const f = x => { if (!x || rec) return; if (Array.isArray(x)) return x.forEach(f); if (x['@graph']) f(x['@graph']); const t = x['@type']; if (t === 'Recipe' || (Array.isArray(t) && t.includes('Recipe'))) rec = x };
+      found.forEach(f);
+      const title = ((html.match(/<title[^>]*>([^<]*)/i) || [])[1] || '').trim().slice(0, 200);
+      if (!rec) return json(req, { error: 'pas de recette', title }, 404);
+      const k = ['name', 'recipeYield', 'totalTime', 'cookTime', 'prepTime', 'recipeIngredient', 'recipeInstructions', 'recipeCategory'];
+      const out = {}; for (const x of k) if (rec[x] != null) out[x] = rec[x];
+      return json(req, { recipe: out, url: r.url });
+    }
     const m = url.pathname.match(/^\/s\/([0-9a-f]{32})(?:\/([a-z0-9-]{1,40}))?$/);
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille' });
     if (!m) return json(req, { error: 'adresse inconnue' }, 404);
