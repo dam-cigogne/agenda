@@ -2,7 +2,7 @@
  "id": "/agenda/",
  "name": "AgenDam · emploi du temps simple et lisible",
  "short_name": "AgenDam",
- "description": "AgenDam, l’organisateur de la famille : agenda, tâches, anniversaires, repas et voyages, à partager par SMS. Gratuit, sans publicité, aucune donnée collectée.",
+ "description": "L’organisateur de la famille : agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans publicité, sans compte.",
  "lang": "fr",
  "dir": "ltr",
  "start_url": "./",
@@ -89,32 +89,60 @@
  ],
  "screenshots": [
   {
-   "src": "screenshots/v2-agenda.png",
-   "sizes": "585x1266",
-   "type": "image/png",
-   "form_factor": "narrow",
-   "label": "Agenda"
-  },
-  {
-   "src": "screenshots/v2-taches.png",
+   "src": "screenshots/v3-taches.png",
    "sizes": "585x1266",
    "type": "image/png",
    "form_factor": "narrow",
    "label": "Tâches"
   },
   {
-   "src": "screenshots/v2-menu.png",
+   "src": "screenshots/v3-courses.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Courses"
+  },
+  {
+   "src": "screenshots/v3-listetype.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Ma liste type"
+  },
+  {
+   "src": "screenshots/v3-suivi.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Suivi des tâches"
+  },
+  {
+   "src": "screenshots/v3-carte.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Carte d’anniversaire"
+  },
+  {
+   "src": "screenshots/v3-menu.png",
    "sizes": "585x1266",
    "type": "image/png",
    "form_factor": "narrow",
    "label": "Menu de la semaine"
   },
   {
-   "src": "screenshots/v2-voyage.png",
+   "src": "screenshots/v3-voyage.png",
    "sizes": "585x1266",
    "type": "image/png",
    "form_factor": "narrow",
    "label": "Voyage"
+  },
+  {
+   "src": "screenshots/v3-ipad-courses.png",
+   "sizes": "1180x820",
+   "type": "image/png",
+   "form_factor": "wide",
+   "label": "Courses sur tablette"
   }
  ]
 }

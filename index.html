@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>AgenDam · emploi du temps simple et lisible</title>
-<meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : vues jour, semaine et mois, rappels, import/export .ics. Aucune donnée collectée, tout reste sur votre appareil.">
+<title>AgenDam · l’organisateur de la famille</title>
+<meta name="description" content="AgenDam, l’organisateur de la famille : agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans publicité, sans compte.">
 <meta name="theme-color" content="#2f6fb3">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
@@ -14,8 +14,8 @@
 <meta name="apple-mobile-web-app-title" content="AgenDam">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AgenDam – emploi du temps simple et lisible">
-<meta property="og:description" content="Mois lisible d’un coup d’œil, rotations de travail, emojis au choix, Outlook, Excel, impression. Gratuit, sans publicité, aucune donnée collectée.">
+<meta property="og:title" content="AgenDam – l’organisateur de la famille">
+<meta property="og:description" content="Agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans pub, sans compte.">
 <meta property="og:image" content="https://dam-cigogne.github.io/agenda/apercu.png">
 <meta property="og:url" content="https://dam-cigogne.github.io/agenda/">
 <meta name="twitter:card" content="summary_large_image">
@@ -656,6 +656,7 @@ body.cansend .sendbtn{display:inline-flex}
 .tk-sh{margin:.8rem 0 .2rem}
 .tk-ev{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;background:var(--surface);border:1px solid var(--line2);border-radius:.7rem;margin:.3rem 0}.tk-ev.ar{opacity:.7}
 .tk-evc{color:#fff;background:var(--k-tk);border-radius:.4rem;width:1.5rem;height:1.5rem;display:grid;place-items:center;font-weight:900;flex:none;font-size:.85rem}
+.tk-evb{display:flex;gap:.25rem;flex:none}.tk-evb .chip{padding:.25rem .5rem}
 .tk-evt{flex:1;min-width:0}.tk-evt>b{display:block}.tk-evt small{display:block;color:var(--muted);font-size:.82rem}.tk-evt .tk-evn{color:var(--text)}
 .fam-grp{border:1px solid var(--line2);border-radius:.9rem;padding:.5rem .7rem .4rem;margin:.6rem 0;background:var(--surface)}
 .fam-gh{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.2rem}.fam-gh>b{font-size:1.05rem}.fam-gh>small{color:var(--muted)}.fam-gh .sp1{flex:1}
@@ -909,12 +910,16 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.12.0';
+const APP_VERSION='2.12.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.12.1',d:'31/10/2026',items:[
+  '📑 Listes sur le côté : la rangée de boutons en haut de Tâches est réduite (prénoms + « ⋯ Plus »), le Suivi ne répète plus les listes : plus de place pour les tâches.',
+  '🗑 Suivi : chaque ligne peut être supprimée définitivement, et « Supprimer les tâches archivées » fait le ménage d’un coup.',
+  '🎬 Mode démo complet : tâches, courses, recettes, menu, anniversaires et voyage d’exemple.']},
  {v:'2.12.0',d:'31/10/2026',items:[
   '👥 Une tâche peut être confiée à plusieurs personnes : la première qui la fait la coche.',
   '✓ Qui a fait quoi : quand quelqu’un coche une tâche, son prénom et l’heure s’affichent (« ✓ par Morgann 31 oct. 18:30 »). Après avoir coché : « 📝 Ajouter une note » (ex. « fait avec Paul »).',
@@ -1332,7 +1337,7 @@ if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
 let EV=[];
 let demo=false;
-const saveSet=()=>{ls.set(K.set,S);if(typeof famSchedule==='function')famSchedule()};
+const saveSet=()=>{if(demo)return;ls.set(K.set,S);if(typeof famSchedule==='function')famSchedule()};
 const saveMeta=()=>{if(!demo)ls.set(K.meta,META)};
 const saveData=()=>{if(demo)return true;const ok=ls.set(K.data,{v:1,events:EV});if(!ok)toast('⚠️ Enregistrement impossible (stockage plein ou bloqué)');else msSchedule();return ok};
 function touch(){saveData();if(!demo){if(!META.dirtySince)META.dirtySince=Date.now();saveMeta()}}
@@ -2590,7 +2595,7 @@ async function rotDel(id){
 
 /* ---------- Guide, installation, fiche à partager (Réglages) ---------- */
 const FICHE_IMGS=[['affiches/affiche-claire.png','Affiche claire'],['affiches/affiche-sombre.png','Affiche sombre'],['affiches/affiche-appli.png','Affiche avec l’appli'],['apercu.png','Carte d’aperçu',1]];
-const FICHE_TXT='AgenDam : un emploi du temps simple et lisible, en gros caractères. Jour, semaine, 2 semaines, mois, rotations de travail sur mesure, impression en une page, envoi vers ton calendrier. Gratuit, sans publicité, aucune donnée collectée : tout reste sur ton téléphone.';
+const FICHE_TXT='AgenDam : l’organisateur de la famille, comme un carnet. Agenda, tâches (qui a fait quoi), courses, repas et recettes, anniversaires avec cartes, voyages. Partagés en direct avec ta famille et tes amis : chacun choisit ce qu’il partage, chiffré de bout en bout. Gratuit, sans publicité, sans compte.';
 const ficheBase=()=>new URL('./',location.href).href;
 function guideCard(){
  return '<div class="card"><h3>Guide d’utilisation</h3>'+
@@ -2866,7 +2871,7 @@ async function importSheet(file){
  const pk=await pickImport({title:'Importer le tableau',intro:'Décoche ce que tu ne veux pas dans AgenDam.',items:st.fresh.map(e=>({e,upd:false}))});
  if(!pk||!pk.length)return;
  const chosen=pk.map(x=>x.e);
- if(demo)demo=false;
+ if(demo)demoOff();
  const made=resolveCats(chosen,st.create);
  const out=chosen.map(e=>{const x=Object.assign({},e);delete x._cat;return cleanEvent(x)}).filter(Boolean);
  EV.push(...out);touch();render();
@@ -5367,8 +5372,38 @@ function demoData(){
   e({title:'Appel aux parents',icon:'📞',cat:'famille',start:today(),end:today(),startTime:'20:00',endTime:'20:30'})
  ].filter(Boolean);
 }
-function enterDemo(){demo=true;EV=demoData();V.date=today();render();toast('Mode démo : rien n’est enregistré')}
-function exitDemo(){demo=false;loadData();V.date=today();render()}
+/* Mode démo : des données fictives dans tous les onglets, rien n'est enregistré ni partagé */
+let REAL_S=null;
+function demoSettings(){
+ const t=today(),mon=mondayOf(t,1),D=n=>add(mon,n),now=Date.now(),H=h=>now-h*36e5;
+ const ppl=[{id:'d-alex',n:'Alex',rel:'conj',c:'#2563eb'},{id:'d-lea',n:'Léa',rel:'enf',c:'#db2777'},{id:'d-tom',n:'Tom',rel:'enf',c:'#16a34a'},{id:'d-cam',n:'Camille',rel:'ami',c:'#ea580c'}];
+ const tl=[{id:'maison',n:'Maison',i:'🏠'},{id:'courses',n:'Courses',i:'🛒'},{id:'perso',n:'Perso',i:'📝'},{id:'d-trav',n:'Travail',i:'💼'},{id:'d-marche',n:'Marché',i:'🛒',co:1}];
+ const tk=[
+  {id:'d1',t:'Sortir les poubelles',l:'maison',ws:['d-lea','d-tom'],w:'d-lea',r:{f:'w',i:1},d:add(t,1),h:[{a:H(160),b:'Tom'},{a:H(330),b:'Léa',n:'Et le carton aussi'}],m:now},
+  {id:'d2',t:'Arroser les plantes',l:'maison',ws:['d-alex'],w:'d-alex',d:t,m:now},
+  {id:'d3',t:'Rendre les livres à la bibliothèque',l:'perso',d:add(t,2),m:now},
+  {id:'d4',t:'Appeler le plombier',l:'maison',ws:['d-alex'],w:'d-alex',x:true,xa:H(3),xb:'Alex',xn:'Il passe jeudi à 9 h',m:now},
+  {id:'d5',t:'Préparer le devis client',l:'d-trav',d:add(t,1),m:now},
+  {id:'d6',t:'Réserver la salle de réunion',l:'d-trav',x:true,xa:H(26),xb:'Camille',m:now},
+  {id:'d7',t:'Vider le lave-vaisselle',l:'maison',ws:['d-lea','d-tom'],w:'d-lea',x:true,xa:H(1),xb:'Léa',m:now}];
+ const co=[['Pain','bo'],['Lait','cr'],['Œufs','cr'],['Pommes','fl'],['Tomates','fl'],['Pâtes','ep'],['Café','ep'],['Lessive','hy']];
+ co.forEach(([n,ry],i)=>tk.push({id:'dc'+i,t:n,l:'courses',ig:{q:null,u:'',n},ry,x:i===7,xa:i===7?H(1):0,m:now}));
+ [['Fraises','fl'],['Fromage de chèvre','cr'],['Miel','ep']].forEach(([n,ry],i)=>tk.push({id:'dm'+i,t:n,l:'d-marche',ig:{q:null,u:'',n},ry,m:now}));
+ const cat=['Ail','Bananes','Beurre','Biscottes','Café','Carottes','Céréales','Chips','Compote','Confiture','Courgettes','Crème fraîche','Dentifrice','Eau gazeuse','Éponges','Farine','Fromage râpé','Huile d’olive','Jambon','Jus d’orange','Lait','Lessive','Miel','Moutarde','Œufs','Oignons','Pain','Papier toilette','Pâtes','Poivre','Pommes','Poulet','Riz','Salade','Saumon','Sel','Shampoing','Sucre','Thé','Tomates','Yaourts'];
+ const coH={};cat.forEach((n,i)=>{coH[coKey(n)]={n,u:'',q:null,ry:rayOf(n),c:(i*7)%11+1,at:now-i*1e6}});
+ const rc=[
+  {id:'dr1',t:'Lasagnes maison',ic:'🍝',pp:6,tm:75,tags:['Plat'],ing:[{q:12,u:'',n:'feuilles de lasagne'},{q:500,u:'g',n:'bœuf haché'},{q:800,u:'g',n:'coulis de tomate'},{q:50,u:'cl',n:'béchamel'},{q:150,u:'g',n:'fromage râpé'}],st:['Faire revenir la viande avec un oignon.','Ajouter le coulis, laisser mijoter 20 min.','Alterner pâtes, sauce et béchamel.','Parsemer de fromage, cuire 40 min à 180 °C.'],m:now,fav:true},
+  {id:'dr2',t:'Soupe de légumes au Thermomix',ic:'🥣',pp:4,tm:30,tags:['Thermomix','Soupe','Rapide'],ing:[{q:3,u:'',n:'carottes'},{q:2,u:'',n:'pommes de terre'},{q:1,u:'',n:'poireau'},{q:80,u:'cl',n:'eau'},{q:1,u:'',n:'cube de bouillon'}],st:['Mettre les légumes en morceaux, 5 sec/vitesse 5.','Ajouter l’eau et le bouillon, 25 min/100°C/vitesse 1.','Mixer 1 min/vitesse 10.'],m:now},
+  {id:'dr3',t:'Crêpes',ic:'🥞',pp:4,tm:20,tags:['Dessert','Enfants'],ing:[{q:250,u:'g',n:'farine'},{q:4,u:'',n:'œufs'},{q:50,u:'cl',n:'lait'},{q:1,u:'',n:'pincée de sel'}],st:['Mélanger la farine et les œufs.','Ajouter le lait petit à petit.','Laisser reposer 1 h, puis cuire.'],m:now}];
+ const mn={};[['dr1','m'],['dr2','s'],['','m','Poisson et riz'],['dr3','s'],['','m','Salade composée'],['','s','Pizza maison'],['dr1','m']].forEach((x,i)=>{const d=D(i);mn[d]=mn[d]||{};mn[d][x[1]]=x[0]?{r:x[0],t:'',w:'',p:4,mt:now}:{r:'',t:x[2],w:'',p:4,mt:now}});
+ const td=pd(t),bd=[{id:'db1',n:'Léa',d:td.getDate(),m:td.getMonth()+1,y:td.getFullYear()-9,mt:now,g:['Livre de dessin','Pull rose']},{id:'db2',n:'Mamie Jeanne',d:14,m:2,y:1948,mt:now},{id:'db3',n:'Camille',d:3,m:6,y:1990,mt:now},{id:'db4',n:'Tom',d:22,m:9,y:2018,mt:now},{id:'db5',n:'Oncle Paul',d:8,m:12,mt:now},{id:'db6',n:'Alex',d:27,m:4,y:1986,mt:now}];
+ const a=add(t,20),vy=[{id:'dv1',t:'Vacances en Bretagne',ic:'🌊',a,b:add(a,6),lieu:'Quiberon',m:now,ls:[{id:'dvl1',n:'Valise',i:'🧳',it:['Maillots de bain','Crème solaire','Pulls','Chargeurs','Trousse de toilette'].map((x,i)=>({id:'dvi'+i,t:x,x:i<2}))},{id:'dvl2',n:'Maison avant de partir',i:'🏠',it:['Fermer les volets','Vider le frigo','Arroser les plantes'].map((x,i)=>({id:'dvj'+i,t:x,x:false}))}],pg:{[a]:{ma:'Route et installation',ap:'Plage'},[add(a,1)]:{ma:'Marché du port',ap:'Balade à vélo'}},in:{adr:'Location « Les Mouettes », Quiberon',no:'Clés chez la voisine'}}];
+ return{ppl,tl,tk,coH,coT:[{id:'dt1',n:'Apéro',it:['Chips','Olives','Jus de fruits','Saucisson']}],rc,mn,bd,vy,me:'Sam',meOk:1,meId:'',coLid:'courses',fams:[],forg:{}};
+}
+function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;EV=demoData()}
+function demoOff(){if(!demo)return;demo=false;if(REAL_S){S=REAL_S;REAL_S=null}}
+function enterDemo(){demoOn();V.date=today();render();toast('Mode démo : rien n’est enregistré')}
+function exitDemo(){demoOff();loadData();V.date=today();render()}
 
 /* ---------- Sauvegarde, restauration, .ics ---------- */
 document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='s-opt')V.optOpen=e.target.open},true);
@@ -5400,7 +5435,7 @@ async function restoreFile(file){
  const r=await ask({title:'Restaurer la sauvegarde',html:'<p style="margin:.3rem 0">'+b.events.length+' événement'+(b.events.length>1?'s':'')+(b.exportedAt?' · créée le '+fmtDate(Date.parse(b.exportedAt)):'')+'.</p><p class="hint">« Remplacer » efface l’agenda actuel de cet appareil. « Fusionner » ajoute ce qui manque.</p>',
   btns:[{label:'Remplacer mon agenda',value:'replace',cls:'pri'},{label:'Fusionner',value:'merge'},{label:'Annuler',value:null}]});
  if(!r)return;
- if(demo){demo=false}
+ if(demo)demoOff();
  if(r==='replace'){
   EV=b.events;
   if(b.settings){const keep={notif:S.notif};S=Object.assign({},DEF_SET,b.settings,keep);if(!S.cats||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));saveSet();setTheme()}
@@ -5678,6 +5713,11 @@ async function act(a,el,e){
   case 'sh-rc':closeSheet();shareSend('rc',ds_.id);break;
   case 'tk-chk':tkCheck(ds_.id);break;
   case 'tk-note':tkNote(ds_.id);break;
+  case 'tk-evdel':{const k=tkAll().find(x=>x.id===ds_.id);if(!k)break;const rp=ds_.r==='1';
+   const r=await ask({title:'Supprimer définitivement ?',text:rp?'Cette fois-ci de « '+k.t+' » est retirée du suivi. La tâche qui revient reste dans ta liste.':'« '+k.t+' » est supprimée pour de bon (aussi chez les personnes qui partagent la liste).',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;
+   if(rp){k.h=(k.h||[]).filter(z=>String(z.a)!==ds_.a);k.m=Date.now()}else{S.tk=tkAll().filter(x=>x.id!==k.id);tkTomb([k.id])}saveSet();render();toast('Supprimé');break}
+  case 'tk-arcdel':{const L=tkAll().filter(k=>k.ar&&!isCoL(k.l));if(!L.length)break;const r=await ask({title:'Supprimer '+L.length+' tâche'+(L.length>1?'s':'')+' archivée'+(L.length>1?'s':'')+' ?',text:'Elles disparaissent aussi du suivi, pour de bon (et chez les personnes qui partagent ces listes). Pense à exporter le suivi avant si tu veux le garder.',btns:[{label:'Supprimer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;const ids=L.map(k=>k.id);S.tk=tkAll().filter(k=>!ids.includes(k.id));tkTomb(ids);saveSet();render();toast(L.length+' tâche'+(L.length>1?'s':'')+' supprimée'+(L.length>1?'s':''));break}
+  case 'tk-more':{const r=await ask({title:'Tâches',html:'<div style="height:.2rem"></div>',btns:[{label:'👪 Famille et contacts',value:'tk-ppl'},{label:'📥 Recevoir une liste',value:'sh-recv'},{label:'📋 Importer une liste (Notes…)',value:'tk-imp'},{label:'🖨 Imprimer',value:'tk-print'},{label:'Fermer',value:null}]});if(r)act(r,{dataset:{}},e);break}
   case 'tk-arc':tkArchive();break;
   case 'tk-sl':TKV.sl=ds_.v||'';render();break;
   case 'tk-suivi-exp':tkSuiviExport();break;
@@ -5950,21 +5990,21 @@ function tkSuiviEvents(){
   if(k.x&&k.xa)ev.push({k,a:k.xa,b:k.xb||'',n:k.xn||'',rep:false});
   (Array.isArray(k.h)?k.h:[]).forEach(z=>ev.push({k,a:z.a,b:z.b||'',n:z.n||'',rep:true}))}
  const p=pplOf(TKV.w);
- return ev.filter(e=>(!TKV.sl||e.k.l===TKV.sl)&&(!p||norm(e.b)===norm(p.n)||tkWho(e.k).includes(p.id))).sort((a,b)=>b.a-a.a);
+ return ev.filter(e=>(!TKV.sl||lstSide()||e.k.l===TKV.sl)&&(!p||norm(e.b)===norm(p.n)||tkWho(e.k).includes(p.id))).sort((a,b)=>b.a-a.a);
 }
 function tkSuiviHTML(){
- const E=tkSuiviEvents(),L=tkLists().filter(l=>!isCoL(l.id)),t=today();
+ const E=tkSuiviEvents(),L=tkLists().filter(l=>!isCoL(l.id)),t=today(),side=lstSide();
  const arcN=tkAll().filter(k=>k.x&&!k.ar&&!isCoL(k.l)).length;
- let h='<div class="tk-suivi"><p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Qui a fait quoi, et quand. Les personnes avec qui la liste est partagée voient le même suivi.</p>';
- h+='<div class="chips tk-chips" style="margin:0 0 .5rem"><button class="chip'+(!TKV.sl?' on':'')+'" data-act="tk-sl" data-v="">Toutes les listes</button>'+L.map(l=>'<button class="chip'+(TKV.sl===l.id?' on':'')+'" data-act="tk-sl" data-v="'+esc(l.id)+'">'+esc((l.i?l.i+' ':'')+l.n)+'</button>').join('')+'</div>';
+ let h='<div class="tk-suivi">'+(side?'':'<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Qui a fait quoi, et quand. Les personnes avec qui la liste est partagée voient le même suivi.</p>');
+ if(!side)h+='<div class="chips tk-chips" style="margin:0 0 .5rem"><button class="chip'+(!TKV.sl?' on':'')+'" data-act="tk-sl" data-v="">Toutes les listes</button>'+L.map(l=>'<button class="chip'+(TKV.sl===l.id?' on':'')+'" data-act="tk-sl" data-v="'+esc(l.id)+'">'+esc((l.i?l.i+' ':'')+l.n)+'</button>').join('')+'</div>';
  if(!E.length)h+='<p class="empty">Rien de fait pour l’instant'+(TKV.w?' par cette personne':'')+'. Quand quelqu’un coche une tâche, elle s’affiche ici avec son nom et l’heure.</p>';
  let last='';
  for(const e of E.slice(0,300)){
   const d=ds(new Date(e.a));if(d!==last){last=d;h+='<div class="tk-gh tk-sh">'+(d===t?'Aujourd’hui':d===add(t,-1)?'Hier':esc(cap(fLong(d))))+'</div>'}
   const l=tlOf(e.k.l),tm=new Date(e.a).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  h+='<div class="tk-ev'+(e.k.ar?' ar':'')+'"><span class="tk-evc">✓</span><div class="tk-evt"><b>'+esc(e.k.t)+'</b><small>'+(e.b?'par <b>'+esc(e.b)+'</b> · ':'')+esc(tm)+(l?' · '+esc((l.i?l.i+' ':'')+l.n):'')+(e.rep?' · 🔁':'')+(e.k.ar?' · 🗄 archivée':'')+'</small>'+(e.n?'<small class="tk-evn">💬 '+esc(e.n)+'</small>':'')+'</div>'+(!e.rep&&!e.n?'<button class="chip" data-act="tk-note" data-id="'+esc(e.k.id)+'" aria-label="Ajouter une note">📝</button>':'')+'</div>';
+  h+='<div class="tk-ev'+(e.k.ar?' ar':'')+'"><span class="tk-evc">✓</span><div class="tk-evt"><b>'+esc(e.k.t)+'</b><small>'+(e.b?'par <b>'+esc(e.b)+'</b> · ':'')+esc(tm)+(l?' · '+esc((l.i?l.i+' ':'')+l.n):'')+(e.rep?' · 🔁':'')+(e.k.ar?' · 🗄 archivée':'')+'</small>'+(e.n?'<small class="tk-evn">💬 '+esc(e.n)+'</small>':'')+'</div>'+'<span class="tk-evb">'+(!e.rep&&!e.n?'<button class="chip" data-act="tk-note" data-id="'+esc(e.k.id)+'" aria-label="Ajouter une note">📝</button>':'')+'<button class="chip" data-act="tk-evdel" data-id="'+esc(e.k.id)+'" data-a="'+e.a+'" data-r="'+(e.rep?1:0)+'" aria-label="Supprimer définitivement">🗑</button></span></div>';
  }
- h+='<div class="chips" style="margin:.8rem 0">'+(arcN?'<button class="chip" data-act="tk-arc">🗄 '+(arcN>1?'Archiver les '+arcN+' tâches faites':'Archiver la tâche faite')+'</button>':'')+'<button class="chip" data-act="tk-suivi-exp">📤 Exporter le suivi (Excel)</button></div></div>';
+ h+='<div class="chips" style="margin:.8rem 0">'+(arcN?'<button class="chip" data-act="tk-arc">🗄 '+(arcN>1?'Archiver les '+arcN+' tâches faites':'Archiver la tâche faite')+'</button>':'')+'<button class="chip" data-act="tk-suivi-exp">📤 Exporter le suivi (Excel)</button>'+(tkAll().some(k=>k.ar&&!isCoL(k.l))?'<button class="chip" data-act="tk-arcdel">🗑 Supprimer les tâches archivées</button>':'')+'</div></div>';
  return h;
 }
 async function tkArchive(){
@@ -6002,7 +6042,7 @@ function tasksView(){
  let h='<div class="tk-wrap"><div class="tk-bar">'+(side?'<div class="tk-dummy">':'<div class="chips tk-chips">')+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x&&!isCoL(k.l)).length+'</small>',!TKV.l)+
 
   L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+chip('tk-f','l','__done','📜 Suivi',TKV.l==='__done')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
-  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
+  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+(side?'<button class="chip" data-act="tk-more">⋯ Plus</button></div></div>':'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>');
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  if(isCoL(TKV.l)){S.coLid=TKV.l;TKV.l='';setTimeout(()=>go('courses'),0)}
@@ -7994,7 +8034,7 @@ async function init(){
  const pv=q.get('view');
  V.view=['day','week','month','fort'].includes(pv)?pv:(['week','month','fort'].includes(S.start)?S.start:'day');
  await msHandleReturn();
- if(q.get('demo')==='1'){demo=true;EV=demoData()}
+ if(q.get('demo')==='1')demoOn();
  render();
  registerSW();
  if(!famHash2())shareCheckHash();

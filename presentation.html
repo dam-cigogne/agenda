@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>AgenDam · l’organisateur de la famille</title>
-<meta name="description" content="AgenDam, l’organisateur de la famille : agenda, tâches, anniversaires, repas et voyages, à partager par SMS. Gratuit, sans publicité, sans compte, aucune donnée collectée.">
+<meta name="description" content="AgenDam, l’organisateur de la famille : agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans publicité, sans compte.">
 <meta name="theme-color" content="#2f6fb3">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="AgenDam – l’organisateur de la famille">
-<meta property="og:description" content="Agenda, tâches, anniversaires, repas et voyages, à partager en famille par SMS. Gratuit, sans pub, sans compte.">
+<meta property="og:description" content="Agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans pub, sans compte.">
 <meta property="og:image" content="https://dam-cigogne.github.io/agenda/apercu.png">
 <meta property="og:url" content="https://dam-cigogne.github.io/agenda/presentation.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -59,50 +59,59 @@ a{color:var(--accent)}
 </head>
 <body>
 <header class="hero"><div class="wrap">
-  <div class="brand"><img src="icons/icon-192.png" alt=""> AgenDam</div>
-  <h1>L’organisateur de la famille, comme un carnet.</h1>
-  <p>L’agenda, les tâches, les anniversaires, les repas et les voyages au même endroit, et à partager avec ta famille en un SMS. Gratuit, sans publicité, sans compte : tout reste sur ton téléphone.</p>
-  <div class="tabs" aria-label="Les onglets"><span style="--k:var(--ag)">📅 Agenda</span><span style="--k:var(--tk)">☑ Tâches</span><span style="--k:var(--bd)">🎂 Anniversaires</span><span style="--k:var(--rp)">🍽 Repas</span><span style="--k:var(--vy)">🧳 Voyages</span></div>
-  <a class="btn p" href="./">Ouvrir l’appli</a><a class="btn o" href="#famille">Partager avec sa famille</a>
+  <div class="brand"><img src="icons/icon-192.png" alt="">AgenDam</div>
+  <h1>L’organisateur de la famille, comme un carnet</h1>
+  <p>L’agenda, les tâches, les courses, les repas, les anniversaires et les voyages au même endroit. Partagés en direct avec ta famille, tes amis ou tes collègues : chacun choisit ce qu’il partage. Gratuit, sans publicité, sans compte.</p>
+  <div class="tabs"><span style="--k:var(--ag)">📅 Agenda</span><span style="--k:var(--tk)">☑ Tâches</span><span style="--k:#0f766e">🛒 Courses</span><span style="--k:var(--rp)">🍽 Repas</span><span style="--k:var(--bd)">🎂 Anniversaires</span><span style="--k:var(--vy)">🧳 Voyages</span></div>
+  <a class="btn p" href="./">Ouvrir l’appli</a><a class="btn o" href="./?demo=1">Voir la démo</a><a class="btn o" href="#famille">Partager avec ses proches</a>
 </div></header>
-
 <div class="wrap">
-  <div class="shots" aria-label="Captures d’écran avec des données d’exemple">
-    <figure><img src="screenshots/v2-agenda.png" alt="Agenda, vue mois, avec le liseré des vacances scolaires"><figcaption>Agenda</figcaption></figure>
-    <figure><img src="screenshots/v2-taches.png" alt="Tâches avec qui s’en occupe et les tâches qui reviennent"><figcaption>Tâches</figcaption></figure>
-    <figure><img src="screenshots/v2-envoyer.png" alt="Envoyer une liste par SMS à un proche"><figcaption>Envoyer à la famille</figcaption></figure>
-    <figure><img src="screenshots/v2-menu.png" alt="Menu de la semaine"><figcaption>Menu de la semaine</figcaption></figure>
-    <figure><img src="screenshots/v2-courses.png" alt="Liste de courses rangée par rayon"><figcaption>Courses par rayon</figcaption></figure>
-    <figure><img src="screenshots/v2-cuisine.png" alt="Mode cuisine plein écran avec réglages Thermomix"><figcaption>Mode cuisine</figcaption></figure>
-    <figure><img src="screenshots/v2-anniversaires.png" alt="Anniversaires avec le bouton pour souhaiter"><figcaption>Anniversaires</figcaption></figure>
-    <figure><img src="screenshots/v2-voyage.png" alt="Voyage avec ses listes à cocher"><figcaption>Voyages</figcaption></figure>
+  <div class="shots">
+    <figure><img src="screenshots/v3-taches.png" alt="Tâches avec les listes en intercalaires et qui s’en occupe"><figcaption>Tâches</figcaption></figure>
+    <figure><img src="screenshots/v3-suivi.png" alt="Suivi : qui a fait quoi, et quand"><figcaption>Suivi : qui a fait quoi</figcaption></figure>
+    <figure><img src="screenshots/v3-courses.png" alt="Liste de courses rangée par rayon, listes en intercalaires"><figcaption>Courses</figcaption></figure>
+    <figure><img src="screenshots/v3-listetype.png" alt="Liste type de A à Z avec les lettres sur le côté"><figcaption>Ma liste type</figcaption></figure>
+    <figure><img src="screenshots/v3-menu.png" alt="Menu de la semaine"><figcaption>Menu de la semaine</figcaption></figure>
+    <figure><img src="screenshots/v3-cuisine.png" alt="Mode cuisine plein écran avec réglages Thermomix"><figcaption>Mode cuisine</figcaption></figure>
+    <figure><img src="screenshots/v3-anniversaires.png" alt="Anniversaires"><figcaption>Anniversaires</figcaption></figure>
+    <figure><img src="screenshots/v3-carte.png" alt="Carte d’anniversaire à envoyer"><figcaption>Cartes d’anniversaire</figcaption></figure>
+    <figure><img src="screenshots/v3-voyage.png" alt="Voyage avec ses listes à cocher"><figcaption>Voyages</figcaption></figure>
+    <figure><img src="screenshots/v3-famille.png" alt="Groupes connectés Famille et Amis"><figcaption>Groupes connectés</figcaption></figure>
+    <figure><img src="screenshots/v3-agenda.png" alt="Agenda, vue mois"><figcaption>Agenda</figcaption></figure>
   </div>
 
+  <section>
+    <h2>Ce que fait AgenDam</h2>
+    <div class="grid">
+      <div class="card k" style="--k:var(--ag)"><h3>📅 Agenda</h3><p>Jour, semaine, 2 semaines, mois. Rotations de travail, vacances scolaires (zones A, B, C), impression sur une page, envoi vers le calendrier du téléphone.</p></div>
+      <div class="card k" style="--k:var(--tk)"><h3>☑ Tâches</h3><p>Des listes (Maison, Travail…), une ou plusieurs personnes par tâche : la première qui la fait la coche. Tâches qui reviennent, et un <b>suivi</b> : qui a fait quoi, quand, avec des notes. Export Excel.</p></div>
+      <div class="card k" style="--k:#0f766e"><h3>🛒 Courses</h3><p>Plusieurs listes (Leclerc, Marché…) en intercalaires. « Ma liste type » de A à Z : un toucher et le produit est ajouté. Rangement par rayon, paquets (apéro, barbecue), « refaire mes dernières courses ».</p></div>
+      <div class="card k" style="--k:var(--rp)"><h3>🍽 Repas</h3><p>Menu de la semaine, recettes, ingrédients envoyés aux courses. Importer une recette avec son lien (Marmiton, 750g…). Mode cuisine plein écran, réglages Thermomix surlignés.</p></div>
+      <div class="card k" style="--k:var(--bd)"><h3>🎂 Anniversaires</h3><p>Rappels, idées cadeaux protégées par un code, import (Word, Excel, contacts…). Une carte à envoyer : 8 décors, ta photo en rond, cœur, polaroïd ou plein écran.</p></div>
+      <div class="card k" style="--k:var(--vy)"><h3>🧳 Voyages</h3><p>Listes à cocher (valise, maison avant de partir…), programme jour par jour, repas du séjour, infos pratiques. À partager avec ceux qui partent.</p></div>
+    </div>
+  </section>
+
   <section id="famille">
-    <h2>Partager avec sa famille, en 3 étapes</h2>
+    <h2>Partager avec ses proches, en 3 étapes</h2>
     <ol class="steps">
-      <li><b class="t">Chacun installe l’appli</b><p>Dans AgenDam : <b>Réglages → Famille et contacts → Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et la marche à suivre (installation plus bas). C’est gratuit, sans compte.</p></li>
-      <li><b class="t">Chacun dit qui il est, et ajoute les autres</b><p><b>Réglages → Famille et contacts</b> : « <b>Ce téléphone est à</b> » ton prénom, puis « Mes contacts » : ajoute tes proches avec leur numéro de téléphone (conjoint·e, enfants, parents, amis…).</p></li>
-      <li><b class="t">Tu envoies, l’autre met à jour</b><p>En haut de l’écran (Tâches, Anniversaires, Repas, Voyages), le bouton coloré <b>📤 Envoyer</b> propose « <b>💬 SMS à Alex</b> ». Le message contient le texte lisible et un lien : en le touchant, l’AgenDam d’Alex se met à jour, sans doublon. Ce qu’Alex coche ou modifie te revient quand il te renvoie la liste.</p></li>
+      <li><b class="t">Chacun installe l’appli</b><p>Réglages → Famille, amis et contacts → « 📨 Faire installer l’appli » envoie le lien par SMS. Installation plus bas. Gratuit, sans compte.</p></li>
+      <li><b class="t">Tu crées un groupe et tu donnes le code</b><p>« ＋ Créer un groupe » (👪 Famille, 🎉 Amis, 🏠 Coloc, collègues…) puis « 🔢 Inviter » : un code de 8 caractères. L’autre ouvre son appli → « 🔢 J’ai reçu un code » et le tape (ou colle tout le SMS).</p></li>
+      <li><b class="t">Chacun choisit ce qu’il partage, et avec qui</b><p>Au départ, rien n’est partagé. Pour chaque personne, « Choisir » : courses (liste par liste), tâches (aucune, les siennes ou toutes), repas, anniversaires (tous ou certains), voyages. Ensuite tout se met à jour tout seul, à l’ouverture de l’appli.</p></li>
     </ol>
     <div class="grid">
-      <div class="card"><h3>Ce qu’on peut s’envoyer</h3><p>Une liste de tâches ou toutes, la liste de courses, le menu de la semaine, une recette ou tout le carnet, les anniversaires, un voyage complet (listes, programme, repas, infos).</p></div>
-      <div class="card"><h3>Importer seulement ce qu’on veut</h3><p>À la réception, « <b>Choisir ce que j’importe</b> » permet de cocher les éléments un par un. Rien n’est en double, même si tu reçois deux fois le même lien.</p></div>
-      <div class="card"><h3>Même sans AgenDam</h3><p>Le message contient aussi le texte en clair (la liste, la recette…) : la personne peut le lire tout de suite, même si elle n’a pas encore l’appli.</p></div>
+      <div class="card"><h3>Plusieurs groupes</h3><p>Famille, amis, travail en parallèle. Ce qui vient d’un groupe n’est jamais renvoyé à un autre.</p></div>
+      <div class="card"><h3>Plusieurs appareils</h3><p>iPhone, Android, iPad, ordinateur : rejoins avec le code, puis « C’est un autre appareil à moi » et tout se synchronise.</p></div>
+      <div class="card"><h3>Retirer quelqu’un</h3><p>« Retirer » : il ou elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone.</p></div>
+      <div class="card"><h3>Sans groupe</h3><p>Le bouton 📤 Envoyer envoie une liste par SMS ou mail, avec le texte lisible même sans AgenDam.</p></div>
     </div>
-    <div class="note"><b>Bon à savoir</b><b style="display:inline">🔄 Famille connectée :</b> Réglages → Famille et contacts → « Créer notre famille connectée ». Donne ton <b>code d’invitation</b> (8 caractères) : chacun le tape dans son appli (« 🔢 Rejoindre avec un code »). Puis, pour chaque personne, <b>tu choisis ce que tu partages</b> (courses, tâches, repas, anniversaires, voyages) : au départ, rien. Ensuite, ce que tu partages se met à jour tout seul chez elle, à l’ouverture de l’appli. Chiffré de bout en bout, sans compte. Sinon, le bouton 📤 Envoyer marche aussi, comme un message.<br><b style="display:inline">iPhone, appli sur l’écran d’accueil :</b> le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis <b>📥 Recevoir</b>.</div>
+    <div class="note"><b>Sur iPhone</b>Utilise toujours l’appli de l’écran d’accueil : Safari garde ses données à part. C’est pour ça que l’invitation se fait avec un code, à taper dans l’appli.</div>
   </section>
 
   <section>
-    <h2>Les onglets du carnet</h2>
-    <div class="grid">
-      <div class="card k" style="--k:var(--ag)"><h3>📅 Agenda</h3><p>Jour, semaine, 2 semaines ou mois, au choix en haut. Touche la date pour aller directement à un jour. Liseré des vacances scolaires (zone A, B ou C), jours fériés, rotations de travail, garde alternée, dupliquer un rendez-vous sur plusieurs jours.</p></div>
-      <div class="card k" style="--k:var(--tk)"><h3>☑ Tâches</h3><p>Des listes à cocher (Maison, Courses, Perso…), qui s’en occupe, une date si tu veux (elle apparaît dans l’agenda), les tâches qui reviennent. Import d’une liste collée ou d’un fichier, impression A4 avec des cases.</p></div>
-      <div class="card k" style="--k:var(--bd)"><h3>🎂 Anniversaires</h3><p>Âges, rappels, idées cadeaux protégées. Le bouton <b>🎉</b> écrit un message personnalisé (tendre, drôle, pour un enfant…) et fabrique une carte avec photo, signée comme tu veux. Import depuis Word, Excel, contacts ou une liste collée.</p></div>
-      <div class="card k" style="--k:var(--rp)"><h3>🍽 Repas</h3><p>Menu de la semaine (midi, soir, qui cuisine), carnet de recettes, ingrédients manquants envoyés en courses, courses rangées par rayon. Recettes importées depuis les sites (Marmiton, Cookidoo…), réglages Thermomix surlignés, mode cuisine plein écran.</p></div>
-      <div class="card k" style="--k:var(--vy)"><h3>🧳 Voyages</h3><p>Listes à cocher à partir de modèles (valise, maison avant de partir…) ou collées depuis Notes, programme jour par jour, repas du séjour, adresse, trajet, réservations, budget.</p></div>
-      <div class="card"><h3>Et aussi</h3><p>Recherche, mode sombre, impression, envoi vers le calendrier du téléphone (avec alarmes), sauvegarde .json (photos comprises), export en texte ou Excel.</p></div>
-    </div>
+    <h2>Sur iPhone, iPad et ordinateur</h2>
+    <p style="color:var(--muted);margin-top:0">L’appli s’adapte à l’écran : une colonne sur téléphone ; sur tablette à l’horizontale et sur ordinateur, les onglets passent sur le côté et tout se met côte à côte (les courses à gauche, la liste type à droite). Les listes peuvent être des intercalaires sur le côté ou des boutons en haut, au choix.</p>
+    <div class="shots"><figure><img style="height:22rem;max-width:90vw" src="screenshots/v3-ipad-courses.png" alt="Courses sur iPad à l’horizontale"><figcaption>Courses sur tablette</figcaption></figure><figure><img style="height:22rem;max-width:90vw" src="screenshots/v3-ipad-agenda.png" alt="Agenda sur iPad à l’horizontale"><figcaption>Agenda sur tablette</figcaption></figure></div>
   </section>
 
   <section id="installer">
@@ -119,7 +128,7 @@ a{color:var(--accent)}
         <li>Confirme : l’icône apparaît sur l’écran d’accueil.</li></ol></div>
       <div class="card"><h3>Ouvrir AgenDam</h3><div class="qr"><svg role="img" aria-label="QR code pour ouvrir AgenDam" style="width:9rem;height:9rem;display:block;border-radius:.6rem" width="165" height="165" class="segno"><g transform="scale(5)"><path fill="#fff" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#0b1220" d="M2 2.5h7m1 0h2m1 0h1m1 0h1m5 0h2m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h1m2 0h3m3 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m2 0h1m2 0h1m2 0h2m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h3m1 0h1m1 0h1m1 0h2m1 0h1m-20 1h1m1 0h2m1 0h3m1 0h1m1 0h3m2 0h4m2 0h1m2 0h1m1 0h2m-29 1h3m2 0h1m5 0h3m2 0h1m2 0h6m3 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m5 0h2m-25 1h2m2 0h2m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h1m-28 1h2m2 0h2m1 0h1m5 0h1m2 0h1m1 0h1m5 0h2m-26 1h1m8 0h1m3 0h4m1 0h2m1 0h2m2 0h3m-27 1h1m1 0h1m1 0h1m2 0h2m1 0h2m3 0h1m1 0h2m2 0h1m2 0h3m-29 1h1m1 0h1m2 0h1m2 0h2m4 0h3m1 0h1m1 0h1m2 0h1m3 0h1m-27 1h2m3 0h7m1 0h1m5 0h2m1 0h3m1 0h1m-26 1h2m1 0h1m1 0h1m3 0h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h3m-28 1h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h5m5 0h2m1 0h1m-23 1h1m3 0h1m1 0h8m1 0h1m1 0h3m2 0h1m-26 1h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m1 0h7m-19 1h1m2 0h1m4 0h3m1 0h1m3 0h5m-29 1h7m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-28 1h1m5 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m2 0h5m1 0h1m-27 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h1m1 0h1m1 0h3m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m2 0h2m4 0h1m2 0h1m1 0h1m-29 1h1m5 0h1m4 0h4m1 0h1m3 0h1m1 0h1m1 0h2m1 0h1m-28 1h7m1 0h1m5 0h2m3 0h4m4 0h1"/></g></svg><p>Scanne ce code avec l’appareil photo du téléphone, puis « Sur l’écran d’accueil ».</p></div></div>
     </div>
-    <div class="note"><b>⚠️ Fais une sauvegarde de temps en temps</b>Réglages → <b>Sauvegarder</b>, et enregistre le fichier toujours au même endroit (iCloud Drive, par exemple). Sur iPhone, installe bien l’appli sur l’écran d’accueil : Safari peut effacer les données d’un site non installé après quelques jours sans visite.</div>
+    <div class="note"><b>⚠️ Fais une sauvegarde de temps en temps</b>Réglages → <strong>Sauvegarder</strong>, et enregistre le fichier toujours au même endroit (iCloud Drive, par exemple). Sur iPhone, installe bien l’appli sur l’écran d’accueil : Safari peut effacer les données d’un site non installé après quelques jours sans visite.</div>
   </section>
 
   <section>
@@ -127,21 +136,21 @@ a{color:var(--accent)}
     <div class="grid">
       <div class="card"><h3>Rappels</h3><p>Une appli web fermée ne peut pas sonner sur iPhone. Pour des alarmes fiables : « Au calendrier » (un rendez-vous) ou l’export des anniversaires vers le calendrier du téléphone, qui fera sonner les rappels.</p></div>
       <div class="card"><h3>Calendrier Apple</h3><p>Apple ne laisse pas une page web lire ou écrire dans le calendrier de l’iPhone. On y envoie des rendez-vous, mais il n’y a pas de synchronisation automatique.</p></div>
-      <div class="card"><h3>Recettes depuis un site</h3><p>Les sites ne laissent pas une autre appli lire leurs pages : on passe par un favori « 📥 AgenDam » à installer une fois (Repas → Recettes explique comment).</p></div>
+      <div class="card"><h3>Recettes depuis un site</h3><p>Copie le lien de la recette (Partager → Copier), puis « 🔗 Importer avec un lien ». Cookidoo demande d’être connecté : copie alors le texte de la recette.</p></div><div class="card"><h3>Mises à jour entre proches</h3><p>Elles arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte. Appli fermée, pas de notification.</p></div>
     </div>
   </section>
 
   <section id="confidentialite">
     <h2>Confidentialité</h2>
     <div class="card">
-      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de statistiques, pas de cookies, pas de publicité.</p><p><b>Famille connectée (facultatif)</b> : ce que tu partages avec une personne est chiffré sur le téléphone avec une clé à vous deux (ECDH + AES-GCM) avant d’être déposé sur un petit serveur Cloudflare, qui ne peut pas le lire. La clé ne voyage que dans le lien d’invitation. Les données non modifiées depuis 400 jours sont effacées automatiquement. L’agenda n’est jamais envoyé.</p>
+      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de statistiques, pas de cookies, pas de publicité.</p><p><b>Groupes connectés (facultatif)</b> : ce que tu partages avec une personne est chiffré sur ton téléphone avec une clé à vous deux (ECDH + AES-GCM) avant d’être déposé sur un petit serveur Cloudflare, qui ne peut pas le lire. Le code d’invitation n’est jamais envoyé au serveur. Les données non modifiées depuis 400 jours sont effacées automatiquement. L’agenda n’est jamais envoyé.</p><p><b>Importer une recette avec son lien</b> : le serveur ouvre la page de la recette et ne renvoie que la recette ; il ne garde rien.</p>
       <p>Tout est enregistré dans le stockage de ton appareil. Quand tu envoies quelque chose à un proche, les données voyagent <b>dans le lien lui-même</b> (après le signe #, qui n’est jamais transmis au site) : elles vont de ton téléphone au sien par ton SMS, ton mail ou ton WhatsApp.</p>
       <p>Services facultatifs, désactivés tant que tu ne les choisis pas : calendrier officiel des vacances scolaires (data.education.gouv.fr, seule la zone est envoyée) et aide à l’adresse (api-adresse.data.gouv.fr).</p>
       <p>Pour tout effacer : Réglages → « Effacer toutes mes données ».</p>
     </div>
   </section>
 
-  <footer>AgenDam · gratuit, sans publicité · version 2.12.0 · <a href="./">Ouvrir l’appli</a> · <a href="./?demo=1">Voir la démo</a></footer>
+  <footer>AgenDam · gratuit, sans publicité · version 2.12.1 · <a href="./">Ouvrir l’appli</a> · <a href="./?demo=1">Voir la démo</a></footer>
 </div>
 </body>
 </html>

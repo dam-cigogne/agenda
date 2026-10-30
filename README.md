@@ -1,29 +1,25 @@
 # AgenDam
 
-**L’organisateur de la famille, comme un carnet.** Gratuit, sans publicité, sans compte, aucune donnée collectée : tout reste sur l’appareil, sauf la « Famille connectée » facultative (listes chiffrées de bout en bout).
-
-AgenDam : agenda, tâches, anniversaires et repas pour toute la famille, installable sur iPhone et Android (PWA).
+**L’organisateur de la famille, comme un carnet.** Agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec sa famille, ses amis ou ses collègues. Gratuit, sans publicité, sans compte. Installable sur iPhone, Android, tablette et ordinateur (PWA).
 
 - Appli : https://dam-cigogne.github.io/agenda/
-- Démo (données d'exemple) : https://dam-cigogne.github.io/agenda/?demo=1
+- Démo (données fictives dans tous les onglets) : https://dam-cigogne.github.io/agenda/?demo=1
 - Fiche de présentation et installation : https://dam-cigogne.github.io/agenda/presentation.html
 
-## Version 2 : l’organisateur
+## Ce qu’il y a dedans (v2.12)
 
-- Apparence « carnet » : papier crème, encre bleue, un intercalaire de couleur par onglet
-- Onglets : 📅 Agenda (Jour / Semaine / 2 sem. / Mois au choix, toucher le titre pour aller à une date), ☑ Tâches, 🎂 Anniversaires, 🍽 Repas, 🧳 Voyages
-- Tâches : listes à cocher, date facultative (visible dans l’agenda), qui s’en occupe, tâches qui reviennent, impression A4
-- Famille et contacts (prénom, nom, lien, téléphone, mail) pour distribuer les tâches et envoyer les partages
-- Famille connectée (facultative) : synchronisation automatique des tâches, courses, repas, anniversaires et voyages entre téléphones de la famille, chiffrée de bout en bout (AES-GCM, clé dérivée d’un secret de 32 octets transmis uniquement dans le lien d’invitation `#fam=`), via un Cloudflare Worker + KV qui ne stocke que des données chiffrées (code dans `worker/worker.js`)
-- Partage par lien (SMS, WhatsApp, mail) des tâches, anniversaires, recettes, menu et liste de courses : les données voyagent dans le fragment `#p=` du lien (compressé, jamais envoyé au serveur) et se fusionnent par identifiant chez la personne (ajouts, mises à jour, suppressions, sans doublon)
-- Repas : menu de la semaine (midi / soir, qui cuisine), carnet de recettes (import par copier-coller depuis Notes, un site, un message), portions ajustables, ingrédients manquants vers la liste Courses rangée par rayon
-- Anniversaires : bouton 🎉 pour souhaiter (messages personnalisés par ton, carte en image avec photo, envoi par le partage du téléphone) ; photos dans IndexedDB (`agd-media`) et dans la sauvegarde .json
-- Voyages : listes à cocher (modèles, import Notes par copier-coller), programme jour par jour, repas du séjour (reliés à Repas), infos (adresse, trajet, réservations, numéros, budget), partage par lien
-- Dupliquer un événement sur plusieurs jours en une fois
-- Recettes importées depuis les sites (Marmiton, 750g, Cookidoo…) grâce à un favori « 📥 AgenDam » (marque-page qui lit les données schema.org Recipe de la page et ouvre l’appli avec un lien #p=) ; réglages Thermomix surlignés ; mode cuisine plein écran (Wake Lock)
-- Anniversaires importés depuis Word (.docx lu sans bibliothèque), Excel/CSV, .ics, .vcf ou texte collé
-- Import sélectif : partages reçus et listes collées passent par une liste à cocher
-- Synchronisation Outlook mise en pause (code conservé, `OL_ON`)
+- Apparence « carnet » : un intercalaire de couleur par onglet. Onglets en bas (ou sur le côté sur tablette / ordinateur) : 📅 Agenda · ☑ Tâches · 🛒 Courses · 🍽 Repas · 🎂 Anniversaires · 🧳 Voyages (onglets visibles au choix)
+- Listes de Tâches et de Courses en intercalaires sur le côté ou en boutons en haut (réglage)
+- Tâches : listes, une ou plusieurs personnes par tâche (la première qui la fait la coche), tâches qui reviennent avec historique, « fait par … le … » et notes, onglet 📜 Suivi (filtre liste / personne, export CSV), archivage et suppression définitive
+- Courses : plusieurs listes, « À acheter » rangé par rayon, « Ma liste type » A → Z / par rayon / les plus achetés avec index latéral, paquets, « refaire mes dernières courses » ; deux colonnes sur grand écran
+- Repas : menu de la semaine, recettes, ingrédients vers les courses, import d’une recette avec son lien (le Worker lit les données schema.org Recipe), mode cuisine plein écran avec réglages Thermomix surlignés
+- Anniversaires : rappels, idées cadeaux protégées, import Word / Excel / .ics / .vcf, sélection pour envoyer ou partager, cartes (8 décors, titre au choix, photo en rond / cœur / carré / polaroïd / plein écran, effets)
+- Voyages : listes à cocher, programme, repas du séjour, infos pratiques
+- Groupes connectés (Famille, Amis… en parallèle) : invitation par code de 8 caractères (la clé du groupe est déposée 7 jours chiffrée par une clé dérivée du code, PBKDF2) ; chaque appareil a sa paire de clés ECDH P-256, ce qu’on partage avec une personne est chiffré avec la clé de la paire (AES-GCM) ; partage choisi personne par personne (listes de courses, tâches aucune / les siennes / toutes, repas, anniversaires tous / certains, voyages) ; origine de chaque élément suivie (rien n’est retransmis d’un groupe à l’autre) ; retirer / supprimer une personne ; plusieurs appareils d’une même personne
+- Serveur : Cloudflare Worker + KV (`worker/worker.js`) — boîte aux lettres chiffrée, codes d’invitation, lecture des recettes ; il ne peut pas lire les listes
+- Partage par lien sans groupe (SMS, WhatsApp, mail) : données dans le fragment `#p=`, fusion par identifiant sans doublon
+- Mode démo complet (données fictives, rien n’est enregistré)
+- Synchronisation Outlook en pause (code conservé, `OL_ON`)
 
 ## Fonctions
 
