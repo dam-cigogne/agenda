@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>AgenDam · emploi du temps simple et lisible</title>
 <meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : vues jour, semaine et mois, rappels, import/export .ics. Aucune donnée collectée, tout reste sur votre appareil.">
-<meta name="theme-color" content="#2f5bea">
+<meta name="theme-color" content="#2f6fb3">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -22,13 +22,17 @@
 <script>(function(){try{var s=JSON.parse(localStorage.getItem('agd-settings')||'{}');var t=s.theme||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');if(s.scale)document.documentElement.style.setProperty('--scale',s.scale)}catch(e){}})()</script>
 <style>
 :root{
-  --bg:#f5f6f8;--surface:#fff;--surface2:#eef0f4;--text:#10151c;--muted:#5b6574;--line:#e2e6ec;--line2:#eef1f5;
-  --accent:#2f5bea;--on-accent:#fff;--accent-soft:rgba(47,91,234,.10);--todaybg:rgba(47,91,234,.09);--todayc:rgba(47,91,234,.16);
+  /* Carnet : papier crème, encre bleue, intercalaires de couleur par onglet */
+  --bg:#f7f4ec;--surface:#fffdf7;--surface2:#efe9dc;--text:#25211a;--muted:#736a5b;--line:#e3dbc9;--line2:#ece5d6;
+  --accent:#2f6fb3;--on-accent:#fff;--accent-soft:rgba(47,111,179,.11);--todaybg:rgba(47,111,179,.09);--todayc:rgba(47,111,179,.17);
+  --sec:#2f6fb3;--k-ag:#2f6fb3;--k-tk:#4d7c0f;--k-bd:#be185d;--k-rp:#c2410c;--k-vy:#0e7490;--margin:rgba(214,74,74,.28);
+  --serif:"New York",ui-serif,"Iowan Old Style",Charter,"Bitstream Charter",Georgia,serif;
   --danger:#d92d20;--warn:#f59e0b;--shadow:0 10px 40px rgba(16,24,40,.22);--scale:1;
 }
 html[data-theme=dark]{
-  --bg:#0d1117;--surface:#161b22;--surface2:#212833;--text:#eef1f5;--muted:#9aa5b4;--line:#2b3340;--line2:#202731;
-  --accent:#7b97ff;--on-accent:#0b1020;--accent-soft:rgba(123,151,255,.16);--todaybg:rgba(123,151,255,.13);--todayc:rgba(123,151,255,.24);
+  --bg:#15130f;--surface:#1e1b16;--surface2:#29251e;--text:#f2ede2;--muted:#a99f8d;--line:#3a3429;--line2:#2b2720;
+  --accent:#7fb2e8;--on-accent:#0d1520;--accent-soft:rgba(127,178,232,.15);--todaybg:rgba(127,178,232,.12);--todayc:rgba(127,178,232,.22);
+  --k-ag:#7fb2e8;--k-tk:#9ccc5a;--k-bd:#f17bb0;--k-rp:#fb923c;--k-vy:#4fc3d9;--margin:rgba(240,110,110,.22);
   --danger:#ff6b5f;--shadow:0 10px 40px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -43,7 +47,7 @@ input,select,textarea{font:inherit;color:inherit}
 /* header */
 #top{display:flex;align-items:center;gap:.15rem;padding:calc(env(safe-area-inset-top,0px) + .55rem) .6rem .5rem .95rem;background:var(--surface);border-bottom:1px solid var(--line)}
 .ttl{flex:1;min-width:0}
-.ttl b{display:block;font-size:1.32rem;font-weight:780;letter-spacing:-.015em;line-height:1.15}
+.ttl b{display:block;font-family:var(--serif);font-style:italic;font-size:1.45rem;font-weight:700;letter-spacing:-.01em;line-height:1.12}
 .ttl small{display:block;color:var(--muted);font-size:.8rem;font-weight:600}
 .nav{display:flex;align-items:center;gap:.1rem}
 .ib{width:2.7rem;height:2.7rem;border-radius:.8rem;display:grid;place-items:center;font-weight:800;font-size:1.1rem}
@@ -475,6 +479,117 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .vac-r{display:flex;align-items:center;gap:.55rem;padding:.3rem 0;border-bottom:1px solid var(--line2)}.vac-r>i{width:.35rem;align-self:stretch;border-radius:.2rem;flex:none}.vac-r>span{flex:1;min-width:0;display:flex;flex-direction:column}.vac-r small{color:var(--muted);font-size:.82rem}
 .vacb{margin-top:.3rem;font-size:.85rem;font-weight:650;padding:.2rem .55rem;border-radius:.5rem;border-left:4px solid var(--vacc,#f59e0b);background:var(--surface2);display:inline-block}
 
+/* Tâches */
+.tk-wrap{padding:.2rem .7rem 6rem}
+.tk-bar{display:flex;flex-direction:column;gap:.45rem;margin:.5rem 0 .3rem}
+.tk-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:.15rem;scrollbar-width:none}.tk-chips .chip{flex:none;display:inline-flex;align-items:center;gap:.3rem}
+.tk-chips .chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.tk-chips small{opacity:.75;font-weight:700}
+.tk-chips .chip svg{width:1rem;height:1rem}
+.tk-dot{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;flex:none}.tk-dot.big{width:1.8rem;height:1.8rem;display:grid;place-items:center;font-style:normal;font-size:1.1rem}
+.tk-g{background:var(--surface);border:1px solid var(--line);border-radius:1rem;margin:.55rem 0;overflow:hidden}
+.tk-g.late{border-color:var(--danger)}
+.tk-gh,.tk-done>summary{padding:.55rem .85rem;font-weight:800;font-size:.95rem;border-bottom:1px solid var(--line2);cursor:pointer}
+.tk-g.late .tk-gh{color:var(--danger)}
+.tk-gh small,.tk-done summary small{color:var(--muted);font-weight:700;margin-left:.3rem}
+.tk-done .btn{margin:.5rem .8rem .7rem;width:calc(100% - 1.6rem)}
+.tk-r{display:flex;align-items:center;gap:.2rem;border-bottom:1px solid var(--line2)}.tk-r:last-child{border-bottom:0}
+.tk-c{flex:none;width:2.1rem;height:2.1rem;margin:.45rem .2rem .45rem .7rem;border-radius:.55rem;border:2.5px solid var(--accent);background:transparent;color:var(--on-accent);font-weight:900;font-size:1.15rem;display:grid;place-items:center;cursor:pointer;padding:0}
+.tk-r.x .tk-c{background:var(--accent)}
+.tk-t{flex:1;min-width:0;text-align:left;background:none;border:0;padding:.5rem .7rem .5rem .4rem;display:flex;flex-direction:column;gap:.1rem;color:inherit;cursor:pointer;font:inherit}
+.tk-t b{font-size:1.02rem;font-weight:700;overflow-wrap:break-word}
+.tk-t small{color:var(--muted);font-size:.82rem;font-weight:600}
+.tk-r.x .tk-t b{text-decoration:line-through;color:var(--muted);font-weight:600}
+.tk-late{color:var(--danger);font-weight:800}
+.tk-p{color:var(--c);font-weight:800}
+.tk-hint{font-size:.8rem;margin:.8rem .3rem}
+.tk-day{margin:.4rem 0 .2rem;border:1px dashed var(--line);border-radius:.8rem;overflow:hidden;background:var(--surface)}
+.tk-dh{font-size:.8rem;font-weight:800;color:var(--muted);padding:.3rem .7rem 0}
+.tk-day .tk-c{width:1.7rem;height:1.7rem;margin:.3rem .15rem .3rem .55rem;font-size:1rem}
+.tk-day .tk-t{padding:.3rem .5rem .3rem .3rem}.tk-day .tk-t b{font-size:.92rem}
+.tk-more{display:block;width:100%;text-align:left;padding:.35rem .8rem;background:none;border:0;border-top:1px solid var(--line2);color:var(--accent);font-weight:700;cursor:pointer}
+.wd .tk-day{margin:.3rem .6rem .6rem}
+.daybar .tk-day{margin-top:.4rem}
+em.tkm{font-style:normal;font-size:.72em;color:var(--accent);margin-left:.1rem}
+.tk-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.45rem 0}
+#dlg .lbl{display:block;margin-top:.35rem}
+.pz .tk-pr{display:flex;gap:.55rem;align-items:flex-start;margin:.32rem 0;font-size:11.5pt}.pz .tk-pr .bx{width:11pt;height:11pt;border:1.2px solid #000;flex:none;margin-top:1pt}.pz .tk-pr small{color:#555;font-size:9pt}.pz .tk-pr .ln{flex:1;border-bottom:1px solid #bbb;height:12pt}
+
+.ct-r{display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line2);padding:.45rem .1rem;color:inherit;font:inherit;cursor:pointer}.ct-r span{display:flex;flex-direction:column;min-width:0}.ct-r small{color:var(--muted);font-size:.8rem;overflow-wrap:anywhere}
+#dlg textarea.in{width:100%;font-size:.85rem}
+
+/* ===== 2.0 : apparence Carnet ===== */
+#top{border-top:4px solid var(--sec)}
+#agseg{display:none;grid-column:1/-1;margin:.1rem 0 0}
+body.agview #agseg{display:flex}
+#agseg button{flex:1;font-size:.88rem;padding:.4rem .2rem}
+#agseg button.on{background:var(--sec);color:#fff}
+html[data-theme=dark] #agseg button.on{color:#14120e}
+body:not(.agview) #top .nav,body:not(.agview) #top>.ib[data-act=print],body:not(.agview) #top>.ib[data-act=focus]{display:none}
+body.agview #top>.ib[data-act=help]{display:none}
+@media(max-width:560px){
+ #top{grid-template-columns:1fr auto auto auto auto}
+ #top>#srchbtn{grid-column:4;grid-row:1}#top>#gearbtn{grid-column:5;grid-row:1}
+ #top>.ib[data-act=help]{grid-column:3;grid-row:1}#top>.ib[data-act=print]{grid-column:3;grid-row:1}#top>.ib[data-act=focus]{grid-column:2;grid-row:1}
+ #agseg{grid-row:3}
+}
+@media(min-width:561px){#top{flex-wrap:wrap}#agseg{flex:1 1 100%;max-width:30rem;margin-left:auto}}
+#tabs button{position:relative;--k:var(--accent)}
+#tabs button.on{color:var(--k);background:color-mix(in srgb,var(--k) 12%,transparent)}
+#tabs button.on::before{content:"";position:absolute;left:22%;right:22%;top:0;height:4px;border-radius:0 0 4px 4px;background:var(--k)}
+#tabs em{font-size:.72rem}
+@media(min-width:1000px){#tabs button.on::before{left:auto;right:0;top:18%;bottom:18%;width:4px;height:auto;border-radius:4px 0 0 4px}}
+#fab{background:var(--sec)!important}
+.bd-page{padding:.6rem .8rem 6rem}
+.bd-page .bdrow{background:var(--surface);border:1px solid var(--line2);border-radius:.8rem;margin:.3rem 0}
+.tk-gh,.tk-done>summary{font-family:var(--serif);font-style:italic;font-size:1.05rem}
+.tk-c{border-color:var(--sec)}.tk-r.x .tk-c{background:var(--sec);border-color:var(--sec)}
+.tk-chips .chip.on{background:var(--sec);border-color:var(--sec)}
+.wl-t{font-family:var(--serif);font-style:italic;font-size:1.6rem;margin:.2rem 0 .3rem}
+.wl-s{margin:0 0 .7rem;color:var(--muted)}
+.wl{display:flex;flex-direction:column;gap:.45rem;margin:.2rem 0 .8rem}
+.wl-k{display:flex;align-items:center;gap:.7rem;padding:.55rem .7rem;border-radius:.8rem;background:color-mix(in srgb,var(--k) 9%,var(--surface));border-left:5px solid var(--k)}
+.wl-k b{display:block;color:var(--k)}.wl-k small{display:block;color:var(--muted);font-size:.85rem}
+.wl-i{font-size:1.5rem}
+.wl-n{margin:.3rem 0 .6rem;font-size:.92rem}
+
+/* Repas */
+.rp-wrap{padding:.5rem .8rem 6rem}
+.rp-seg{margin:.2rem 0 .6rem}.rp-seg button{font-size:.88rem}.rp-seg button.on{background:var(--sec);color:#fff}
+.rp-wk{display:flex;align-items:center;justify-content:space-between;margin:.2rem 0 .4rem}.rp-wk b{font-family:var(--serif);font-style:italic;font-size:1.1rem}
+.rp-day{background:var(--surface);border:1px solid var(--line);border-radius:.9rem;margin:.45rem 0;overflow:hidden}
+.rp-day.today{border-color:var(--sec);box-shadow:inset 4px 0 0 var(--sec)}
+.rp-dh{padding:.4rem .75rem .1rem;font-weight:800}.rp-dh small{color:var(--muted);font-weight:600;margin-left:.3rem}
+.rp-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border-top:1px solid var(--line2)}
+.rp-sl{background:var(--surface);padding:.45rem .7rem .55rem;display:flex;flex-direction:column;gap:.1rem;min-width:0;text-align:left}
+.rp-sl small{color:var(--sec);font-weight:800;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+.rp-sl b{font-weight:700;overflow-wrap:break-word}.rp-sl.empty b{color:var(--muted);font-weight:600}
+.rp-sl em{font-style:normal;font-size:.8rem;color:var(--muted)}
+.rp-act{margin:.8rem 0}.rp-act .chips{margin-top:.5rem}
+.rp-top{display:flex;gap:.5rem;margin-bottom:.5rem}.rp-top .btn{margin:0}
+.rc-r{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line2);border-radius:.85rem;padding:.55rem .7rem;margin:.35rem 0}
+.rc-i{font-size:1.7rem;flex:none}.rc-x{display:flex;flex-direction:column;min-width:0}.rc-x small{color:var(--muted);font-size:.82rem}
+.rc-pp{display:flex;align-items:center;gap:.4rem;margin:.2rem 0 .5rem;font-weight:700}.rc-pp .ib{background:var(--surface2);width:2.4rem;height:2.4rem}.rc-pp b{min-width:1.5rem;text-align:center;font-size:1.2rem}
+.rc-h{font-family:var(--serif);font-style:italic;margin:.7rem 0 .3rem}
+.rc-ing{margin:0 0 .6rem;padding-left:1.2rem}.rc-ing li{margin:.2rem 0}
+.rc-st{margin:0;padding-left:1.3rem}.rc-st li{margin:.35rem 0;line-height:1.45}
+.rp-add{display:flex;gap:.4rem;margin:.2rem 0 .5rem}.rp-add .in{flex:1}.rp-add .btn{margin:0;width:3rem;display:grid;place-items:center}
+.rp-today{display:block;width:100%;text-align:left;margin:.4rem 0 .2rem;padding:.45rem .7rem;border-radius:.7rem;background:color-mix(in srgb,var(--k-rp) 10%,var(--surface));border-left:4px solid var(--k-rp);font-size:.9rem}
+.wd .rp-today{margin:.3rem .6rem .6rem;width:calc(100% - 1.2rem)}
+.pz .rp-pt{width:100%;border-collapse:collapse;font-size:11pt}.pz .rp-pt th,.pz .rp-pt td{border:1px solid #999;padding:6pt;text-align:left;vertical-align:top}
+
+/* Souhaiter un anniversaire */
+.bdrw{display:flex;align-items:stretch;gap:.35rem}.bdrw .bdrow{flex:1;min-width:0}
+.bdwish{flex:none;width:3rem;border-radius:.8rem;font-size:1.35rem;background:color-mix(in srgb,var(--k-bd) 10%,var(--surface));border:1px solid var(--line2);margin:.3rem 0}
+.bdwish.now{background:var(--k-bd);animation:wishp 1.8s ease-in-out infinite}
+@keyframes wishp{50%{transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.bdwish.now{animation:none}}
+.bdb.wishb{background:var(--k-bd);color:#fff;margin-left:.3rem}
+.wish-card{border-radius:1rem;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.18);max-width:22rem;margin:0 auto}.wish-card canvas{display:block;width:100%;height:auto}
+.wish-sent{margin:0 0 .5rem;color:var(--k-tk);font-weight:800}
+#ws-txt{width:100%;line-height:1.45}
+.bd-phw{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem}.bd-phw img{width:4rem;height:4rem;border-radius:50%;object-fit:cover}
+
 /* Aide à l'adresse */
 .adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
 .adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
@@ -632,7 +747,9 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
     <button class="ib" data-act="focus" aria-label="Plein écran : masquer les boutons" data-ic="eye"></button>
     <button class="ib" data-act="print" aria-label="Imprimer" data-ic="print"></button>
     <button class="ib" data-act="help" aria-label="Mode d’emploi" data-ic="help"></button>
+    <button class="ib" id="srchbtn" data-act="view" data-v="search" aria-label="Rechercher" data-ic="search"></button>
     <button class="ib" id="gearbtn" data-act="view" data-v="settings" aria-label="Réglages" data-ic="cog"></button>
+    <div class="seg" id="agseg"><button data-act="view" data-v="day">Jour</button><button data-act="view" data-v="week">Semaine</button><button data-act="view" data-v="fort">2 sem.</button><button data-act="view" data-v="month">Mois</button></div>
   </header>
   <div id="banner"></div>
   <div id="body">
@@ -641,11 +758,10 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
     <button id="fab" data-act="new" aria-label="Nouvel événement" data-ic="plus"></button>
   </div>
   <nav id="tabs">
-    <button data-act="view" data-v="day"><span data-ic="day"></span><em>Jour</em></button>
-    <button data-act="view" data-v="week"><span data-ic="week"></span><em>Semaine</em></button>
-    <button data-act="view" data-v="month"><span data-ic="month"></span><em>Mois</em></button>
-    <button data-act="view" data-v="fort"><span data-ic="fort"></span><em>2 sem.</em></button>
-    <button data-act="view" data-v="search"><span data-ic="search"></span><em>Chercher</em></button>
+    <button data-act="view" data-v="agenda" style="--k:var(--k-ag)"><span data-ic="month"></span><em>Agenda</em></button>
+    <button data-act="view" data-v="tasks" style="--k:var(--k-tk)"><span data-ic="tasks"></span><em>Tâches</em></button>
+    <button data-act="view" data-v="bdays" style="--k:var(--k-bd)"><span data-ic="cake"></span><em>Anniv.</em></button>
+    <button data-act="view" data-v="repas" style="--k:var(--k-rp)"><span data-ic="meal"></span><em>Repas</em></button>
   </nav>
 </div>
 <div id="sheet"></div>
@@ -659,12 +775,40 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='1.16.30';
+const APP_VERSION='2.2.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.2.0',d:'30/10/2026',items:[
+  '🎉 Souhaiter un anniversaire : touche 🎉 à côté d’une personne. Choisis un ton (tendre, drôle, simple, enfant, grands-parents, en rimes, collègue), l’appli écrit le message avec son prénom et son âge. 🔀 en propose un autre, tu peux tout modifier.',
+  'Une jolie carte en image (ballons, gâteau, fleurs ou étoiles), avec sa photo si tu veux, part avec le message dans Messages, WhatsApp ou par mail.',
+  'Le jour J, le bouton « Souhaiter » apparaît à l’ouverture et dans l’agenda. La fiche garde la date du message envoyé.',
+  'Chaque anniversaire peut être relié à un contact (SMS en un geste) et avoir une photo. Les photos sont gardées dans l’appli et dans ta sauvegarde .json.',
+  'Restaurer avec « Fusionner » ajoute aussi les tâches, anniversaires, recettes et menus de la sauvegarde.']},
+ {v:'2.1.0',d:'30/10/2026',items:[
+  '🍽 Nouvel onglet Repas : le menu de la semaine (midi et soir, qui cuisine, combien on est), ton carnet de recettes et la liste de courses rangée par rayon.',
+  'Recettes : crée-les ou colle-les depuis Notes, un site ou un message, l’appli trouve les ingrédients et les étapes. Portions ajustables, favoris, étiquettes, recherche par ingrédient.',
+  '🛒 Les ingrédients d’une recette ou de toute la semaine passent en courses en un geste : tu décoches ce que tu as déjà, les quantités identiques s’additionnent.',
+  'Tout se partage par lien : une recette, le menu de la semaine ou la liste de courses. Le menu du jour apparaît aussi dans l’agenda.']},
+ {v:'2.0.0',d:'30/10/2026',items:[
+  'AgenDam devient l’organisateur de la famille, avec une nouvelle apparence « carnet » : papier crème, encre bleue et un intercalaire de couleur par onglet.',
+  'Nouveaux onglets en bas : 📅 Agenda, ☑ Tâches, 🎂 Anniversaires. Dans Agenda, choisis l’affichage en haut : Jour, Semaine, 2 sem. ou Mois. La recherche est en haut (loupe).',
+  'Les anniversaires ont leur propre onglet (ajout, tri, idées cadeaux, partage, rappels).',
+  'Nouvelle fiche de bienvenue.']},
+ {v:'1.18.0',d:'30/10/2026',items:[
+  '👪 Famille et contacts : prénom, nom, qui c’est (conjoint(e), enfant, parent, ami(e)…), téléphone, mail et couleur. Ils servent à distribuer les tâches. Réglages → Famille et contacts, ou « 👪 Famille » dans Tâches.',
+  '📤 Partager : envoie une liste de tâches (ou toutes, ou celles d’une personne) et tes anniversaires par SMS, WhatsApp ou mail. La personne touche le lien et son AgenDam se met à jour : ajouts, modifications, tâches cochées et suppressions, sans doublon. Les données voyagent dans le lien, sans aucun serveur.',
+  '📥 Recevoir : sur iPhone, si tu utilises l’appli installée sur l’écran d’accueil, copie le lien puis touche « 📥 Recevoir » dans Tâches.']},
+ {v:'1.17.0',d:'30/10/2026',items:[
+  '☑ Nouvel onglet Tâches : des listes à cocher (Maison, Courses, Perso… et les tiennes), une date si tu veux, qui s’en occupe dans la famille, et les tâches qui reviennent (chaque jour, semaine, 2 semaines, mois).',
+  'Une tâche avec une date apparaît aussi ce jour-là dans l’agenda (☑ sur le jour, liste dans la journée). Les tâches en retard s’affichent aujourd’hui.',
+  'Impression A4 d’une liste, avec de vraies cases à cocher et des lignes vides pour écrire à la main (PDF sur iPhone et Android).',
+  'La synchronisation Outlook est mise en pause : elle créait des doublons. Tes événements déjà récupérés restent dans l’appli. Pour recevoir les rappels sur le téléphone, utilise « Ajouter à mon agenda ».',
+  'Doublons : nouveau « Chercher les doublons » (Réglages → Importer un autre calendrier). Il repère le même titre le même jour à la même heure, même si l’emoji ou les majuscules diffèrent, et te laisse cocher ce qu’il faut supprimer.']},
+ {v:'1.16.31',d:'30/10/2026',items:[
+  'Mode d’emploi « ? » complété : vacances scolaires et lisibilité du mois.']},
  {v:'1.16.30',d:'29/10/2026',items:[
   '🏖 Vacances scolaires : un liseré coloré souligne les jours de vacances de ta zone (A, B ou C) dans le mois, les 2 semaines, la semaine et le mini-calendrier. Le nom des vacances s’affiche sur la journée. Réglages → Vacances scolaires.',
   'Deux façons de remplir : télécharger le calendrier officiel (data.education.gouv.fr, ministère de l’Éducation nationale ; seule la zone est envoyée, mise à jour une fois par mois) ou saisir tes périodes à la main (hors connexion, autre zone, pont…). Les deux peuvent se combiner.',
@@ -1286,6 +1430,9 @@ const IC={
  cog:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
  gear:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
+ cake:'<path d="M4 20h16M5 20v-7h14v7M12 13V9.5M12 7c1.1-1 1.1-2.4 0-3.5-1.1 1.1-1.1 2.5 0 3.5zM5 16.2c2.3 1.2 4.7-1.2 7 0s4.7 1.2 7 0"/>',
+ meal:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 1.5-3 4-3 7h3v11"/>',
+ tasks:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
  left:'<path d="M15 5l-7 7 7 7"/>',
  right:'<path d="M9 5l7 7-7 7"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -1336,6 +1483,9 @@ function titles(){
  if(V.view==='fort'){const ws=fortStart(),we=add(ws,13);return[fShort(ws)+' – '+fShort(we),'Semaines '+isoWeek(add(ws,S.weekStart===1?3:4))+' et '+isoWeek(add(ws,7+(S.weekStart===1?3:4)))+' · '+pd(we).getFullYear()]}
  if(V.view==='month')return[cap(ML[pd(d).getMonth()]),String(pd(d).getFullYear())];
  if(V.view==='search')return['Rechercher','Dans tout l’agenda'];
+ if(V.view==='repas')return['Repas',RV.tab==='rc'?rcAll().length+' recette'+(rcAll().length>1?'s':''):RV.tab==='co'?'Liste de courses':'Menu de la semaine'];
+ if(V.view==='bdays'){const n=bdClean().length;return['Anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant']}
+ if(V.view==='tasks'){const n=tkAll().filter(k=>!k.x).length;return['Tâches',n?n+' à faire':'Rien à faire']}
  return['Réglages','Version '+APP_VERSION];
 }
 
@@ -1358,7 +1508,7 @@ function dayListHTML(day,opts){
  opts=opts||{};
  const rows=dayRows(day);
  return '<section class="dl'+(opts.inMain?' inmain':'')+'"><div class="dl-h"><div><b>'+cap(fLong(day))+'</b><small>'+relDay(day)+(vacName(day)?' · 🏖 '+esc(vacName(day)):'')+'</small></div><button class="btn sm" data-act="newon" data-date="'+day+'">'+ic('plus')+' Ajouter</button></div>'+
-  (rows||'<p class="empty">Rien de prévu ce jour-là.</p>')+
+  (rows||(tkDayHTML(day)?'':'<p class="empty">Rien de prévu ce jour-là.</p>'))+tkDayHTML(day)+rpDayHTML(day)+
   (opts.openBtn?'<button class="btn blk" data-act="goday" data-date="'+day+'">Ouvrir la journée</button>':'')+'</section>';
 }
 
@@ -1424,7 +1574,7 @@ function weekView(){
  let h='<div class="wl">';
  for(const d of days){
   const rows=dayRows(d,list);
-  h+='<section class="wd'+(d===t?' today':'')+dayCls(d)+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+bdMark(d)+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||'<p class="empty">Rien de prévu</p>')+'</section>';
+  h+='<section class="wd'+(d===t?' today':'')+dayCls(d)+'"><div class="wd-h"><button class="wd-n" data-act="goday" data-date="'+d+'" aria-label="Ouvrir le jour">'+pd(d).getDate()+'</button><div class="wd-w">'+DL[dow(d)]+bdMark(d)+'<small>'+(d===t?'Aujourd’hui':fShort(d))+'</small></div><button class="wd-add" data-act="newon" data-date="'+d+'" aria-label="Ajouter un événement">'+ic('plus')+'</button></div>'+(rows||(tkDayHTML(d)?'':'<p class="empty">Rien de prévu</p>'))+tkDayHTML(d)+rpDayHTML(d)+'</section>';
  }
  return{html:h+'</div>',fixed:false};
 }
@@ -1632,6 +1782,9 @@ function render(){
   case 'month':r=monthView();break;
   case 'fort':r=monthViewTitles(true);break;
   case 'search':r=searchView();break;
+  case 'tasks':r=tasksView();break;
+  case 'bdays':r=bdaysView();break;
+  case 'repas':r=repasView();break;
   default:r=settingsView();
  }
  main.innerHTML=r.html;main.classList.toggle('fixed',!!r.fixed);
@@ -1645,14 +1798,24 @@ function render(){
  const [t1,t2]=titles();$('#t1').textContent=t1;$('#t2').textContent=t2;{const fl=$('#focuslbl');if(fl)fl.textContent=t1+(t2?' · '+t2:'')}
  const nav=['day','week','month','fort'].includes(V.view);
  $('#nav').style.display=nav?'':'none';
- $$('#tabs button,#gearbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
+ $$('#tabs button,#gearbtn,#srchbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view||(b.dataset.v==='agenda'&&nav)));
+ $$('#agseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
+ const SEC={tasks:'--k-tk',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy'};
+ document.documentElement.style.setProperty('--sec','var('+(SEC[V.view]||'--k-ag')+')');
+ body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
+ document.body.classList.toggle('paper',!nav&&V.view!=='settings');
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
- body.classList.toggle('nofab',!nav&&V.view!=='search');
+ body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='repas');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
  $('#side').innerHTML=(nav&&isWide()&&S.side!==0)?sideHTML():'';
  $('#banner').innerHTML=bannerHTML();
 }
-function go(view){V.view=view;render()}
+function go(view){
+ if(view==='agenda')view=['day','week','month','fort'].includes(S.agv)?S.agv:'month';
+ if(['day','week','month','fort'].includes(view)&&S.agv!==view){S.agv=view;saveSet()}
+ if(V.view==='bdays'&&view!=='bdays'&&S.bdPin&&typeof bdRelock==='function')bdRelock();
+ V.view=view;render();
+}
 function shift(n){
  if(V.view==='fort'){V.fs=add(fortStart(),14*n);V.date=add(V.date,14*n)}
  else if(V.view==='day')V.date=add(V.date,n);
@@ -1673,7 +1836,9 @@ const MS_PROP='String {4f1d8a3e-7b21-4c6e-9d11-0a6a2f5c7e01} Name AgendamKey';
 let MSA=Object.assign({token:null,exp:0,refresh:null,calId:null,map:{},acct:'',last:0,err:'',n:0},ls.get(K.ms,{}));
 const msSave=()=>ls.set(K.ms,MSA);
 const msClientId=()=>String(S.msClientId||MS_CLIENT_ID||'').trim();
-const msConnected=()=>!!MSA.refresh;
+/* 1.17 : synchro Outlook mise en sommeil (source de doublons). Code conservé ; OL_ON=true pour la réactiver. */
+const OL_ON=false;
+const msConnected=()=>OL_ON&&!!MSA.refresh;
 const msRedirect=()=>location.origin+location.pathname.replace(/index\.html$/,'');
 let msBusy=false,msTimer=null;
 
@@ -2675,8 +2840,9 @@ async function olAuto(){
 }
 function importCard(){
  return '<div class="card" id="imp-card"><h3>Importer un autre calendrier</h3>'+
-  mrow('ms-import','Depuis Outlook',msConnected()?'Choisis les calendriers à lire':'Connexion requise')+
+  (OL_ON?mrow('ms-import','Depuis Outlook',msConnected()?'Choisis les calendriers à lire':'Connexion requise'):'')+
   mrow('xl-import','Depuis un fichier Excel ou CSV','.xlsx, .xls, .ods, .csv')+
+  mrow('app-dupes','Chercher les doublons','Même titre, même jour, même heure : tu choisis quoi supprimer')+
   sfold('Comment ça marche ?','Rapatrie dans AgenDam ce qui existe déjà ailleurs. Rien n’est supprimé, les doublons sont ignorés. Excel/CSV : l’appli reconnaît les colonnes (titre, date, heure, lieu, notes, catégorie, rappel…) et te laisse les corriger avant d’importer.')+'</div>';
 }
 
@@ -3420,7 +3586,7 @@ function pickEmoji(cur){
 }
 
 /* ---------- Apparence : couleur de l'appli, fond, week-ends, jours fériés, style des dates ---------- */
-const LK_ACC=[['#2f5bea','Bleu'],['#0d9488','Turquoise'],['#16a34a','Vert'],['#7c3aed','Violet'],['#db2777','Rose'],['#ea580c','Orange'],['#dc2626','Rouge'],['#475569','Graphite']];
+const LK_ACC=[['#2f6fb3','Encre'],['#2f5bea','Bleu'],['#0d9488','Turquoise'],['#16a34a','Vert'],['#7c3aed','Violet'],['#db2777','Rose'],['#ea580c','Orange'],['#dc2626','Rouge'],['#475569','Graphite']];
 const LK_BG=[['','Standard','',''],['creme','Crème','#faf6ee','#17130c'],['bleute','Bleuté','#eef3fb','#0b1220'],['menthe','Menthe','#eef7f1','#0c1511'],['rose','Rose','#fbeff3','#1a0f15'],['lavande','Lavande','#f3effb','#130f1c'],['ardoise','Ardoise','#eceff3','#10151c']];
 const LK_WE=[['','Aucune'],['#94a3b8','Gris'],['#60a5fa','Bleu'],['#fbbf24','Jaune'],['#f472b6','Rose'],['#4ade80','Vert'],['#a78bfa','Violet']];
 const lkRgb=h=>{h=String(h||'').replace('#','');if(h.length===3)h=h.replace(/./g,'$&$&');const n=parseInt(h,16);return isNaN(n)||h.length!==6?[0,0,0]:[n>>16&255,n>>8&255,n&255]};
@@ -3446,7 +3612,7 @@ function applyLook(dark){
  st.setProperty('--holc',lkA(dark?'#ff6b5f':'#d92d20',dark?.16:.09));
  st.setProperty('--vacc',/^#[0-9a-f]{6}$/i.test(S.vacCol||'')?(dark?lkMix(S.vacCol,'#ffffff',.15):S.vacCol):'#f59e0b');
  cl.toggle('dst-big',S.dsty==='big');cl.toggle('dst-circle',S.dsty==='circle');
- const m=$('meta[name=theme-color]');if(m)m.content=dark?(S.bgk&&bg?bg[3]:'#161b22'):(S.acc||'#2f5bea');
+ const m=$('meta[name=theme-color]');if(m)m.content=dark?(S.bgk&&bg?bg[3]:'#161b22'):(S.acc||'#2f6fb3');
 }
 /* jours fériés français (fixes + Pâques, Ascension, Pentecôte) */
 const HOL_CACHE={};
@@ -3885,16 +4051,27 @@ async function olDedupeAll(){
 }
 /* doublons dans l'appli elle-même (la source des doublons envoyés à Outlook) */
 async function appDupes(){
+ /* même titre (sans emoji ni accents ni casse), même jour de début, même heure de début (ou journée entière) */
+ const strip=t=>dupNorm(String(t||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/[^\p{L}\p{N} ]/gu,' '));
  const g=new Map();
- for(const e of EV){const k=[dupNorm((e.icon?e.icon+' ':'')+e.title),e.start,e.end,e.allDay?1:0,e.startTime||'',e.endTime||'',JSON.stringify(e.rec||null)].join('|');if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
- /* on garde en priorité l'événement créé dans l'appli (pas la copie importée d'Outlook) ; le calendrier n'entre pas dans la comparaison */
- for(const l of g.values())l.sort((a,b)=>((a.src==='ol')-(b.src==='ol'))||((b.ocal?1:0)-(a.ocal?1:0)))
- const extra=[];for(const l of g.values())if(l.length>1)l.slice(1).forEach(x=>extra.push(x));
+ for(const e of EV){const k=[strip(e.title),e.start,e.allDay?'J':(e.startTime||''),JSON.stringify(e.rec?{f:e.rec.freq,i:e.rec.interval}:null)].join('|');if(!g.has(k))g.set(k,[]);g.get(k).push(e)}
+ const score=e=>(e.src==='ol'?0:4)+(e.note?1:0)+(e.place?1:0)+(e.cat?1:0)+(e.icon?1:0)+(e.hi?1:0);
+ for(const l of g.values())l.sort((a,b)=>score(b)-score(a));
+ const extra=[];for(const l of g.values())if(l.length>1)l.slice(1).forEach(x=>extra.push({x,keep:l[0]}));
  if(!extra.length){toast('Aucun doublon dans l’appli ('+EV.length+' événements vérifiés)',5000);return}
- const r=await ask({title:'Doublons dans l’appli',text:extra.length+' événement'+(extra.length>1?'s':'')+' en double (même titre, mêmes dates et heures). On en garde un seul de chaque. Si tu es connecté à Outlook, les copies envoyées en trop seront aussi retirées d’Outlook à la prochaine synchronisation.',btns:[{label:'Supprimer '+extra.length+' doublon'+(extra.length>1?'s':''),value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ extra.sort((p,q)=>p.x.start<q.x.start?-1:1);
+ const html='<p style="margin:.2rem 0 .5rem">'+extra.length+' événement'+(extra.length>1?'s':'')+' en double (même titre, même jour, même heure). <b>Coché = supprimé</b> ; l’exemplaire le plus complet est gardé.</p><div class="olbox">'+
+  extra.map((p,i)=>'<label class="olrow"><input type="checkbox" checked data-dup="'+i+'"><span><b>'+esc(p.x.title)+'</b><br><small class="mut">'+esc(fLongY(p.x.start))+(p.x.allDay?' · journée':' · '+esc(p.x.startTime||''))+(p.x.src==='ol'?' · venu d’Outlook':'')+'</small></span></label>').join('')+'</div>';
+ const root=$('#dlg');const off=new Set();
+ const h=e=>{const c=e.target.closest&&e.target.closest('[data-dup]');if(c){c.checked?off.delete(+c.dataset.dup):off.add(+c.dataset.dup)}};
+ root.addEventListener('change',h,true);
+ const r=await ask({title:'Doublons dans l’appli',html,btns:[{label:'Supprimer les doublons cochés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ root.removeEventListener('change',h,true);
  if(r!=='y')return;
- const ids=new Set(extra.map(x=>x.id));EV=EV.filter(x=>!ids.has(x.id));saveData();
- toast(extra.length+' doublon'+(extra.length>1?'s':'')+' supprimé'+(extra.length>1?'s':'')+' de l’appli',4000);
+ const ids=new Set(extra.filter((_,i)=>!off.has(i)).map(p=>p.x.id));
+ if(!ids.size)return;
+ EV=EV.filter(x=>!ids.has(x.id));saveData();
+ toast(ids.size+' doublon'+(ids.size>1?'s':'')+' supprimé'+(ids.size>1?'s':''),4000);
  if(typeof msSchedule==='function')msSchedule();
  render();
 }
@@ -3995,7 +4172,7 @@ function cflText(cf,max){
 function dayBarHTML(){
  const m=S.dayMode==='fit'||S.dayMode==='list'?S.dayMode:'grid';
  const b=(k,l)=>'<button data-act="set" data-k="dayMode" data-v="'+k+'" class="'+(m===k?'on':'')+'">'+l+'</button>';
- return '<div class="daybar"><div class="seg">'+b('grid','Heures')+b('fit','Jour entier')+b('list','Liste')+'</div>'+bdDayHTML(V.date)+(vacName(V.date)?'<div class="vacb">🏖 '+esc(vacName(V.date))+' · zone '+esc(S.vacZone||'B')+'</div>':'')+'</div>';
+ return '<div class="daybar"><div class="seg">'+b('grid','Heures')+b('fit','Jour entier')+b('list','Liste')+'</div>'+bdDayHTML(V.date)+(vacName(V.date)?'<div class="vacb">🏖 '+esc(vacName(V.date))+' · zone '+esc(S.vacZone||'B')+'</div>':'')+rpDayHTML(V.date)+tkDayHTML(V.date,true)+'</div>';
 }
 function dayListHTML(){
  const d=V.date,list=occs(d,d),sg=segs(list,d);
@@ -4182,10 +4359,10 @@ async function bdSetPin(){
  const salt=uid();S.bdPin=salt+':'+await bdHash(a,salt);bdRelock();saveSet();render();toast('🔒 Code enregistré');
 }
 
-function bdMark(date){return bdOn(date).length?'<em class="bd" title="Anniversaire">🎂</em>':''}
+function bdMark(date){return (bdOn(date).length?'<em class="bd" title="Anniversaire">🎂</em>':'')+tkMark(date)}
 function bdDayHTML(date){
  const l=bdOn(date);if(!l.length)return '';
- return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>';
+ return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>'+(date===today()?l.filter(b=>!bdHide(b)).map(b=>'<button class="bdb wishb" data-act="wish-open" data-id="'+esc(b.id)+'">🎉 Souhaiter à '+esc(b.n.split(' ')[0])+(b.ws&&b.ws.y===new Date().getFullYear()?' ✓':'')+'</button>').join(''):'');
 }
 function bdIn(days){return days===0?'aujourd’hui':days===1?'demain':'dans '+days+' jours'}
 function bdLines(){
@@ -4204,8 +4381,10 @@ function bdRowsHTML(){
 }
 
 /* ---------- Écran « Anniversaires » ---------- */
-function bdOpen(){bdShow()}
-function bdShow(){
+function bdOpen(){go('bdays')}
+function bdShow(){if(V.view==='bdays'&&!SHEET_OPEN){render();return}openSheet(bdHTML(false))}
+function bdaysView(){return{html:'<div class="bd-page">'+bdHTML(true)+'</div>',fixed:false}}
+function bdHTML(inMain){
  const t=today(),mode=['next','az','month'].includes(S.bdSort)?S.bdSort:'next';
  const nk=x=>bdHide(x.b)?'￿':norm(x.b.n);
  const list=bdClean().map(b=>({b,nx:bdNext(b,t)})).sort(mode==='az'?((a,b)=>nk(a)<nk(b)?-1:nk(a)>nk(b)?1:0):mode==='month'?((a,b)=>a.b.m-b.b.m||a.b.d-b.b.d||nk(a).localeCompare(nk(b))):((a,b)=>a.nx<b.nx?-1:a.nx>b.nx?1:a.b.n.localeCompare(b.b.n)));
@@ -4213,7 +4392,7 @@ function bdShow(){
  const rem=Array.isArray(S.bdRem)?S.bdRem:[0,1,7];
  const chip=(v,l)=>'<button data-act="bd-rem" data-v="'+v+'" class="'+(rem.includes(v)?'on':'')+'">'+l+'</button>';
  const nconv=bdCandidates().length;
- let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">🎂 Anniversaires</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ let h=inMain?'':'<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">🎂 Anniversaires</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+='<button class="btn pri blk" data-act="bd-add" style="margin-top:0">'+ic('plus')+' Ajouter un anniversaire</button>';
  if(list.length>1)h+='<div class="seg" style="margin-top:.5rem">'+sg('next','Prochains')+sg('az','A → Z')+sg('month','Par mois')+'</div><input id="bd-q" type="search" placeholder="Chercher un prénom…" autocomplete="off" style="width:100%;margin-top:.4rem;font:inherit;padding:.5rem .7rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box">';
  if(list.length){
@@ -4222,7 +4401,7 @@ function bdShow(){
    let hd='';
    if(mode==='month'&&lastH!==x.b.m){lastH=x.b.m;hd='<div class="bdh">'+cap(ML[x.b.m-1])+'</div>'}
    else if(mode==='az'){const L=hid?'🔒':(norm(x.b.n).charAt(0)||'#').toUpperCase();if(lastH!==L){lastH=L;hd='<div class="bdh">'+esc(L)+'</div>'}}
-   return hd+'<button class="bdrow" data-n="'+(hid?'':esc(norm(x.b.n)))+'" data-act="bd-edit" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'}).join('')+'</div>';
+   return hd+'<div class="bdrw" data-n="'+(hid?'':esc(norm(x.b.n)))+'"><button class="bdrow" data-n="'+(hid?'':esc(norm(x.b.n)))+'" data-act="bd-edit" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button><button class="bdwish'+(dd===0?' now':'')+'" data-act="wish-open" data-id="'+esc(x.b.id)+'" aria-label="Souhaiter l’anniversaire">🎉</button></div>'}).join('')+'</div>';
  }else h+='<p class="mut" style="margin:.6rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
  h+='<div style="height:.4rem"></div>';
  if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
@@ -4236,11 +4415,14 @@ function bdShow(){
  h+='<button class="btn blk" data-act="bd-pin">'+(S.bdPin?'Code activé : changer ou retirer':'Créer mon code…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-bio">'+(S.bdBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-lock">Verrouiller maintenant</button>';
- h+='<button class="btn blk" data-act="close">Fermer</button>';
- openSheet(h);
+ if(!inMain)h+='<button class="btn blk" data-act="close">Fermer</button>';
+ else h=h.replace('id="bd-list" style="margin:.4rem -1rem 0"','id="bd-list" style="margin:.4rem 0 0"');
+ if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Partager les anniversaires (SMS, WhatsApp, mail)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
+ return h;
 }
 
 /* ---------- Ajouter / modifier ---------- */
+let BD_PH=null;
 async function bdEdit(id){
  const cur=id?bdClean().find(b=>b.id===id):null;
  const inp='style="width:100%;font:inherit;padding:.55rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box"';
@@ -4251,6 +4433,8 @@ async function bdEdit(id){
   '<div style="flex:2"><label style="font-weight:650">Mois</label><select id="bd-m" '+inp+'>'+ML.map((m,i)=>'<option value="'+(i+1)+'"'+(cur&&cur.m===i+1?' selected':'')+'>'+cap(m)+'</option>').join('')+'</select></div>'+
   '<div style="flex:1.3"><label style="font-weight:650">Année</label><input id="bd-y" type="number" min="1900" max="2100" inputmode="numeric" placeholder="facultatif" '+inp+' value="'+(cur&&cur.y?cur.y:'')+'"></div></div>'+
   '<p class="mut" style="font-size:.82rem;margin:.2rem 0 .4rem">Avec l’année de naissance, l’âge est calculé tout seul.</p>'+
+  '<label style="display:block;margin:.3rem 0 .1rem;font-weight:650">👪 Contact relié <span class="mut" style="font-weight:400">(pour lui écrire)</span></label><select id="bd-ct" '+inp+'><option value="">—</option>'+pplSorted().map(p=>'<option value="'+esc(p.id)+'"'+(cur&&cur.ct===p.id?' selected':'')+'>'+esc(pplName(p))+(p.tel?' · '+esc(p.tel):'')+'</option>').join('')+'</select>'+
+  '<label style="display:block;margin:.5rem 0 .2rem;font-weight:650">📷 Photo <span class="mut" style="font-weight:400">(pour la carte d’anniversaire)</span></label><div class="bd-phw"><img id="bd-phi" alt="" hidden><label class="chip" style="position:relative;overflow:hidden">Choisir une photo<input type="file" accept="image/*" id="bd-phf" style="position:absolute;inset:0;opacity:0"></label></div>'+
   '<label style="display:block;margin:.3rem 0 .2rem;font-weight:650">🎁 Idées cadeaux <span class="mut" style="font-weight:400">(coche quand c’est acheté)</span></label><div id="bd-g">'+gifts.map(g=>grow(g.t,g.x)).join('')+'</div>'+
   '<button type="button" id="bd-gadd" class="btn blk sm" style="margin:.3rem 0 .5rem">+ Ajouter une idée</button>'+
   '<label style="display:flex;gap:.5rem;align-items:center;margin:.2rem 0 .6rem;font-weight:650"><input type="checkbox" id="bd-pr" style="width:1.4rem;height:1.4rem"'+(cur&&cur.p?' checked':'')+'> 🔒 Protéger les idées cadeaux <span class="mut" style="font-weight:400;font-size:.85rem">(cachées sans le code ; le nom reste visible)</span></label>';
@@ -4263,7 +4447,7 @@ async function bdEdit(id){
   const mx=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];
   if(!n||!(d>=1&&d<=mx)){e.stopPropagation();e.preventDefault();toast('Indique un nom et un jour valide');return}
   const g=$$('#bd-g .bdgr').map(r=>({t:r.querySelector('.bdgt').value.trim(),x:r.querySelector('.bdgc').checked?1:0})).filter(x=>x.t);
-  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:'',g,p:$('#bd-pr').checked?1:0};
+  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:cur?cur.note||'':'',g,p:$('#bd-pr').checked?1:0,ct:($('#bd-ct')||{}).value||'',ph:cur&&cur.ph?1:0,ws:cur?cur.ws:undefined};
  };
  const gh=e=>{
   if(e.target.closest('#bd-gadd')){e.stopPropagation();const w=$('#bd-g');w.insertAdjacentHTML('beforeend',grow('',0));const i=w.querySelectorAll('.bdgt');i[i.length-1].focus();return}
@@ -4273,11 +4457,14 @@ async function bdEdit(id){
  root.addEventListener('click',h,true);root.addEventListener('click',gh);root.addEventListener('keydown',kh);
  const btns=[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}];
  if(cur)btns.splice(1,0,{label:'Supprimer',value:'del'});
- const r=await ask({title:cur?'Modifier l’anniversaire':'Nouvel anniversaire',html,btns});
+ BD_PH=null;const pr_=ask({title:cur?'Modifier l’anniversaire':'Nouvel anniversaire',html,btns});
+ if(cur&&cur.ph)PH.get(cur.id).then(d=>{const i=$('#bd-phi');if(d&&i){i.src=d;i.hidden=false}});
+ const r=await pr_;
  root.removeEventListener('click',h,true);root.removeEventListener('click',gh);root.removeEventListener('keydown',kh);
- if(r==='del'&&cur){S.bd=bdClean().filter(b=>b.id!==cur.id);saveSet();toast('Anniversaire supprimé')}
+ if(r==='del'&&cur){S.bd=bdClean().filter(b=>b.id!==cur.id);S.bdDel=shTrim(S.bdDel).concat([{id:cur.id,m:Date.now()}]);saveSet();toast('Anniversaire supprimé')}
  else if(r==='ok'&&got){
-  const o=Object.assign({id:cur?cur.id:'b'+uid()},got);
+  const o=Object.assign({id:cur?cur.id:'b'+uid()},got,{mt:Date.now()});
+  if(BD_PH){try{await PH.put(o.id,BD_PH);o.ph=1}catch(e){toast('Photo non enregistrée (mémoire pleine ?)')}BD_PH=null}
   if(o.p&&!S.bdPin){toast('Crée d’abord un code pour protéger ses idées cadeaux',4000);await bdSetPin();if(!S.bdPin){o.p=0;toast('Pas de code : ses idées cadeaux ne sont pas protégées',5000)}}
   S.bd=bdClean().filter(b=>b.id!==o.id).concat([o]);saveSet();toast('🎂 Enregistré')
  }
@@ -4544,14 +4731,14 @@ async function bdAct(a,el){
 }
 function bdCard(){
  const n=bdClean().length;
- return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3>'+mrow('bd-open','Ouvrir les anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant')+sfold('Comment ça marche ?','Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).')+'</div>';
+ return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3>'+mrow('bd-open','Ouvrir les anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant')+(n?mrow('sh-bd','📤 Partager les anniversaires','Par SMS, WhatsApp ou mail : met à jour l’appli de l’autre'):'')+sfold('Comment ça marche ?','Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).')+'</div>';
 }
 
 /* recherche dans la liste (filtre sans recharger) */
 document.addEventListener('input',e=>{
  const q=e.target;if(!q||q.id!=='bd-q')return;
  const v=norm(q.value||'').trim();
- $$('#bd-list .bdrow').forEach(r=>{r.style.display=(!v||(r.dataset.n||'').includes(v))?'':'none'});
+ $$('#bd-list .bdrw').forEach(r=>{r.style.display=(!v||(r.dataset.n||'').includes(v))?'':'none'});
  $$('#bd-list .bdh').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&!n.classList.contains('bdh')){if(n.style.display!=='none')vis=true;n=n.nextElementSibling}h.style.display=vis?'':'none'});
 });
 
@@ -4823,8 +5010,9 @@ function settingsView(){
  h+=sec('s-agenda','Mon agenda');
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
+ h+=contactsCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
- h+=msCard();
+ if(OL_ON)h+=msCard();
  h+=bdCard();
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
@@ -4859,22 +5047,28 @@ h+='<div class="card" id="ics-card">'+
 function openHelp(hist){
  const d=(t,body,open)=>'<details'+(open?' open':'')+'><summary>'+t+'</summary>'+body+'</details>';
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">Mode d’emploi</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+=d('Démarrer','<ul><li><b>Jour, Semaine, Mois, 2 sem., Chercher</b> : onglets en bas. <b>Réglages</b> : l’icône d’engrenage en haut à droite. Les flèches et « Aujourd’hui » en haut changent de période. Tu peux aussi glisser le doigt à gauche ou à droite.</li><li><b>+</b> (bouton rond) crée un événement. Dans la vue Jour, touche aussi un créneau vide pour en créer un à cette heure.</li><li>Touche un événement pour voir le détail, le modifier, le dupliquer, l’exporter ou le supprimer.</li><li>Dans le mois, touche un jour pour voir sa liste, touche « Ouvrir la journée » pour le détail heure par heure.</li></ul>',true);
+ h+=d('Démarrer','<ul><li><b>Les onglets en bas</b> sont les intercalaires du carnet : 📅 <b>Agenda</b>, ☑ <b>Tâches</b>, 🎂 <b>Anniversaires</b>, 🍽 <b>Repas</b>.</li><li>Dans <b>Agenda</b>, choisis l’affichage juste sous le titre : <b>Jour</b>, <b>Semaine</b>, <b>2 sem.</b> ou <b>Mois</b>. L’appli s’en souvient.</li><li>Les flèches ‹ › et « Aujourd’hui » font avancer ou revenir. Tu peux aussi glisser le doigt à gauche ou à droite.</li><li>La <b>loupe</b> en haut cherche dans tout l’agenda, la <b>roue crantée</b> ouvre les Réglages.</li><li>Le bouton rond <b>+</b> ajoute un événement, une tâche ou un anniversaire selon l’onglet.</li></ul>');
  h+=d('Créer un événement','<ul><li><b>Titre, catégorie (couleur), lieu, note.</b> Les catégories se modifient dans Réglages.</li><li><b>Début et fin</b> : n’importe quelle durée, même sur plusieurs jours. Les boutons 30 min / 1 h / 2 h… règlent la fin d’un geste.</li><li><b>Journée entière</b> : pour un anniversaire, un congé, un voyage.</li><li><b>Rappel</b> : voir la section « Rappels ».</li></ul>');
  h+=d('Événements importants','<ul><li>Dans la fiche d’un événement, <b>Mettre en valeur</b> : choisis <b>Contour</b> (cadre épais), <b>Gras</b> et/ou <b>★ Étoile</b>. Tu peux en cocher un, deux ou les trois.</li><li>Ça se voit dans le mois, la semaine, le jour et les listes. Ça reste dans l’appli (pas envoyé à Outlook).</li></ul>');
  h+=d('Répétitions et rotations','<ul><li>Tous les jours, semaines (avec choix des jours), mois, ans, avec un intervalle (ex. toutes les 2 semaines) et une date de fin facultative.</li><li><b>Rotation travail / repos</b> : indique le nombre de jours travaillés puis de repos (ex. 3 puis 2). Le cycle part de la date de début et se répète. Pratique pour des horaires en rotation.</li><li>Modifier ou supprimer un événement répété : tu choisis « cette occurrence », « celle-ci et les suivantes » ou « toute la série ».</li></ul>');
  h+=d('Rappels et notifications','<ul><li><b>À l’ouverture</b> : un écran « À venir aujourd’hui » liste ce qu’il reste à faire dans la journée (désactivable dans Réglages).</li><li><b>Notifications</b> : elles s’affichent quand l’appli est ouverte ou récemment active. <b>Quand l’appli est fermée, aucun rappel ne sonne</b> : une appli web sans serveur ne peut pas le garantir, surtout sur iPhone (notifications possibles seulement depuis l’écran d’accueil, iOS 16.4 minimum).</li><li><b>Solution fiable</b> : exporte en .ics et ouvre le fichier avec l’agenda natif du téléphone, qui gère les alarmes lui-même.</li></ul>');
  h+=d('Plusieurs appareils et sauvegarde','<div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Chaque appareil a sa propre copie de ton agenda.</div><ol><li>Appareil A : Réglages → <b>Sauvegarder (.json)</b>.</li><li>Envoie le fichier « '+BACKUP_FILE+' » à l’appareil B.</li><li>Appareil B : Réglages → <b>Restaurer</b>, puis choisis « Remplacer » ou « Fusionner ».</li></ol><p>Sauvegarde aussi régulièrement par sécurité : si tu vides les données du navigateur ou changes de téléphone, la sauvegarde est la seule copie. Le fichier porte toujours le même nom ; si ton téléphone en garde plusieurs, il ajoute « (1) », « (2) »… à la fin.</p>');
- h+=d('Connexion à Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Se connecter ». Tu t’identifies sur le site officiel de Microsoft : l’appli ne voit jamais ton mot de passe.</li><li>Elle crée un calendrier <b>« Agenda (appli) »</b> dans ton compte et y envoie tes événements (1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés.</li><li><b>Sens unique</b> : appli → Outlook. Une modification faite dans Outlook sur ces événements est écrasée au prochain envoi.</li><li>Sur l’iPhone, ajoute ton compte Outlook dans Réglages → Calendrier → Comptes pour voir ce calendrier dans Calendrier.</li><li>La connexion expire au bout de quelques jours sans ouvrir l’appli : refais « Se connecter ».</li><li>Tu peux te déconnecter et supprimer ce calendrier à tout moment.</li></ul>');
+ if(OL_ON)h+=d('Connexion à Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Se connecter ». Tu t’identifies sur le site officiel de Microsoft : l’appli ne voit jamais ton mot de passe.</li><li>Elle crée un calendrier <b>« Agenda (appli) »</b> dans ton compte et y envoie tes événements (1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés.</li><li><b>Sens unique</b> : appli → Outlook. Une modification faite dans Outlook sur ces événements est écrasée au prochain envoi.</li><li>Sur l’iPhone, ajoute ton compte Outlook dans Réglages → Calendrier → Comptes pour voir ce calendrier dans Calendrier.</li><li>La connexion expire au bout de quelques jours sans ouvrir l’appli : refais « Se connecter ».</li><li>Tu peux te déconnecter et supprimer ce calendrier à tout moment.</li></ul>');
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
- h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
+ if(OL_ON)h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
  h+=d('Anniversaires','<ul><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Trier et chercher</b> : au-dessus de la liste, « Prochains » (par date à venir), « A → Z » ou « Par mois » ; le champ « Chercher un prénom » filtre la liste pendant que tu tapes.</li><li><b>Idées cadeaux</b> : dans la fiche, une ligne par idée avec une case à cocher (acheté). Les idées restantes s’affichent dans la liste et dans le rappel. Elles ne partent pas dans le calendrier du téléphone.</li><li><b>Protéger les idées cadeaux</b> : crée ton code (Anniversaires → « Créer mon code »), puis dans la fiche d’une personne coche « 🔒 Protéger les idées cadeaux ». Son nom, sa date et son âge restent visibles partout ; ses idées cadeaux n’apparaissent plus dans la liste ni dans le rappel, et sa fiche ne s’ouvre qu’avec le code. L’appli se reverrouille après 2 minutes, quand tu fermes la liste ou quand tu quittes l’appli. Attention : ce n’est <b>pas un chiffrement</b>, il arrête le curieux qui a ton téléphone ouvert, pas un expert, et les sauvegardes .json ne sont pas protégées. <b>Face ID / empreinte</b> : une fois le code créé, « Déverrouiller avec Face ID / empreinte » l’active (iPhone 16 et + de iOS conseillé, Android avec un verrouillage d’écran). Si la reconnaissance échoue, le code sert de secours. Code oublié : seule solution, effacer la liste et recommencer (ou restaurer une sauvegarde).</li><li><b>Imprimer</b> : « Imprimer / PDF de tous les anniversaires » donne un PDF A4 classé par mois (plusieurs pages si besoin), avec les idées cadeaux. Les idées cadeaux des personnes protégées n’y figurent que si tu saisis le code.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
  h+=d('Vue Jour : 3 affichages, déplacer, chevauchements','<ul><li><b>Heures</b> : la grille habituelle. <b>Jour entier</b> : toute la journée tient à l’écran avec les horaires. <b>Liste</b> : événements triés, plages libres, ⚠ si deux événements se chevauchent.</li><li><b>Déplacer</b> : appui long sur un événement (≈ 0,5 s), puis glisse. L’heure s’affiche pendant le déplacement. Pas pour les événements répétés ni importés d’Outlook : ouvre leur fiche.</li><li><b>Avertissement</b> : si l’horaire est déjà pris, l’appli te le dit avant d’enregistrer.</li></ul>');
- h+=d('Supprimer les doublons','<ul><li><b>Réglages → Outlook</b> : « Chercher les doublons dans l’appli » puis « Chercher les doublons dans Outlook ».</li><li>Une liste apparaît : <b>coché = supprimé</b>. Un exemplaire de chaque événement est toujours conservé.</li><li>Les copies présentes dans plusieurs calendriers ne sont pas cochées : à toi de décider.</li><li>Le plus sûr : d’abord dans l’appli, puis dans Outlook.</li></ul>');
- h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
- h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
+ h+=d('Supprimer les doublons','<ul><li><b>Réglages → Importer un autre calendrier → Chercher les doublons</b>.</li><li>L’appli cherche les événements avec le même titre (emoji, accents et majuscules ignorés), le même jour et la même heure.</li><li>Une liste apparaît : <b>coché = supprimé</b>. L’exemplaire le plus complet (note, lieu, catégorie) est gardé.</li></ul>');
+ if(OL_ON)h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
+ if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
+ h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🍽 Repas','<ul><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
+ h+=d('📤 Partager avec la famille','<ul><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
+ h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
+ h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
+ h+=d('Lisibilité du mois','<ul><li>Les mots longs sont coupés par syllabes, avec un tiret.</li><li><b>Réglages → Affichage → Texte des événements dans le mois</b> : Petit (plus de lettres par ligne), Normal ou Grand.</li><li>Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
  h+=d('Modèles et garde alternée','<ul><li><b>Modèle</b> : dans la fiche d’un événement, touche « Enregistrer comme modèle ». Ensuite, dans « Nouvel événement », touche le modèle : tout est rempli, tu changes seulement la date.</li><li><b>Garde alternée</b> : touche « Garde alternée… » (dans Nouvel événement ou Réglages → Modèles), choisis le rythme, les jours et heures de début et de fin, à partir de quand et jusqu’à quand. Les gardes sont créées d’un coup.</li><li><b>Vacances</b> : ajoute une période (du… au…) avec « Pas de garde », « Garde toute la période », « 1re moitié » ou « 2e moitié » : les gardes normales de la période sont remplacées.</li><li>Pour changer une seule garde, ouvre-la et choisis « Cette occurrence seulement ».</li><li>Gérer ou supprimer un modèle : Réglages → Modèles et garde alternée.</li></ul>');
@@ -4935,7 +5129,8 @@ function backupDone(){
 }
 async function doBackup(share){
  if(demo){toast('Quitte d’abord le mode démo');return}
- const text=JSON.stringify(backupObj(),null,1);
+ const bo=backupObj();try{const ph=await PH.all();if(Object.keys(ph).length)bo.photos=ph}catch(e){}
+ const text=JSON.stringify(bo,null,1);
  if(!share&&canShareFiles())share=true;
  let done=false;
  if(!share&&window.showSaveFilePicker){
@@ -4953,6 +5148,7 @@ async function restoreFile(file){
  let text;try{text=await file.text()}catch(e){toast('Lecture du fichier impossible');return}
  const b=parseBackup(text);
  if(!b){toast('Ce fichier n’est pas une sauvegarde valide');return}
+ let photos=null;try{const o=JSON.parse(text);if(o&&o.photos&&typeof o.photos==='object')photos=o.photos}catch(e){}
  const r=await ask({title:'Restaurer la sauvegarde',html:'<p style="margin:.3rem 0">'+b.events.length+' événement'+(b.events.length>1?'s':'')+(b.exportedAt?' · créée le '+fmtDate(Date.parse(b.exportedAt)):'')+'.</p><p class="hint">« Remplacer » efface l’agenda actuel de cet appareil. « Fusionner » ajoute ce qui manque.</p>',
   btns:[{label:'Remplacer mon agenda',value:'replace',cls:'pri'},{label:'Fusionner',value:'merge'},{label:'Annuler',value:null}]});
  if(!r)return;
@@ -4965,7 +5161,16 @@ async function restoreFile(file){
   b.events.forEach(e=>{const i=EV.findIndex(x=>x.id===e.id);if(i>=0)EV[i]=e;else{EV.push(e);n++}});
   if(b.settings&&Array.isArray(b.settings.tpls)){const T=tplList();b.settings.tpls.forEach(t=>{if(t&&t.name&&!T.some(x=>x.id===t.id))T.push(t)});saveSet()}
   if(b.settings&&b.settings.cats){b.settings.cats.forEach(c=>{if(!S.cats.some(x=>x.id===c.id))S.cats.push(c)});saveSet()}
+  const st=b.settings||{};
+  try{
+   if(Array.isArray(st.ppl))st.ppl.forEach(p=>{if(p&&p.id&&!ppl().some(x=>x.id===p.id))ppl().push(p)});
+   if(Array.isArray(st.tk))shMerge({k:'tk',tl:st.tl||[],tk:st.tk,del:st.tkDel||[],ppl:[]},true);
+   if(Array.isArray(st.bd))shMerge({k:'bd',bd:st.bd,del:st.bdDel||[]},true);
+   if(Array.isArray(st.rc)||st.mn)shMerge({k:'mn',rc:st.rc||[],mn:st.mn||{},ppl:[]},true);
+  }catch(e){}
+  saveSet();
  }
+ if(photos){for(const k of Object.keys(photos)){if(typeof photos[k]==='string'&&photos[k].indexOf('data:image/')===0){try{await PH.put(k,photos[k])}catch(e){}}}}
  saveData();META.dirtySince=null;META.lastBackup=Date.now();saveMeta();
  render();toast('Sauvegarde restaurée');
 }
@@ -5037,7 +5242,7 @@ function showUpcoming(force){
  if(noEv&&!bdh){if(force)toast('Rien de prévu pour le reste de la journée');return}
  if(!S.remind&&!force&&noEv&&!bdh)return;
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">À venir aujourd’hui</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="margin:0 0 .4rem;font-weight:650">'+cap(fLongY(t))+'</p>';
- if(bdh)h+=bdh+'<button class="btn blk sm" data-act="bd-open" style="margin:.2rem 0 .4rem">Voir tous les anniversaires</button>';
+ if(bdh)h+=bdh+bdOn(t).filter(b=>!bdHide(b)).map(b=>'<button class="btn pri blk sm" data-act="wish-open" data-id="'+esc(b.id)+'" style="margin:.2rem 0">🎉 Souhaiter son anniversaire à '+esc(b.n)+'</button>').join('')+'<button class="btn blk sm" data-act="bd-open" style="margin:.2rem 0 .4rem">Voir tous les anniversaires</button>';
  if(!noEv)h+='<div style="margin:0 -1rem">'+u.ad.map(o=>rowHTML(o,t)).join('')+u.ts.map(x=>rowHTML(x.o,t)).join('')+'</div>';
  h+='<div class="btns"><button class="btn pri grow" data-act="close">Fermer</button><button class="btn" data-act="goday" data-date="'+t+'">Voir la journée</button></div>';
  if(!force&&S.remind)h+='<button class="btn blk" data-act="remind-off" style="margin-top:.5rem">Ne plus afficher cette fenêtre à l’ouverture</button>';
@@ -5106,7 +5311,56 @@ async function act(a,el,e){
   case 'map':openMap(el.dataset.p);break;
   case 'print':printCurrent();break;
   case 'focus':document.body.classList.toggle('focus');render();break;
-  case 'new':openEditor({date:V.date});break;
+  case 'new':if(V.view==='repas'){if(RV.tab==='rc')rcEdit(null);else if(RV.tab==='co'){const i=$('#co-in');if(i)i.focus()}else mealEdit(today(),new Date().getHours()<14?'m':'s')}else if(V.view==='tasks')tkEdit(null);else if(V.view==='bdays')bdEdit(null);else openEditor({date:V.date});break;
+  case 'tk-edit':tkEdit(ds_.id);break;
+  case 'wish-open':WS=null;bdWish(ds_.id);break;
+  case 'ws-tone':if(WS){WS.tone=ds_.v;WS.i=0;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
+  case 'ws-next':if(WS){WS.i++;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
+  case 'ws-theme':if(WS){WS.theme=ds_.v;$$('[data-act="ws-theme"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
+  case 'ws-useph':if(WS){WS.usePh=!WS.usePh;bdWish(WS.id)}break;
+  case 'ws-copy':if(WS){try{await navigator.clipboard.writeText(WS.txt);toast('Message copié')}catch(e){const t=$('#ws-txt');if(t){t.focus();t.select()}toast('Sélectionne le texte puis Copier')}}break;
+  case 'ws-sms':{if(!WS)break;const b=bdClean().find(x=>x.id===WS.id),p=b&&pplOf(b.ct);if(!p||!p.tel)break;const a=document.createElement('a');a.href='sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(WS.txt);document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800);wishMark();break}
+  case 'ws-send':{if(!WS)break;const b=bdClean().find(x=>x.id===WS.id);if(!b)break;
+   try{const bl=await wishBlob();const file=new File([bl],'anniversaire-'+(norm(b.n.split(' ')[0]).replace(/[^a-z0-9]+/g,'-')||'carte')+'.jpg',{type:'image/jpeg'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text:WS.txt});wishMark();toast('🎉 Bien joué !');bdWish(WS.id);break}
+    if(navigator.share){await navigator.share({text:WS.txt});wishMark();toast('Message partagé (la carte n’a pas pu être jointe sur cet appareil)',5000);break}
+    try{await navigator.clipboard.writeText(WS.txt)}catch(e){}
+    const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},3000);
+    toast('Carte enregistrée et message copié : colle-les dans ton message',6000);wishMark();
+   }catch(e){if(e&&e.name==='AbortError')break;toast('Partage impossible : '+(e&&e.message?e.message:'erreur'),5000)}
+   break}
+  case 'rp-tab':RV.tab=ds_.v;render();break;
+  case 'rp-wk':RV.ws=add(rwStart(),7*(+ds_.n));render();break;
+  case 'rp-meal':mealEdit(ds_.d,ds_.k);break;
+  case 'rp-goday':RV.tab='menu';RV.ws=mondayOf(ds_.d,S.weekStart);go('repas');break;
+  case 'rp-wkshop':pickIngredients('Ingrédients de la semaine',weekIngredients(),'Les recettes de la semaine demandent :');break;
+  case 'rp-copy':{const ws=rwStart(),pw=add(ws,-7);let n=0;for(let i=0;i<7;i++){const a=mnAll()[add(pw,i)];if(!a)continue;for(const k of ['m','s']){if(a[k]&&(a[k].r||a[k].t)){const d=add(ws,i);if(!mnAll()[d])mnAll()[d]={};if(!(mnAll()[d][k]&&(mnAll()[d][k].r||mnAll()[d][k].t))){mnAll()[d][k]=Object.assign({},a[k],{mt:Date.now()});n++}}}}saveSet();render();toast(n?n+' repas copié'+(n>1?'s':'')+' (les cases déjà remplies sont gardées)':'Rien à copier depuis la semaine précédente',4000);break}
+  case 'rp-print':rpPrint();break;
+  case 'rc-new':rcEdit(null);break;
+  case 'rc-imp':rcImport();break;
+  case 'rc-tag':RV.tag=ds_.v;render();break;
+  case 'rc-open':RC_PP=null;rcOpen(ds_.id);break;
+  case 'rc-pp':if(RC_PP){RC_PP.pp=Math.max(1,Math.min(30,RC_PP.pp+(+ds_.n)));rcOpen(RC_PP.id)}break;
+  case 'rc-shop':{const r=rcOf(ds_.id);if(!r)break;const f=(RC_PP&&RC_PP.id===r.id?RC_PP.pp:r.pp||4)/(r.pp||4);closeSheet();pickIngredients('🛒 '+r.t,(r.ing||[]).map(g=>({q:g.q!=null?Math.round(g.q*f*100)/100:null,u:g.u,n:g.n,from:r.t})),'Pour '+(RC_PP?RC_PP.pp:r.pp)+' personne'+((RC_PP?RC_PP.pp:r.pp)>1?'s':'')+' :');break}
+  case 'rc-plan':{const id=ds_.id;closeSheet();const v={d:today(),k:new Date().getHours()<14?'m':'s'};const pr=ask({title:'📅 Mettre au menu',html:'<div class="tk-2"><div><label class="lbl" for="pl-d">Jour</label><input class="in" type="date" id="pl-d" value="'+v.d+'"></div><div><label class="lbl" for="pl-k">Repas</label><select class="in" id="pl-k"><option value="m"'+(v.k==='m'?' selected':'')+'>Midi</option><option value="s"'+(v.k==='s'?' selected':'')+'>Soir</option></select></div></div>',btns:[{label:'Mettre au menu',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=root.onchange=e=>{if(e.target.id==='pl-d')v.d=e.target.value;if(e.target.id==='pl-k')v.k=e.target.value};const r=await pr;root.oninput=root.onchange=null;if(r!=='ok'||!RX_D.test(v.d))break;if(!mnAll()[v.d])mnAll()[v.d]={};const old=mnAll()[v.d][v.k]||{};mnAll()[v.d][v.k]={r:id,t:'',w:old.w||'',p:old.p||0,mt:Date.now()};saveSet();RV.tab='menu';RV.ws=mondayOf(v.d,S.weekStart);go('repas');toast('Au menu : '+fShort(v.d)+(v.k==='m'?' midi':' soir'));break}
+  case 'rc-fav':{const r=rcOf(ds_.id);if(r){r.fav=!r.fav;r.m=Date.now();saveSet();render();rcOpen(r.id)}break}
+  case 'rc-edit':closeSheet();rcEdit(ds_.id);break;
+  case 'rc-del':{const r=rcOf(ds_.id);if(!r)break;const ok=await ask({title:'Supprimer « '+r.t+' » ?',text:'La recette sera retirée du carnet. Les repas déjà au menu gardent leur nom.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){Object.values(mnAll()).forEach(x=>['m','s'].forEach(k=>{if(x[k]&&x[k].r===r.id){x[k].t=r.t;x[k].r='';x[k].mt=Date.now()}}));S.rc=rcAll().filter(x=>x.id!==r.id);saveSet();closeSheet();render()}break}
+  case 'co-add':{const i=$('#co-in');const g=i&&ingParse(i.value);if(!g){toast('Écris un article');break}const n=coursesAdd([g]);render();setTimeout(()=>{const j=$('#co-in');if(j)j.focus()},50);if(!n)toast('Déjà dans la liste');break}
+  case 'co-clear':{const gone=tkAll().filter(k=>k.l==='courses'&&k.x).map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
+  case 'co-print':coPrint();break;
+  case 'sh-mn':shareSend('mn');break;
+  case 'sh-co':shareSend('co');break;
+  case 'sh-rc':closeSheet();shareSend('rc',ds_.id);break;
+  case 'tk-chk':tkCheck(ds_.id);break;
+  case 'tk-f':TKV[ds_.k]=ds_.v;render();break;
+  case 'tk-lists':tkManage('lists');break;
+  case 'tk-ppl':case 'ct-open':contactsManage();break;
+  case 'sh-recv':sharePaste();break;
+  case 'sh-tk':shareSend('tk');break;
+  case 'sh-bd':shareSend('bd');break;
+  case 'tk-print':tkPrint();break;
+  case 'tk-clear':tkClear();break;
   case 'newon':openEditor({date:ds_.date});break;
   case 'open':openDetail(getOcc(+ds_.o));break;
   case 'goday':closeSheet();V.date=ds_.date;V.view='day';render();break;
@@ -5209,7 +5463,12 @@ async function act(a,el,e){
  }
 }
 function welcome(){
- let h='<h2>Bienvenue 👋</h2><p style="margin:.3rem 0 .6rem">Un agenda simple, lisible et <b>privé</b> : jour, semaine, mois, en gros caractères. Gratuit, sans publicité.</p><ul style="padding-left:1.2rem;margin:.3rem 0 .8rem"><li>Rien ne quitte ton appareil : aucune donnée collectée.</li><li>Fonctionne sans connexion une fois installée.</li><li><b>Plusieurs appareils ?</b> Ils ne se synchronisent pas tout seuls : sauvegarde (.json) puis restaure sur l’autre.</li></ul><div class="btns"><button class="btn pri grow" data-act="welcome-start">Commencer</button><button class="btn grow" data-act="welcome-demo">Voir la démo</button></div><button class="btn blk" data-act="help">Mode d’emploi</button>';
+ const k=(c,ic_,t,d)=>'<div class="wl-k" style="--k:var('+c+')"><span class="wl-i">'+ic_+'</span><span><b>'+t+'</b><small>'+d+'</small></span></div>';
+ let h='<h2 class="wl-t">Bienvenue dans AgenDam</h2><p class="wl-s">L’organisateur de la famille, comme un carnet : chaque onglet est un intercalaire.</p>'+
+  '<div class="wl">'+k('--k-ag','📅','Agenda','Jour, semaine, 2 semaines ou mois, avec les vacances scolaires.')+k('--k-tk','☑','Tâches','Listes à cocher, qui fait quoi, tâches qui reviennent.')+k('--k-bd','🎂','Anniversaires','Rappels, âges et idées cadeaux.')+k('--k-rp','🍽','Repas','Menu de la semaine, recettes, liste de courses par rayon.')+'</div>'+
+  '<p class="wl-n"><b>Pour toute la famille</b> : ajoute tes proches, puis envoie une liste par SMS ou WhatsApp. En touchant le lien, leur AgenDam se met à jour.</p>'+
+  '<p class="wl-n mut">Gratuit, sans publicité, sans compte. Tout reste sur ton téléphone. Pense à faire une sauvegarde de temps en temps (Réglages).</p>'+
+  '<div class="btns"><button class="btn pri grow" data-act="welcome-start">Commencer</button><button class="btn grow" data-act="welcome-demo">Voir la démo</button></div><button class="btn blk" data-act="help">Mode d’emploi</button>';
  openSheet(h);
 }
 
@@ -5250,6 +5509,8 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='vacOn'){if(t.checked)vacEnable();else setSetting('vacOn',0);return}
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
+ if(t.id==='ws-ph'&&t.files[0]&&WS){const id=WS.id,f=t.files[0];photoShrink(f,720).then(async d=>{await PH.put(id,d);const b=bdClean().find(x=>x.id===id);if(b){b.ph=1;b.mt=Date.now();saveSet()}WS.usePh=true;bdWish(id);toast('Photo ajoutée')}).catch(e=>toast(e.message||'Photo illisible'));return}
+ if(t.id==='bd-phf'&&t.files[0]){photoShrink(t.files[0],720).then(d=>{BD_PH=d;const i=$('#bd-phi');if(i){i.src=d;i.hidden=false}}).catch(e=>toast(e.message||'Photo illisible'));return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
  if(t.id==='fi-ics'&&t.files[0]){importICS(t.files[0]);return}
  if(t.id==='fi-vcf'&&t.files[0]){bdImportVCF(t.files[0]);return}
@@ -5259,12 +5520,15 @@ document.addEventListener('input',e=>{
  const t=e.target;
  if(t.id==='sel-q'){SEL.q=t.value;selRefilter();return}
  if(t.id==='f-place'){adrInput(t);return}
+ if(t.id==='ws-txt'&&WS){WS.txt=t.value;WS.edited=true;return}
+ if(t.id==='rc-q'){RV.q=t.value;const l=$('#rc-list');if(l){const tmp=document.createElement('div');tmp.innerHTML=rcListHTML();const n=tmp.querySelector('#rc-list');if(n)l.innerHTML=n.innerHTML}return}
  if(t.id==='q'){SQ=t.value;const r=$('#sres');if(r)r.innerHTML=searchResults(SQ);return}
  if(t.dataset.cat!=null&&t.dataset.field==='name'){S.cats[+t.dataset.cat].name=t.value.slice(0,30)||'Sans nom';saveSet()}
 });
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'){if($('#dlg').innerHTML){$('#dlg').innerHTML='';return}if(SHEET_OPEN){closeSheet();return}if(document.body.classList.contains('focus')){document.body.classList.remove('focus');render()}}
  if(e.key==='Enter'&&e.target.id==='f-title'){e.preventDefault();saveEditor()}
+ if(e.key==='Enter'&&e.target.id==='co-in'){e.preventDefault();act('co-add',e.target,e)}
 });
 let tx=0,ty=0,tt=0;
 document.addEventListener('touchstart',e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;tt=Date.now()},{passive:true});
@@ -5289,6 +5553,795 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEv=e
 window.addEventListener('appinstalled',()=>{installEv=null});
 try{matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.theme==='auto')setTheme()})}catch(e){}
 
+/* ========= Tâches : listes à cocher, date facultative, qui s'en occupe, répétition, impression A4 =========
+   Stockées dans les réglages (S.tl listes, S.tk tâches, S.ppl famille) : incluses dans la sauvegarde .json. */
+const TK_DEF_LISTS=[{id:'maison',n:'Maison',i:'🏠'},{id:'courses',n:'Courses',i:'🛒'},{id:'perso',n:'Perso',i:'📝'}];
+const PPL_COLS=['#2563eb','#db2777','#16a34a','#ea580c','#7c3aed','#0d9488','#ca8a04','#475569'];
+const TK_REP=[['','Non'],['d1','Chaque jour'],['w1','Chaque semaine'],['w2','Toutes les 2 semaines'],['m1','Chaque mois']];
+const TKV={l:'',w:''};
+function tkLists(){if(!Array.isArray(S.tl)||!S.tl.length)S.tl=TK_DEF_LISTS.map(x=>Object.assign({},x));return S.tl}
+const tkAll=()=>Array.isArray(S.tk)?S.tk:(S.tk=[]);
+const ppl=()=>Array.isArray(S.ppl)?S.ppl:(S.ppl=[]);
+const pplOf=id=>id?ppl().find(p=>p.id===id):null;
+const tlOf=id=>tkLists().find(l=>l.id===id)||tkLists()[0];
+const tkRepKey=r=>r?r.f+r.i:'';
+const tkRepTxt=r=>{const x=TK_REP.find(o=>o[0]===tkRepKey(r));return x?x[1]:''};
+function tkStep(d,r){
+ const x=pd(d);
+ if(r.f==='d')x.setDate(x.getDate()+r.i);
+ else if(r.f==='w')x.setDate(x.getDate()+7*r.i);
+ else{const md=r.md||x.getDate();x.setDate(1);x.setMonth(x.getMonth()+r.i);x.setDate(Math.min(md,new Date(x.getFullYear(),x.getMonth()+1,0).getDate()))}
+ return ds(x);
+}
+/* la tâche tombe-t-elle ce jour-là ? (pour une répétition : à partir de sa prochaine échéance) */
+function tkHits(k,day){
+ if(!k.d||k.x)return false;
+ if(!k.r)return k.d===day;
+ let d=k.d,n=0;while(d<day&&n<800){d=tkStep(d,k.r);n++}
+ return d===day;
+}
+const tkOn=day=>tkAll().filter(k=>tkHits(k,day));
+function tkMark(d){return tkOn(d).length?'<em class="tkm" title="Tâches">☑</em>':''}
+function tkMeta(k,showList){
+ const p=pplOf(k.w),t=today(),m=[];
+ if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+'</span>');
+ if(k.r)m.push('🔁 '+esc(tkRepTxt(k.r)));
+ if(p)m.push('<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>');
+ if(showList){const l=tlOf(k.l);if(l)m.push(esc((l.i?l.i+' ':'')+l.n))}
+ if(k.n)m.push('📝');
+ return m.join(' · ');
+}
+function tkRow(k,showList){
+ return '<div class="tk-r'+(k.x?' x':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(tkMeta(k,showList)?'<small>'+tkMeta(k,showList)+'</small>':'')+'</button></div>';
+}
+function tkDayHTML(day,compact){
+ const t=today();
+ let L=tkOn(day);
+ if(day===t)L=tkAll().filter(k=>!k.x&&k.d&&k.d<t).concat(L);
+ if(!L.length)return '';
+ const more=compact&&L.length>3?L.length-3:0;
+ return '<div class="tk-day"><div class="tk-dh">☑ Tâches</div>'+L.slice(0,more?3:L.length).map(k=>tkRow(k,true)).join('')+(more?'<button class="tk-more" data-act="view" data-v="tasks">+ '+more+' autre'+(more>1?'s':'')+'</button>':'')+'</div>';
+}
+function tasksView(){
+ const L=tkLists(),P=ppl(),t=today(),wk=add(t,7);
+ const all=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+ const pend=all.filter(k=>!k.x),done=all.filter(k=>k.x).sort((a,b)=>(b.xa||0)-(a.xa||0));
+ const cnt=id=>tkAll().filter(k=>!k.x&&k.l===id).length;
+ const chip=(act,k,v,lbl,on)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-k="'+k+'" data-v="'+esc(v)+'">'+lbl+'</button>';
+ let h='<div class="tk-wrap"><div class="tk-bar"><div class="chips tk-chips">'+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x).length+'</small>',!TKV.l)+
+  L.map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
+  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Partager</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
+ const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
+ const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
+ const showList=!TKV.l;
+ let any=false;
+ for(const [lbl,f] of G){
+  const l=pend.filter(f).sort(by);if(!l.length)continue;any=true;
+  h+='<section class="tk-g'+(lbl==='En retard'?' late':'')+'"><div class="tk-gh">'+lbl+' <small>'+l.length+'</small></div>'+l.map(k=>tkRow(k,showList)).join('')+'</section>';
+ }
+ if(!any)h+='<p class="empty">'+(done.length?'Tout est fait 👍':'Aucune tâche pour l’instant.')+' Touche + pour en ajouter une.</p>';
+ if(done.length)h+='<details class="tk-g tk-done"><summary>Faites <small>'+done.length+'</small></summary>'+done.slice(0,60).map(k=>tkRow(k,showList)).join('')+'<button class="btn sm blk" data-act="tk-clear">Effacer les tâches faites</button></details>';
+ h+='<p class="mut tk-hint">Une tâche avec une date apparaît aussi ce jour-là dans l’agenda (☑). Une tâche qui revient passe toute seule à la date suivante quand tu la coches.</p></div>';
+ return{html:h,fixed:false};
+}
+/* éditeur (fenêtre) */
+async function tkEdit(id,pre){
+ const k0=id?tkAll().find(k=>k.id===id):null;
+ if(id&&!k0)return;
+ const v=Object.assign({t:'',l:TKV.l||tkLists()[0].id,d:'',w:TKV.w||'',r:'',n:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',r:tkRepKey(k0.r),n:k0.n||''}:{},pre||{});
+ const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
+ const html='<label class="lbl" for="tk-t">Tâche</label><input class="in" id="tk-t" maxlength="120" value="'+esc(v.t)+'" placeholder="Ex. Acheter du pain, rendre les livres…" autocomplete="off">'+
+  '<div class="tk-2"><div><label class="lbl" for="tk-l">Liste</label><select class="in" id="tk-l">'+opt(tkLists().map(l=>[l.id,(l.i?l.i+' ':'')+l.n]),v.l)+'</select></div>'+
+  '<div><label class="lbl" for="tk-w">Qui s’en occupe</label><select class="in" id="tk-w">'+opt([['','Personne en particulier']].concat(pplSorted().map(p=>[p.id,pplName(p)])),v.w)+'</select></div></div>'+
+  '<div class="tk-2"><div><label class="lbl" for="tk-d">Date (facultatif)</label><input class="in" type="date" id="tk-d" value="'+esc(v.d)+'"></div>'+
+  '<div><label class="lbl" for="tk-r">Revient</label><select class="in" id="tk-r">'+opt(TK_REP,v.r)+'</select></div></div>'+
+  '<label class="lbl" for="tk-n">Note</label><textarea class="in" id="tk-n" rows="2" maxlength="500">'+esc(v.n)+'</textarea>'+
+  (ppl().length?'':'<p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Astuce : ajoute les prénoms de la famille avec « 👪 Famille » pour répartir les tâches.</p>');
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(k0)btns.push({label:'Supprimer',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
+ const p=ask({title:k0?'Modifier la tâche':'Nouvelle tâche',html,btns});
+ const root=$('#dlg');const map={'tk-t':'t','tk-l':'l','tk-d':'d','tk-w':'w','tk-r':'r','tk-n':'n'};
+ root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
+ setTimeout(()=>{const i=$('#tk-t');if(i&&!k0)i.focus()},60);
+ const r=await p;root.oninput=root.onchange=null;
+ if(r==='del'){const ok=await ask({title:'Supprimer cette tâche ?',text:k0.t,btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.tk=tkAll().filter(k=>k.id!==id);tkTomb([id]);saveSet();render();toast('Tâche supprimée')}return}
+ if(r!=='ok')return;
+ const t=String(v.t||'').trim().slice(0,120);
+ if(!t){toast('Écris la tâche');return tkEdit(id,v)}
+ let d=RX_D.test(v.d)?v.d:'';
+ const rk=TK_REP.some(o=>o[0]===v.r)?v.r:'';
+ if(rk&&!d)d=today();
+ const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
+ const k=k0||{id:uid(),ca:Date.now()};
+ Object.assign(k,{t,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:pplOf(v.w)?v.w:'',r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ if(rr)k.x=false;
+ if(!k0)tkAll().push(k);
+ saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
+}
+function tkCheck(id){
+ const k=tkAll().find(x=>x.id===id);if(!k)return;
+ if(k.r&&!k.x){
+  const prev=k.d,pm=k.m;k.d=tkStep(k.d,k.r);k.m=Date.now();saveSet();render();
+  toast('Fait ! Prochaine fois : '+fShort(k.d),5000,{label:'Annuler',fn:()=>{k.d=prev;k.m=pm;saveSet();render()}});
+  return;
+ }
+ k.x=!k.x;k.xa=k.x?Date.now():0;k.m=Date.now();saveSet();render();
+ if(k.x)toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
+}
+async function tkClear(){
+ const n=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).length;if(!n)return;
+ const r=await ask({title:'Effacer les tâches faites ?',text:n+' tâche'+(n>1?'s':'')+' cochée'+(n>1?'s':'')+' ser'+(n>1?'ont':'a')+' supprimée'+(n>1?'s':'')+'.',btns:[{label:'Effacer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ const gone=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();
+}
+/* gestion simple d'une liste (famille ou listes de tâches) dans une fenêtre */
+async function tkManage(kind){
+ for(let g=0;g<40;g++){
+  const isP=kind==='ppl',arr=isP?ppl():tkLists();
+  const rows=arr.length?arr.map(x=>'<div class="olrow"><i class="tk-dot big" style="background:'+(isP?x.c:'transparent')+'">'+(isP?'':esc(x.i||'📋'))+'</i><b style="flex:1">'+esc(x.n)+'</b>'+(isP||arr.length>1?'<button type="button" class="btn sm dng" data-tkdel="'+esc(x.id)+'">Retirer</button>':'')+'</div>').join(''):'<p class="mut" style="margin:.2rem 0">Personne pour l’instant.</p>';
+  const html=(isP?'<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Les prénoms servent à dire qui s’occupe de quoi. Ils restent sur cet appareil.</p>':'')+'<div class="olbox">'+rows+'</div>'+
+   '<label class="lbl" for="tm-n" style="margin-top:.6rem;display:block">'+(isP?'Ajouter un prénom':'Nouvelle liste')+'</label>'+
+   (isP?'':'<div style="display:flex;gap:.4rem"><input class="in" id="tm-i" maxlength="4" value="📋" style="width:3.6rem;text-align:center" aria-label="Emoji">')+'<input class="in" id="tm-n" maxlength="30" placeholder="'+(isP?'Ex. Léa':'Ex. Valise, Jardin…')+'" autocomplete="off">'+(isP?'':'</div>');
+  const root=$('#dlg');let del=null;const vals={'tm-i':'📋','tm-n':''};
+  const h=e=>{const b=e.target.closest&&e.target.closest('[data-tkdel]');if(b){e.stopImmediatePropagation();e.preventDefault();del=b.dataset.tkdel;const f=root.querySelector('[data-v="1"]');if(f)f.click()}};
+  root.addEventListener('click',h,true);
+  const p=ask({title:isP?'👪 Famille':'Listes de tâches',html,btns:[{label:'Ajouter',value:'add',cls:'pri'},{label:'Fermer',value:null}]});
+  root.oninput=e=>{if(e.target.id in vals)vals[e.target.id]=e.target.value};
+  const r=await p;root.removeEventListener('click',h,true);root.oninput=null;
+  if(del){
+   if(isP){S.ppl=ppl().filter(x=>x.id!==del);tkAll().forEach(k=>{if(k.w===del)k.w=''})}
+   else{const n=tkAll().filter(k=>k.l===del).length;
+    if(n){const ok=await ask({title:'Retirer cette liste ?',text:n+' tâche'+(n>1?'s':'')+' de cette liste ser'+(n>1?'ont':'a')+' déplacée'+(n>1?'s':'')+' dans « '+tkLists().find(l=>l.id!==del).n+' ».',btns:[{label:'Retirer la liste',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok!=='y')continue}
+    S.tl=tkLists().filter(l=>l.id!==del);const to=S.tl[0].id;tkAll().forEach(k=>{if(k.l===del){k.l=to;k.m=Date.now()}});if(TKV.l===del)TKV.l=''}
+   saveSet();render();continue;
+  }
+  if(r==='add'){
+   const n=String(vals['tm-n']||'').trim().slice(0,30);if(!n){toast(isP?'Écris un prénom':'Écris le nom de la liste');continue}
+   if(isP)ppl().push({id:uid(),n,c:PPL_COLS[ppl().length%PPL_COLS.length]});
+   else tkLists().push({id:uid(),n,i:String(vals['tm-i']||'').trim().slice(0,4)||'📋',m:Date.now()});
+   saveSet();render();continue;
+  }
+  break;
+ }
+}
+/* impression A4 : cases à cocher, groupées par liste, avec quelques lignes vides pour écrire à la main */
+function tkPrintGroups(){
+ const sel=tkAll().filter(k=>!k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+ const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
+ return tkLists().filter(l=>!TKV.l||l.id===TKV.l).map(l=>({l,items:sel.filter(k=>k.l===l.id).sort(by)})).filter(g=>g.items.length||TKV.l);
+}
+const tkPlain=s=>String(s||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/\s+/g,' ').trim();
+function tkPrintMeta(k){const p=pplOf(k.w),m=[];if(k.d)m.push(fShort(k.d));if(k.r)m.push(tkRepTxt(k.r).toLowerCase());if(p)m.push(p.n);return m.join(' · ')}
+function tkPDF(G,title){
+ const W=595,H=842,M=46,pages=[];let cur=null,y=0;const bot=M+24;
+ const wrap=(t,n)=>{const w=[];let l='';for(const word of String(t).split(' ')){if((l+' '+word).trim().length>n&&l){w.push(l);l=word}else l=(l+' '+word).trim()}if(l)w.push(l);return w};
+ const np=()=>{cur=[];pages.push(cur);y=H-M-10};
+ np();
+ cur.push('BT /F2 20 Tf '+M+' '+y+' Td '+pdfStr(title)+' Tj ET');
+ cur.push('BT /F1 10 Tf '+(W-M-150)+' '+y+' Td 0.4 g '+pdfStr('Imprimé le '+fShort(today()))+' Tj 0 g ET');y-=34;
+ const box=(x,yy)=>cur.push('0.9 w '+x+' '+(yy-2)+' 10 10 re S');
+ for(const g of G){
+  if(y-40<bot)np();
+  cur.push('BT /F2 13 Tf '+M+' '+y+' Td '+pdfStr(tkPlain(g.l.n))+' Tj ET');cur.push('0.5 w '+M+' '+(y-4)+' m '+(W-M)+' '+(y-4)+' l S');y-=22;
+  for(const k of g.items){
+   const tl=wrap(tkPlain(k.t),70),meta=tkPrintMeta(k);
+   if(y-(16*tl.length+(meta?12:0))<bot)np();
+   box(M,y);
+   tl.forEach((t,i)=>{cur.push('BT /F1 11.5 Tf '+(M+18)+' '+y+' Td '+pdfStr(t)+' Tj ET');y-=15});
+   if(meta){cur.push('BT /F1 9 Tf '+(M+18)+' '+(y+2)+' Td 0.35 g '+pdfStr(meta)+' Tj 0 g ET');y-=11}
+   y-=5;
+  }
+  for(let i=0;i<3;i++){if(y-16<bot)break;box(M,y);cur.push('0.3 w 0.7 G '+(M+18)+' '+(y-3)+' m '+(W-M)+' '+(y-3)+' l S 0 G');y-=20}
+  y-=12;
+ }
+ pages.forEach((c,i)=>c.push('BT /F1 8 Tf 0.4 g '+M+' '+(M-8)+' Td '+pdfStr('AgenDam'+(pages.length>1?'  -  page '+(i+1)+'/'+pages.length:''))+' Tj 0 g ET'));
+ const objs=[];const addO=s=>{objs.push(s);return objs.length};
+ addO('<< /Type /Catalog /Pages 2 0 R >>');addO('PAGES');
+ addO('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+ addO('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ const kids=[];
+ for(const c of pages){const st=c.join('\n');const cid=addO('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');kids.push(addO('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+cid+' 0 R >>')+' 0 R')}
+ objs[1]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+kids.length+' >>';
+ let out='%PDF-1.4\n';const off=[];
+ objs.forEach((o,i)=>{off.push(out.length);out+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});
+ const xr=out.length;
+ out+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+ const u=new Uint8Array(out.length);for(let i=0;i<out.length;i++)u[i]=out.charCodeAt(i)&255;
+ return u;
+}
+async function tkPrint(){
+ const G=tkPrintGroups();
+ if(!G.length||!G.some(g=>g.items.length)&&!TKV.l){toast('Aucune tâche à imprimer');return}
+ const p=pplOf(TKV.w),title=(TKV.l?tkPlain(tlOf(TKV.l).n):'Tâches')+(p?' - '+p.n:'');
+ if(isIOS()||/Android/i.test(navigator.userAgent)){
+  try{
+   const file=new File([tkPDF(G,title)],'taches-agendam.pdf',{type:'application/pdf'});
+   const r=await ask({title:'PDF prêt',text:'Touche le bouton, puis choisis « Imprimer » (ou Enregistrer dans Fichiers, Mail…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
+   if(r!=='s')return;
+   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});return}catch(e){if(e&&e.name==='AbortError')return}}
+   const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);
+  }catch(e){toast('PDF impossible ici : '+(e&&e.message?e.message:'erreur'),6000)}
+  return;
+ }
+ const html='<h1>☑ '+esc(title)+' <small>imprimé le '+esc(fShort(today()))+'</small></h1>'+G.map(g=>'<div class="pr-d"><h2>'+esc((g.l.i?g.l.i+' ':'')+g.l.n)+'</h2>'+g.items.map(k=>'<div class="tk-pr"><span class="bx"></span><span><b>'+esc(k.t)+'</b>'+(tkPrintMeta(k)?' <small>'+esc(tkPrintMeta(k))+'</small>':'')+'</span></div>').join('')+'<div class="tk-pr"><span class="bx"></span><span class="ln"></span></div>'.repeat(3)+'</div>').join('');
+ let z=$('#printzone');if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
+ z.className='pz port';z.innerHTML=html;
+ let st=$('#pgstyle');if(!st){st=document.createElement('style');st.id='pgstyle';document.head.appendChild(st)}
+ st.textContent='@page{size:A4 portrait;margin:12mm}';
+ setTimeout(()=>{try{window.print()}catch(e){toast('Impression impossible ici')}},150);
+}
+
+/* ========= Contacts (famille, amis) : pour distribuer les tâches et envoyer les partages ========= */
+const REL=[['conj','Conjoint(e)'],['enf','Enfant'],['par','Parent'],['fam','Famille'],['ami','Ami(e)'],['aut','Autre']];
+const relTxt=k=>(REL.find(r=>r[0]===k)||REL[5])[1];
+const pplName=p=>p?(p.n+(p.ln?' '+p.ln:'')):'';
+const telN=t=>String(t||'').replace(/[^\d+]/g,'').replace(/^0033|^\+33/,'0');
+const isStandalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+function pplSorted(){const o=k=>{const i=REL.findIndex(r=>r[0]===k);return i<0?9:i};return ppl().slice().sort((a,b)=>o(a.rel)-o(b.rel)||pplName(a).localeCompare(pplName(b)))}
+async function contactsManage(){
+ for(let g=0;g<60;g++){
+  const L=pplSorted();
+  const rows=L.length?L.map(p=>'<button type="button" class="ct-r" data-ctid="'+esc(p.id)+'"><i class="tk-dot big" style="background:'+p.c+';color:#fff">'+esc((p.n||'?').charAt(0).toUpperCase())+'</i><span><b>'+esc(pplName(p))+'</b><small>'+esc(relTxt(p.rel))+(p.tel?' · '+esc(p.tel):'')+(p.mail?' · '+esc(p.mail):'')+'</small></span></button>').join(''):'<p class="mut" style="margin:.2rem 0">Aucun contact pour l’instant.</p>';
+  const root=$('#dlg');let pick=null;
+  const h=e=>{const b=e.target.closest&&e.target.closest('[data-ctid]');if(b){e.stopImmediatePropagation();e.preventDefault();pick=b.dataset.ctid;const f=root.querySelector('[data-v="1"]');if(f)f.click()}};
+  root.addEventListener('click',h,true);
+  const r=await ask({title:'👪 Famille et contacts',html:'<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Pour dire qui s’occupe de quoi et envoyer tes listes par SMS ou mail. Tout reste sur cet appareil.</p><div class="olbox">'+rows+'</div>',btns:[{label:'Ajouter un contact',value:'add',cls:'pri'},{label:'Fermer',value:null}]});
+  root.removeEventListener('click',h,true);
+  if(pick){await contactEdit(pick);continue}
+  if(r==='add'){await contactEdit(null);continue}
+  break;
+ }
+}
+async function contactEdit(id){
+ const p0=id?ppl().find(p=>p.id===id):null;
+ const v=Object.assign({n:'',ln:'',rel:'fam',tel:'',mail:'',c:PPL_COLS[ppl().length%PPL_COLS.length]},p0||{});
+ const opt=(arr,cur)=>arr.map(o=>'<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+esc(o[1])+'</option>').join('');
+ const html='<div class="tk-2"><div><label class="lbl" for="ct-n">Prénom</label><input class="in" id="ct-n" maxlength="30" value="'+esc(v.n)+'" autocomplete="off"></div><div><label class="lbl" for="ct-ln">Nom</label><input class="in" id="ct-ln" maxlength="40" value="'+esc(v.ln)+'" autocomplete="off"></div></div>'+
+  '<div class="tk-2"><div><label class="lbl" for="ct-rel">Qui est-ce ?</label><select class="in" id="ct-rel">'+opt(REL,v.rel)+'</select></div><div><label class="lbl" for="ct-c">Couleur</label><input class="in" type="color" id="ct-c" value="'+esc(v.c)+'" style="height:2.6rem;padding:.2rem"></div></div>'+
+  '<label class="lbl" for="ct-tel">Téléphone (pour l’envoi par SMS)</label><input class="in" id="ct-tel" type="tel" inputmode="tel" maxlength="20" value="'+esc(v.tel)+'" placeholder="06 12 34 56 78">'+
+  '<label class="lbl" for="ct-mail">Mail</label><input class="in" id="ct-mail" type="email" inputmode="email" maxlength="80" value="'+esc(v.mail)+'" placeholder="prenom@exemple.fr" style="margin-bottom:.6rem">';
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(p0)btns.push({label:'Supprimer ce contact',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
+ const pr=ask({title:p0?'Modifier le contact':'Nouveau contact',html,btns});
+ const root=$('#dlg'),map={'ct-n':'n','ct-ln':'ln','ct-rel':'rel','ct-tel':'tel','ct-mail':'mail','ct-c':'c'};
+ root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
+ const r=await pr;root.oninput=root.onchange=null;
+ if(r==='del'){const n=tkAll().filter(k=>k.w===id).length;const ok=await ask({title:'Supprimer '+pplName(p0)+' ?',text:n?n+' tâche'+(n>1?'s':'')+' ne ser'+(n>1?'ont':'a')+' plus attribuée'+(n>1?'s':'')+' à personne.':'Le contact sera retiré de l’appli.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+  if(ok==='y'){S.ppl=ppl().filter(p=>p.id!==id);tkAll().forEach(k=>{if(k.w===id){k.w='';k.m=Date.now()}});saveSet();render()}return}
+ if(r!=='ok')return;
+ const n=String(v.n||'').trim().slice(0,30);if(!n){toast('Écris au moins un prénom');return contactEdit(id)}
+ const mail=String(v.mail||'').trim();if(mail&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)){toast('Adresse mail non valide');return contactEdit(id)}
+ const o=p0||{id:'p'+uid()};
+ Object.assign(o,{n,ln:String(v.ln||'').trim().slice(0,40),rel:REL.some(x=>x[0]===v.rel)?v.rel:'aut',tel:String(v.tel||'').trim().slice(0,20),mail,c:/^#[0-9a-f]{6}$/i.test(v.c)?v.c:PPL_COLS[0],m:Date.now()});
+ if(!p0)ppl().push(o);
+ saveSet();render();toast(p0?'Contact modifié':'Contact ajouté');
+}
+
+/* ========= Partage par lien (SMS, WhatsApp, mail…) : les données voyagent dans le lien, compressées, sans serveur =========
+   Le lien est …/agenda/#p=<code>. Ce qui suit # n'est jamais envoyé à GitHub. À la réception : fusion par identifiant
+   (ajout, mise à jour si plus récent, suppression si supprimé chez l'envoyeur). */
+const shB64={
+ enc:u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')},
+ dec:t=>{t=String(t).replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';const s=atob(t),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+};
+async function shZip(obj){
+ const raw=new TextEncoder().encode(JSON.stringify(obj));
+ if(window.CompressionStream){try{const buf=await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();return 'z'+shB64.enc(new Uint8Array(buf))}catch(e){}}
+ return 'j'+shB64.enc(raw);
+}
+async function shUnzip(code){
+ const k=code.charAt(0),u=shB64.dec(code.slice(1));let raw=u;
+ if(k==='z'){if(!window.DecompressionStream)throw new Error('Ce téléphone est trop ancien pour lire ce partage (iOS 16.4 minimum)');raw=new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+ else if(k!=='j')throw new Error('Lien non reconnu');
+ const o=JSON.parse(new TextDecoder().decode(raw));
+ if(!o||o.app!=='agd'||!o.k)throw new Error('Ce lien ne vient pas d’AgenDam');
+ return o;
+}
+const shUrl=code=>location.origin+location.pathname+'#p='+code;
+function shCode(s){s=String(s||'').trim();const i=s.indexOf('#p=');if(i>=0)s=s.slice(i+3);s=s.split(/\s/)[0];return /^[zj][A-Za-z0-9_-]{10,}$/.test(s)?s:''}
+const shTrim=a=>(Array.isArray(a)?a:[]).filter(d=>d&&d.id&&Date.now()-(d.m||0)<120*864e5);
+function tkTomb(ids){S.tkDel=shTrim(S.tkDel).filter(d=>!ids.includes(d.id)).concat(ids.map(id=>({id,m:Date.now()})))}
+function shPack(kind,arg){
+ const base={app:'agd',v:1,k:kind,from:S.me||'',at:Date.now()};
+ const pplPack=ids=>ppl().filter(x=>ids.includes(x.id)).map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}));
+ const rcPack=r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0});
+ if(kind==='co'){const sv=Object.assign({},TKV);TKV.l=coursesList();TKV.w='';const P=shPack('tk');Object.assign(TKV,sv);P.lbl='Liste de courses';return P}
+ if(kind==='rc'){const L=arg?[rcOf(arg)].filter(Boolean):rcAll();return Object.assign(base,{lbl:L.length===1?L[0].t:'Mes recettes',rc:L.map(rcPack)})}
+ if(kind==='mn'){const ws=rwStart(),mn={},rids=new Set(),wids=new Set();
+  for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d];if(!x)continue;mn[d]={};for(const k of ['m','s'])if(x[k]){mn[d][k]=x[k];if(x[k].r)rids.add(x[k].r);if(x[k].w)wids.add(x[k].w)}}
+  return Object.assign(base,{lbl:'Menu de la semaine du '+fShort(ws),ws,mn,rc:rcAll().filter(r=>rids.has(r.id)).map(rcPack),ppl:pplPack([...wids])})}
+ if(kind==='tk'){
+  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+  const lids=TKV.l?[TKV.l]:tkLists().map(l=>l.id);
+  const wids=[...new Set(sel.map(k=>k.w).filter(Boolean))];
+  const p=pplOf(TKV.w);
+  return Object.assign(base,{lbl:(TKV.l?tlOf(TKV.l).n:'Tâches')+(p?' de '+p.n:''),tl:tkLists().filter(l=>lids.includes(l.id)).map(l=>({id:l.id,n:l.n,i:l.i,m:l.m||0})),
+   tk:sel.map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),
+   ppl:ppl().filter(x=>wids.includes(x.id)).map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}))});
+ }
+ if(kind==='bd'){
+  return Object.assign(base,{lbl:'Anniversaires',bd:bdClean().map(b=>{const o=Object.assign({},b);if(o.p){delete o.g;o.note=''}delete o.p;return o}),del:shTrim(S.bdDel)});
+ }
+ return base;
+}
+function shCount(P){if(P.k==='rc')return (P.rc||[]).length+' recette'+((P.rc||[]).length>1?'s':'');if(P.k==='mn')return Object.values(P.mn||{}).reduce((n,x)=>n+Object.keys(x).length,0)+' repas';return P.k==='tk'?(P.tk||[]).length+' tâche'+((P.tk||[]).length>1?'s':''):P.k==='bd'?(P.bd||[]).length+' anniversaire'+((P.bd||[]).length>1?'s':''):''}
+async function shareSend(kind,arg){
+ if(!S.me){
+  const v={me:''};const pr=ask({title:'Ton prénom',html:'<p style="margin:.2rem 0 .5rem">Il s’affiche chez la personne qui reçoit (« Léa t’envoie… »).</p><input class="in" id="sh-me" maxlength="30" autocomplete="given-name" style="margin-bottom:.6rem">',btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='sh-me')v.me=e.target.value};
+  const r=await pr;root.oninput=null;if(r!=='ok')return;S.me=String(v.me||'').trim().slice(0,30);saveSet();
+ }
+ const P=shPack(kind,arg);
+ if((kind==='tk'||kind==='co')&&!P.tk.length){toast(kind==='co'?'La liste de courses est vide':'Aucune tâche à partager ici');return}
+ if(kind==='rc'&&!P.rc.length){toast('Aucune recette à partager');return}
+ if(kind==='mn'&&!Object.keys(P.mn).length){toast('Le menu de cette semaine est vide');return}
+ if(kind==='bd'&&!P.bd.length){toast('Aucun anniversaire à partager');return}
+ const code=await shZip(P),url=shUrl(code);
+ const txt=(S.me?S.me+' t’envoie':'Voici')+' « '+P.lbl+' » ('+shCount(P)+') pour AgenDam. Touche le lien pour mettre à jour ton appli :';
+ const dest=pplSorted().filter(p=>p.tel||p.mail);
+ const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id})).concat([{label:'Autre appli (WhatsApp, Messages, mail…)',value:'share',cls:dest.length?'':'pri'},{label:'Copier le lien',value:'copy'},{label:'Annuler',value:null}]);
+ if(dest.length)btns[0].cls='pri';
+ const big=url.length>6000;
+ const r=await ask({title:'📤 Partager',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.lbl)+'</b> · '+esc(shCount(P))+'</p><p class="mut" style="margin:0 0 .6rem;font-size:.85rem">La personne touche le lien et son AgenDam se met à jour : ce qui est nouveau est ajouté, ce qui a changé est mis à jour, rien n’est en double. Les données sont dans le lien lui-même, elles ne passent par aucun serveur.'+(big?'<br><b>Lien long</b> : préfère WhatsApp ou le mail, un SMS risque de le couper.':'')+(dest.length?'':'<br>Astuce : ajoute le téléphone de tes proches dans « 👪 Famille » pour leur envoyer en un geste.')+'</p>',btns});
+ if(!r)return;
+ const go=href=>{const a=document.createElement('a');a.href=href;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000)};
+ if(r.indexOf('to:')===0){const p=pplOf(r.slice(3));if(!p)return;
+  if(p.tel)go('sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(txt+' '+url));
+  else go('mailto:'+encodeURIComponent(p.mail)+'?subject='+encodeURIComponent('AgenDam : '+P.lbl)+'&body='+encodeURIComponent(txt+'\n'+url));
+  return}
+ if(r==='share'&&navigator.share){try{await navigator.share({title:'AgenDam : '+P.lbl,text:txt,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+ try{await navigator.clipboard.writeText(url);toast('Lien copié : colle-le dans un message',4000)}
+ catch(e){await ask({title:'Copie le lien',html:'<textarea class="in" rows="4" readonly onfocus="this.select()">'+esc(url)+'</textarea>',btns:[{label:'Fermer',value:null}]})}
+}
+/* fusion : stats seules (apply=false) ou application */
+function shMerge(P,apply){
+ const st={add:0,upd:0,del:0};const now=Date.now();
+ if(P.k==='tk'){
+  const map={};
+  for(const p of (P.ppl||[])){
+   let loc=ppl().find(x=>x.id===p.id)||ppl().find(x=>(p.tel&&x.tel&&telN(x.tel)===telN(p.tel))||(p.mail&&x.mail&&x.mail.toLowerCase()===p.mail.toLowerCase()))||ppl().find(x=>norm(pplName(x))===norm(pplName(p)));
+   if(!loc&&apply){loc={id:p.id,n:String(p.n||'?').slice(0,30),ln:String(p.ln||'').slice(0,40),rel:p.rel||'aut',tel:String(p.tel||'').slice(0,20),mail:String(p.mail||'').slice(0,80),c:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:PPL_COLS[0],m:now};ppl().push(loc)}
+   map[p.id]=loc?loc.id:'';
+  }
+  for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
+  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',w:map[k.w]||'',r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?now:0,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
+  for(const k of (P.tk||[])){
+   if(!k||!k.id||!k.t)continue;
+   const loc=tkAll().find(x=>x.id===k.id);
+   if(!loc){if(shTrim(S.tkDel).some(d=>d.id===k.id&&d.m>=(k.m||0)))continue;st.add++;if(apply)tkAll().push(clean(k))}
+   else if((k.m||0)>(loc.m||loc.ca||0)){st.upd++;if(apply)Object.assign(loc,clean(k))}
+  }
+  for(const d of (P.del||[])){const loc=tkAll().find(x=>x.id===d.id);if(loc&&(loc.m||loc.ca||0)<=d.m){st.del++;if(apply){S.tk=tkAll().filter(x=>x.id!==d.id);tkTomb([d.id])}}}
+ }
+ const mapP=()=>{const map={};for(const p of (P.ppl||[])){let loc=ppl().find(x=>x.id===p.id)||ppl().find(x=>(p.tel&&x.tel&&telN(x.tel)===telN(p.tel))||(p.mail&&x.mail&&x.mail.toLowerCase()===String(p.mail).toLowerCase()))||ppl().find(x=>norm(pplName(x))===norm(pplName(p)));
+   if(!loc&&apply){loc={id:p.id,n:String(p.n||'?').slice(0,30),ln:String(p.ln||'').slice(0,40),rel:p.rel||'aut',tel:String(p.tel||'').slice(0,20),mail:String(p.mail||'').slice(0,80),c:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:PPL_COLS[0],m:now};ppl().push(loc)}map[p.id]=loc?loc.id:''}return map};
+ if(P.k==='rc'||P.k==='mn'){
+  for(const r of (P.rc||[])){
+   if(!r||!r.id||!r.t)continue;const loc=rcOf(r.id);
+   const o={id:String(r.id),t:String(r.t).slice(0,80),ic:String(r.ic||'🍽️').slice(0,4),pp:Math.max(1,Math.min(30,+r.pp||4)),tm:Math.max(0,Math.min(600,+r.tm||0)),tags:(Array.isArray(r.tags)?r.tags:[]).map(String).slice(0,8),
+    ing:(Array.isArray(r.ing)?r.ing:[]).filter(g=>g&&g.n).map(g=>({q:g.q==null?null:+g.q,u:String(g.u||'').slice(0,20),n:String(g.n).slice(0,60)})).slice(0,80),st:(Array.isArray(r.st)?r.st:[]).map(x=>String(x).slice(0,500)).slice(0,60),src:/^https?:\/\//.test(r.src||'')?String(r.src).slice(0,300):'',m:+r.m||now};
+   if(!loc){if(P.k==='rc')st.add++;if(apply)rcAll().push(Object.assign(o,{fav:false}))}
+   else if((r.m||0)>(loc.m||0)){if(P.k==='rc')st.upd++;if(apply)Object.assign(loc,o)}
+  }
+ }
+ if(P.k==='mn'){
+  const map=mapP();
+  for(const d of Object.keys(P.mn||{})){if(!RX_D.test(d))continue;for(const k of ['m','s']){const x=(P.mn[d]||{})[k];if(!x)continue;const loc=(mnAll()[d]||{})[k];
+   if(loc&&(loc.mt||0)>=(x.mt||0))continue;
+   loc&&(loc.r||loc.t)?st.upd++:st.add++;
+   if(apply){if(!mnAll()[d])mnAll()[d]={};mnAll()[d][k]={r:String(x.r||''),t:String(x.t||'').slice(0,60),w:map[x.w]||'',p:Math.max(0,Math.min(30,+x.p||0)),mt:+x.mt||now}}}}
+ }
+ if(P.k==='bd'){
+  const L=bdClean();
+  for(const b of (P.bd||[])){
+   if(!b||!b.n||!(b.m>=1&&b.m<=12)||!(b.d>=1&&b.d<=31))continue;
+   const loc=L.find(x=>x.id===b.id)||L.find(x=>norm(x.n)===norm(b.n)&&x.d===b.d&&x.m===b.m);
+   const o={id:loc?loc.id:String(b.id||'b'+uid()),n:String(b.n).slice(0,60),d:+b.d,m:+b.m,y:b.y?+b.y:undefined,note:loc&&loc.p?loc.note:String(b.note||'').slice(0,500),g:loc&&loc.p?loc.g:(Array.isArray(b.g)?b.g.slice(0,40):loc?loc.g:undefined),p:loc?loc.p:0,mt:+b.mt||now};
+   if(!loc){if(shTrim(S.bdDel).some(d=>d.id===b.id&&d.m>=(b.mt||0)))continue;st.add++;if(apply)S.bd.push(o)}
+   else if((b.mt||0)>(loc.mt||0)){st.upd++;if(apply)Object.assign(loc,o)}
+  }
+  for(const d of (P.del||[])){const loc=bdClean().find(x=>x.id===d.id);if(loc&&(loc.mt||0)<=d.m){st.del++;if(apply){S.bd=bdClean().filter(x=>x.id!==d.id)}}}
+ }
+ if(apply)saveSet();
+ return st;
+}
+async function shReceive(code,fromLink){
+ let P;
+ try{P=await shUnzip(code)}catch(e){await ask({title:'Partage illisible',text:(e&&e.message)||'Ce lien est incomplet (coupé par le SMS ?). Demande-le par WhatsApp ou mail.',btns:[{label:'OK',value:null}]});return}
+ const st=shMerge(P,false),tot=st.add+st.upd+st.del;
+ const det=[st.add?st.add+' nouveau'+(st.add>1?'x':''):'',st.upd?st.upd+' mis à jour':'',st.del?st.del+' supprimé'+(st.del>1?'s':''):''].filter(Boolean).join(', ');
+ const iosWeb=fromLink&&isIOS()&&!isStandalone();
+ const btns=[];
+ if(tot)btns.push({label:'Mettre à jour mon AgenDam',value:'y',cls:'pri'});
+ if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy',cls:tot?'':'pri'});
+ btns.push({label:tot?'Annuler':'OK',value:null});
+ const r=await ask({title:'📥 Partage reçu',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.from||'Quelqu’un')+'</b> t’envoie <b>« '+esc(P.lbl||'')+' »</b> ('+esc(shCount(P))+').</p><p style="margin:.2rem 0 .6rem">'+(tot?'Chez toi : '+esc(det)+'.':'Tu as déjà tout, rien à mettre à jour.')+'</p>'+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari, pas dans l’appli de l’écran d’accueil. Si tu utilises l’appli : touche « copier », ouvre AgenDam, puis Tâches → 📥 Recevoir.</p>':''),btns});
+ if(r==='copy'){try{await navigator.clipboard.writeText(shUrl(code));toast('Copié ! Ouvre AgenDam puis Tâches → 📥 Recevoir',7000)}catch(e){await ask({title:'Copie ce texte',html:'<textarea class="in" rows="4" readonly onfocus="this.select()">'+esc(shUrl(code))+'</textarea>',btns:[{label:'Fermer',value:null}]})}return}
+ if(r!=='y')return;
+ shMerge(P,true);
+ if(P.k==='tk'){TKV.l='';TKV.w='';V.view='tasks';if(P.lbl==='Liste de courses'){RV.tab='co';V.view='repas'}}
+ if(P.k==='rc'){RV.tab='rc';V.view='repas'}
+ if(P.k==='mn'){RV.tab='menu';RV.ws=P.ws&&RX_D.test(P.ws)?P.ws:RV.ws;V.view='repas'}
+ render();toast('AgenDam mis à jour : '+det,5000);
+}
+async function sharePaste(){
+ let t='';
+ try{if(navigator.clipboard&&navigator.clipboard.readText)t=await navigator.clipboard.readText()}catch(e){}
+ let code=shCode(t);
+ if(!code){
+  const v={t:''};const pr=ask({title:'📥 Recevoir un partage',html:'<p style="margin:.2rem 0 .5rem">Colle ici le lien reçu par SMS, WhatsApp ou mail (appui long → Coller).</p><textarea class="in" id="sh-in" rows="4" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Recevoir',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='sh-in')v.t=e.target.value};
+  const r=await pr;root.oninput=null;if(r!=='ok')return;
+  code=shCode(v.t);if(!code){toast('Ce n’est pas un lien de partage AgenDam',4000);return}
+ }
+ shReceive(code,false);
+}
+function shareCheckHash(){
+ const h=location.hash||'';if(h.indexOf('#p=')!==0)return;
+ const code=shCode(h);
+ try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+ if(code)setTimeout(()=>shReceive(code,true),350);
+}
+function contactsCard(){
+ const n=ppl().length;
+ return '<div class="card" id="ct-card"><h3>👪 Famille et contacts</h3>'+mrow('ct-open','Mes contacts',n?n+' contact'+(n>1?'s':''):'Conjoint(e), enfants, amis… pour distribuer les tâches')+
+  mrow('sh-recv','📥 Recevoir un partage','Coller un lien reçu par SMS, WhatsApp ou mail')+
+  sfold('Comment ça marche ?','Chaque contact a un prénom, un nom, son lien avec toi, un téléphone et un mail. Dans Tâches, tu choisis qui s’occupe de quoi. « 📤 Partager » (Tâches, Anniversaires) envoie un lien par SMS ou mail : la personne le touche et son AgenDam se met à jour, sans doublon. Les données voyagent dans le lien, sans serveur. Sur iPhone avec l’appli installée sur l’écran d’accueil : « copier » sur la page du lien, puis « 📥 Recevoir » dans l’appli.')+'</div>';
+}
+
+/* ========= Repas : recettes, menu de la semaine, courses (dans la liste « Courses » des Tâches) =========
+   S.rc recettes, S.mn menu {date:{m:{r,t,w,p,mt},s:{…}}}. Tout est dans la sauvegarde et partageable par lien. */
+const RV={tab:'menu',ws:null,q:'',tag:''};
+const RC_TAGS=['Rapide','Végé','Enfants','Soupe','Plat','Dessert','Apéro','Petit-déj','Batch'];
+const RAYONS=[['fl','🥕 Fruits et légumes',/pomme|poire|banane|citron|orange|fraise|framboise|tomate|carotte|courgette|aubergine|poivron|oignon|échalote|ail|salade|laitue|épinard|chou|brocoli|poireau|pomme de terre|patate|champignon|concombre|avocat|herbe|persil|basilic|coriandre|ciboulette|menthe|thym|laurier|gingembre|courge|potiron|haricot vert|petits? pois|radis|céleri|fenouil|navet|betterave|raisin|kiwi|mangue|ananas|melon|pêche|abricot|cerise|légume|fruit/],
+ ['cr','🧀 Crèmerie et œufs',/lait|beurre|crème|fromage|emmental|gruyère|comté|parmesan|mozzarella|chèvre|feta|yaourt|yogourt|œuf|oeuf|mascarpone|ricotta|raclette|reblochon/],
+ ['vp','🥩 Viande et poisson',/poulet|dinde|boeuf|bœuf|veau|porc|agneau|canard|jambon|lardon|bacon|saucisse|chorizo|steak|viande|haché|poisson|saumon|thon|cabillaud|colin|crevette|moule|lieu|sardine|merguez|filet/],
+ ['ep','🥫 Épicerie',/farine|sucre|sel|poivre|huile|vinaigre|pâtes|spaghetti|riz|semoule|quinoa|lentille|pois chiche|haricot|conserve|sauce|moutarde|mayonnaise|ketchup|bouillon|épice|curry|paprika|cumin|cannelle|vanille|levure|chocolat|cacao|miel|confiture|café|thé|biscuit|céréale|chapelure|maïs|olive|noix|amande|noisette|raisin sec|cornichon|concentré|coulis|lait de coco|fécule|maïzena/],
+ ['bo','🥖 Boulangerie',/pain|baguette|brioche|pâte feuilletée|pâte brisée|pâte à pizza|tortilla|wrap|biscotte/],
+ ['su','❄️ Surgelés',/surgel|glace|congel/],
+ ['bs','🥤 Boissons',/eau|jus|soda|vin|bière|sirop|limonade/],
+ ['hy','🧴 Hygiène et maison',/savon|shampo|dentifrice|papier|lessive|éponge|sac poubelle|liquide vaisselle|couche|mouchoir/],
+ ['au','🛒 Autres',/$^/]];
+const rayOf=n=>{const t=norm(n);for(const r of RAYONS){if(r[2].test(t)||r[2].test(String(n||'').toLowerCase()))return r[0]}return 'au'};
+const rayLbl=k=>(RAYONS.find(r=>r[0]===k)||RAYONS[RAYONS.length-1])[1];
+const rcAll=()=>Array.isArray(S.rc)?S.rc:(S.rc=[]);
+const rcOf=id=>id?rcAll().find(r=>r.id===id):null;
+const mnAll=()=>S.mn&&typeof S.mn==='object'?S.mn:(S.mn={});
+/* lecture d'une ligne d'ingrédient : « 200 g de farine », « 3 œufs », « 1/2 citron », « sel » */
+const UNIT_RX='kg|g|mg|l|cl|ml|dl|c\\.? ?à ?s\\.?|c\\.? ?à ?c\\.?|cs|cc|cuill[eè]res? à soupe|cuill[eè]res? à café|cuill[eè]res?|pinc[ée]es?|sachets?|bo[iî]tes?|tranches?|gousses?|verres?|bottes?|pots?|briques?|paquets?|bouquets?|brins?|feuilles?|filets?|pav[ée]s?|morceaux?|poign[ée]es?|tasses?';
+function ingParse(line){
+ let s=String(line||'').replace(/^[\s\-–—•*·◦▪☐☑✓✔○●\[\]x]+/i,'').replace(/\s+/g,' ').trim();
+ if(!s)return null;
+ const frac={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3};
+ const m=s.match(new RegExp('^(\\d+(?:[.,]\\d+)?(?:\\s*/\\s*\\d+)?|[½¼¾⅓⅔])\\s*(?:('+UNIT_RX+')\\b\\.?)?\\s*(?:d[e\'’]\\s*|des\\s+|du\\s+)?(.*)$','i'));
+ if(m&&m[3]){
+  let q=m[1].trim();q=frac[q]!=null?frac[q]:/\//.test(q)?(()=>{const [a,b]=q.split('/').map(x=>parseFloat(x));return b?a/b:a})():parseFloat(q.replace(',','.'));
+  let u=(m[2]||'').toLowerCase().replace(/\s+/g,' ');
+  if(/^c\.? ?à ?s|^cs$|soupe/.test(u))u='c. à s.';else if(/^c\.? ?à ?c|^cc$|café/.test(u))u='c. à c.';
+  return{q:isNaN(q)?null:q,u,n:m[3].trim()};
+ }
+ return{q:null,u:'',n:s};
+}
+const fmtQ=q=>q==null?'':(Math.round(q*100)/100).toString().replace('.',',');
+function ingTxt(i,f){let q=i.q!=null?i.q*(f||1):null;if(q!=null&&!i.u&&q>1)q=Math.ceil(q-0.01);if(q==null)return i.n;const u=i.u;return fmtQ(q)+(u?' '+u+(/^[aeiouyhéèœ]/i.test(i.n)?' d’':' de ')+i.n:' '+i.n)}
+/* import d'une recette collée (Notes iPhone, site, mail…) */
+function rcFromText(txt){
+ const lines=String(txt||'').replace(/\r/g,'').split('\n').map(l=>l.trim());
+ const ne=lines.filter(Boolean);if(!ne.length)return null;
+ const r={id:'r'+uid(),t:ne[0].replace(/^#+\s*/,'').slice(0,80),ic:'🍽️',pp:4,tm:0,tags:[],ing:[],st:[],src:'',fav:false,m:Date.now()};
+ const all=ne.join(' ');
+ const pm=all.match(/pour\s+(\d+)\s*(pers|personnes|parts|portions)/i)||all.match(/(\d+)\s*(personnes|parts|portions)/i);if(pm)r.pp=+pm[1];
+ const head=ne.slice(0,4).join(' ');const tmm=[...head.matchAll(/(\d+)\s*(h|heures?|min|minutes?)\b/gi)].reduce((s,x)=>s+(/^h/i.test(x[2])?60:1)*+x[1],0);if(tmm)r.tm=Math.min(tmm,600);
+ const url=all.match(/https?:\/\/\S+/);if(url)r.src=url[0].slice(0,300);
+ let mode='',started=false;
+ for(const l of ne.slice(1)){
+  if(/^ingr[ée]dients?\b/i.test(l)){mode='i';started=true;continue}
+  if(/^(pr[ée]paration|[ée]tapes?|instructions?|d[ée]roulement|recette|m[ée]thode)\b/i.test(l)){mode='s';started=true;continue}
+  if(/https?:\/\//.test(l)||/^pour\s+\d+/i.test(l)||/^(temps|cuisson|pr[ée]paration)\s*:/i.test(l))continue;
+  if(!started){mode=/^([-–•*·☐◦]|\d|[½¼¾])/.test(l)&&l.length<70?'i':'s'}
+  if(mode==='i'){const i=ingParse(l);if(i)r.ing.push(i)}
+  else r.st.push(l.replace(/^(\d+[.)]|étape\s*\d+\s*:?)\s*/i,''));
+ }
+ if(/soupe|velout/i.test(r.t))r.tags.push('Soupe');if(/g[âa]teau|tarte sucr|cr[èe]me|mousse|cookie|crumble|clafoutis|compote/i.test(r.t))r.tags.push('Dessert');
+ if(r.tm&&r.tm<=30)r.tags.push('Rapide');
+ return r;
+}
+/* ----- onglet ----- */
+const rwStart=()=>{if(!RV.ws)RV.ws=mondayOf(today(),S.weekStart);return RV.ws};
+function repasView(){
+ const sg=(k,l)=>'<button data-act="rp-tab" data-v="'+k+'" class="'+(RV.tab===k?'on':'')+'">'+l+'</button>';
+ let h='<div class="rp-wrap"><div class="seg rp-seg">'+sg('menu','Menu')+sg('rc','Recettes')+sg('co','Courses')+'</div>';
+ if(RV.tab==='rc')h+=rcListHTML();else if(RV.tab==='co')h+=coursesHTML();else h+=menuHTML();
+ return{html:h+'</div>',fixed:false};
+}
+function mealTxt(x){if(!x)return '';const r=rcOf(x.r);return r?(r.ic?r.ic+' ':'')+r.t:(x.t||'')}
+function menuHTML(){
+ const ws=rwStart(),t=today();
+ let h='<div class="rp-wk"><button class="ib" data-act="rp-wk" data-n="-1" aria-label="Semaine précédente">'+ic('left')+'</button><b>Semaine du '+esc(fShort(ws))+'</b><button class="ib" data-act="rp-wk" data-n="1" aria-label="Semaine suivante">'+ic('right')+'</button></div>';
+ for(let i=0;i<7;i++){
+  const d=add(ws,i),day=mnAll()[d]||{};
+  const slot=(k,l)=>{const x=day[k],p=x&&pplOf(x.w);return '<button class="rp-sl'+(x&&mealTxt(x)?'':' empty')+'" data-act="rp-meal" data-d="'+d+'" data-k="'+k+'"><small>'+l+'</small><b>'+(x&&mealTxt(x)?esc(mealTxt(x)):'+ Ajouter')+'</b>'+(x&&(p||x.p)?'<em>'+(p?'<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>':'')+(x.p?' · '+x.p+' pers.':'')+'</em>':'')+'</button>'};
+  h+='<section class="rp-day'+(d===t?' today':'')+'"><div class="rp-dh">'+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="rp-2">'+slot('m','Midi')+slot('s','Soir')+'</div></section>';
+ }
+ h+='<div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Partager le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
+ return h;
+}
+function rcListHTML(){
+ const q=norm(RV.q||'').trim();
+ const L=rcAll().filter(r=>(!RV.tag||(r.tags||[]).includes(RV.tag))&&(!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')).includes(q))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
+ const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))];
+ let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div>'+
+  '<input class="in" id="rc-q" type="search" placeholder="Chercher : nom, ingrédient, « rapide »…" value="'+esc(RV.q)+'" autocomplete="off">'+
+  (used.length?'<div class="chips tk-chips" style="margin:.4rem 0"><button class="chip'+(RV.tag?'':' on')+'" data-act="rc-tag" data-v="">Toutes</button>'+used.map(t=>'<button class="chip'+(RV.tag===t?' on':'')+'" data-act="rc-tag" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'</div>':'');
+ h+='<div id="rc-list">'+(L.length?L.map(r=>'<button class="rc-r" data-act="rc-open" data-id="'+esc(r.id)+'"><span class="rc-i">'+esc(r.ic||'🍽️')+'</span><span class="rc-x"><b>'+(r.fav?'⭐ ':'')+esc(r.t)+'</b><small>'+[r.tm?r.tm+' min':'',r.pp?r.pp+' pers.':'',(r.ing||[]).length+' ingrédient'+((r.ing||[]).length>1?'s':''),(r.tags||[]).join(', ')].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide. Ajoute-en une, ou colle une recette copiée depuis Notes, un site ou un message.')+'</p>')+'</div>';
+ return h;
+}
+function coursesHTML(){
+ const lid=tkLists().some(l=>l.id==='courses')?'courses':null;
+ const L=lid?tkAll().filter(k=>k.l===lid):[];
+ const pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
+ let h='<div class="rp-add"><input class="in" id="co-in" placeholder="Ajouter : 2 citrons, lessive…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="co-add">'+ic('plus')+'</button></div>';
+ if(!pend.length&&!done.length)h+='<p class="empty">La liste de courses est vide. Ajoute des articles ici, ou envoie les ingrédients d’une recette ou du menu de la semaine.</p>';
+ for(const r of RAYONS){
+  const l=pend.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]).sort((a,b)=>a.t.localeCompare(b.t));if(!l.length)continue;
+  h+='<section class="tk-g"><div class="tk-gh">'+r[1]+' <small>'+l.length+'</small></div>'+l.map(k=>tkRow(k,false)).join('')+'</section>';
+ }
+ if(done.length)h+='<details class="tk-g tk-done"><summary>Dans le chariot <small>'+done.length+'</small></summary>'+done.map(k=>tkRow(k,false)).join('')+'<button class="btn sm blk" data-act="co-clear">Vider le chariot</button></details>';
+ h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-co">📤 Envoyer la liste</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button></div>';
+ return h;
+}
+/* ----- ajout aux courses : regroupe les mêmes articles ----- */
+function coursesList(){let l=tkLists().find(x=>x.id==='courses');if(!l){l={id:'courses',n:'Courses',i:'🛒',m:Date.now()};tkLists().push(l)}return l.id}
+function coursesAdd(items){
+ const lid=coursesList();let n=0;
+ for(const it of items){
+  const key=norm(it.n).replace(/s$/,'')+'|'+(it.u||'');
+  const ex=tkAll().find(k=>k.l===lid&&!k.x&&k.ig&&norm(k.ig.n).replace(/s$/,'')+'|'+(k.ig.u||'')===key);
+  if(ex&&it.q!=null&&ex.ig.q!=null){ex.ig.q+=it.q;ex.t=ingTxt(ex.ig);ex.m=Date.now();n++;continue}
+  if(ex&&it.q==null)continue;
+  tkAll().push({id:uid(),t:ingTxt(it),l:lid,d:'',w:'',r:null,n:it.from?'Pour : '+it.from:'',ig:{q:it.q,u:it.u||'',n:it.n},ry:rayOf(it.n),ca:Date.now(),m:Date.now()});n++;
+ }
+ saveSet();return n;
+}
+async function pickIngredients(title,items,intro){
+ if(!items.length){toast('Aucun ingrédient');return}
+ const off=new Set();
+ const html='<p style="margin:.2rem 0 .5rem">'+intro+' <b>Décoche ce que tu as déjà.</b></p><div class="olbox">'+items.map((it,i)=>'<label class="olrow"><input type="checkbox" checked data-ig="'+i+'"><span>'+esc(ingTxt(it))+(it.from?' <small class="mut">· '+esc(it.from)+'</small>':'')+'</span></label>').join('')+'</div>';
+ const root=$('#dlg');const h=e=>{const c=e.target.closest&&e.target.closest('[data-ig]');if(c){c.checked?off.delete(+c.dataset.ig):off.add(+c.dataset.ig)}};
+ root.addEventListener('change',h,true);
+ const r=await ask({title,html,btns:[{label:'🛒 Ajouter aux courses',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('change',h,true);
+ if(r!=='y')return;
+ const n=coursesAdd(items.filter((_,i)=>!off.has(i)));
+ render();toast(n?n+' article'+(n>1?'s':'')+' dans la liste Courses':'Rien à ajouter',4000,n?{label:'Voir',fn:()=>{RV.tab='co';go('repas')}}:null);
+}
+function weekIngredients(){
+ const ws=rwStart(),acc=[];
+ for(let i=0;i<7;i++){const day=mnAll()[add(ws,i)]||{};for(const k of ['m','s']){const x=day[k],r=x&&rcOf(x.r);if(!r)continue;const f=(x.p||r.pp||4)/(r.pp||4);
+  for(const g of (r.ing||[])){const key=norm(g.n)+'|'+g.u;const e=acc.find(a=>a.key===key);if(e){if(e.q!=null&&g.q!=null)e.q+=g.q*f;if(!e.from.includes(r.t))e.from.push(r.t)}else acc.push({key,q:g.q!=null?g.q*f:null,u:g.u,n:g.n,from:[r.t]})}}}
+ return acc.map(a=>({q:a.q!=null?Math.round(a.q*100)/100:null,u:a.u,n:a.n,from:a.from.join(', ')})).sort((a,b)=>RAYONS.findIndex(r=>r[0]===rayOf(a.n))-RAYONS.findIndex(r=>r[0]===rayOf(b.n))||a.n.localeCompare(b.n));
+}
+/* ----- fiche recette ----- */
+let RC_PP=null;
+function rcOpen(id){
+ const r=rcOf(id);if(!r)return;
+ if(RC_PP==null||RC_PP.id!==id)RC_PP={id,pp:r.pp||4};
+ const f=RC_PP.pp/(r.pp||4);
+ let h='<div class="sh-h"><b style="font-size:1.25rem;font-family:var(--serif);font-style:italic">'+esc((r.ic||'🍽️')+' '+r.t)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<p class="mut" style="margin:0 0 .5rem">'+[r.tm?'⏱ '+r.tm+' min':'',(r.tags||[]).join(' · ')].filter(Boolean).join('   ')+(r.src?' · <a href="'+esc(r.src)+'" target="_blank" rel="noopener">source</a>':'')+'</p>';
+ h+='<div class="rc-pp"><span>Pour</span><button class="ib" data-act="rc-pp" data-n="-1" aria-label="Moins">−</button><b>'+RC_PP.pp+'</b><button class="ib" data-act="rc-pp" data-n="1" aria-label="Plus">+</button><span>personne'+(RC_PP.pp>1?'s':'')+'</span></div>';
+ h+='<h3 class="rc-h">Ingrédients</h3>'+((r.ing||[]).length?'<ul class="rc-ing">'+r.ing.map(g=>'<li>'+esc(ingTxt(g,f))+'</li>').join('')+'</ul>':'<p class="mut">Aucun ingrédient noté.</p>');
+ h+='<button class="btn pri blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
+ if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3><ol class="rc-st">'+r.st.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';
+ h+='<div class="btns" style="margin-top:.6rem"><button class="btn grow" data-act="rc-plan" data-id="'+esc(id)+'">📅 Mettre au menu</button><button class="btn grow" data-act="rc-fav" data-id="'+esc(id)+'">'+(r.fav?'★ Favori':'☆ Favori')+'</button></div>'+
+  '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Partager</button></div>'+
+  '<button class="btn dng blk" data-act="rc-del" data-id="'+esc(id)+'">'+ic('trash')+' Supprimer la recette</button>';
+ openSheet(h);
+}
+async function rcEdit(id,pre){
+ const r0=id?rcOf(id):null;
+ const v=pre||{t:r0?r0.t:'',ic:r0?r0.ic||'🍽️':'🍽️',pp:r0?r0.pp:4,tm:r0?r0.tm||'':'',tags:r0?(r0.tags||[]).join(', '):'',ing:r0?(r0.ing||[]).map(g=>ingTxt(g)).join('\n'):'',st:r0?(r0.st||[]).join('\n'):'',src:r0?r0.src||'':''};
+ const html='<div style="display:flex;gap:.4rem"><input class="in" id="rc-ic" maxlength="4" value="'+esc(v.ic)+'" style="width:3.6rem;text-align:center" aria-label="Emoji"><input class="in" id="rc-t" maxlength="80" value="'+esc(v.t)+'" placeholder="Nom de la recette"></div>'+
+  '<div class="tk-2"><div><label class="lbl" for="rc-pp">Personnes</label><input class="in" id="rc-pp" type="number" min="1" max="30" value="'+esc(v.pp)+'"></div><div><label class="lbl" for="rc-tm">Temps (min)</label><input class="in" id="rc-tm" type="number" min="0" max="600" value="'+esc(v.tm)+'"></div></div>'+
+  '<label class="lbl" for="rc-ing">Ingrédients (un par ligne : « 200 g de farine », « 3 œufs »)</label><textarea class="in" id="rc-ing" rows="6">'+esc(v.ing)+'</textarea>'+
+  '<label class="lbl" for="rc-st">Préparation (une étape par ligne)</label><textarea class="in" id="rc-st" rows="5">'+esc(v.st)+'</textarea>'+
+  '<label class="lbl" for="rc-tags">Étiquettes</label><input class="in" id="rc-tags" value="'+esc(v.tags)+'" placeholder="'+RC_TAGS.slice(0,4).join(', ')+'…">'+
+  '<label class="lbl" for="rc-src">Lien (facultatif)</label><input class="in" id="rc-src" type="url" value="'+esc(v.src)+'" style="margin-bottom:.6rem">';
+ const pr=ask({title:r0?'Modifier la recette':'Nouvelle recette',html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg'),map={'rc-ic':'ic','rc-t':'t','rc-pp':'pp','rc-tm':'tm','rc-ing':'ing','rc-st':'st','rc-tags':'tags','rc-src':'src'};
+ root.oninput=root.onchange=e=>{const k=map[e.target.id];if(k)v[k]=e.target.value};
+ const res=await pr;root.oninput=root.onchange=null;
+ if(res!=='ok')return;
+ const t=String(v.t||'').trim().slice(0,80);if(!t){toast('Donne un nom à la recette');return rcEdit(id,v)}
+ const o=r0||{id:'r'+uid(),fav:false};
+ Object.assign(o,{t,ic:String(v.ic||'').trim().slice(0,4)||'🍽️',pp:Math.max(1,Math.min(30,+v.pp||4)),tm:Math.max(0,Math.min(600,+v.tm||0)),
+  ing:String(v.ing||'').split('\n').map(ingParse).filter(Boolean).slice(0,80),st:String(v.st||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,60),
+  tags:String(v.tags||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,8),src:/^https?:\/\//.test(String(v.src||'').trim())?String(v.src).trim().slice(0,300):'',m:Date.now()});
+ if(!r0)rcAll().push(o);
+ saveSet();RV.tab='rc';render();toast(r0?'Recette modifiée':'Recette ajoutée');rcOpen(o.id);
+}
+async function rcImport(){
+ const v={t:''};
+ const pr=ask({title:'📋 Coller une recette',html:'<p style="margin:.2rem 0 .5rem">Copie la recette depuis <b>Notes</b>, un site, un mail ou un message, puis colle-la ici (appui long → Coller). L’appli trouve le titre, les ingrédients et les étapes ; tu pourras corriger ensuite.</p><textarea class="in" id="ri-t" rows="9" placeholder="Gratin de courgettes\nPour 4 personnes\nIngrédients\n- 3 courgettes\n- 20 cl de crème\n…\nPréparation\n1. Préchauffer le four…" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Lire la recette',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='ri-t')v.t=e.target.value};
+ const r=await pr;root.oninput=null;if(r!=='ok')return;
+ const rc=rcFromText(v.t);if(!rc){toast('Rien à lire');return}
+ await rcEdit(null,{t:rc.t,ic:rc.ic,pp:rc.pp,tm:rc.tm||'',tags:rc.tags.join(', '),ing:rc.ing.map(g=>ingTxt(g)).join('\n'),st:rc.st.join('\n'),src:rc.src});
+}
+/* ----- choisir un repas ----- */
+async function mealEdit(d,k,preR){
+ const day=mnAll()[d]||{},x0=day[k]||{};
+ const v={r:preR||x0.r||'',t:preR?'':x0.t||'',w:x0.w||'',p:x0.p||''};
+ const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
+ const rcs=rcAll().slice().sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
+ const html='<p class="mut" style="margin:.1rem 0 .4rem">'+esc(cap(fLong(d)))+' · '+(k==='m'?'midi':'soir')+'</p>'+
+  '<label class="lbl" for="ml-r">Recette du carnet</label><select class="in" id="ml-r">'+opt([['','— Aucune (texte libre) —']].concat(rcs.map(r=>[r.id,(r.fav?'⭐ ':'')+(r.ic?r.ic+' ':'')+r.t])),v.r)+'</select>'+
+  '<label class="lbl" for="ml-t">Ou en quelques mots</label><input class="in" id="ml-t" maxlength="60" value="'+esc(v.t)+'" placeholder="Restes, pizza, chez Mamie…">'+
+  '<div class="tk-2"><div><label class="lbl" for="ml-w">Qui cuisine</label><select class="in" id="ml-w">'+opt([['','—']].concat(pplSorted().map(p=>[p.id,pplName(p)])),v.w)+'</select></div><div><label class="lbl" for="ml-p">Personnes</label><input class="in" id="ml-p" type="number" min="1" max="30" value="'+esc(v.p)+'"></div></div>';
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(rcs.filter(r=>r.fav).length)btns.push({label:'🎲 Idée parmi mes favoris',value:'dice'});if(x0.r||x0.t)btns.push({label:'Vider',value:'clr',cls:'dng'});btns.push({label:'Annuler',value:null});
+ const pr=ask({title:'🍽 Repas',html,btns});
+ const root=$('#dlg'),map={'ml-r':'r','ml-t':'t','ml-w':'w','ml-p':'p'};
+ root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
+ const r=await pr;root.oninput=root.onchange=null;
+ if(r==='dice'){const fav=rcs.filter(x=>x.fav);const pick=fav[Math.floor(Math.random()*fav.length)];return mealEdit(d,k,pick.id)}
+ if(r==='clr'){if(mnAll()[d]){mnAll()[d][k]={r:'',t:'',w:'',p:0,mt:Date.now()}}saveSet();render();return}
+ if(r!=='ok')return;
+ const o={r:rcOf(v.r)?v.r:'',t:String(v.t||'').trim().slice(0,60),w:pplOf(v.w)?v.w:'',p:Math.max(0,Math.min(30,+v.p||0)),mt:Date.now()};
+ if(!o.r&&!o.t){toast('Choisis une recette ou écris le repas');return mealEdit(d,k)}
+ if(!mnAll()[d])mnAll()[d]={};mnAll()[d][k]=o;saveSet();render();
+}
+function mnPrune(){const lim=add(today(),-60);for(const d of Object.keys(mnAll()))if(d<lim)delete mnAll()[d]}
+function rpDayHTML(day){
+ const x=mnAll()[day];if(!x)return '';const m=mealTxt(x.m),s=mealTxt(x.s);if(!m&&!s)return '';
+ return '<button class="rp-today" data-act="rp-goday" data-d="'+day+'">🍽 '+(m?'<b>Midi</b> '+esc(m):'')+(m&&s?' · ':'')+(s?'<b>Soir</b> '+esc(s):'')+'</button>';
+}
+/* ----- impression du menu / des courses ----- */
+function rpPrintHTML(){
+ const ws=rwStart();let h='<h1>🍽 Menu de la semaine <small>du '+esc(fShort(ws))+' au '+esc(fShort(add(ws,6)))+'</small></h1><table class="rp-pt"><tr><th></th><th>Midi</th><th>Soir</th></tr>';
+ for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d]||{};h+='<tr><th>'+esc(cap(DL[dow(d)]))+' '+pd(d).getDate()+'</th><td>'+esc(mealTxt(x.m))+'</td><td>'+esc(mealTxt(x.s))+'</td></tr>'}
+ return h+'</table>';
+}
+function plainPDF(title,blocks){
+ /* blocks : [{h:'titre'}, {t:'ligne', box:true, sub:'petit texte'}] ; texte seul (Helvetica), plusieurs pages */
+ const W=595,H=842,M=46,pages=[];let cur=null,y=0;const bot=M+24;
+ const wrap=(t,n)=>{const w=[];let l='';for(const word of String(t).split(' ')){if((l+' '+word).trim().length>n&&l){w.push(l);l=word}else l=(l+' '+word).trim()}if(l)w.push(l);return w};
+ const np=()=>{cur=[];pages.push(cur);y=H-M-10};np();
+ cur.push('BT /F2 20 Tf '+M+' '+y+' Td '+pdfStr(tkPlain(title))+' Tj ET');y-=34;
+ for(const b of blocks){
+  if(b.h!=null){if(y-40<bot)np();cur.push('BT /F2 13 Tf '+M+' '+y+' Td '+pdfStr(tkPlain(b.h))+' Tj ET');cur.push('0.5 w '+M+' '+(y-4)+' m '+(W-M)+' '+(y-4)+' l S');y-=22;continue}
+  const tl=wrap(tkPlain(b.t),b.box?70:78);if(y-16*tl.length-(b.sub?12:0)<bot)np();
+  if(b.box)cur.push('0.9 w '+M+' '+(y-2)+' 10 10 re S');
+  tl.forEach(t=>{cur.push('BT /F1 11.5 Tf '+(M+(b.box?18:0))+' '+y+' Td '+pdfStr(t)+' Tj ET');y-=15});
+  if(b.sub){cur.push('BT /F1 9 Tf '+(M+(b.box?18:0))+' '+(y+2)+' Td 0.35 g '+pdfStr(tkPlain(b.sub))+' Tj 0 g ET');y-=11}
+  y-=5;
+ }
+ pages.forEach((c,i)=>c.push('BT /F1 8 Tf 0.4 g '+M+' '+(M-8)+' Td '+pdfStr('AgenDam'+(pages.length>1?'  -  page '+(i+1)+'/'+pages.length:''))+' Tj 0 g ET'));
+ const objs=[];const addO=s=>{objs.push(s);return objs.length};
+ addO('<< /Type /Catalog /Pages 2 0 R >>');addO('PAGES');addO('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');addO('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ const kids=[];for(const c of pages){const st=c.join('\n');const cid=addO('<< /Length '+st.length+' >>\nstream\n'+st+'\nendstream');kids.push(addO('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W+' '+H+'] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents '+cid+' 0 R >>')+' 0 R')}
+ objs[1]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+kids.length+' >>';
+ let out='%PDF-1.4\n';const off=[];objs.forEach((o,i)=>{off.push(out.length);out+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});const xr=out.length;
+ out+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n'+off.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objs.length+1)+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF';
+ const u=new Uint8Array(out.length);for(let i=0;i<out.length;i++)u[i]=out.charCodeAt(i)&255;return u;
+}
+async function outPrint(html,pdfTitle,blocks,fname){
+ if(isIOS()||/Android/i.test(navigator.userAgent)){
+  try{const file=new File([plainPDF(pdfTitle,blocks)],fname,{type:'application/pdf'});
+   const r=await ask({title:'PDF prêt',text:'Touche le bouton, puis choisis « Imprimer » (ou Enregistrer dans Fichiers, Mail…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
+   if(r!=='s')return;
+   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:file.name});return}catch(e){if(e&&e.name==='AbortError')return}}
+   const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);
+  }catch(e){toast('PDF impossible ici : '+(e&&e.message?e.message:'erreur'),6000)}
+  return;
+ }
+ let z=$('#printzone');if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
+ z.className='pz port';z.innerHTML=html;
+ let st=$('#pgstyle');if(!st){st=document.createElement('style');st.id='pgstyle';document.head.appendChild(st)}
+ st.textContent='@page{size:A4 portrait;margin:12mm}';
+ setTimeout(()=>{try{window.print()}catch(e){toast('Impression impossible ici')}},150);
+}
+function rpPrint(){
+ const ws=rwStart(),bl=[];
+ for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d]||{};bl.push({h:cap(DL[dow(d)])+' '+pd(d).getDate()});bl.push({t:'Midi : '+(mealTxt(x.m)||'-')});bl.push({t:'Soir : '+(mealTxt(x.s)||'-')})}
+ outPrint(rpPrintHTML(),'Menu de la semaine du '+fShort(ws),bl,'menu-agendam.pdf');
+}
+function coPrint(){
+ const L=tkAll().filter(k=>k.l==='courses'&&!k.x);if(!L.length){toast('La liste de courses est vide');return}
+ const bl=[];let html='<h1>🛒 Courses <small>'+esc(fShort(today()))+'</small></h1>';
+ for(const r of RAYONS){const l=L.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]);if(!l.length)continue;bl.push({h:r[1]});html+='<div class="pr-d"><h2>'+r[1]+'</h2>';l.forEach(k=>{bl.push({t:k.t,box:true});html+='<div class="tk-pr"><span class="bx"></span><span>'+esc(k.t)+'</span></div>'});html+='</div>'}
+ outPrint(html,'Courses',bl,'courses-agendam.pdf');
+}
+
+/* ========= Photos (IndexedDB, dans la sauvegarde .json) ========= */
+const PH={db:null,
+ open(){if(!this.db)this.db=new Promise((res,rej)=>{try{const r=indexedDB.open('agd-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('ph');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return this.db},
+ async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('ph',mode),st=t.objectStore('ph');const q=fn(st);t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})},
+ get(id){return this.tx('readonly',st=>st.get(id)).catch(()=>null)},
+ put(id,v){return this.tx('readwrite',st=>st.put(v,id))},
+ del(id){return this.tx('readwrite',st=>st.delete(id)).catch(()=>{})},
+ async all(){try{const db=await this.open();return await new Promise(res=>{const o={},t=db.transaction('ph'),c=t.objectStore('ph').openCursor();c.onsuccess=()=>{const x=c.result;if(x){o[x.key]=x.value;x.continue()}else res(o)};c.onerror=()=>res(o)})}catch(e){return{}}}
+};
+/* réduit une photo (max 720 px, JPEG) : environ 60 à 120 Ko */
+function photoShrink(file,max){
+ return new Promise((res,rej)=>{
+  const u=URL.createObjectURL(file),img=new Image();
+  img.onload=()=>{const k=Math.min(1,(max||720)/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.82))};
+  img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('Photo illisible'))};img.src=u;
+ });
+}
+const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src});
+
+/* ========= Souhaiter un anniversaire : message personnalisé + carte en image ========= */
+const WISH_TONES=[['tendre','💖 Tendre'],['drole','😄 Drôle'],['simple','🙂 Simple'],['enfant','🧒 Enfant'],['ainé','👵 Grands-parents'],['rimes','🎶 En rimes'],['pro','💼 Collègue']];
+const WISH={
+ tendre:['Joyeux anniversaire {p} ! {A}Je te souhaite une année pleine de douceur, de rires et de beaux moments. Je t’embrasse fort ❤️',
+  'Bon anniversaire {p} 💐 Merci d’être là, tout simplement. {A}Que cette nouvelle année t’apporte tout ce qui te fait du bien.',
+  'Pour ton anniversaire, {p}, je t’envoie plein d’amour et de tendresse. {A}Profite bien de ta journée, tu le mérites 🥰',
+  '{p}, joyeux anniversaire ! {A}Que chaque jour de cette nouvelle année te ressemble : lumineux et généreux 🌟'],
+ drole:['Joyeux anniversaire {p} ! {A}Rassure-toi, tu ne vieillis pas : tu prends de la valeur, comme les bons vins 🍷😄',
+  'Bon anniv {p} ! 🎂 {A}Attention aux bougies, on a prévenu les pompiers 🚒😂',
+  '{p}, joyeux anniversaire ! {A}Encore un an de plus à être aussi génial(e), franchement ça devient lassant 😎',
+  'Happy birthday {p} ! 🥳 {A}Aujourd’hui, tu as le droit de manger du gâteau au petit-déjeuner. C’est la loi.'],
+ simple:['Joyeux anniversaire {p} ! 🎉 {A}Belle journée à toi.','Bon anniversaire {p} ! {A}Plein de bonnes choses pour cette nouvelle année 🎂','Très joyeux anniversaire {p} ! {A}Profite bien 😊'],
+ enfant:['Joyeux anniversaire {p} ! 🎈 {A}Que ta journée soit pleine de cadeaux, de gâteau et de jeux ! Gros bisous 😘',
+  'Bon anniversaire {p} ! 🦄🎂 {A}Tu grandis tellement vite ! Profite de ta fête, champion(ne) !',
+  'Hip hip hip hourra pour {p} ! 🎉 {A}Souffle bien fort sur tes bougies et fais un vœu 🌠'],
+ ainé:['Joyeux anniversaire {p} ! 💐 {A}Merci pour tout ce que tu nous apportes. Toute la famille t’embrasse très fort ❤️',
+  'Bon anniversaire {p} ! {A}On pense bien à toi aujourd’hui. Prends soin de toi, on t’aime 🌷',
+  'Très bon anniversaire {p} ! 🎂 {A}Ta gentillesse et tes histoires nous rendent heureux. Gros bisous de nous tous.'],
+ rimes:['Pour {p}, en ce beau jour,\nbeaucoup de joie et tout plein d’amour.\n{A}Que la vie te soit douce et légère,\njoyeux anniversaire ! 🎶',
+  'Un an de plus, et alors ?\n{p}, tu brilles encore plus fort !\n{A}Bougies, gâteau et cotillons,\nbon anniversaire, champion ! 🎉'],
+ pro:['Joyeux anniversaire {p} ! Toute l’équipe te souhaite une excellente journée 🎉','Bon anniversaire {p} ! {A}Une très belle année à toi, sur le plan perso comme au travail.']
+};
+const WISH_THEMES=[['ballons','🎈 Ballons'],['gateau','🎂 Gâteau'],['fleurs','🌸 Fleurs'],['etoiles','✨ Étoiles']];
+let WS=null; /* état de la fenêtre « Souhaiter » */
+function wishAgeTxt(b){const a=bdAge(b,bdNext(b,today()));return a&&a>0?a+' ans':''}
+function wishFill(tpl,b){const age=wishAgeTxt(b);return tpl.replace(/\{p\}/g,b.n.split(' ')[0]).replace('{A}',age?age.replace(' ans',' ans, ')+'ça se fête ! ':'').replace(/\s+\n/g,'\n').replace(/ {2,}/g,' ').trim()}
+async function bdWish(id){
+ const b=bdClean().find(x=>x.id===id);if(!b)return;
+ const ct=pplOf(b.ct);
+ const tone=WS&&WS.id===id?WS.tone:(ct&&ct.rel==='enf'?'enfant':ct&&ct.rel==='par'?'ainé':'tendre');
+ WS={id,tone,i:WS&&WS.id===id?WS.i:0,theme:WS&&WS.id===id?WS.theme:'ballons',usePh:WS&&WS.id===id?WS.usePh:!!b.ph,txt:WS&&WS.id===id&&WS.edited?WS.txt:null,edited:WS&&WS.id===id?WS.edited:false};
+ const L=WISH[WS.tone];if(WS.txt==null)WS.txt=wishFill(L[WS.i%L.length],b);
+ const sent=b.ws&&b.ws.y===new Date().getFullYear();
+ let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎉 Souhaiter à '+esc(b.n)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ if(sent)h+='<p class="wish-sent">✓ Souhaité le '+esc(fShort(ds(new Date(b.ws.at))))+'</p>';
+ h+='<div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+WISH_TONES.map(t=>'<button class="chip'+(WS.tone===t[0]?' on':'')+'" data-act="ws-tone" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+ h+='<textarea class="in" id="ws-txt" rows="5">'+esc(WS.txt)+'</textarea><div class="chips" style="margin:.4rem 0 .7rem"><button class="chip" data-act="ws-next">🔀 Un autre message</button></div>';
+ h+='<b class="rc-h" style="display:block">La carte</b><div class="chips tk-chips" style="margin:.2rem 0 .4rem">'+WISH_THEMES.map(t=>'<button class="chip'+(WS.theme===t[0]?' on':'')+'" data-act="ws-theme" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+ h+='<div class="wish-card"><canvas id="ws-cv" width="1080" height="1350"></canvas></div>';
+ h+='<div class="chips" style="margin:.5rem 0 .7rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(b.ph?'Changer la photo':'Ajouter une photo')+'<input type="file" accept="image/*" id="ws-ph" style="position:absolute;inset:0;opacity:0"></label>'+(b.ph?'<button class="chip'+(WS.usePh?' on':'')+'" data-act="ws-useph">'+(WS.usePh?'✓ Photo sur la carte':'Photo sur la carte')+'</button>':'')+'</div>';
+ h+='<button class="btn pri blk" data-act="ws-send">📤 Envoyer la carte et le message</button>';
+ if(ct&&ct.tel)h+='<button class="btn blk" data-act="ws-sms">💬 SMS à '+esc(pplName(ct))+' (message seul)</button>';
+ h+='<button class="btn blk" data-act="ws-copy">Copier le message</button>';
+ h+='<p class="mut" style="font-size:.8rem;margin:.4rem 0 0">'+(ct?'Relié au contact '+esc(pplName(ct))+'.':'Astuce : relie cette personne à un contact (Modifier l’anniversaire) pour lui envoyer un SMS en un geste.')+' La photo est gardée dans l’appli et dans ta sauvegarde.</p>';
+ openSheet(h);
+ wishDraw();
+}
+async function wishDraw(){
+ const cv=$('#ws-cv');if(!cv||!WS)return;const b=bdClean().find(x=>x.id===WS.id);if(!b)return;
+ const g=cv.getContext('2d'),W=cv.width,H=cv.height;
+ const TH={ballons:['#fdf4e7','#e76f51','#2a9d8f','#e9c46a','#264653'],gateau:['#fff1f2','#be185d','#f472b6','#fbbf24','#7c2d12'],fleurs:['#f3f7ee','#4d7c0f','#f9a8d4','#fde68a','#365314'],etoiles:['#0f1b33','#fbbf24','#93c5fd','#f9a8d4','#e2e8f0']}[WS.theme];
+ const dark=WS.theme==='etoiles';
+ g.fillStyle=TH[0];g.fillRect(0,0,W,H);
+ let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+ if(WS.theme==='ballons'){for(let i=0;i<9;i++){const x=80+rnd()*920,y=80+rnd()*300,r=50+rnd()*30,c=TH[1+(i%4)];g.strokeStyle=dark?'#fff8':'#0003';g.lineWidth=3;g.beginPath();g.moveTo(x,y+r*1.2);g.bezierCurveTo(x+20,y+r*2,x-20,y+r*2.6,x+5,y+r*3.2);g.stroke();g.fillStyle=c;g.beginPath();g.ellipse(x,y,r*.85,r,0,0,7);g.fill();g.fillStyle='#fff6';g.beginPath();g.ellipse(x-r*.3,y-r*.35,r*.18,r*.28,-.5,0,7);g.fill()}}
+ if(WS.theme==='fleurs'){for(let i=0;i<14;i++){const x=rnd()*W,y=i<7?rnd()*260:H-rnd()*260,r=26+rnd()*26,c=TH[2+(i%2)];g.fillStyle=c;for(let k=0;k<5;k++){const a=k*1.2566;g.beginPath();g.arc(x+Math.cos(a)*r,y+Math.sin(a)*r,r*.7,0,7);g.fill()}g.fillStyle=TH[1];g.beginPath();g.arc(x,y,r*.5,0,7);g.fill()}}
+ if(WS.theme==='etoiles'){for(let i=0;i<70;i++){const x=rnd()*W,y=rnd()*H,r=2+rnd()*6;g.fillStyle=TH[1+(i%4)];g.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5,rr=k%2?r*.45:r*1.6;g.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}g.fill()}}
+ if(WS.theme==='gateau'){g.font='150px serif';g.textAlign='center';['🎂','🧁','🎁','🍰'].forEach((e,i)=>g.fillText(e,140+i*265,210))}
+ for(let i=0;i<60;i++){g.fillStyle=TH[1+(i%4)];g.globalAlpha=.55;g.save();g.translate(rnd()*W,rnd()*H);g.rotate(rnd()*3);g.fillRect(-9,-4,18,8);g.restore()}g.globalAlpha=1;
+ const ink=dark?'#ffffff':TH[4],acc=TH[1];
+ let y0=430;
+ const usePh=WS.usePh&&b.ph;const ph=usePh?await PH.get(b.id):null;
+ if(ph){try{const im=await loadImg(ph);const R=230,cx=W/2,cy=640;g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.closePath();g.clip();const k=Math.max(2*R/im.width,2*R/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();g.lineWidth=14;g.strokeStyle='#fff';g.beginPath();g.arc(cx,cy,R+7,0,7);g.stroke();y0=950}catch(e){}}
+ g.textAlign='center';g.fillStyle=acc;g.font='italic 700 92px "New York",Georgia,serif';g.fillText('Joyeux',W/2,y0);g.fillText('anniversaire',W/2,y0+105);
+ const nm=b.n.split(' ')[0];let fs=150;g.font='800 '+fs+'px -apple-system,"Segoe UI",Roboto,sans-serif';while(g.measureText(nm).width>W-140&&fs>60){fs-=8;g.font='800 '+fs+'px -apple-system,"Segoe UI",Roboto,sans-serif'}
+ g.fillStyle=ink;g.fillText(nm,W/2,y0+(ph?250:290));
+ const age=wishAgeTxt(b);
+ if(age){const cy=ph?y0-560:y0+470;if(!ph){g.fillStyle=acc;g.beginPath();g.arc(W/2,cy,120,0,7);g.fill();g.fillStyle='#fff';g.font='800 96px -apple-system,sans-serif';g.fillText(age.split(' ')[0],W/2,cy+20);g.font='700 40px -apple-system,sans-serif';g.fillText('ans',W/2,cy+70)}else{g.fillStyle=acc;g.beginPath();g.arc(W/2+190,640-170,78,0,7);g.fill();g.fillStyle='#fff';g.font='800 64px -apple-system,sans-serif';g.fillText(age.split(' ')[0],W/2+190,640-162);g.font='700 28px -apple-system,sans-serif';g.fillText('ans',W/2+190,640-125)}}
+ if(S.me){g.fillStyle=ink;g.globalAlpha=.8;g.font='italic 500 48px "New York",Georgia,serif';g.fillText('— '+S.me,W/2,H-80);g.globalAlpha=1}
+}
+async function wishBlob(){const cv=$('#ws-cv');await wishDraw();return new Promise(res=>cv.toBlob(res,'image/jpeg',.9))}
+function wishMark(){const b=bdClean().find(x=>x.id===WS.id);if(b){b.ws={y:new Date().getFullYear(),at:Date.now()};b.mt=Date.now();saveSet()}}
+
 /* ---------- Démarrage ---------- */
 function registerSW(){
  if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))return;
@@ -5312,10 +6365,13 @@ async function init(){
  if(q.get('demo')==='1'){demo=true;EV=demoData()}
  render();
  registerSW();
+ shareCheckHash();
+ window.addEventListener('hashchange',shareCheckHash);
  setInterval(tick,30000);tick();
  setTimeout(()=>{if(!demo&&!S.mergeDone){S.mergeDone=1;saveSet();const n=mergeLocal();if(n)toast(n+' jour'+(n>1?'s':'')+' identique'+(n>1?'s':'')+' regroupé'+(n>1?'s':'')+' (événements importés)',5000)}},1200);
  setTimeout(olAuto,1500);
  setTimeout(vacAutoRefresh,2500);
+ try{mnPrune()}catch(e){}
  if(!demo){
   if(!META.seen&&!EV.length){setTimeout(welcome,300);META.ver=APP_VERSION;saveMeta()}
   else if(META.ver!==APP_VERSION)setTimeout(()=>{if(!SHEET_OPEN)whatsNew()},400);

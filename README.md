@@ -1,13 +1,23 @@
 # AgenDam
 
-**Pourquoi AgenDam ?** Gratuite, sans publicité, sans compte, aucune donnée collectée (aucun serveur). Un mois lisible d'un coup d'œil (titres entiers, emoji, jour J), des rotations de travail sur mesure, import Outlook / Excel / CSV, envoi vers le calendrier Outlook et la catégorie de son choix, impression A4 d'une page.
+**L’organisateur de la famille, comme un carnet.** Gratuit, sans publicité, sans compte, aucune donnée collectée (aucun serveur) : tout reste sur l’appareil.
 
-AgenDam : agenda et emploi du temps simple et lisible, installable sur iPhone et Android (PWA).
-Jour, semaine, mois en gros caractères. Gratuit, sans publicité, **aucune donnée collectée** : tout reste sur l'appareil.
+AgenDam : agenda, tâches, anniversaires et repas pour toute la famille, installable sur iPhone et Android (PWA).
 
 - Appli : https://dam-cigogne.github.io/agenda/
 - Démo (données d'exemple) : https://dam-cigogne.github.io/agenda/?demo=1
 - Fiche de présentation et installation : https://dam-cigogne.github.io/agenda/presentation.html
+
+## Version 2 : l’organisateur
+
+- Apparence « carnet » : papier crème, encre bleue, un intercalaire de couleur par onglet
+- Onglets : 📅 Agenda (Jour / Semaine / 2 sem. / Mois au choix), ☑ Tâches, 🎂 Anniversaires, 🍽 Repas
+- Tâches : listes à cocher, date facultative (visible dans l’agenda), qui s’en occupe, tâches qui reviennent, impression A4
+- Famille et contacts (prénom, nom, lien, téléphone, mail) pour distribuer les tâches et envoyer les partages
+- Partage par lien (SMS, WhatsApp, mail) des tâches, anniversaires, recettes, menu et liste de courses : les données voyagent dans le fragment `#p=` du lien (compressé, jamais envoyé au serveur) et se fusionnent par identifiant chez la personne (ajouts, mises à jour, suppressions, sans doublon)
+- Repas : menu de la semaine (midi / soir, qui cuisine), carnet de recettes (import par copier-coller depuis Notes, un site, un message), portions ajustables, ingrédients manquants vers la liste Courses rangée par rayon
+- Anniversaires : bouton 🎉 pour souhaiter (messages personnalisés par ton, carte en image avec photo, envoi par le partage du téléphone) ; photos dans IndexedDB (`agd-media`) et dans la sauvegarde .json
+- Synchronisation Outlook mise en pause (code conservé, `OL_ON`)
 
 ## Fonctions
 
