@@ -19,6 +19,9 @@ AgenDam : agenda, tâches, anniversaires et repas pour toute la famille, install
 - Anniversaires : bouton 🎉 pour souhaiter (messages personnalisés par ton, carte en image avec photo, envoi par le partage du téléphone) ; photos dans IndexedDB (`agd-media`) et dans la sauvegarde .json
 - Voyages : listes à cocher (modèles, import Notes par copier-coller), programme jour par jour, repas du séjour (reliés à Repas), infos (adresse, trajet, réservations, numéros, budget), partage par lien
 - Dupliquer un événement sur plusieurs jours en une fois
+- Recettes importées depuis les sites (Marmiton, 750g, Cookidoo…) grâce à un favori « 📥 AgenDam » (marque-page qui lit les données schema.org Recipe de la page et ouvre l’appli avec un lien #p=) ; réglages Thermomix surlignés ; mode cuisine plein écran (Wake Lock)
+- Anniversaires importés depuis Word (.docx lu sans bibliothèque), Excel/CSV, .ics, .vcf ou texte collé
+- Import sélectif : partages reçus et listes collées passent par une liste à cocher
 - Synchronisation Outlook mise en pause (code conservé, `OL_ON`)
 
 ## Fonctions

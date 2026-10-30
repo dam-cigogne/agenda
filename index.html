@@ -626,6 +626,19 @@ body.agview .ttl b::after{content:" ▾";font-style:normal;font-size:.7em;color:
 .vy-today small{color:var(--muted)}
 .wd .vy-today{margin:.3rem .6rem .4rem;width:calc(100% - 1.2rem)}
 
+/* Thermomix et mode cuisine */
+.tm{display:inline-block;padding:0 .35rem;border-radius:.4rem;background:color-mix(in srgb,var(--k-tk) 16%,transparent);color:var(--k-tk);font-weight:800;white-space:nowrap}
+#cook{position:fixed;inset:0;z-index:60;background:var(--bg);color:var(--text);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + .5rem) max(1rem,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + .8rem) max(1rem,env(safe-area-inset-left,0px));border-top:5px solid var(--k-rp)}
+.ck-top{display:flex;align-items:center;gap:.5rem}.ck-top b{flex:1;font-family:var(--serif);font-style:italic;font-size:1.3rem;min-width:0}
+.ck-tm{background:var(--k-tk);color:#fff;font-weight:800;font-size:.75rem;padding:.2rem .5rem;border-radius:999px}
+.ck-tabs{display:flex;gap:.4rem;margin:.6rem 0}.ck-tabs button{flex:1;padding:.55rem;border-radius:.8rem;background:var(--surface2);font-weight:800}.ck-tabs button.on{background:var(--k-rp);color:#fff}
+.ck-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.ck-n{color:var(--muted);font-weight:800;margin:.4rem 0}
+.ck-step{font-size:1.7rem;line-height:1.45;margin:0;max-width:40rem}
+.ck-ing{list-style:none;margin:0;padding:0}.ck-ing button{display:block;width:100%;text-align:left;font-size:1.3rem;padding:.6rem .4rem;border-bottom:1px solid var(--line2)}.ck-ing button.on{color:var(--muted);text-decoration:line-through}
+.ck-nav{display:flex;gap:.6rem;margin-top:.6rem}.ck-nav .btn{flex:1;margin:0;font-size:1.15rem;padding:1rem .5rem}
+.chip.bmk{display:inline-flex;text-decoration:none;color:inherit;border-style:dashed;cursor:grab}
+
 /* Aide à l'adresse */
 .adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
 .adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
@@ -812,12 +825,24 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.3.1';
+const APP_VERSION='2.5.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.5.1',d:'31/10/2026',items:[
+  '🔗 Recettes : « Importer avec un lien » — colle le lien (Marmiton, 750g, Cookidoo…), l’appli ouvre la page et ton favori 📥 AgenDam fait le reste.',
+  '📄 Exporter, dans chaque onglet : tes tâches, tes anniversaires, tes recettes (une ou toutes) et tes voyages partent en texte vers Notes, Messages ou un mail (lisible même sans AgenDam), ou en fichier Excel (.csv).']},
+ {v:'2.5.0',d:'31/10/2026',items:[
+  '🌐 Recettes : importe-les depuis les sites (Marmiton, 750g, Cuisine Actuelle, Cookidoo pour le Thermomix…) grâce à un bouton « 📥 AgenDam » à mettre dans tes favoris. Sur la page d’une recette, un geste suffit : le nom, les ingrédients, les étapes, le temps et les portions arrivent dans ton carnet. Repas → Recettes → « Importer depuis un site » explique comment l’installer.',
+  'Thermomix : les recettes Thermomix sont reconnues (étiquette Thermomix), et les réglages des étapes (« 5 min/100°C/vitesse 1 », Varoma, sens inverse…) sont mis en valeur.',
+  '👩‍🍳 Mode cuisine plein écran : les ingrédients à cocher, puis une étape à la fois en gros caractères, avec Précédente / Suivante. L’écran reste allumé pendant que tu cuisines (quand le téléphone le permet).',
+  'Les anniversaires s’importent aussi depuis Word, Excel, un calendrier ou une liste collée (version 2.4).',
+  'Importer seulement ce que tu veux : quand tu reçois un partage (tâches, anniversaires, recettes, menu, voyage), « Choisir ce que j’importe… » te laisse cocher les éléments un par un. Les listes collées (Tâches → « Importer une liste », Voyages → « Coller depuis Notes ») passent aussi par une liste à cocher.']},
+ {v:'2.4.0',d:'31/10/2026',items:[
+  '📥 Anniversaires : importe-les depuis presque n’importe quoi. Un document Word (.docx), un tableau Excel ou CSV, un calendrier (.ics), tes contacts (.vcf), ou une liste copiée-collée (Notes, mail, PDF ouvert…).',
+  'L’appli reconnaît les dates écrites de plein de façons (12/03, 12/03/1950, 12 mars, 2016-12-05) et les listes rangées par mois. Tu vérifies et décoches avant d’importer ; ce qui est déjà dans ta liste est ignoré.']},
  {v:'2.3.1',d:'31/10/2026',items:[
   'Carte d’anniversaire : choisis qui signe (ton prénom, toi et ton conjoint, Papa, Maman, Papi, Mamie, Toute la famille, la famille + nom, sans signature ou ton propre texte). L’appli se souvient de ton choix.',
   'Réglages → Famille et contacts → « Ce téléphone est à » : indique à qui est le téléphone. Ce prénom signe les cartes et s’affiche chez les autres quand tu partages.']},
@@ -4456,7 +4481,7 @@ function bdHTML(inMain){
  }else h+='<p class="mut" style="margin:.6rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
  h+='<div style="height:.4rem"></div>';
  if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
- h+='<button class="btn blk" data-act="bd-vcf">'+ic('up')+' Importer depuis mes contacts (fichier .vcf)…</button>';
+ h+='<button class="btn blk" data-act="bdimp-open">📥 Importer des anniversaires (Word, Excel, contacts, texte collé…)</button>';
  h+='<button class="btn blk" data-act="bd-print"'+(list.length?'':' disabled')+'>'+ic('print')+' Imprimer / PDF de tous les anniversaires</button>';
  h+='<button class="btn blk" data-act="bd-exp"'+(list.length?'':' disabled')+'>🔔 Mettre dans le calendrier du téléphone avec alarme…</button>';
  h+='<b style="display:block;margin:.8rem 0 .2rem">Rappel à l’ouverture de l’appli</b><div class="seg" style="flex-wrap:wrap">'+chip(0,'Le jour J')+chip(1,'La veille')+chip(3,'3 jours avant')+chip(7,'1 semaine avant')+'</div>';
@@ -4468,7 +4493,7 @@ function bdHTML(inMain){
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-lock">Verrouiller maintenant</button>';
  if(!inMain)h+='<button class="btn blk" data-act="close">Fermer</button>';
  else h=h.replace('id="bd-list" style="margin:.4rem -1rem 0"','id="bd-list" style="margin:.4rem 0 0"');
- if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Partager les anniversaires (SMS, WhatsApp, mail)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
+ if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Partager les anniversaires (SMS, WhatsApp, mail)</button><button class="btn blk" data-act="ex-bd"'+(bdClean().length?'':' disabled')+'>📄 Exporter la liste (Notes, Excel)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
  return h;
 }
 
@@ -5109,14 +5134,14 @@ function openHelp(hist){
  h+=d('Emoji et vue Mois','<ul><li>Dans la fiche d’un événement, choisis un <b>emoji</b> (ou colle le tien) : il s’affiche devant le titre dans toutes les vues et part dans le .ics.</li><li>En vue <b>Mois</b>, un événement sur plusieurs jours de suite (ex. rotation 3 jours) forme un seul bandeau avec son nom complet. Touche un jour pour voir ses événements.</li><li>Les rendez-vous à heure fixe s’écrivent sur 1, 2 ou 3 lignes selon la place, avec une barre de la couleur de leur catégorie. « +2 » en haut d’une case = 2 événements de plus (touche la case).</li></ul>');
  h+=d('Rotations de travail','<ul><li>Dans <b>Réglages → Rotations de travail → Créer une rotation</b> : donne un nom, la date du premier jour, la durée, puis les <b>étapes</b> dans l’ordre (ex. 2 Matin, 2 Soir, 2 Nuit, 4 Repos).</li><li>Chaque étape a un nombre de jours, un type (travail ou repos), un emoji et, si tu veux, des heures (une fin avant le début = poste de nuit).</li><li>Des <b>modèles</b> (3 jours / 2 repos, matin / soir / nuit) te donnent un point de départ à modifier.</li><li>Tous les jours de la période apparaissent dans l’agenda comme des événements normaux : tu peux en changer un seul. « Modifier » la rotation recrée tous ses événements. « Supprimer » les retire.</li></ul>');
  if(OL_ON)h+=d('Gérer ses calendriers Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Gérer mes calendriers Outlook ».</li><li><b>Créer</b> : nom + couleur. <b>Modifier</b> : nouveau nom et/ou nouvelle couleur.</li><li><b>Supprimer</b> : efface le calendrier <b>et tous ses événements dans Outlook</b> (retape le nom pour confirmer). Impossible pour le calendrier par défaut, les calendriers en lecture seule (Anniversaires, Vacances…) et ceux d’un autre compte.</li><li>Le calendrier « Agenda (appli) » reste géré par l’appli.</li><li><b>Couleurs</b> : en plus des 10 couleurs d’Outlook, un sélecteur te laisse choisir une couleur libre, utilisée dans l’appli. Pour que les événements prennent la couleur de leur calendrier : <b>Réglages → Affichage → Couleur des événements → Calendrier Outlook</b>.</li><li><b>Couleur automatique</b> : si un calendrier est étiqueté ainsi, Outlook choisit sa couleur sans la dire à l’appli (d’où une couleur différente). « Fixer les couleurs automatiques » en choisit une pour de bon, identique des deux côtés.</li></ul>');
- h+=d('Anniversaires','<ul><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Trier et chercher</b> : au-dessus de la liste, « Prochains » (par date à venir), « A → Z » ou « Par mois » ; le champ « Chercher un prénom » filtre la liste pendant que tu tapes.</li><li><b>Idées cadeaux</b> : dans la fiche, une ligne par idée avec une case à cocher (acheté). Les idées restantes s’affichent dans la liste et dans le rappel. Elles ne partent pas dans le calendrier du téléphone.</li><li><b>Protéger les idées cadeaux</b> : crée ton code (Anniversaires → « Créer mon code »), puis dans la fiche d’une personne coche « 🔒 Protéger les idées cadeaux ». Son nom, sa date et son âge restent visibles partout ; ses idées cadeaux n’apparaissent plus dans la liste ni dans le rappel, et sa fiche ne s’ouvre qu’avec le code. L’appli se reverrouille après 2 minutes, quand tu fermes la liste ou quand tu quittes l’appli. Attention : ce n’est <b>pas un chiffrement</b>, il arrête le curieux qui a ton téléphone ouvert, pas un expert, et les sauvegardes .json ne sont pas protégées. <b>Face ID / empreinte</b> : une fois le code créé, « Déverrouiller avec Face ID / empreinte » l’active (iPhone 16 et + de iOS conseillé, Android avec un verrouillage d’écran). Si la reconnaissance échoue, le code sert de secours. Code oublié : seule solution, effacer la liste et recommencer (ou restaurer une sauvegarde).</li><li><b>Imprimer</b> : « Imprimer / PDF de tous les anniversaires » donne un PDF A4 classé par mois (plusieurs pages si besoin), avec les idées cadeaux. Les idées cadeaux des personnes protégées n’y figurent que si tu saisis le code.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
+ h+=d('Anniversaires','<ul><li><b>📥 Importer des anniversaires</b> : choisis un fichier Word, Excel, CSV, calendrier (.ics) ou contacts (.vcf), ou colle ta liste. Une personne par ligne avec sa date. Tu vérifies avant d’importer.</li><li>Réglages → <b>Anniversaires</b> (ou touche le bandeau 🎂 d’un jour). Ajoute un nom, un jour, un mois, et si tu veux l’année de naissance : l’âge se calcule tout seul. Une note permet de garder une idée cadeau.</li><li>Ils ne s’affichent <b>pas</b> comme des événements : seul un petit 🎂 apparaît sur le jour, ce qui garde ton agenda lisible.</li><li><b>Rappel à l’ouverture</b> : l’écran « À venir » annonce les anniversaires proches (le jour J, la veille, 3 jours ou 1 semaine avant, au choix), une fois par jour. Une appli fermée ne peut pas envoyer de notification : pour une vraie sonnerie, utilise l’export ci-dessous.</li><li><b>Déplacer mes événements « anniversaire »</b> : l’appli repère ceux de ton agenda (titre, catégorie ou calendrier Outlook « Anniversaires »), te laisse cocher, les retire de l’agenda et les met dans la liste. Les imports Outlook ne reviennent pas.</li><li><b>Contacts (.vcf)</b> : exporte tes contacts en fichier .vcf (iPhone : appli Contacts ou iCloud.com ; Android : Contacts → Exporter ; Google Contacts ; Outlook), puis « Importer depuis mes contacts ». Une appli web ne peut pas lire tes contacts directement.</li><li><b>Trier et chercher</b> : au-dessus de la liste, « Prochains » (par date à venir), « A → Z » ou « Par mois » ; le champ « Chercher un prénom » filtre la liste pendant que tu tapes.</li><li><b>Idées cadeaux</b> : dans la fiche, une ligne par idée avec une case à cocher (acheté). Les idées restantes s’affichent dans la liste et dans le rappel. Elles ne partent pas dans le calendrier du téléphone.</li><li><b>Protéger les idées cadeaux</b> : crée ton code (Anniversaires → « Créer mon code »), puis dans la fiche d’une personne coche « 🔒 Protéger les idées cadeaux ». Son nom, sa date et son âge restent visibles partout ; ses idées cadeaux n’apparaissent plus dans la liste ni dans le rappel, et sa fiche ne s’ouvre qu’avec le code. L’appli se reverrouille après 2 minutes, quand tu fermes la liste ou quand tu quittes l’appli. Attention : ce n’est <b>pas un chiffrement</b>, il arrête le curieux qui a ton téléphone ouvert, pas un expert, et les sauvegardes .json ne sont pas protégées. <b>Face ID / empreinte</b> : une fois le code créé, « Déverrouiller avec Face ID / empreinte » l’active (iPhone 16 et + de iOS conseillé, Android avec un verrouillage d’écran). Si la reconnaissance échoue, le code sert de secours. Code oublié : seule solution, effacer la liste et recommencer (ou restaurer une sauvegarde).</li><li><b>Imprimer</b> : « Imprimer / PDF de tous les anniversaires » donne un PDF A4 classé par mois (plusieurs pages si besoin), avec les idées cadeaux. Les idées cadeaux des personnes protégées n’y figurent que si tu saisis le code.</li><li><b>Alarme sur le téléphone</b> : « Mettre dans le calendrier du téléphone » crée un événement annuel par personne avec alarme la veille à 18 h et le jour même à 9 h. iPhone : Envoyer → Calendrier → Ajouter tout. Android : Envoyer → Google Agenda ou Samsung Calendar. Si tu ajoutes des personnes, refais l’export (même identifiant : pas de doublon dans la plupart des applis).</li></ul>');
  h+=d('Vue Jour : 3 affichages, déplacer, chevauchements','<ul><li><b>Heures</b> : la grille habituelle. <b>Jour entier</b> : toute la journée tient à l’écran avec les horaires. <b>Liste</b> : événements triés, plages libres, ⚠ si deux événements se chevauchent.</li><li><b>Déplacer</b> : appui long sur un événement (≈ 0,5 s), puis glisse. L’heure s’affiche pendant le déplacement. Pas pour les événements répétés ni importés d’Outlook : ouvre leur fiche.</li><li><b>Avertissement</b> : si l’horaire est déjà pris, l’appli te le dit avant d’enregistrer.</li></ul>');
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Importer un autre calendrier → Chercher les doublons</b>.</li><li>L’appli cherche les événements avec le même titre (emoji, accents et majuscules ignorés), le même jour et la même heure.</li><li>Une liste apparaît : <b>coché = supprimé</b>. L’exemplaire le plus complet (note, lieu, catégorie) est gardé.</li></ul>');
  if(OL_ON)h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Partager le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
- h+=d('🍽 Repas','<ul><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
+ h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -5388,6 +5413,20 @@ async function act(a,el,e){
    pickIngredients('Ingrédients du séjour',acc.map(a=>({q:a.q!=null?Math.round(a.q*100)/100:null,u:a.u,n:a.n,from:a.from.join(', ')})),'Les recettes prévues pendant « '+v.t+' » demandent :');break}
   case 'vy-print':{const v=vyOf(VY.id);if(v)vyPrint(v);break}
   case 'sh-vy':shareSend('vy',VY.id);break;
+  case 'tk-imp':tkImport();break;
+  case 'ex-tk':exportAny('tk');break;
+  case 'ex-bd':exportAny('bd');break;
+  case 'ex-rc':exportAny('rc');break;
+  case 'ex-rc1':closeSheet();exportAny('rc',ds_.id);break;
+  case 'ex-vy':exportAny('vy',VY.id);break;
+  case 'rc-site':rcSiteHelp();break;
+  case 'rc-link':rcFromLink('');break;
+  case 'ck-open':cookOpen(ds_.id);break;
+  case 'ck-close':cookClose();break;
+  case 'ck-go':if(CK){CK.view=+ds_.n<0?'ing':'st';cookDraw()}break;
+  case 'ck-got':if(CK){const k=+ds_.k;CK.got.has(k)?CK.got.delete(k):CK.got.add(k);cookDraw()}break;
+  case 'ck-step':if(CK){const r=rcOf(CK.id);if(CK.view==='ing'){CK.view='st';CK.i=0}else CK.i=Math.max(0,Math.min(((r&&r.st)||[]).length-1,CK.i+(+ds_.n)));cookDraw()}break;
+  case 'bdimp-open':bdImportAny();break;
   case 'wish-open':WS=null;bdWish(ds_.id);break;
   case 'ws-tone':if(WS){WS.tone=ds_.v;WS.i=0;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
   case 'ws-next':if(WS){WS.i++;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
@@ -5604,6 +5643,8 @@ document.addEventListener('input',e=>{
  if(t.dataset.cat!=null&&t.dataset.field==='name'){S.cats[+t.dataset.cat].name=t.value.slice(0,30)||'Sans nom';saveSet()}
 });
 document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&$('#cook')){cookClose();return}
+ if(CK&&$('#cook')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){act('ck-step',{dataset:{n:e.key==='ArrowRight'?1:-1}},e);return}
  if(e.key==='Escape'){if($('#dlg').innerHTML){$('#dlg').innerHTML='';return}if(SHEET_OPEN){closeSheet();return}if(document.body.classList.contains('focus')){document.body.classList.remove('focus');render()}}
  if(e.key==='Enter'&&e.target.id==='f-title'){e.preventDefault();saveEditor()}
  if(e.key==='Enter'&&e.target.id==='co-in'){e.preventDefault();act('co-add',e.target,e)}
@@ -5689,7 +5730,7 @@ function tasksView(){
  const chip=(act,k,v,lbl,on)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-k="'+k+'" data-v="'+esc(v)+'">'+lbl+'</button>';
  let h='<div class="tk-wrap"><div class="tk-bar"><div class="chips tk-chips">'+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x).length+'</small>',!TKV.l)+
   L.map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
-  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Partager</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
+  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Partager</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="ex-tk">📄 Exporter</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  const showList=!TKV.l;
@@ -5998,6 +6039,7 @@ function shMerge(P,apply){
  const mapP=()=>{const map={};for(const p of (P.ppl||[])){let loc=ppl().find(x=>x.id===p.id)||ppl().find(x=>(p.tel&&x.tel&&telN(x.tel)===telN(p.tel))||(p.mail&&x.mail&&x.mail.toLowerCase()===String(p.mail).toLowerCase()))||ppl().find(x=>norm(pplName(x))===norm(pplName(p)));
    if(!loc&&apply){loc={id:p.id,n:String(p.n||'?').slice(0,30),ln:String(p.ln||'').slice(0,40),rel:p.rel||'aut',tel:String(p.tel||'').slice(0,20),mail:String(p.mail||'').slice(0,80),c:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:PPL_COLS[0],m:now};ppl().push(loc)}map[p.id]=loc?loc.id:''}return map};
  if(P.k==='rc'||P.k==='mn'||P.k==='vy'){
+  P.rc=(P.rc||[]).map(rcNormalizeImport).filter(Boolean);
   for(const r of (P.rc||[])){
    if(!r||!r.id||!r.t)continue;const loc=rcOf(r.id);
    const o={id:String(r.id),t:String(r.t).slice(0,80),ic:String(r.ic||'🍽️').slice(0,4),pp:Math.max(1,Math.min(30,+r.pp||4)),tm:Math.max(0,Math.min(600,+r.tm||0)),tags:(Array.isArray(r.tags)?r.tags:[]).map(String).slice(0,8),
@@ -6047,17 +6089,19 @@ async function shReceive(code,fromLink){
  const iosWeb=fromLink&&isIOS()&&!isStandalone();
  const btns=[];
  if(tot)btns.push({label:'Mettre à jour mon AgenDam',value:'y',cls:'pri'});
+ if(tot)btns.push({label:'Choisir ce que j’importe…',value:'pick'});
  if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy',cls:tot?'':'pri'});
  btns.push({label:tot?'Annuler':'OK',value:null});
  const r=await ask({title:'📥 Partage reçu',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.from||'Quelqu’un')+'</b> t’envoie <b>« '+esc(P.lbl||'')+' »</b> ('+esc(shCount(P))+').</p><p style="margin:.2rem 0 .6rem">'+(tot?'Chez toi : '+esc(det)+'.':'Tu as déjà tout, rien à mettre à jour.')+'</p>'+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari, pas dans l’appli de l’écran d’accueil. Si tu utilises l’appli : touche « copier », ouvre AgenDam, puis Tâches → 📥 Recevoir.</p>':''),btns});
  if(r==='copy'){try{await navigator.clipboard.writeText(shUrl(code));toast('Copié ! Ouvre AgenDam puis Tâches → 📥 Recevoir',7000)}catch(e){await ask({title:'Copie ce texte',html:'<textarea class="in" rows="4" readonly onfocus="this.select()">'+esc(shUrl(code))+'</textarea>',btns:[{label:'Fermer',value:null}]})}return}
- if(r!=='y')return;
- shMerge(P,true);
+ if(r==='pick'){const Q=await shPick(P);if(!Q)return;P=Q}
+ else if(r!=='y')return;
+ const st2=shMerge(P,true);const det2=[st2.add?st2.add+' nouveau'+(st2.add>1?'x':''):'',st2.upd?st2.upd+' mis à jour':'',st2.del?st2.del+' supprimé'+(st2.del>1?'s':''):''].filter(Boolean).join(', ')||'rien de neuf';
  if(P.k==='tk'){TKV.l='';TKV.w='';V.view='tasks';if(P.lbl==='Liste de courses'){RV.tab='co';V.view='repas'}}
  if(P.k==='rc'){RV.tab='rc';V.view='repas'}
  if(P.k==='vy'){const v=(P.vy||[])[0];if(v&&vyOf(v.id)){VY.id=v.id;VY.tab='li';V.view='voyages'}}
  if(P.k==='mn'){RV.tab='menu';RV.ws=P.ws&&RX_D.test(P.ws)?P.ws:RV.ws;V.view='repas'}
- render();toast('AgenDam mis à jour : '+det,5000);
+ render();toast('AgenDam mis à jour : '+det2,5000);
 }
 async function sharePaste(){
  let t='';
@@ -6098,7 +6142,7 @@ function contactsCard(){
 /* ========= Repas : recettes, menu de la semaine, courses (dans la liste « Courses » des Tâches) =========
    S.rc recettes, S.mn menu {date:{m:{r,t,w,p,mt},s:{…}}}. Tout est dans la sauvegarde et partageable par lien. */
 const RV={tab:'menu',ws:null,q:'',tag:''};
-const RC_TAGS=['Rapide','Végé','Enfants','Soupe','Plat','Dessert','Apéro','Petit-déj','Batch'];
+const RC_TAGS=['Thermomix','Rapide','Végé','Enfants','Soupe','Plat','Dessert','Apéro','Petit-déj','Batch'];
 const RAYONS=[['fl','🥕 Fruits et légumes',/pomme|poire|banane|citron|orange|fraise|framboise|tomate|carotte|courgette|aubergine|poivron|oignon|échalote|ail|salade|laitue|épinard|chou|brocoli|poireau|pomme de terre|patate|champignon|concombre|avocat|herbe|persil|basilic|coriandre|ciboulette|menthe|thym|laurier|gingembre|courge|potiron|haricot vert|petits? pois|radis|céleri|fenouil|navet|betterave|raisin|kiwi|mangue|ananas|melon|pêche|abricot|cerise|légume|fruit/],
  ['cr','🧀 Crèmerie et œufs',/lait|beurre|crème|fromage|emmental|gruyère|comté|parmesan|mozzarella|chèvre|feta|yaourt|yogourt|œuf|oeuf|mascarpone|ricotta|raclette|reblochon/],
  ['vp','🥩 Viande et poisson',/poulet|dinde|boeuf|bœuf|veau|porc|agneau|canard|jambon|lardon|bacon|saucisse|chorizo|steak|viande|haché|poisson|saumon|thon|cabillaud|colin|crevette|moule|lieu|sardine|merguez|filet/],
@@ -6150,6 +6194,7 @@ function rcFromText(txt){
  }
  if(/soupe|velout/i.test(r.t))r.tags.push('Soupe');if(/g[âa]teau|tarte sucr|cr[èe]me|mousse|cookie|crumble|clafoutis|compote/i.test(r.t))r.tags.push('Dessert');
  if(r.tm&&r.tm<=30)r.tags.push('Rapide');
+ if(TM_RX.test(txt))r.tags.push('Thermomix');
  return r;
 }
 /* ----- onglet ----- */
@@ -6176,7 +6221,7 @@ function rcListHTML(){
  const q=norm(RV.q||'').trim();
  const L=rcAll().filter(r=>(!RV.tag||(r.tags||[]).includes(RV.tag))&&(!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')).includes(q))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
  const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))];
- let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div>'+
+ let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><div class="chips" style="margin:-.1rem 0 .5rem"><button class="chip" data-act="rc-link">🔗 Importer avec un lien</button><button class="chip" data-act="rc-site">🌐 Bouton « AgenDam » pour les sites</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="ex-rc">📄 Exporter</button></div>'+
   '<input class="in" id="rc-q" type="search" placeholder="Chercher : nom, ingrédient, « rapide »…" value="'+esc(RV.q)+'" autocomplete="off">'+
   (used.length?'<div class="chips tk-chips" style="margin:.4rem 0"><button class="chip'+(RV.tag?'':' on')+'" data-act="rc-tag" data-v="">Toutes</button>'+used.map(t=>'<button class="chip'+(RV.tag===t?' on':'')+'" data-act="rc-tag" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'</div>':'');
  h+='<div id="rc-list">'+(L.length?L.map(r=>'<button class="rc-r" data-act="rc-open" data-id="'+esc(r.id)+'"><span class="rc-i">'+esc(r.ic||'🍽️')+'</span><span class="rc-x"><b>'+(r.fav?'⭐ ':'')+esc(r.t)+'</b><small>'+[r.tm?r.tm+' min':'',r.pp?r.pp+' pers.':'',(r.ing||[]).length+' ingrédient'+((r.ing||[]).length>1?'s':''),(r.tags||[]).join(', ')].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide. Ajoute-en une, ou colle une recette copiée depuis Notes, un site ou un message.')+'</p>')+'</div>';
@@ -6237,10 +6282,10 @@ function rcOpen(id){
  h+='<p class="mut" style="margin:0 0 .5rem">'+[r.tm?'⏱ '+r.tm+' min':'',(r.tags||[]).join(' · ')].filter(Boolean).join('   ')+(r.src?' · <a href="'+esc(r.src)+'" target="_blank" rel="noopener">source</a>':'')+'</p>';
  h+='<div class="rc-pp"><span>Pour</span><button class="ib" data-act="rc-pp" data-n="-1" aria-label="Moins">−</button><b>'+RC_PP.pp+'</b><button class="ib" data-act="rc-pp" data-n="1" aria-label="Plus">+</button><span>personne'+(RC_PP.pp>1?'s':'')+'</span></div>';
  h+='<h3 class="rc-h">Ingrédients</h3>'+((r.ing||[]).length?'<ul class="rc-ing">'+r.ing.map(g=>'<li>'+esc(ingTxt(g,f))+'</li>').join('')+'</ul>':'<p class="mut">Aucun ingrédient noté.</p>');
- h+='<button class="btn pri blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
- if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3><ol class="rc-st">'+r.st.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';
+ h+='<button class="btn pri blk" data-act="ck-open" data-id="'+esc(id)+'">👩‍🍳 Mode cuisine (plein écran)</button><button class="btn blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
+ if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3><ol class="rc-st">'+r.st.map(x=>'<li>'+tmMark(x)+'</li>').join('')+'</ol>';
  h+='<div class="btns" style="margin-top:.6rem"><button class="btn grow" data-act="rc-plan" data-id="'+esc(id)+'">📅 Mettre au menu</button><button class="btn grow" data-act="rc-fav" data-id="'+esc(id)+'">'+(r.fav?'★ Favori':'☆ Favori')+'</button></div>'+
-  '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Partager</button></div>'+
+  '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Partager</button></div><button class="btn blk" data-act="ex-rc1" data-id="'+esc(id)+'">📄 Exporter le texte (Notes, Messages)</button>'+
   '<button class="btn dng blk" data-act="rc-del" data-id="'+esc(id)+'">'+ic('trash')+' Supprimer la recette</button>';
  openSheet(h);
 }
@@ -6271,6 +6316,7 @@ async function rcImport(){
  const pr=ask({title:'📋 Coller une recette',html:'<p style="margin:.2rem 0 .5rem">Copie la recette depuis <b>Notes</b>, un site, un mail ou un message, puis colle-la ici (appui long → Coller). L’appli trouve le titre, les ingrédients et les étapes ; tu pourras corriger ensuite.</p><textarea class="in" id="ri-t" rows="9" placeholder="Gratin de courgettes\nPour 4 personnes\nIngrédients\n- 3 courgettes\n- 20 cl de crème\n…\nPréparation\n1. Préchauffer le four…" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Lire la recette',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='ri-t')v.t=e.target.value};
  const r=await pr;root.oninput=null;if(r!=='ok')return;
+ if(/^\s*https?:\/\/\S+\s*$/.test(v.t||'')){await rcFromLink(v.t.trim());return}
  const rc=rcFromText(v.t);if(!rc){toast('Rien à lire');return}
  await rcEdit(null,{t:rc.t,ic:rc.ic,pp:rc.pp,tm:rc.tm||'',tags:rc.tags.join(', '),ing:rc.ing.map(g=>ingTxt(g)).join('\n'),st:rc.st.join('\n'),src:rc.src});
 }
@@ -6496,7 +6542,7 @@ function vyDetailHTML(v){
   '<div class="vy-hd"><span class="vy-i">'+esc(v.ic||'🧳')+'</span><div><b>'+esc(v.t)+'</b><small>'+(v.a?esc(fLongY(v.a))+(v.b&&v.b!==v.a?' → '+esc(fLongY(v.b)):''):'Dates à choisir')+(v.lieu?' · '+esc(v.lieu):'')+'</small></div><button class="ib" data-act="vy-edit" aria-label="Modifier le voyage">'+ic('edit')+'</button></div>'+
   '<div class="seg rp-seg">'+sg('li','Listes'+(n?' '+x+'/'+n:''))+sg('pg','Programme')+sg('rp','Repas')+sg('in','Infos')+'</div>';
  if(VY.tab==='pg')h+=vyProgHTML(v);else if(VY.tab==='rp')h+=vyMealsHTML(v);else if(VY.tab==='in')h+=vyInfoHTML(v);else h+=vyListsHTML(v);
- h+='<div class="chips" style="margin:.8rem 0"><button class="chip" data-act="sh-vy">📤 Partager le voyage</button><button class="chip" data-act="vy-print">'+ic('print')+' Imprimer les listes</button><button class="chip" data-act="vy-del">'+ic('trash')+' Supprimer</button></div></div>';
+ h+='<div class="chips" style="margin:.8rem 0"><button class="chip" data-act="sh-vy">📤 Partager le voyage</button><button class="chip" data-act="vy-print">'+ic('print')+' Imprimer les listes</button><button class="chip" data-act="ex-vy">📄 Exporter</button><button class="chip" data-act="vy-del">'+ic('trash')+' Supprimer</button></div></div>';
  return h;
 }
 function vyListsHTML(v){
@@ -6573,7 +6619,8 @@ async function vyPaste(v){
  const L=vyLines(vals.t);if(!L.length){toast('Rien à lire');return}
  const first=String(vals.t||'').split('\n').map(x=>x.trim()).find(Boolean)||'';
  const title=L.length>1&&first&&!/^[-–•*◦☐]/.test(first)&&first===L[0]?L.shift():'';
- await vyNewList(v,L,title);
+ const sel=await pickLines('📝 Coller une liste',L.map(esc),L.length+' ligne'+(L.length>1?'s':'')+(title?' (liste « '+esc(title)+' »)':'')+'.','Continuer');if(!sel||!sel.length)return;
+ await vyNewList(v,sel.map(i=>L[i]),title);
 }
 async function vyListMenu(v,lid){
  const l=(v.ls||[]).find(x=>x.id===lid);if(!l)return;
@@ -6622,6 +6669,279 @@ function vyPrint(v){
   l.it.forEach(i=>{bl.push({t:i.t,box:true});html+='<div class="tk-pr"><span class="bx">'+(i.x?'✓':'')+'</span><span>'+esc(i.t)+'</span></div>'});html+='</div>'}
  if(!bl.length){toast('Aucune liste à imprimer');return}
  outPrint(html,v.t,bl,'voyage-agendam.pdf');
+}
+
+/* ========= Importer des anniversaires depuis n'importe quoi : Word, Excel, CSV, texte, calendrier, contacts ========= */
+const BD_MO=[['janv',1],['jan',1],['févr',2],['fevr',2],['fév',2],['fev',2],['mars',3],['mar',3],['avr',4],['mai',5],['juin',6],['juil',7],['août',8],['aout',8],['sept',9],['sep',9],['oct',10],['nov',11],['déc',12],['dec',12],
+ ['january',1],['february',2],['march',3],['april',4],['may',5],['june',6],['july',7],['august',8],['september',9],['october',10],['november',11],['december',12]];
+const BD_MO_RX='(janvier|janv|jan|février|fevrier|févr|fevr|fév|fev|mars|mar|avril|avr|mai|juin|juillet|juil|août|aout|septembre|sept|sep|octobre|oct|novembre|nov|décembre|decembre|déc|dec|january|february|march|april|may|june|july|august|september|october|november|december)\\.?';
+const moNum=w=>{w=String(w||'').toLowerCase().replace(/\.$/,'');for(const [k,n] of BD_MO)if(w.indexOf(k)===0)return n;return 0};
+function bdParseText(txt){
+ const out=[],y0=new Date().getFullYear();let curM=0;
+ const lines=String(txt||'').replace(/\r/g,'').split(/\n|;(?=\s*\S+\s*[;:,-]?\s*\d)/);
+ for(let raw of lines){
+  let l=raw.replace(/[\t|]+/g,' ').replace(/\s+/g,' ').trim();if(!l)continue;
+  const onlyMo=l.match(new RegExp('^'+BD_MO_RX+'(\\s+\\d{4})?\\s*:?$','i'));if(onlyMo){curM=moNum(onlyMo[1]);continue}
+  let d=0,m=0,y=0,hit='';
+  let r=l.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(r){y=+r[1];m=+r[2];d=+r[3];hit=r[0]}
+  if(!hit){r=l.match(/(?<![\d])(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?(?![\d])/);if(r){d=+r[1];m=+r[2];if(r[3]){y=+r[3];if(y<100)y+=y>(y0%100)?1900:2000}hit=r[0]}}
+  if(!hit){r=l.match(new RegExp('(\\d{1,2})(?:er)?\\s+'+BD_MO_RX+'(?:\\s+(\\d{4}))?','i'));if(r){d=+r[1];m=moNum(r[2]);if(r[3])y=+r[3];hit=r[0]}}
+  if(!hit){r=l.match(new RegExp(BD_MO_RX+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?','i'));if(r){m=moNum(r[1]);d=+r[2];if(r[3])y=+r[3];hit=r[0]}}
+  if(!hit&&curM){r=l.match(/^(\d{1,2})(?:er)?\b|\b(\d{1,2})$/);if(r){d=+(r[1]||r[2]);m=curM;hit=r[0]}}
+  if(!hit)continue;
+  let n=l.replace(hit,' ');
+  const age=n.match(/\(?\s*(\d{1,3})\s*ans?(?:\s+en\s+(\d{4}))?\s*\)?/i);
+  if(age){if(!y&&age[2])y=+age[2]-(+age[1]);n=n.replace(age[0],' ')}
+  n=n.replace(/["“”«»]/g,' ').replace(/[🎂🎈🎉🎁🔒•·▪◦*]/gu,' ').replace(/\b(joyeux\s+)?anniv(ersaire)?s?\b\.?/gi,' ').replace(/\b(n[ée]e?|le|du|de la|de|des|d['’])\b/gi,' ').replace(/\[[ x]?\]|☐|☑/g,' ').replace(/^[\s:,;\-–—]+|[\s:,;\-–—]+$/g,'').replace(/\s+/g,' ').trim();
+  if(!n||n.length>60||/^\d+$/.test(n))continue;
+  const mx=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];
+  if(!(m>=1&&m<=12&&d>=1&&d<=mx))continue;
+  if(y&&(y<1900||y>y0))y=0;
+  const key=norm(n)+'|'+d+'|'+m;if(out.some(o=>o.key===key))continue;
+  out.push({key,n:n.charAt(0).toUpperCase()+n.slice(1),d,m,y});
+ }
+ return out.map(({key,...o})=>o);
+}
+/* lecture minimale d'un .docx / .odt (zip) sans bibliothèque */
+async function zipText(buf,names){
+ const u=new Uint8Array(buf),dv=new DataView(buf);
+ let e=u.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw new Error('Fichier illisible');
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);
+ for(let i=0;i<n;i++){
+  if(dv.getUint32(p,true)!==0x02014b50)break;
+  const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),fl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+  const name=new TextDecoder().decode(u.subarray(p+46,p+46+fl));p+=46+fl+xl+cl;
+  if(!names.includes(name))continue;
+  const st=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),data=u.subarray(st,st+csz);
+  if(meth===0)return new TextDecoder().decode(data);
+  if(meth===8){if(!window.DecompressionStream)throw new Error('Ce téléphone est trop ancien pour lire ce fichier');return new TextDecoder().decode(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+ }
+ return null;
+}
+const xmlText=x=>String(x||'').replace(/<\/w:p>\s*<\/w:tc>/g,' </w:tc>').replace(/<\/text:p>\s*<\/table:table-cell>/g,' </table:table-cell>').replace(/<w:tab\/>|<text:tab\/>/g,' ').replace(/<w:br\/>|<\/w:p>|<\/text:p>|<\/text:h>|<\/w:tr>|<text:line-break\/>/g,'\n').replace(/<\/w:tc>|<\/table:table-cell>/g,' ').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&apos;|&#39;/g,"'");
+async function bdFileItems(file){
+ const nm=file.name.toLowerCase();
+ if(/\.vcf$/.test(nm))return parseVCF(await file.text());
+ if(/\.docx$/.test(nm)){const x=await zipText(await file.arrayBuffer(),['word/document.xml']);if(x==null)throw new Error('Document Word illisible');return bdParseText(xmlText(x))}
+ if(/\.(odt)$/.test(nm)){const x=await zipText(await file.arrayBuffer(),['content.xml']);if(x==null)throw new Error('Document illisible');return bdParseText(xmlText(x))}
+ if(/\.(xlsx|xls|ods|csv|numbers)$/.test(nm)){
+  if(/\.numbers$/.test(nm))throw new Error('Exporte d’abord ton tableau Numbers en Excel (.xlsx) ou CSV');
+  if(/\.csv$/.test(nm))return bdParseText((await file.text()).replace(/[;,]/g,' '));
+  await loadXLSX();const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});let t='';
+  wb.SheetNames.forEach(sn=>{t+=XLSX.utils.sheet_to_csv(wb.Sheets[sn],{FS:' ',dateNF:'dd/mm/yyyy'})+'\n'});return bdParseText(t);
+ }
+ if(/\.ics$/.test(nm)){const t=await file.text(),L=[];t.replace(/\r\n[ \t]/g,'').split(/BEGIN:VEVENT/).slice(1).forEach(b=>{const s=(b.match(/\nSUMMARY[^:]*:(.*)/)||[])[1],dt=(b.match(/\nDTSTART[^:]*:(\d{4})(\d{2})(\d{2})/)||[]);if(s&&dt[2])L.push(s.replace(/\\,/g,',')+' '+(+dt[3])+'/'+(+dt[2]))});return bdParseText(L.join('\n'))}
+ if(/\.(pdf|pages|doc)$/.test(nm))throw new Error(/\.pdf$/.test(nm)?'PDF : ouvre-le, sélectionne tout le texte, copie-le et colle-le dans la case':'Ce format ne se lit pas directement : enregistre-le en Word (.docx) ou copie-colle le texte');
+ return bdParseText(await file.text());
+}
+async function bdImportAny(){
+ const vals={t:''};
+ const html='<p style="margin:.2rem 0 .5rem">Choisis un fichier : <b>Word</b> (.docx), <b>Excel</b> (.xlsx, .csv), <b>calendrier</b> (.ics), <b>contacts</b> (.vcf) ou texte. Ou colle directement ta liste (Notes, mail, PDF ouvert…).</p>'+
+  '<label class="btn blk" style="position:relative;overflow:hidden;margin:.2rem 0 .6rem">📄 Choisir un fichier<input type="file" id="bdi-f" accept=".docx,.odt,.xlsx,.xls,.ods,.csv,.ics,.vcf,.txt,.md,text/*" style="position:absolute;inset:0;opacity:0"></label>'+
+  '<label class="lbl" for="bdi-t">Ou colle ta liste ici</label><textarea class="in" id="bdi-t" rows="7" placeholder="Mamie 12/03/1950\nLéo : 5 décembre 2016\nTata Sophie - 3 avril\n…" style="margin-bottom:.4rem"></textarea>'+
+  '<p class="mut" style="font-size:.8rem;margin:0 0 .6rem">Une personne par ligne, avec sa date (12/03, 12 mars, 12/03/1950…). Les listes rangées par mois (« Mars » puis « 12 Mamie ») marchent aussi.</p>';
+ const pr=ask({title:'📥 Importer des anniversaires',html,btns:[{label:'Lire le texte collé',value:'txt',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='bdi-t')vals.t=e.target.value};
+ let fileItems=null,fileErr='';
+ const fh=async e=>{if(e.target.id!=='bdi-f'||!e.target.files[0])return;const f=e.target.files[0];try{fileItems=await bdFileItems(f)}catch(err){fileErr=err.message||'Fichier illisible'}const b=root.querySelector('[data-v="1"]');if(b){b.dataset.file='1';b.click()}};
+ root.addEventListener('change',fh);
+ const r=await pr;root.oninput=null;root.removeEventListener('change',fh);
+ let items=null;
+ if(fileItems||fileErr){if(fileErr){toast(fileErr,6000);return bdImportAny()}items=fileItems}
+ else if(r==='txt')items=bdParseText(vals.t);
+ else return;
+ if(!items||!items.length){toast('Aucun anniversaire trouvé : vérifie qu’il y a un prénom et une date sur chaque ligne',6000);return bdImportAny()}
+ await bdImportPick(items);
+}
+async function bdImportPick(items){
+ const ex=x=>bdClean().some(b=>norm(b.n)===norm(x.n)&&b.m===x.m&&b.d===x.d);
+ const fresh=items.filter(x=>!ex(x)),dup=items.length-fresh.length;
+ if(!fresh.length){toast('Tout est déjà dans ta liste ('+items.length+' trouvé'+(items.length>1?'s':'')+')',5000);return}
+ fresh.sort((a,b)=>a.m-b.m||a.d-b.d);
+ const off=new Set();
+ const html='<p style="margin:.2rem 0 .5rem">'+fresh.length+' anniversaire'+(fresh.length>1?'s':'')+' trouvé'+(fresh.length>1?'s':'')+(dup?' ('+dup+' déjà dans ta liste, ignoré'+(dup>1?'s':'')+')':'')+'. <b>Décoche ce qui est faux.</b></p><div class="olbox">'+
+  fresh.map((x,i)=>'<label class="olrow"><input type="checkbox" checked data-bi="'+i+'"><span><b>'+esc(x.n)+'</b> · '+x.d+' '+ML[x.m-1]+(x.y?' '+x.y:'')+'</span></label>').join('')+'</div>';
+ const root=$('#dlg');const h=e=>{const c=e.target.closest&&e.target.closest('[data-bi]');if(c){c.checked?off.delete(+c.dataset.bi):off.add(+c.dataset.bi)}};
+ root.addEventListener('change',h,true);
+ const r=await ask({title:'📥 Vérifier avant d’importer',html,btns:[{label:'Importer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('change',h,true);
+ if(r!=='ok')return;
+ const sel=fresh.filter((_,i)=>!off.has(i));if(!sel.length)return;
+ S.bd=bdClean().concat(sel.map(x=>({id:'b'+uid(),n:x.n.slice(0,60),d:x.d,m:x.m,y:x.y||0,note:'',mt:Date.now()})));saveSet();render();
+ toast('🎂 '+sel.length+' anniversaire'+(sel.length>1?'s':'')+' importé'+(sel.length>1?'s':''),4000);
+}
+
+/* ========= Recettes : import depuis un site (bouton marque-page), Thermomix, mode cuisine ========= */
+const TM_RX=/thermomix|\bTM[3-7]\b|cookidoo|varoma|\bvitesse\s*(?:\d|mijotage|cuill)|sens inverse|mode p[ée]trin|\bturbo\b/i;
+function isoMin(t){const m=String(t||'').match(/P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?/i);return m?((+m[1]||0)*1440+(+m[2]||0)*60+(+m[3]||0)):0}
+/* recette reçue d'un site (données schema.org) ou d'un texte : remise au format de l'appli */
+function rcNormalizeImport(r){
+ if(!r)return r;
+ if(r.txt){const x=rcFromText(r.txt);if(!x)return null;if(r.src)x.src=String(r.src).slice(0,300);if(TM_RX.test(r.txt+' '+(r.src||''))&&!x.tags.includes('Thermomix'))x.tags.push('Thermomix');return x}
+ if(Array.isArray(r.ingraw)){
+  const o={id:r.id||'r'+uid(),t:String(r.t||'Recette').replace(/\s+/g,' ').trim().slice(0,80),ic:r.ic||'🍽️',pp:Math.max(1,Math.min(30,parseInt(String(r.ppraw||'').match(/\d+/))||4)),tm:Math.min(600,isoMin(r.tmraw)),
+   ing:r.ingraw.map(x=>ingParse(String(x).replace(/\s+/g,' '))).filter(Boolean).slice(0,80),st:(Array.isArray(r.st)?r.st:[]).map(x=>String(x).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim()).filter(Boolean).slice(0,60),
+   tags:[],src:String(r.src||'').slice(0,300),m:r.m||Date.now()};
+  if(o.tm&&o.tm<=30)o.tags.push('Rapide');
+  if(TM_RX.test(o.st.join(' ')+' '+o.src+' '+o.t))o.tags.push('Thermomix');
+  if(/dessert|g[âa]teau|tarte sucr|cookie|cr[èe]me|mousse/i.test(o.t+' '+(r.cat||'')))o.tags.push('Dessert');
+  return o;
+ }
+ return r;
+}
+/* surligne les réglages Thermomix d'une étape : « 5 min/100°C/vitesse 1 », « Varoma », « sens inverse » */
+function tmMark(t){
+ return esc(t).replace(/(\d+\s*(?:min|sec|s)\b(?:\s*\/\s*(?:\d+\s*°\s*C|Varoma))?(?:\s*\/\s*(?:sens inverse\s*\/?\s*)?vitesse\s*(?:\d+(?:[.,]\d+)?|mijotage|cuill[eè]re))?|vitesse\s*(?:\d+(?:[.,]\d+)?|mijotage|cuill[eè]re)|\bVaroma\b|sens inverse|mode p[ée]trin|\bturbo\b)/gi,'<span class="tm">$1</span>');
+}
+function bookmarkletCode(){
+ const app=location.origin+location.pathname;
+ return "javascript:(()=>{let r=null;const f=x=>{if(!x||r)return;if(Array.isArray(x))return x.forEach(f);if(x['@graph'])f(x['@graph']);const t=x['@type'];if(t==='Recipe'||(Array.isArray(t)&&t.indexOf('Recipe')>=0))r=x};document.querySelectorAll('script[type=\"application/ld+json\"]').forEach(s=>{try{f(JSON.parse(s.textContent))}catch(e){}});let o;const sel=String(getSelection()||'').trim();if(r){const st=[].concat(r.recipeInstructions||[]).flatMap(i=>typeof i==='string'?[i]:i.itemListElement?i.itemListElement.map(x=>x.text||x.name):[i.text||i.name]).filter(Boolean);o={id:'r'+Date.now().toString(36),t:r.name,ppraw:String([].concat(r.recipeYield||'')[0]),tmraw:r.totalTime||r.cookTime||r.prepTime||'',ingraw:[].concat(r.recipeIngredient||[]),st:st,cat:String(r.recipeCategory||''),src:location.href,m:Date.now()}}else if(sel.length>30){o={txt:document.title+'\\n'+sel,src:location.href}}else{alert('AgenDam : pas de recette lisible sur cette page. Sélectionne le texte de la recette (titre, ingrédients, étapes) puis touche à nouveau le bouton.');return}const p={app:'agd',v:1,k:'rc',from:location.hostname.replace(/^www\\./,''),lbl:r?r.name:document.title,rc:[o]};const b=btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');location.href='"+app+"#p=j'+b})()";
+}
+async function rcFromLink(url){
+ if(!url){const v={u:''};const pr=ask({title:'🔗 Importer avec un lien',html:'<label class="lbl" for="rl-u">Lien de la recette (Marmiton, 750g, Cookidoo…)</label><input class="in" id="rl-u" type="url" inputmode="url" placeholder="https://www.marmiton.org/recettes/…" style="margin-bottom:.6rem">',btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='rl-u')v.u=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')return;url=String(v.u||'').trim();if(!/^https?:\/\//.test(url)){toast('Colle un lien qui commence par https://');return}}
+ const host=(url.match(/^https?:\/\/([^\/]+)/)||['',''])[1].replace(/^www\./,'');
+ const r=await ask({title:'🔗 Recette de '+host,html:'<p style="margin:.2rem 0 .5rem">Le site <b>'+esc(host)+'</b> ne laisse pas une autre appli lire sa page directement. Il faut donc 2 gestes :</p><ol class="rc-st" style="font-size:.95rem"><li>Touche <b>Ouvrir la page</b> : la recette s’ouvre dans Safari.</li><li>Là, touche ton favori <b>📥 AgenDam</b> : la recette arrive dans ton carnet (nom, ingrédients, étapes, temps, portions).</li></ol><p class="mut" style="font-size:.82rem;margin:.3rem 0 .6rem">Pas encore de favori AgenDam ? « Installer le bouton » explique comment faire (une seule fois).</p>',
+  btns:[{label:'Ouvrir la page',value:'open',cls:'pri'},{label:'Installer le bouton (une fois)',value:'help'},{label:'Annuler',value:null}]});
+ if(r==='open'){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500)}
+ if(r==='help')rcSiteHelp();
+}
+async function rcSiteHelp(){
+ const code=bookmarkletCode(),ios=isIOS();
+ const html='<p style="margin:.2rem 0 .5rem">Les sites de recettes (Marmiton, 750g, Cuisine Actuelle, Journal des Femmes, Cookidoo pour le Thermomix…) ne laissent pas une autre appli lire leurs pages. La solution : un <b>bouton AgenDam dans tes favoris</b>. Sur la page d’une recette, tu le touches et la recette arrive dans ton carnet, avec ingrédients et étapes.</p>'+
+  '<b style="display:block;margin:.5rem 0 .2rem">Installer le bouton (une seule fois)</b>'+
+  (ios?'<ol class="rc-st" style="font-size:.92rem"><li>Touche <b>Copier le code du bouton</b> ci-dessous.</li><li>Dans Safari, ouvre n’importe quelle page, touche <b>Partager</b> (carré avec flèche) → <b>Ajouter aux favoris</b>, nomme-le « 📥 AgenDam ».</li><li>Ouvre les signets (livre ouvert) → <b>Modifier</b> → touche « 📥 AgenDam » → efface l’adresse et <b>colle le code</b>.</li></ol>'
+   :'<ol class="rc-st" style="font-size:.92rem"><li>Fais glisser ce bouton dans ta barre de favoris : <a class="chip bmk" href="'+esc(code)+'" onclick="event.preventDefault()">📥 AgenDam</a></li><li>Ou copie le code et crée un favori avec ce code comme adresse.</li></ol>')+
+  '<b style="display:block;margin:.5rem 0 .2rem">L’utiliser</b><ol class="rc-st" style="font-size:.92rem"><li>Ouvre la recette sur le site (connecte-toi d’abord à Cookidoo pour les recettes Thermomix).</li><li>Touche le favori <b>📥 AgenDam</b>. AgenDam s’ouvre et te propose la recette.</li><li>Si le site n’est pas reconnu : sélectionne le texte de la recette, puis touche le favori. Ou copie le texte et utilise « Coller une recette ».</li></ol>'+
+  (ios?'<p class="mut" style="font-size:.8rem;margin:.4rem 0">Avec l’appli sur l’écran d’accueil : la recette s’ouvre dans Safari, touche « copier » puis, dans l’appli, Repas → Recettes → 📥 Recevoir.</p>':'')+
+  '<textarea class="in" id="bmk-c" rows="3" readonly onfocus="this.select()" style="font-size:.7rem;margin:.3rem 0 .6rem">'+esc(code)+'</textarea>';
+ const r=await ask({title:'🌐 Importer depuis un site',html,btns:[{label:'Copier le code du bouton',value:'copy',cls:'pri'},{label:'Fermer',value:null}]});
+ if(r==='copy'){try{await navigator.clipboard.writeText(code);toast('Code copié : colle-le comme adresse du favori',5000)}catch(e){toast('Sélectionne le code dans la case et copie-le',5000)}}
+}
+/* ----- mode cuisine plein écran ----- */
+let CK=null,CK_LOCK=null;
+async function cookOpen(id){
+ const r=rcOf(id);if(!r)return;
+ CK={id,i:0,f:(RC_PP&&RC_PP.id===id?RC_PP.pp:r.pp||4)/(r.pp||4),got:new Set()};
+ closeSheet();cookDraw();
+ try{if(navigator.wakeLock)CK_LOCK=await navigator.wakeLock.request('screen')}catch(e){}
+}
+function cookClose(){const z=$('#cook');if(z)z.remove();CK=null;try{CK_LOCK&&CK_LOCK.release()}catch(e){}CK_LOCK=null}
+function cookDraw(){
+ const r=CK&&rcOf(CK.id);if(!r){cookClose();return}
+ let z=$('#cook');if(!z){z=document.createElement('div');z.id='cook';document.body.appendChild(z)}
+ const st=r.st||[],n=st.length,i=Math.min(CK.i,Math.max(0,n));
+ const ingTab=i>=n||n===0;
+ z.innerHTML='<div class="ck-top"><button class="ib" data-act="ck-close" aria-label="Fermer">'+ic('x')+'</button><b>'+esc((r.ic||'')+' '+r.t)+'</b>'+((r.tags||[]).includes('Thermomix')?'<span class="ck-tm">Thermomix</span>':'')+'</div>'+
+  '<div class="ck-tabs"><button data-act="ck-go" data-n="-1" class="'+(CK.view==='ing'?'on':'')+'">Ingrédients</button><button data-act="ck-go" data-n="0" class="'+(CK.view!=='ing'?'on':'')+'">Étapes'+(n?' '+Math.min(i+1,n)+'/'+n:'')+'</button></div>'+
+  (CK.view==='ing'||!n?'<div class="ck-body"><ul class="ck-ing">'+(r.ing||[]).map((g,k)=>'<li><button data-act="ck-got" data-k="'+k+'" class="'+(CK.got.has(k)?'on':'')+'">'+(CK.got.has(k)?'✓ ':'')+esc(ingTxt(g,CK.f))+'</button></li>').join('')+'</ul>'+(n?'':'<p class="mut">Pas d’étapes notées.</p>')+'</div>':
+   '<div class="ck-body"><p class="ck-n">Étape '+(i+1)+' sur '+n+'</p><p class="ck-step">'+tmMark(st[i])+'</p></div>')+
+  '<div class="ck-nav"><button class="btn" data-act="ck-step" data-n="-1"'+(CK.view!=='ing'&&i>0?'':' disabled')+'>‹ Précédente</button><button class="btn pri" data-act="ck-step" data-n="1"'+(CK.view==='ing'?(n?'':' disabled'):(i<n-1?'':' disabled'))+'>'+(CK.view==='ing'?'Commencer ›':'Suivante ›')+'</button></div>';
+}
+
+/* ========= Importer seulement ce qu'on veut ========= */
+async function pickLines(title,lines,intro,okLbl){
+ if(!lines.length)return null;
+ const off=new Set();
+ const html='<p style="margin:.2rem 0 .5rem">'+(intro||'')+' <b>Décoche ce que tu ne veux pas.</b></p><div class="chips" style="margin:0 0 .4rem"><button type="button" class="chip" data-pk="all">Tout cocher</button><button type="button" class="chip" data-pk="none">Tout décocher</button></div><div class="olbox">'+lines.map((l,i)=>'<label class="olrow"><input type="checkbox" checked data-pl="'+i+'"><span>'+l+'</span></label>').join('')+'</div>';
+ const root=$('#dlg');
+ const h=e=>{const c=e.target.closest&&e.target.closest('[data-pl]');if(c&&e.type==='change'){c.checked?off.delete(+c.dataset.pl):off.add(+c.dataset.pl);return}
+  const b=e.target.closest&&e.target.closest('[data-pk]');if(b&&e.type==='click'){e.stopImmediatePropagation();e.preventDefault();const all=b.dataset.pk==='all';root.querySelectorAll('[data-pl]').forEach(x=>{x.checked=all;all?off.delete(+x.dataset.pl):off.add(+x.dataset.pl)})}};
+ root.addEventListener('change',h,true);root.addEventListener('click',h,true);
+ const r=await ask({title,html,btns:[{label:okLbl||'Importer la sélection',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('change',h,true);root.removeEventListener('click',h,true);
+ if(r!=='ok')return null;
+ return lines.map((_,i)=>i).filter(i=>!off.has(i));
+}
+/* choisir les éléments d'un partage reçu */
+async function shPick(P){
+ const it=[];
+ (P.tk||[]).forEach((k,i)=>it.push({lbl:'☑ '+esc(k.t)+(k.d?' <small class="mut">· '+esc(fShort(k.d))+'</small>':''),f:Q=>Q.tk.push(P.tk[i])}));
+ (P.bd||[]).forEach((b,i)=>it.push({lbl:'🎂 '+esc(b.n)+' <small class="mut">· '+b.d+' '+ML[b.m-1]+'</small>',f:Q=>Q.bd.push(P.bd[i])}));
+ if(P.k==='rc')(P.rc||[]).forEach((r,i)=>it.push({lbl:'🍽 '+esc(r.t),f:Q=>Q.rc.push(P.rc[i])}));
+ if(P.k==='mn'||P.k==='vy')Object.keys(P.mn||{}).sort().forEach(d=>['m','s'].forEach(k=>{const x=(P.mn[d]||{})[k];if(!x||!(x.r||x.t))return;const r=(P.rc||[]).find(z=>z.id===x.r);it.push({lbl:'🍽 '+esc(cap(fShort(d)))+' '+(k==='m'?'midi':'soir')+' : '+esc(r?r.t:x.t),f:Q=>{if(!Q.mn[d])Q.mn[d]={};Q.mn[d][k]=x;if(r&&!Q.rc.includes(r))Q.rc.push(r)}})}));
+ if(P.k==='vy')((P.vy||[])[0]||{ls:[]}).ls.forEach((l,i)=>it.push({lbl:'🧳 Liste « '+esc(l.n)+' » <small class="mut">· '+(l.it||[]).length+' éléments</small>',f:Q=>Q.vy[0].ls.push(l)}));
+ if(it.length<2)return P;
+ const sel=await pickLines('Choisir ce que j’importe',it.map(x=>x.lbl),(esc(P.from||'Quelqu’un'))+' t’envoie « '+esc(P.lbl||'')+' ».');
+ if(!sel)return null;
+ const Q=Object.assign({},P,{tk:[],bd:[],rc:P.k==='rc'?[]:[],mn:{},del:[],vy:P.k==='vy'?[Object.assign({},P.vy[0],{ls:[]})]:[]});
+ if(P.k==='tk')Q.tl=P.tl;
+ sel.forEach(i=>it[i].f(Q));
+ if(P.k==='vy'){Q.vy[0].pg=P.vy[0].pg;Q.vy[0].in=P.vy[0].in}
+ return Q;
+}
+/* Tâches : importer une liste (texte collé, Word, Excel, Notes…) en choisissant les lignes */
+async function tkImport(){
+ const vals={t:'',l:TKV.l||tkLists()[0].id};
+ const html='<p style="margin:.2rem 0 .5rem">Colle une liste (Notes, mail, message…) ou choisis un fichier (Word, Excel, texte). <b>Une ligne = une tâche.</b></p>'+
+  '<label class="btn blk" style="position:relative;overflow:hidden;margin:.2rem 0 .6rem">📄 Choisir un fichier<input type="file" id="tki-f" accept=".docx,.odt,.xlsx,.xls,.ods,.csv,.txt,.md,text/*" style="position:absolute;inset:0;opacity:0"></label>'+
+  '<label class="lbl" for="tki-t">Ou colle ta liste</label><textarea class="in" id="tki-t" rows="7" placeholder="Appeler le plombier\nRenouveler la carte d’identité\n…"></textarea>'+
+  '<label class="lbl" for="tki-l">Dans la liste</label><select class="in" id="tki-l" style="margin-bottom:.6rem">'+tkLists().map(l=>'<option value="'+esc(l.id)+'"'+(l.id===vals.l?' selected':'')+'>'+esc((l.i?l.i+' ':'')+l.n)+'</option>').join('')+'</select>';
+ const pr=ask({title:'📥 Importer des tâches',html,btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=root.onchange=e=>{if(e.target.id==='tki-t')vals.t=e.target.value;if(e.target.id==='tki-l')vals.l=e.target.value};
+ let fileTxt=null,fileErr='';
+ const fh=async e=>{if(e.target.id!=='tki-f'||!e.target.files[0])return;try{fileTxt=await fileToText(e.target.files[0])}catch(err){fileErr=err.message||'Fichier illisible'}const b=root.querySelector('[data-v="1"]');if(b)b.click()};
+ root.addEventListener('change',fh);
+ const r=await pr;root.oninput=root.onchange=null;root.removeEventListener('change',fh);
+ if(fileErr){toast(fileErr,5000);return}
+ const txt=fileTxt!=null?fileTxt:(r==='ok'?vals.t:null);if(txt==null)return;
+ const L=vyLines(txt).filter(x=>x.length>=2);
+ if(!L.length){toast('Aucune ligne à importer');return}
+ const sel=await pickLines('📥 Importer des tâches',L.map(esc),L.length+' ligne'+(L.length>1?'s':'')+' trouvée'+(L.length>1?'s':'')+'.','Ajouter '+(L.length>1?'les tâches':'la tâche'));
+ if(!sel||!sel.length)return;
+ const lid=tkLists().some(l=>l.id===vals.l)?vals.l:tkLists()[0].id;
+ sel.forEach(i=>tkAll().push({id:uid(),t:L[i].slice(0,120),l:lid,d:'',w:'',r:null,n:'',ca:Date.now(),m:Date.now()}));
+ saveSet();TKV.l=lid;render();toast(sel.length+' tâche'+(sel.length>1?'s':'')+' ajoutée'+(sel.length>1?'s':''));
+}
+async function fileToText(file){
+ const nm=file.name.toLowerCase();
+ if(/\.docx$/.test(nm)){const x=await zipText(await file.arrayBuffer(),['word/document.xml']);if(x==null)throw new Error('Document Word illisible');return xmlText(x)}
+ if(/\.odt$/.test(nm)){const x=await zipText(await file.arrayBuffer(),['content.xml']);if(x==null)throw new Error('Document illisible');return xmlText(x)}
+ if(/\.(xlsx|xls|ods)$/.test(nm)){await loadXLSX();const wb=XLSX.read(await file.arrayBuffer(),{cellDates:true});return wb.SheetNames.map(sn=>XLSX.utils.sheet_to_csv(wb.Sheets[sn],{FS:' ',dateNF:'dd/mm/yyyy'})).join('\n')}
+ if(/\.(pdf|pages|doc|numbers)$/.test(nm))throw new Error('Ce format ne se lit pas directement : copie le texte et colle-le dans la case');
+ return await file.text();
+}
+
+/* ========= Exporter (texte pour Notes / Messages, fichier CSV pour Excel) ========= */
+const csvC=v=>{v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function expData(kind,arg){
+ if(kind==='tk'){
+  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+  const L=tkLists().filter(l=>sel.some(k=>k.l===l.id));
+  const txt=L.map(l=>l.n+'\n'+sel.filter(k=>k.l===l.id).map(k=>(k.x?'☑ ':'☐ ')+k.t+(k.d?' ('+fShort(k.d)+')':'')+(pplOf(k.w)?' – '+pplOf(k.w).n:'')).join('\n')).join('\n\n');
+  const csv=['Liste;Tâche;Date;Qui;Revient;Fait'].concat(sel.map(k=>[tlOf(k.l).n,k.t,k.d||'',pplOf(k.w)?pplName(pplOf(k.w)):'',k.r?tkRepTxt(k.r):'',k.x?'oui':''].map(csvC).join(';'))).join('\n');
+  return{title:TKV.l?tlOf(TKV.l).n:'Tâches',txt,csv,n:sel.length,file:'taches'};
+ }
+ if(kind==='bd'){
+  const L=bdClean().slice().sort((a,b)=>a.m-b.m||a.d-b.d);
+  const txt=L.map(b=>b.d+' '+ML[b.m-1]+' – '+b.n+(b.y?' ('+b.y+')':'')).join('\n');
+  const csv=['Nom;Jour;Mois;Année;Date'].concat(L.map(b=>[b.n,b.d,b.m,b.y||'',pad(b.d)+'/'+pad(b.m)+(b.y?'/'+b.y:'')].map(csvC).join(';'))).join('\n');
+  return{title:'Anniversaires',txt,csv,n:L.length,file:'anniversaires'};
+ }
+ if(kind==='rc'){
+  const L=arg?[rcOf(arg)].filter(Boolean):rcAll().slice().sort((a,b)=>a.t.localeCompare(b.t));
+  const one=r=>r.t+'\n'+(r.pp?'Pour '+r.pp+' personnes':'')+(r.tm?(r.pp?' · ':'')+r.tm+' min':'')+'\n\nIngrédients\n'+(r.ing||[]).map(g=>'- '+ingTxt(g)).join('\n')+((r.st||[]).length?'\n\nPréparation\n'+r.st.map((x,i)=>(i+1)+'. '+x).join('\n'):'')+(r.src?'\n\nSource : '+r.src:'');
+  const csv=['Recette;Personnes;Minutes;Étiquettes;Ingrédients;Préparation;Lien'].concat(L.map(r=>[r.t,r.pp,r.tm||'',(r.tags||[]).join(', '),(r.ing||[]).map(g=>ingTxt(g)).join(' | '),(r.st||[]).join(' | '),r.src||''].map(csvC).join(';'))).join('\n');
+  return{title:L.length===1?L[0].t:'Mes recettes',txt:L.map(one).join('\n\n———\n\n'),csv,n:L.length,file:L.length===1?'recette':'recettes'};
+ }
+ if(kind==='vy'){
+  const v=vyOf(arg);if(!v)return null;
+  const I=v.in||{};
+  const txt=v.t+(v.a?' – '+fShort(v.a)+(v.b&&v.b!==v.a?' → '+fShort(v.b):''):'')+(v.lieu?' – '+v.lieu:'')+'\n\n'+(v.ls||[]).map(l=>l.n+(pplOf(l.w)?' ('+pplOf(l.w).n+')':'')+'\n'+(l.it||[]).map(i=>(i.x?'☑ ':'☐ ')+i.t).join('\n')).join('\n\n')+
+   (vyDays(v).some(d=>v.pg&&v.pg[d])?'\n\nProgramme\n'+vyDays(v).filter(d=>v.pg&&v.pg[d]).map(d=>{const p=v.pg[d];return cap(fShort(d))+' : '+[p.ma,p.ap,p.so].filter(Boolean).join(' · ')}).join('\n'):'')+
+   (Object.values(I).some(Boolean)?'\n\nInfos\n'+VY_INFO.filter(([k])=>I[k]).map(([k,l])=>l.replace(/^\S+\s/,'')+' : '+I[k]).join('\n'):'');
+  const csv=['Liste;Élément;Coché'].concat((v.ls||[]).flatMap(l=>(l.it||[]).map(i=>[l.n,i.t,i.x?'oui':''].map(csvC).join(';')))).join('\n');
+  return{title:v.t,txt,csv,n:(v.ls||[]).length,file:'voyage'};
+ }
+ return null;
+}
+async function exportAny(kind,arg){
+ const D=expData(kind,arg);if(!D||!D.n){toast('Rien à exporter ici');return}
+ const r=await ask({title:'📤 Exporter « '+D.title+' »',html:'<p style="margin:.2rem 0 .5rem"><b>Texte</b> : à envoyer dans <b>Notes</b>, Messages, un mail… (lisible par tout le monde, même sans AgenDam).<br><b>Fichier Excel</b> (.csv) : à ouvrir dans Excel, Numbers ou Google Sheets.</p><textarea class="in" rows="6" readonly onfocus="this.select()" style="font-size:.85rem;margin-bottom:.5rem">'+esc(D.txt)+'</textarea>',
+  btns:[{label:'Envoyer le texte (Notes, Messages…)',value:'txt',cls:'pri'},{label:'Fichier Excel (.csv)',value:'csv'},{label:'Copier le texte',value:'copy'},{label:'Fermer',value:null}]});
+ if(r==='txt'){if(navigator.share){try{await navigator.share({title:D.title,text:D.txt});return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(D.txt);toast('Texte copié : colle-le dans Notes')}catch(e){toast('Sélectionne le texte et copie-le')}return}
+ if(r==='copy'){try{await navigator.clipboard.writeText(D.txt);toast('Texte copié')}catch(e){toast('Sélectionne le texte dans la case et copie-le')}return}
+ if(r==='csv'){const name=D.file+'-agendam.csv',body='﻿'+D.csv;const ok=await shareFile(name,'text/csv',body);if(ok==='cancel')return;if(!ok)downloadFile(name,'text/csv',body)}
 }
 
 /* ---------- Dupliquer sur un ou plusieurs jours ---------- */
