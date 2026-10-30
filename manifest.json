@@ -1,120 +1,120 @@
 {
-  "id": "/agenda/",
-  "name": "AgenDam · emploi du temps simple et lisible",
-  "short_name": "AgenDam",
-  "description": "AgenDam, agenda et emploi du temps gratuit, lisible et privé. Jour, semaine, mois. Aucune donnée collectée.",
-  "lang": "fr",
-  "dir": "ltr",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#f5f6f8",
-  "theme_color": "#2f5bea",
-  "categories": [
-    "productivity",
-    "lifestyle"
-  ],
-  "icons": [
+ "id": "/agenda/",
+ "name": "AgenDam · emploi du temps simple et lisible",
+ "short_name": "AgenDam",
+ "description": "AgenDam, l’organisateur de la famille : agenda, tâches, anniversaires, repas et voyages, à partager par SMS. Gratuit, sans publicité, aucune donnée collectée.",
+ "lang": "fr",
+ "dir": "ltr",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#f5f6f8",
+ "theme_color": "#2f5bea",
+ "categories": [
+  "productivity",
+  "lifestyle"
+ ],
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "icons/icon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Aujourd’hui",
+   "short_name": "Jour",
+   "url": "./?view=day",
+   "icons": [
     {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
     }
-  ],
-  "shortcuts": [
+   ]
+  },
+  {
+   "name": "Semaine",
+   "short_name": "Semaine",
+   "url": "./?view=week",
+   "icons": [
     {
-      "name": "Aujourd’hui",
-      "short_name": "Jour",
-      "url": "./?view=day",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Semaine",
-      "short_name": "Semaine",
-      "url": "./?view=week",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "Mois",
-      "short_name": "Mois",
-      "url": "./?view=month",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "2 semaines",
-      "short_name": "2 sem.",
-      "url": "./?view=fort",
-      "icons": [
-        {
-          "src": "icons/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
     }
-  ],
-  "screenshots": [
+   ]
+  },
+  {
+   "name": "Mois",
+   "short_name": "Mois",
+   "url": "./?view=month",
+   "icons": [
     {
-      "src": "screenshots/semaine.png",
-      "sizes": "780x1688",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Vue semaine"
-    },
-    {
-      "src": "screenshots/mois.png",
-      "sizes": "780x1688",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Vue mois"
-    },
-    {
-      "src": "screenshots/jour.png",
-      "sizes": "780x1688",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Vue jour"
-    },
-    {
-      "src": "screenshots/ecran-large.png",
-      "sizes": "1280x800",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Semaine sur grand écran"
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
     }
-  ]
+   ]
+  },
+  {
+   "name": "2 semaines",
+   "short_name": "2 sem.",
+   "url": "./?view=fort",
+   "icons": [
+    {
+     "src": "icons/icon-192.png",
+     "sizes": "192x192"
+    }
+   ]
+  }
+ ],
+ "screenshots": [
+  {
+   "src": "screenshots/v2-agenda.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Agenda"
+  },
+  {
+   "src": "screenshots/v2-taches.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Tâches"
+  },
+  {
+   "src": "screenshots/v2-menu.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Menu de la semaine"
+  },
+  {
+   "src": "screenshots/v2-voyage.png",
+   "sizes": "585x1266",
+   "type": "image/png",
+   "form_factor": "narrow",
+   "label": "Voyage"
+  }
+ ]
 }

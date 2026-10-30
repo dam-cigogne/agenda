@@ -2,98 +2,106 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AgenDam · emploi du temps simple et lisible</title>
-<meta name="description" content="AgenDam, agenda et emploi du temps gratuit, lisible et privé : mois lisible d’un coup d’œil, rotations sur mesure, emojis au choix, Outlook, Excel, impression. Sans publicité, aucune donnée collectée.">
-<meta name="theme-color" content="#2f5bea">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AgenDam · l’organisateur de la famille</title>
+<meta name="description" content="AgenDam, l’organisateur de la famille : agenda, tâches, anniversaires, repas et voyages, à partager par SMS. Gratuit, sans publicité, sans compte, aucune donnée collectée.">
+<meta name="theme-color" content="#2f6fb3">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AgenDam – emploi du temps simple et lisible">
-<meta property="og:description" content="Jour, semaine, mois en gros caractères. Gratuit, sans publicité, aucune donnée collectée.">
+<meta property="og:title" content="AgenDam – l’organisateur de la famille">
+<meta property="og:description" content="Agenda, tâches, anniversaires, repas et voyages, à partager en famille par SMS. Gratuit, sans pub, sans compte.">
 <meta property="og:image" content="https://dam-cigogne.github.io/agenda/apercu.png">
 <meta property="og:url" content="https://dam-cigogne.github.io/agenda/presentation.html">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-:root{--bg:#f5f6f8;--surface:#fff;--text:#10151c;--muted:#5b6574;--line:#e2e6ec;--accent:#2f5bea;--warn:#f59e0b}
-@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--surface:#161b22;--text:#eef1f5;--muted:#9aa5b4;--line:#2b3340;--accent:#7b97ff}}
+/* Carnet : papier crème, encre bleue, un intercalaire de couleur par onglet */
+:root{--bg:#f7f4ec;--surface:#fffdf7;--surface2:#efe9dc;--text:#25211a;--muted:#736a5b;--line:#e3dbc9;--accent:#2f6fb3;
+ --ag:#2f6fb3;--tk:#4d7c0f;--bd:#be185d;--rp:#c2410c;--vy:#0e7490;--serif:"New York",ui-serif,"Iowan Old Style",Charter,Georgia,serif}
+@media(prefers-color-scheme:dark){:root{--bg:#15130f;--surface:#1e1b16;--surface2:#29251e;--text:#f2ede2;--muted:#a99f8d;--line:#3a3429;--accent:#7fb2e8;--ag:#7fb2e8;--tk:#9ccc5a;--bd:#f17bb0;--rp:#fb923c;--vy:#4fc3d9}}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:18px}
-.wrap{max-width:62rem;margin:0 auto;padding:0 1.2rem}
-header.hero{background:linear-gradient(135deg,#2f5bea,#1f3fb8 65%,#172f8c);color:#fff;padding:3rem 0 3.4rem}
-.brand{display:flex;align-items:center;gap:.8rem;font-weight:800;font-size:1.4rem}
-.brand img{width:3rem;height:3rem;border-radius:.8rem}
-h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.1;margin:1.6rem 0 .8rem;letter-spacing:-.02em}
-.hero p{font-size:1.2rem;max-width:36rem;margin:0 0 1.6rem;opacity:.95}
-.btn{display:inline-block;padding:.85rem 1.4rem;border-radius:1rem;font-weight:750;text-decoration:none;margin:0 .5rem .5rem 0}
-.btn.w{background:#fff;color:#1f3fb8}.btn.o{border:2px solid rgba(255,255,255,.6);color:#fff}
-section{padding:2.2rem 0}
-h2{font-size:1.7rem;letter-spacing:-.01em;margin:0 0 1rem}
-.shots{display:flex;gap:1rem;overflow-x:auto;padding:.3rem .2rem 1rem;margin-top:-2.4rem;scroll-snap-type:x mandatory}
-.shots img{height:30rem;border-radius:1.6rem;border:1px solid var(--line);box-shadow:0 14px 40px rgba(16,24,40,.22);scroll-snap-align:start;flex:none;background:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;padding:1.1rem 1.2rem}
-.card h3{margin:0 0 .4rem;font-size:1.1rem}
+.wrap{max-width:62rem;margin:0 auto;padding-left:max(1.1rem,env(safe-area-inset-left));padding-right:max(1.1rem,env(safe-area-inset-right))}
+header.hero{padding:2.6rem 0 1.4rem;border-top:6px solid var(--ag)}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800;font-size:1.25rem}
+.brand img{width:2.8rem;height:2.8rem;border-radius:.8rem}
+h1{font-family:var(--serif);font-style:italic;font-size:clamp(2.1rem,6.5vw,3.4rem);line-height:1.08;margin:1.3rem 0 .7rem;letter-spacing:-.01em;text-wrap:balance}
+.hero p{font-size:1.18rem;max-width:38rem;margin:0 0 1.3rem;color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 1.4rem}
+.tabs span{padding:.35rem .8rem;border-radius:.6rem .6rem 0 0;color:#fff;font-weight:800;font-size:.92rem;background:var(--k)}
+.btn{display:inline-block;padding:.85rem 1.35rem;border-radius:.9rem;font-weight:750;text-decoration:none;margin:0 .5rem .5rem 0;border:2px solid var(--accent)}
+.btn.p{background:var(--accent);color:#fff}.btn.o{color:var(--accent)}
+section{padding:2rem 0}
+h2{font-family:var(--serif);font-style:italic;font-size:1.85rem;margin:0 0 .9rem;text-wrap:balance}
+h3{margin:0 0 .35rem;font-size:1.1rem}
+.shots{display:flex;gap:1rem;overflow-x:auto;padding:.3rem .2rem 1rem;scroll-snap-type:x mandatory}
+.shots figure{margin:0;flex:none;scroll-snap-align:start;text-align:center}
+.shots img{height:30rem;max-width:80vw;object-fit:contain;border-radius:1.4rem;border:1px solid var(--line);box-shadow:0 12px 34px rgba(40,30,10,.18);background:#fff}
+.shots figcaption{font-size:.9rem;color:var(--muted);margin-top:.4rem;font-weight:650}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15.5rem,1fr));gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:1.05rem 1.2rem}
+.card.k{border-left:6px solid var(--k)}
+.card.k h3{color:var(--k)}
 .card p,.card li{margin:.2rem 0;color:var(--muted);font-size:1rem}
-ol,ul{padding-left:1.2rem;margin:.4rem 0}
-.warn{background:rgba(245,158,11,.14);border:2px solid var(--warn);border-radius:1rem;padding:1rem 1.2rem;margin-top:1rem}
-.warn b{display:block;margin-bottom:.2rem}
-footer{padding:2rem 0 3rem;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line)}
+ol,ul{padding-left:1.25rem;margin:.4rem 0}
+.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:.8rem;margin:.6rem 0}
+.steps li{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:1rem 1.1rem 1rem 3.6rem;position:relative}
+.steps li::before{content:counter(s);position:absolute;left:1rem;top:1rem;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;display:grid;place-items:center}
+.steps b.t{display:block;font-size:1.08rem;margin-bottom:.15rem}
+.steps p{margin:.15rem 0;color:var(--muted)}
+.note{background:var(--surface2);border-radius:1rem;padding:1rem 1.15rem;margin-top:1rem}
+.note b{display:block;margin-bottom:.2rem}
+footer{padding:2rem 0 3rem;color:var(--muted);font-size:.95rem;border-top:1px solid var(--line);margin-top:1.5rem}
 a{color:var(--accent)}
+.qr{display:flex;gap:1.2rem;align-items:center;flex-wrap:wrap}.qr svg{width:9rem;height:9rem;background:#fff;padding:.4rem;border-radius:.6rem}
+@media(max-width:560px){.shots img{height:26rem}}
 </style>
 </head>
 <body>
 <header class="hero"><div class="wrap">
   <div class="brand"><img src="icons/icon-192.png" alt=""> AgenDam</div>
-  <h1>Ton emploi du temps,<br>simple et lisible.</h1>
-  <p>Jour, semaine, 2 semaines et mois en gros caractères. Gratuit, sans publicité, et rien ne quitte ton téléphone.</p>
-  <a class="btn w" href="./">Ouvrir l’appli</a><a class="btn o" href="./?demo=1">Voir la démo</a>
+  <h1>L’organisateur de la famille, comme un carnet.</h1>
+  <p>L’agenda, les tâches, les anniversaires, les repas et les voyages au même endroit, et à partager avec ta famille en un SMS. Gratuit, sans publicité, sans compte : tout reste sur ton téléphone.</p>
+  <div class="tabs" aria-label="Les onglets"><span style="--k:var(--ag)">📅 Agenda</span><span style="--k:var(--tk)">☑ Tâches</span><span style="--k:var(--bd)">🎂 Anniversaires</span><span style="--k:var(--rp)">🍽 Repas</span><span style="--k:var(--vy)">🧳 Voyages</span></div>
+  <a class="btn p" href="./">Ouvrir l’appli</a><a class="btn o" href="#famille">Partager avec sa famille</a>
 </div></header>
 
 <div class="wrap">
-  <div class="shots" aria-label="Captures d’écran (données d’exemple)">
-    <img src="screenshots/mois.png" alt="Vue mois avec titres, emoji et bandeaux sur plusieurs jours">
-    <img src="screenshots/deux-semaines.png" alt="Vue deux semaines">
-    <img src="screenshots/semaine.png" alt="Vue semaine">
-    <img src="screenshots/jour.png" alt="Vue jour">
-    <img src="screenshots/rotation.png" alt="Création d’une rotation de travail sur mesure">
-    <img src="screenshots/semaine-sombre.png" alt="Mode sombre">
-    <img src="screenshots/reglages.png" alt="Réglages simples : la sauvegarde en haut, des boutons compacts">
+  <div class="shots" aria-label="Captures d’écran avec des données d’exemple">
+    <figure><img src="screenshots/v2-agenda.png" alt="Agenda, vue mois, avec le liseré des vacances scolaires"><figcaption>Agenda</figcaption></figure>
+    <figure><img src="screenshots/v2-taches.png" alt="Tâches avec qui s’en occupe et les tâches qui reviennent"><figcaption>Tâches</figcaption></figure>
+    <figure><img src="screenshots/v2-envoyer.png" alt="Envoyer une liste par SMS à un proche"><figcaption>Envoyer à la famille</figcaption></figure>
+    <figure><img src="screenshots/v2-menu.png" alt="Menu de la semaine"><figcaption>Menu de la semaine</figcaption></figure>
+    <figure><img src="screenshots/v2-courses.png" alt="Liste de courses rangée par rayon"><figcaption>Courses par rayon</figcaption></figure>
+    <figure><img src="screenshots/v2-cuisine.png" alt="Mode cuisine plein écran avec réglages Thermomix"><figcaption>Mode cuisine</figcaption></figure>
+    <figure><img src="screenshots/v2-anniversaires.png" alt="Anniversaires avec le bouton pour souhaiter"><figcaption>Anniversaires</figcaption></figure>
+    <figure><img src="screenshots/v2-voyage.png" alt="Voyage avec ses listes à cocher"><figcaption>Voyages</figcaption></figure>
   </div>
 
-  <section id="difference">
-    <h2>Ce qui la rend différente</h2>
+  <section id="famille">
+    <h2>Partager avec sa famille, en 3 étapes</h2>
+    <ol class="steps">
+      <li><b class="t">Chacun installe l’appli</b><p>Dans AgenDam : <b>Réglages → Famille et contacts → Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et la marche à suivre (installation plus bas). C’est gratuit, sans compte.</p></li>
+      <li><b class="t">Chacun dit qui il est, et ajoute les autres</b><p><b>Réglages → Famille et contacts</b> : « <b>Ce téléphone est à</b> » ton prénom, puis « Mes contacts » : ajoute tes proches avec leur numéro de téléphone (conjoint·e, enfants, parents, amis…).</p></li>
+      <li><b class="t">Tu envoies, l’autre met à jour</b><p>Partout dans l’appli, le bouton <b>📤 Envoyer</b> propose « <b>💬 SMS à Alex</b> ». Le message contient le texte lisible et un lien : en le touchant, l’AgenDam d’Alex se met à jour, sans doublon. Ce qu’Alex coche ou modifie te revient quand il te renvoie la liste.</p></li>
+    </ol>
     <div class="grid">
-      <div class="card"><h3>Gratuite, sans pub, sans compte</h3><p><b>Ici :</b> aucune publicité, aucun abonnement, aucun compte à créer, aucune donnée collectée. <b>Souvent ailleurs :</b> publicité, version payante ou compte obligatoire.</p></div>
-      <div class="card"><h3>Tes données restent chez toi</h3><p><b>Ici :</b> tout est enregistré sur ton appareil, il n’existe aucun serveur de l’appli. <b>Souvent ailleurs :</b> tes événements transitent par les serveurs de l’éditeur.</p></div>
-      <div class="card"><h3>Les gardes et rendez-vous qui reviennent, en 2 touches</h3><p><b>Ici :</b> des modèles (on ne change que la date) et la garde alternée : un week-end ou une semaine sur 2, avec début et fin au choix. <b>Ailleurs :</b> tout recréer à la main, une fois par garde.</p><img src="screenshots/mois-garde.png" alt="Mois avec garde alternée" style="max-width:100%;border-radius:14px;margin-top:10px"></div>
-      <div class="card"><h3>Une adresse juste, sans te pister</h3><p><b>Ici :</b> aide à l’adresse facultative (France), via un service public, désactivée tant que tu ne l’actives pas. <b>Ailleurs :</b> suggestions liées à un compte et à la pub.</p></div>
-      <div class="card"><h3>Un agenda à ta couleur</h3><p><b>Ici :</b> couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge et dates plus lisibles, avec aperçu immédiat. <b>Ailleurs :</b> un thème imposé.</p><img src="screenshots/apparence.png" alt="Réglages Apparence" style="max-width:100%;border-radius:14px;margin-top:10px"></div>
-      <div class="card"><h3>Des Réglages simples, la sauvegarde en haut</h3><p><b>Ici :</b> ce qu’on utilise le plus est en haut (sauvegarde, affichage), les options rares sont rangées dans un bloc repliable, les boutons restent petits et clairs. Sur iPhone, « Sauvegarder » ouvre directement « Enregistrer dans Fichiers ». <b>Souvent ailleurs :</b> de longs menus où tout se ressemble.</p><img src="screenshots/reglages.png" alt="Réglages : sauvegarde en haut, boutons compacts" style="max-width:260px;width:100%;border-radius:14px;margin-top:.6rem"></div>
-      <div class="card"><h3>Pensée pour l’iPad et l’ordinateur</h3><p><b>Ici :</b> en paysage, un panneau latéral (mini-calendrier et journée) qu’on peut masquer pour que le mois prenne toute la largeur et que les titres restent lisibles. <b>Souvent ailleurs :</b> la même vue de téléphone, étirée.</p><img src="screenshots/ipad-paysage.png" alt="Mois en paysage sur tablette, panneau masqué" style="width:100%;border-radius:14px;margin-top:.6rem"></div>
-      <div class="card"><h3>Un mois qu’on lit d’un coup d’œil</h3><p><b>Ici :</b> titres en entier, bandeaux sur plusieurs jours, emoji, jour J encadré, mode plein écran (l’œil). <b>Souvent ailleurs :</b> des points de couleur ou des titres tronqués.</p></div>
-      <div class="card"><h3>Tes rotations, sur mesure</h3><p><b>Ici :</b> tu crées ton cycle (matin / soir / nuit, repos, heures) et il se place tout seul. <b>Souvent ailleurs :</b> il faut tout saisir à la main, jour après jour.</p></div>
-      <div class="card"><h3>Tu choisis où ça va</h3><p><b>Ici :</b> pour chaque événement, le calendrier Outlook de destination (avec sa couleur) et, si tu veux, une étiquette de couleur Outlook. Pas de doublons à l’envoi. <b>Souvent ailleurs :</b> tout part au même endroit.</p></div>
-      <div class="card"><h3>Tu rapatries ton ancien agenda</h3><p><b>Ici :</b> import depuis Outlook ou depuis n’importe quel fichier Excel / CSV, avec reconnaissance des colonnes et liste à cocher avant d’importer. Les jours identiques sont regroupés en une barre.</p></div>
-      <div class="card"><h3>Les anniversaires, à part et jamais oubliés</h3><p><b>Ici :</b> une liste dédiée (nom, date, âge calculé, idée cadeau) au lieu de remplir l’agenda de lignes. Un petit 🎂 sur le jour, un rappel à l’ouverture, des <b>idées cadeaux à cocher</b>, la <b>protection des idées cadeaux</b> par code ou Face ID, un <b>PDF à imprimer</b>, import depuis tes contacts, et un export avec <b>alarme</b> vers le calendrier de l’iPhone ou d’Android. <b>Ailleurs :</b> ils se mélangent aux autres événements.</p></div>
-      <div class="card"><h3>Un emoji pour chaque chose</h3><p><b>Ici :</b> un sélecteur avec recherche en français (« dentiste », « avion »…) et un emoji par défaut par catégorie.</p></div>
-      <div class="card"><h3>Sur tous tes appareils, même hors ligne</h3><p><b>Ici :</b> iPhone, Android, tablette, ordinateur, avec installation depuis le navigateur, sans magasin d’applis. L’appli marche sans connexion.</p></div>
+      <div class="card"><h3>Ce qu’on peut s’envoyer</h3><p>Une liste de tâches ou toutes, la liste de courses, le menu de la semaine, une recette ou tout le carnet, les anniversaires, un voyage complet (listes, programme, repas, infos).</p></div>
+      <div class="card"><h3>Importer seulement ce qu’on veut</h3><p>À la réception, « <b>Choisir ce que j’importe</b> » permet de cocher les éléments un par un. Rien n’est en double, même si tu reçois deux fois le même lien.</p></div>
+      <div class="card"><h3>Même sans AgenDam</h3><p>Le message contient aussi le texte en clair (la liste, la recette…) : la personne peut le lire tout de suite, même si elle n’a pas encore l’appli.</p></div>
     </div>
+    <div class="note"><b>Bon à savoir</b>Rien n’arrive tout seul : c’est « je t’envoie la mise à jour », comme un message. Il n’y a pas de serveur, donc pas de synchronisation automatique, et tes données ne quittent ton téléphone que dans le message que tu envoies.<br><b style="display:inline">iPhone, appli sur l’écran d’accueil :</b> le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis <b>📥 Recevoir</b>.</div>
   </section>
 
   <section>
-    <h2>Ce que fait l’appli</h2>
+    <h2>Les onglets du carnet</h2>
     <div class="grid">
-      <div class="card"><h3>Anniversaires</h3><p>Une liste à part, un 🎂 sur le jour concerné, rappel à l’ouverture (le jour J, la veille, une semaine avant), idées cadeaux en liste à cocher, protection des idées cadeaux (code ou Face ID), impression / PDF classé par mois, import des contacts (.vcf), déplacement de tes anciens événements « anniversaire », et export annuel avec alarme (la veille à 18 h, le jour à 9 h) pour iPhone, Android et ordinateur.</p></div>
-      <div class="card"><h3>Jour, semaine, 2 semaines, mois</h3><p>Des vues nettes, en gros caractères, lisibles d’un coup d’œil, sur téléphone, tablette ou ordinateur. La vue « 2 semaines » donne beaucoup de place aux titres.</p></div>
-      <div class="card"><h3>Un mois qu’on lit vraiment</h3><p>Les titres sont écrits en entier (sur plusieurs lignes quand il y a de la place), avec une barre de couleur par catégorie. Un événement sur plusieurs jours forme un seul bandeau avec son nom complet.</p></div>
-      <div class="card"><h3>Un emoji par événement</h3><p>🦷 dentiste, 🎂 anniversaire, 🏖️ vacances… Un sélecteur intégré avec recherche en français, et un emoji par défaut pour chaque catégorie. Un coup d’œil suffit pour repérer ce qu’on fait.</p></div>
-      <div class="card"><h3>Tes rotations, sur mesure</h3><p>Tu crées toi-même ton cycle : jours travaillés, repos, matin / soir / nuit, heures, emoji. Des modèles (3 jours / 2 repos, 2-2-2-4) pour démarrer. Facultatif.</p></div>
-      <div class="card"><h3>Répétitions et rappels</h3><p>Tous les jours, semaines, mois, ans. « À venir aujourd’hui » à l’ouverture et notifications quand la plateforme le permet.</p></div>
-      <div class="card"><h3>Impression, une page par vue</h3><p>Jour, semaine, 2 semaines ou mois : une seule page A4, bien lisible, avec l’heure devant chaque rendez-vous.</p></div>
-      <div class="card"><h3>Vers le calendrier du téléphone</h3><p>Tu choisis ce que tu envoies (par période, catégorie, case à cocher), et ton téléphone te laisse choisir le calendrier : iCloud, Outlook, Google…</p></div>
-      <div class="card"><h3>Outlook (facultatif)</h3><p>Envoi de ton agenda vers le calendrier Outlook de ton choix, avec sa catégorie Outlook, sans doublons, et récupération de tes calendriers Outlook dans l’appli. Directement avec ton compte, sans serveur intermédiaire.</p></div>
-      <div class="card"><h3>Sauvegarde, recherche, mode sombre</h3><p>Sauvegarde .json, import et export .ics, recherche en quelques lettres, thème clair, sombre ou automatique.</p></div>
+      <div class="card k" style="--k:var(--ag)"><h3>📅 Agenda</h3><p>Jour, semaine, 2 semaines ou mois, au choix en haut. Touche la date pour aller directement à un jour. Liseré des vacances scolaires (zone A, B ou C), jours fériés, rotations de travail, garde alternée, dupliquer un rendez-vous sur plusieurs jours.</p></div>
+      <div class="card k" style="--k:var(--tk)"><h3>☑ Tâches</h3><p>Des listes à cocher (Maison, Courses, Perso…), qui s’en occupe, une date si tu veux (elle apparaît dans l’agenda), les tâches qui reviennent. Import d’une liste collée ou d’un fichier, impression A4 avec des cases.</p></div>
+      <div class="card k" style="--k:var(--bd)"><h3>🎂 Anniversaires</h3><p>Âges, rappels, idées cadeaux protégées. Le bouton <b>🎉</b> écrit un message personnalisé (tendre, drôle, pour un enfant…) et fabrique une carte avec photo, signée comme tu veux. Import depuis Word, Excel, contacts ou une liste collée.</p></div>
+      <div class="card k" style="--k:var(--rp)"><h3>🍽 Repas</h3><p>Menu de la semaine (midi, soir, qui cuisine), carnet de recettes, ingrédients manquants envoyés en courses, courses rangées par rayon. Recettes importées depuis les sites (Marmiton, Cookidoo…), réglages Thermomix surlignés, mode cuisine plein écran.</p></div>
+      <div class="card k" style="--k:var(--vy)"><h3>🧳 Voyages</h3><p>Listes à cocher à partir de modèles (valise, maison avant de partir…) ou collées depuis Notes, programme jour par jour, repas du séjour, adresse, trajet, réservations, budget.</p></div>
+      <div class="card"><h3>Et aussi</h3><p>Recherche, mode sombre, impression, envoi vers le calendrier du téléphone (avec alarmes), sauvegarde .json (photos comprises), export en texte ou Excel.</p></div>
     </div>
   </section>
 
@@ -101,72 +109,39 @@ a{color:var(--accent)}
     <h2>Installer sur ton téléphone</h2>
     <div class="grid">
       <div class="card"><h3>iPhone (Safari)</h3><ol>
-        <li>Ouvre le lien de l’appli dans <b>Safari</b> (pas dans une autre appli).</li>
-        <li>Touche le bouton <b>Partager</b> (carré avec une flèche).</li>
+        <li>Ouvre le lien de l’appli dans <b>Safari</b>.</li>
+        <li>Touche <b>Partager</b> (le carré avec une flèche).</li>
         <li>Choisis <b>Sur l’écran d’accueil</b>, puis <b>Ajouter</b>.</li>
-        <li>Lance l’appli depuis son icône : elle marche aussi sans connexion.</li></ol></div>
+        <li>Lance AgenDam depuis son icône : il marche aussi sans connexion.</li></ol></div>
       <div class="card"><h3>Android (Chrome)</h3><ol>
         <li>Ouvre le lien de l’appli dans <b>Chrome</b>.</li>
-        <li>Touche le menu <b>⋮</b>, puis <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</li>
-        <li>Confirme. L’icône apparaît sur l’écran d’accueil.</li></ol></div>
+        <li>Menu <b>⋮</b> → <b>Installer l’application</b>.</li>
+        <li>Confirme : l’icône apparaît sur l’écran d’accueil.</li></ol></div>
+      <div class="card"><h3>Ouvrir AgenDam</h3><div class="qr"><svg role="img" aria-label="QR code pour ouvrir AgenDam" style="width:9rem;height:9rem;display:block;border-radius:.6rem" width="165" height="165" class="segno"><g transform="scale(5)"><path fill="#fff" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#0b1220" d="M2 2.5h7m1 0h2m1 0h1m1 0h1m5 0h2m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h1m2 0h3m3 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m2 0h1m2 0h1m2 0h2m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h3m1 0h1m1 0h1m1 0h2m1 0h1m-20 1h1m1 0h2m1 0h3m1 0h1m1 0h3m2 0h4m2 0h1m2 0h1m1 0h2m-29 1h3m2 0h1m5 0h3m2 0h1m2 0h6m3 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m5 0h2m-25 1h2m2 0h2m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h1m-28 1h2m2 0h2m1 0h1m5 0h1m2 0h1m1 0h1m5 0h2m-26 1h1m8 0h1m3 0h4m1 0h2m1 0h2m2 0h3m-27 1h1m1 0h1m1 0h1m2 0h2m1 0h2m3 0h1m1 0h2m2 0h1m2 0h3m-29 1h1m1 0h1m2 0h1m2 0h2m4 0h3m1 0h1m1 0h1m2 0h1m3 0h1m-27 1h2m3 0h7m1 0h1m5 0h2m1 0h3m1 0h1m-26 1h2m1 0h1m1 0h1m3 0h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h3m-28 1h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h5m5 0h2m1 0h1m-23 1h1m3 0h1m1 0h8m1 0h1m1 0h3m2 0h1m-26 1h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m1 0h7m-19 1h1m2 0h1m4 0h3m1 0h1m3 0h5m-29 1h7m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-28 1h1m5 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m2 0h5m1 0h1m-27 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h1m1 0h1m1 0h3m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m2 0h2m4 0h1m2 0h1m1 0h1m-29 1h1m5 0h1m4 0h4m1 0h1m3 0h1m1 0h1m1 0h2m1 0h1m-28 1h7m1 0h1m5 0h2m3 0h4m4 0h1"/></g></svg><p>Scanne ce code avec l’appareil photo du téléphone, puis « Sur l’écran d’accueil ».</p></div></div>
     </div>
-    <div class="warn"><b>⚠️ Plusieurs appareils : pas de synchronisation automatique</b>
-      L’agenda reste sur chaque appareil. Pour le retrouver ailleurs : <b>Réglages → Sauvegarder</b> sur le premier appareil, envoie le fichier « agenda-sauvegarde.json », puis <b>Réglages → Restaurer</b> sur le second.</div>
-  </section>
-
-  <section id="tutos">
-    <h2>Mode d’emploi rapide</h2>
-    <div class="grid">
-      <div class="card"><h3>Créer ma rotation de travail</h3><ol>
-        <li><b>Roue crantée ⚙ (en haut à droite) → Rotations de travail → Créer une rotation</b>.</li>
-        <li>Choisis un modèle (ou pars de zéro) et donne le <b>premier jour du cycle</b> et la <b>durée</b>.</li>
-        <li>Règle les <b>étapes</b> dans l’ordre : nom, nombre de jours, travail ou repos, emoji, heures si besoin (fin avant début = poste de nuit).</li>
-        <li><b>Enregistrer</b> : les jours se placent dans l’agenda. « Modifier » ou « Supprimer » à tout moment.</li></ol></div>
-      <div class="card"><h3>Envoyer vers le calendrier du téléphone</h3><ol>
-        <li><b>Réglages → Choisir quoi envoyer au téléphone</b>.</li>
-        <li>Filtre par période ou catégorie, décoche ce que tu ne veux pas.</li>
-        <li>Touche <b>Envoyer</b> : le téléphone affiche sa page « Ajouter » et te laisse <b>choisir le calendrier</b>.</li>
-        <li>Pour un seul événement : bouton <b>Au calendrier</b> dans sa fiche. À la création, un interrupteur te le propose (réglable ou désactivable).</li></ol>
-        <p>C’est un envoi, pas une synchronisation : après une modification, l’appli propose « Mettre à jour ».</p></div>
-      <div class="card"><h3>Connecter Outlook (facultatif)</h3><ol>
-        <li><b>Réglages → Outlook / Microsoft → Se connecter</b> avec ton compte Outlook, Hotmail ou Live.</li>
-        <li>Accepte l’accès au calendrier, puis <b>Envoyer maintenant</b>.</li>
-        <li>Un calendrier « Agenda (appli) » apparaît dans Outlook. Pour le voir dans l’appli Calendrier de l’iPhone : <b>Réglages iPhone → Calendrier → Comptes → Ajouter un compte → Outlook</b>.</li></ol>
-        <p>Sens unique (appli → Outlook). La connexion expire au bout de quelques jours : il faut alors se reconnecter.</p></div>
-      <div class="card"><h3>Imprimer</h3><ol>
-        <li>Choisis la vue : Jour, Semaine, 2 sem. ou Mois.</li>
-        <li>Touche l’icône <b>imprimante</b> en haut.</li>
-        <li>Sur iPhone, si rien ne s’ouvre : <b>Partager → Imprimer</b>, ou « Enregistrer dans Fichiers » pour un PDF.</li></ol>
-        <p>Une seule page A4 par impression.</p></div>
-    </div>
-    <div class="shots" style="margin-top:1rem" aria-label="Exemple d’impression (données d’exemple)"><img src="screenshots/impression.png" alt="Exemple d’impression du mois" style="height:20rem;border-radius:.6rem"></div>
+    <div class="note"><b>⚠️ Fais une sauvegarde de temps en temps</b>Réglages → <b>Sauvegarder</b>, et enregistre le fichier toujours au même endroit (iCloud Drive, par exemple). Sur iPhone, installe bien l’appli sur l’écran d’accueil : Safari peut effacer les données d’un site non installé après quelques jours sans visite.</div>
   </section>
 
   <section>
-    <h2>Rappels : ce qui marche, honnêtement</h2>
-    <div class="card"><ul>
-      <li>L’écran « À venir aujourd’hui » s’affiche à chaque ouverture.</li>
-      <li>Les notifications s’affichent quand l’appli est ouverte ou récemment active. Sur iPhone, elles exigent l’installation sur l’écran d’accueil (iOS 16.4 minimum).</li>
-      <li>Appli fermée, aucun rappel ne peut être garanti : une appli web sans serveur ne peut pas réveiller le téléphone. Pour des alarmes fiables, exporte en .ics et ouvre le fichier dans l’agenda natif du téléphone (les rappels sont inclus).</li>
-    </ul></div>
+    <h2>Ce qu’il faut savoir, honnêtement</h2>
+    <div class="grid">
+      <div class="card"><h3>Rappels</h3><p>Une appli web fermée ne peut pas sonner sur iPhone. Pour des alarmes fiables : « Au calendrier » (un rendez-vous) ou l’export des anniversaires vers le calendrier du téléphone, qui fera sonner les rappels.</p></div>
+      <div class="card"><h3>Calendrier Apple</h3><p>Apple ne laisse pas une page web lire ou écrire dans le calendrier de l’iPhone. On y envoie des rendez-vous, mais il n’y a pas de synchronisation automatique.</p></div>
+      <div class="card"><h3>Recettes depuis un site</h3><p>Les sites ne laissent pas une autre appli lire leurs pages : on passe par un favori « 📥 AgenDam » à installer une fois (Repas → Recettes explique comment).</p></div>
+    </div>
   </section>
 
   <section id="confidentialite">
     <h2>Confidentialité</h2>
     <div class="card">
-      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de serveur, pas de statistiques, pas de cookies, pas de publicité, aucune bibliothèque ou police chargée depuis un autre site.</p>
-      <p>Tes événements sont enregistrés uniquement dans le stockage local de ton appareil. Ils ne sont jamais envoyés nulle part. Pour les déplacer, tu crées toi-même un fichier de sauvegarde.</p>
-      <p><b>Connexion Outlook (facultative).</b> Si tu l’actives, l’appli envoie tes événements directement vers ton compte Microsoft, sur le site officiel de Microsoft, avec ton accord. Aucun serveur de l’appli n’existe : rien n’est reçu ni conservé par nous. Tu peux te déconnecter et supprimer le calendrier à tout moment.</p>
-      <p>Pour effacer tes données : Réglages → « Effacer toutes mes données ».</p>
+      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de serveur, pas de statistiques, pas de cookies, pas de publicité.</p>
+      <p>Tout est enregistré dans le stockage de ton appareil. Quand tu envoies quelque chose à un proche, les données voyagent <b>dans le lien lui-même</b> (après le signe #, qui n’est jamais transmis au site) : elles vont de ton téléphone au sien par ton SMS, ton mail ou ton WhatsApp.</p>
+      <p>Services facultatifs, désactivés tant que tu ne les choisis pas : calendrier officiel des vacances scolaires (data.education.gouv.fr, seule la zone est envoyée) et aide à l’adresse (api-adresse.data.gouv.fr).</p>
+      <p>Pour tout effacer : Réglages → « Effacer toutes mes données ».</p>
     </div>
   </section>
 
-  <div class="card"><h3>Ouvrir AgenDam</h3><p>Scanne ce QR code avec l’appareil photo du téléphone pour ouvrir l’appli, puis « Sur l’écran d’accueil ».</p><svg role="img" aria-label="QR code pour ouvrir AgenDam" style="width:9rem;height:9rem;display:block;border-radius:.6rem" width="165" height="165" class="segno"><g transform="scale(5)"><path fill="#fff" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#0b1220" d="M2 2.5h7m1 0h2m1 0h1m1 0h1m5 0h2m1 0h7m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h1m2 0h3m3 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h1m2 0h3m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m2 0h1m2 0h1m2 0h2m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h3m1 0h1m1 0h1m1 0h2m1 0h1m-20 1h1m1 0h2m1 0h3m1 0h1m1 0h3m2 0h4m2 0h1m2 0h1m1 0h2m-29 1h3m2 0h1m5 0h3m2 0h1m2 0h6m3 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m5 0h2m-25 1h2m2 0h2m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h1m-28 1h2m2 0h2m1 0h1m5 0h1m2 0h1m1 0h1m5 0h2m-26 1h1m8 0h1m3 0h4m1 0h2m1 0h2m2 0h3m-27 1h1m1 0h1m1 0h1m2 0h2m1 0h2m3 0h1m1 0h2m2 0h1m2 0h3m-29 1h1m1 0h1m2 0h1m2 0h2m4 0h3m1 0h1m1 0h1m2 0h1m3 0h1m-27 1h2m3 0h7m1 0h1m5 0h2m1 0h3m1 0h1m-26 1h2m1 0h1m1 0h1m3 0h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h3m-28 1h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h5m5 0h2m1 0h1m-23 1h1m3 0h1m1 0h8m1 0h1m1 0h3m2 0h1m-26 1h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m1 0h7m-19 1h1m2 0h1m4 0h3m1 0h1m3 0h5m-29 1h7m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-28 1h1m5 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h2m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1m2 0h5m1 0h1m-27 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h2m2 0h1m1 0h1m1 0h3m2 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m2 0h2m4 0h1m2 0h1m1 0h1m-29 1h1m5 0h1m4 0h4m1 0h1m3 0h1m1 0h1m1 0h2m1 0h1m-28 1h7m1 0h1m5 0h2m3 0h4m4 0h1"/></g></svg></div>
-  <div class="card"><h3>Tous les écrans</h3><p>Téléphone, tablette, ordinateur, grand écran : l’affichage s’adapte (onglets à gauche, mini-calendrier, réglages sur deux colonnes, raccourcis clavier). Sur iPhone, l’impression passe par un PDF d’une page A4.</p></div>
-  <div class="card"><h3>Importer d’ailleurs</h3><p>Tu as déjà un agenda ? Rapatrie-le : depuis Outlook en un geste, ou depuis n’importe quel fichier Excel ou CSV (Google Agenda, autre appli…). Les colonnes sont reconnues automatiquement et les doublons ignorés.</p></div>
-  <div class="card"><h3>Direction vers le rendez-vous</h3><p>Un événement a un lieu ? Touche-le : Plans, Google Maps ou Waze s’ouvre avec l’adresse prête.</p></div>
-  <div class="card"><h3>Partager l’appli</h3><p>Dans la roue crantée ⚙ → <b>Fiche de l’appli</b> : 3 affiches (claire, sombre, avec l’appli) et une carte d’aperçu, à envoyer avec « Partager avec le descriptif », « Voir la fiche » ou « Copier le lien ». Le <b>Guide d’utilisation</b> et « Installer l’appli » sont au même endroit.</p></div>
-  <footer>AgenDam · gratuit, sans publicité · version 1.16.28 · <a href="./">Ouvrir l’appli</a></footer>
+  <footer>AgenDam · gratuit, sans publicité · version 2.5.3 · <a href="./">Ouvrir l’appli</a> · <a href="./?demo=1">Voir la démo</a></footer>
 </div>
 </body>
 </html>
