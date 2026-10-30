@@ -90,7 +90,7 @@ a{color:var(--accent)}
       <div class="card"><h3>Importer seulement ce qu’on veut</h3><p>À la réception, « <b>Choisir ce que j’importe</b> » permet de cocher les éléments un par un. Rien n’est en double, même si tu reçois deux fois le même lien.</p></div>
       <div class="card"><h3>Même sans AgenDam</h3><p>Le message contient aussi le texte en clair (la liste, la recette…) : la personne peut le lire tout de suite, même si elle n’a pas encore l’appli.</p></div>
     </div>
-    <div class="note"><b>Bon à savoir</b><b style="display:inline">🔄 Famille connectée :</b> Réglages → Famille et contacts → « Créer notre famille connectée ». Donne ton <b>code d’invitation</b> (8 caractères) : chacun le tape dans son appli (« 🔢 Rejoindre avec un code »). Ensuite, les listes se mettent à jour toutes seules chez tout le monde, à l’ouverture de l’appli. Chiffré de bout en bout, sans compte. Sinon, le bouton 📤 Envoyer marche aussi, comme un message.<br><b style="display:inline">iPhone, appli sur l’écran d’accueil :</b> le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis <b>📥 Recevoir</b>.</div>
+    <div class="note"><b>Bon à savoir</b><b style="display:inline">🔄 Famille connectée :</b> Réglages → Famille et contacts → « Créer notre famille connectée ». Donne ton <b>code d’invitation</b> (8 caractères) : chacun le tape dans son appli (« 🔢 Rejoindre avec un code »). Puis, pour chaque personne, <b>tu choisis ce que tu partages</b> (courses, tâches, repas, anniversaires, voyages) : au départ, rien. Ensuite, ce que tu partages se met à jour tout seul chez elle, à l’ouverture de l’appli. Chiffré de bout en bout, sans compte. Sinon, le bouton 📤 Envoyer marche aussi, comme un message.<br><b style="display:inline">iPhone, appli sur l’écran d’accueil :</b> le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis <b>📥 Recevoir</b>.</div>
   </section>
 
   <section>
@@ -134,14 +134,14 @@ a{color:var(--accent)}
   <section id="confidentialite">
     <h2>Confidentialité</h2>
     <div class="card">
-      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de statistiques, pas de cookies, pas de publicité.</p><p><b>Famille connectée (facultatif)</b> : les listes partagées sont chiffrées sur le téléphone (AES-GCM) avant d’être déposées sur un petit serveur Cloudflare, qui ne peut pas les lire. La clé ne voyage que dans le lien d’invitation. Les données non modifiées depuis 400 jours sont effacées automatiquement. L’agenda n’est jamais envoyé.</p>
+      <p><b>Aucune donnée n’est collectée.</b> Pas de compte, pas de statistiques, pas de cookies, pas de publicité.</p><p><b>Famille connectée (facultatif)</b> : ce que tu partages avec une personne est chiffré sur le téléphone avec une clé à vous deux (ECDH + AES-GCM) avant d’être déposé sur un petit serveur Cloudflare, qui ne peut pas le lire. La clé ne voyage que dans le lien d’invitation. Les données non modifiées depuis 400 jours sont effacées automatiquement. L’agenda n’est jamais envoyé.</p>
       <p>Tout est enregistré dans le stockage de ton appareil. Quand tu envoies quelque chose à un proche, les données voyagent <b>dans le lien lui-même</b> (après le signe #, qui n’est jamais transmis au site) : elles vont de ton téléphone au sien par ton SMS, ton mail ou ton WhatsApp.</p>
       <p>Services facultatifs, désactivés tant que tu ne les choisis pas : calendrier officiel des vacances scolaires (data.education.gouv.fr, seule la zone est envoyée) et aide à l’adresse (api-adresse.data.gouv.fr).</p>
       <p>Pour tout effacer : Réglages → « Effacer toutes mes données ».</p>
     </div>
   </section>
 
-  <footer>AgenDam · gratuit, sans publicité · version 2.7.1 · <a href="./">Ouvrir l’appli</a> · <a href="./?demo=1">Voir la démo</a></footer>
+  <footer>AgenDam · gratuit, sans publicité · version 2.8.0 · <a href="./">Ouvrir l’appli</a> · <a href="./?demo=1">Voir la démo</a></footer>
 </div>
 </body>
 </html>
