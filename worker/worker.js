@@ -18,6 +18,24 @@ export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
     const url = new URL(req.url);
+    // Code d'invitation : la clé familiale chiffrée par le code, gardée 7 jours (le serveur ne voit jamais le code)
+    const iv = url.pathname.match(/^\/i\/([0-9a-f]{32})$/);
+    if (iv) {
+      const key = 'inv:' + iv[1];
+      if (req.method === 'GET') {
+        const v = await env.FAM.get(key);
+        return v ? new Response(v, { headers: { 'Content-Type': 'application/json', ...cors(req) } }) : json(req, { error: 'inconnu' }, 404);
+      }
+      if (req.method === 'PUT') {
+        const body = await req.text();
+        if (body.length > 4096) return json(req, { error: 'trop gros' }, 413);
+        let o; try { o = JSON.parse(body) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+        if (!o || typeof o.c !== 'string' || typeof o.iv !== 'string') return json(req, { error: 'format' }, 400);
+        await env.FAM.put(key, JSON.stringify({ c: o.c, iv: o.iv }), { expirationTtl: 60 * 60 * 24 * 7 });
+        return json(req, { ok: true });
+      }
+      return json(req, { error: 'méthode' }, 405);
+    }
     const m = url.pathname.match(/^\/s\/([0-9a-f]{32})(?:\/([a-z0-9-]{1,40}))?$/);
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille' });
     if (!m) return json(req, { error: 'adresse inconnue' }, 404);
