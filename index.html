@@ -666,6 +666,25 @@ body.cansend .sendbtn{display:inline-flex}
 .cat-c{width:1.6rem;height:1.6rem;border-radius:.45rem;border:2px solid var(--sec,var(--accent));display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
 .cat-r.on .cat-c{background:var(--sec,var(--accent))}
 .cat-del{background:none;border:0;border-left:1px solid var(--line2);padding:0 .9rem;font-size:1.1rem}
+/* Courses : un carnet avec des intercalaires sur le côté */
+.co-book{display:flex;align-items:flex-start;margin-right:-.7rem}
+.co-page{flex:1;min-width:0;padding-right:.55rem;border-right:3px solid var(--tcur);min-height:70vh}
+.co-tabs{position:sticky;top:.4rem;display:flex;flex-direction:column;gap:.3rem;width:2.35rem;flex:none;padding:.3rem 0 1rem;max-height:calc(100vh - 9rem);overflow-y:auto;scrollbar-width:none}
+.co-tab{writing-mode:vertical-rl;display:flex;align-items:center;gap:.3rem;background:color-mix(in srgb,var(--tc) 22%,var(--surface));color:var(--text);border:1px solid color-mix(in srgb,var(--tc) 45%,transparent);border-left:0;border-radius:0 .7rem .7rem 0;padding:.55rem .1rem;min-height:4.8rem;max-height:11rem;overflow:hidden;font:inherit;font-size:.78rem;font-weight:800;white-space:nowrap;text-overflow:ellipsis;width:2.05rem;cursor:pointer}
+.co-tab.on{background:var(--tc);color:#fff;width:2.35rem;border-color:var(--tc)}
+.co-tn{overflow:hidden;text-overflow:ellipsis}.co-tw{font-weight:600;font-size:.68rem;opacity:.85;overflow:hidden;text-overflow:ellipsis}
+.co-tc{writing-mode:horizontal-tb;font-size:.68rem;background:var(--surface);color:var(--text);border-radius:999px;padding:0 .3rem;min-width:1.1rem;text-align:center}
+.co-tadd{min-height:2.4rem;justify-content:center;font-size:1.1rem;--tc:var(--muted);writing-mode:horizontal-tb}
+.co-head{display:flex;align-items:center;gap:.4rem;margin:.3rem 0 .5rem}.co-ht{flex:1;min-width:0}.co-ht>b{display:block;font-size:1.15rem}.co-ht small{color:var(--muted);font-size:.85rem}
+.cat-seg{margin:.1rem 0 .2rem}.cat-seg button{font-size:.82rem}
+.cat-wrap{display:flex;gap:.35rem;align-items:flex-start}
+#cat-list .cat-h{position:sticky;top:0;background:var(--bg);z-index:1;padding:.2rem 0;margin:.5rem 0 .25rem}
+.cat-idx{position:sticky;top:.3rem;display:flex;flex-direction:column;flex:none;width:1.55rem;max-height:calc(100vh - 10rem);overflow-y:auto;scrollbar-width:none}
+.cat-idx button{background:none;border:0;color:var(--tcur,var(--accent));font-weight:800;font-size:.78rem;padding:.12rem 0;line-height:1.15;cursor:pointer}
+#cat-list{flex:1;min-width:0}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.6rem,1fr));gap:.3rem}
+.cat-grid .cat-r{margin:0}.cat-grid .cat-b{padding:.45rem .5rem;min-height:2.6rem;gap:.45rem}.cat-grid .cat-b b{font-size:.92rem;line-height:1.15;overflow-wrap:break-word;hyphens:auto;min-width:0}.cat-grid .cat-c{width:1.3rem;height:1.3rem;font-size:.8rem}
+.cat-grid .cat-del{padding:0 .45rem}
 /* Grands écrans (tablette à l'horizontale, ordinateur) : plusieurs colonnes, largeur maîtrisée */
 .co-h4{margin:.2rem 0 .5rem;font-size:1.05rem}.co-h4 small{color:var(--muted);font-weight:700}
 @media (min-width:1000px){
@@ -678,7 +697,7 @@ body.cansend .sendbtn{display:inline-flex}
  .bd-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.5rem}.bd-acts .btn{margin:0;height:100%}
  .rp-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 .8rem}
  #rc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.4rem .8rem}
- #cat-list .cat-h{position:sticky;top:0;background:var(--bg);z-index:1;padding:.15rem 0}
+ .co-colB .cat-grid{grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr))}
 }
 /* Courses rapides */
 .co-quick{display:flex;gap:.4rem;overflow-x:auto;padding:.1rem 0 .5rem;scrollbar-width:none}.co-quick .chip{flex:none}.co-quick small{opacity:.7}
@@ -881,12 +900,15 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.9.0';
+const APP_VERSION='2.9.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.9.1',d:'31/10/2026',items:[
+  '📑 Courses comme un carnet : tes listes sont des intercalaires sur le côté droit. Chaque intercalaire porte le nom de la liste et de la personne avec qui elle est partagée (👥 Morgann) ou de qui elle vient (📥), dans sa couleur.',
+  '📒 Ma liste type plus rapide : produits sur 2 colonnes, lettres A B C… sur le côté pour sauter directement, rangement A → Z, par rayon ou « ⭐ Les plus achetés ».']},
  {v:'2.9.0',d:'31/10/2026',items:[
   '🛒 Courses repensées : deux onglets, « 🛒 À acheter » (la liste actuelle) et « 📒 Ma liste type » (tous tes produits habituels, de A à Z). Dans la liste type, un toucher ajoute l’article à la liste choisie, un second le retire. Recherche, ajout par collage depuis Notes, ✏️ Modifier pour retirer un produit.',
   '📒 Ta liste est très longue ? « Tout ranger dans ma liste type » : la liste à acheter redevient vide.',
@@ -1653,7 +1675,7 @@ function titles(){
  if(V.view==='voyages'){const v=VY.id&&vyOf(VY.id);return v?[v.t,v.a?fShort(v.a)+(v.b&&v.b!==v.a?' → '+fShort(v.b):''):'Voyage']:['Voyages',vyAll().length?vyAll().length+' voyage'+(vyAll().length>1?'s':''):'Listes, programme, repas, infos']}
  if(V.view==='repas')return['Repas',RV.tab==='rc'?rcAll().length+' recette'+(rcAll().length>1?'s':''):RV.tab==='co'?'Liste de courses':'Menu de la semaine'];
  if(V.view==='bdays'){const n=bdClean().length;return['Anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant']}
- if(V.view==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',(CV.mode==='cat'?'Ma liste type · ':'')+tlOf(coCur()).n+(n?' · '+n+' à acheter':'')]}
+ if(V.view==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}
  if(V.view==='tasks'){if(TKV.l==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}const n=tkAll().filter(k=>!k.x&&!isCoL(k.l)).length;return['Tâches',n?n+' à faire':'Rien à faire']}
  return['Réglages','Version '+APP_VERSION];
 }
@@ -4926,7 +4948,7 @@ document.addEventListener('input',e=>{
  const q=e.target;if(!q||q.id!=='cat-q')return;
  const v=norm(q.value||'').trim();CV.q=q.value||'';
  $$('#cat-list .cat-r').forEach(r=>{r.style.display=(!v||(r.dataset.n||'').includes(v))?'':'none'});
- $$('#cat-list .cat-h').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&!n.classList.contains('cat-h')){if(n.style.display!=='none')vis=true;n=n.nextElementSibling}h.style.display=vis?'':'none'});
+ $$('#cat-list .cat-grid').forEach(g=>{const vis=[...g.children].some(r=>r.style.display!=='none');g.style.display=vis?'':'none';const h=g.previousElementSibling;if(h&&h.classList.contains('cat-h'))h.style.display=vis?'':'none'});
 });
 /* recherche dans la liste (filtre sans recharger) */
 document.addEventListener('input',e=>{
@@ -5262,7 +5284,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
- h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : « ＋ Nouvelle liste » (Leclerc, Marché, Pharmacie…). Touche le nom d’une liste en haut pour l’ouvrir.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements. En haut, <b>Avec : Morgane</b> n’affiche que les listes partagées avec elle ou lui.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
+ h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet. Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> (une seule personne) : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>.</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
@@ -5597,6 +5619,8 @@ async function act(a,el,e){
   case 'co-share':coShare();break;
   case 'co-mode':CV.mode=ds_.v==='cat'?'cat':'buy';CV.edit=false;render();window.scrollTo(0,0);break;
   case 'co-catedit':CV.edit=!CV.edit;render();break;
+  case 'co-cs':CV.cs=ds_.v;render();break;
+  case 'cat-jump':{const g=document.getElementById('cat-g-'+ds_.v);if(g)g.scrollIntoView({block:'start',behavior:'smooth'});break}
   case 'co-cat':{const x=coHist()[ds_.k];if(!x)break;const row=el.closest('.cat-r');const cur=coCur();
    const k=tkAll().find(t=>t.l===cur&&!t.x&&coKey(t.ig?t.ig.n:t.t)===ds_.k);
    if(k){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet()}else{const n=coursesAdd([{q:x.q,u:x.u,n:x.n}]);if(!n)break;saveSet()}
@@ -6451,25 +6475,34 @@ function coShareInfo(lid){
  return{to,from};
 }
 function coListsFor(p){if(!p)return coLists();return coLists().filter(l=>{const i=coShareInfo(l.id);return i.to.includes(p)||i.from===p})}
+function coPersonColor(id){
+ const p=pplOf(famCid(id));if(p&&p.c)return p.c;
+ let h=0;for(const ch of String(id))h=(h*31+ch.charCodeAt(0))|0;return PPL_COLS[Math.abs(h)%PPL_COLS.length];
+}
+// Intercalaires sur le côté : une languette par liste, regroupées par personne (à moi / partagées avec… / reçues de…)
+function coTabsHTML(cur){
+ const L=coLists().map(l=>{const i=coShareInfo(l.id);const who=i.from||(i.to.length?i.to[0]:'');return{l,i,who,g:i.from?2:i.to.length?1:0}})
+  .sort((a,b)=>a.g-b.g||String(a.who&&famName(a.who)).localeCompare(String(b.who&&famName(b.who)))||(a.l.id==='courses'?-1:b.l.id==='courses'?1:a.l.n.localeCompare(b.l.n)));
+ const cnt=id=>tkAll().filter(k=>k.l===id&&!k.x).length;
+ return '<nav class="co-tabs" aria-label="Mes listes de courses">'+L.map(x=>{
+  const col=x.who?coPersonColor(x.who):'var(--k-co)',n=cnt(x.l.id);
+  const who=x.i.from?'de '+famName(x.i.from):x.i.to.length?x.i.to.map(famName).join(', '):'';
+  return '<button class="co-tab'+(x.l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(x.l.id)+'" style="--tc:'+col+'" title="'+esc(x.l.n+(who?' · '+who:''))+'"><span class="co-tn">'+esc(x.l.n)+'</span>'+(who?'<span class="co-tw">'+(x.i.from?'📥 ':'👥 ')+esc(who)+'</span>':'')+(n?'<b class="co-tc">'+n+'</b>':'')+'</button>'}).join('')+
+  '<button class="co-tab co-tadd" data-act="co-new" title="Nouvelle liste" aria-label="Nouvelle liste">＋</button></nav>';
+}
 function coursesHTML(){
- let cur=coCur();const f=fam(),mem=f?famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self):[];
- if(CV.p&&!mem.includes(CV.p))CV.p='';
- const LL=coListsFor(CV.p);if(LL.length&&!LL.some(l=>l.id===cur)){cur=LL[0].id;S.coLid=cur}
+ const cur=coCur(),f=fam(),mem=f?famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self):[];
  const L=tkAll().filter(k=>k.l===cur),pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
- const H=coHabits(),inL=coPendKey(),cnt=id=>tkAll().filter(k=>k.l===id&&!k.x).length;
- const nm=l=>esc(l.n);
- let h='';
- if(mem.length)h+='<div class="chips tk-chips co-ppl"><span class="co-lbl">Avec :</span><button class="chip'+(!CV.p?' on':'')+'" data-act="co-p" data-v="">Toutes mes listes</button>'+mem.map(id=>'<button class="chip'+(CV.p===id?' on':'')+'" data-act="co-p" data-v="'+esc(id)+'">👤 '+esc(famName(id))+'</button>').join('')+'</div>';
- h+='<div class="chips tk-chips co-lists"><span class="co-lbl">Mes listes :</span>'+(LL.length?LL:coLists()).map(l=>{const i=coShareInfo(l.id);return '<button class="chip'+(l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(l.id)+'">🛒 '+nm(l)+(i.to.length?' 👥':'')+(i.from?' <small>de '+esc(famName(i.from))+'</small>':'')+' <small>'+cnt(l.id)+'</small></button>'}).join('')+'<button class="chip" data-act="co-new">＋ Nouvelle liste</button></div>';
- if(CV.p&&!LL.length)h+='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .4rem">Aucune liste partagée avec '+esc(famName(CV.p))+'. Choisis une liste puis « 👥 Partager ».</p>';
- const si=coShareInfo(cur),tl=tlOf(cur);
- h+='<div class="co-info"><b>🛒 '+nm(tl)+'</b><span>'+(si.from?'📥 Liste de '+esc(famName(si.from)):si.to.length?'👥 Partagée avec '+esc(si.to.map(famName).join(', ')):'🔒 Rien que pour toi')+'</span>'+
-  (f&&mem.length&&!si.from?'<button class="chip" data-act="co-share">👥 Partager</button>':'')+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-ren">✏️</button>':'')+'</div>';
- const wide=coWide();
- if(wide){return h+'<div class="co-2col"><div class="co-colA"><h4 class="co-h4">🛒 À acheter <small>'+pend.length+'</small></h4>'+coBuyHTML(cur,L,pend,done,H,si,true)+'</div><div class="co-colB"><h4 class="co-h4">📒 Ma liste type <small>'+H.length+'</small></h4>'+coCatHTML(cur,H,inL)+'</div></div>'}
- h+='<div class="seg co-seg"><button data-act="co-mode" data-v="buy" class="'+(CV.mode!=='cat'?'on':'')+'">🛒 À acheter <small>'+pend.length+'</small></button><button data-act="co-mode" data-v="cat" class="'+(CV.mode==='cat'?'on':'')+'">📒 Ma liste type <small>'+H.length+'</small></button></div>';
- if(CV.mode==='cat')return h+coCatHTML(cur,H,inL);
- return h+coBuyHTML(cur,L,pend,done,H,si,false);
+ const H=coHabits(),inL=coPendKey();
+ const si=coShareInfo(cur),tl=tlOf(cur),who=si.from||si.to[0]||'',col=who?coPersonColor(who):'var(--k-co)';
+ let h='<div class="co-head"><div class="co-ht"><b>🛒 '+esc(tl.n)+'</b><small>'+(si.from?'📥 Liste de <b>'+esc(famName(si.from))+'</b>':si.to.length?'👥 Partagée avec <b>'+esc(si.to.map(famName).join(', '))+'</b>':'🔒 Rien que pour toi')+'</small></div>'+
+  (f&&mem.length&&!si.from?'<button class="chip" data-act="co-share">👥 Partager</button>':'')+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-ren" aria-label="Renommer">✏️</button>':'')+'</div>';
+ if(coWide())h+='<div class="co-2col"><div class="co-colA"><h4 class="co-h4">🛒 À acheter <small>'+pend.length+'</small></h4>'+coBuyHTML(cur,L,pend,done,H,si,true)+'</div><div class="co-colB"><h4 class="co-h4">📒 Ma liste type <small>'+H.length+'</small></h4>'+coCatHTML(cur,H,inL)+'</div></div>';
+ else{
+  h+='<div class="seg co-seg"><button data-act="co-mode" data-v="buy" class="'+(CV.mode!=='cat'?'on':'')+'">🛒 À acheter <small>'+pend.length+'</small></button><button data-act="co-mode" data-v="cat" class="'+(CV.mode==='cat'?'on':'')+'">📒 Ma liste type <small>'+H.length+'</small></button></div>';
+  h+=CV.mode==='cat'?coCatHTML(cur,H,inL):coBuyHTML(cur,L,pend,done,H,si,false);
+ }
+ return '<div class="co-book" style="--tcur:'+col+'"><div class="co-page">'+h+'</div>'+coTabsHTML(cur)+'</div>';
 }
 const coWide=()=>window.innerWidth>=1000;
 function coBuyHTML(cur,L,pend,done,H,si,wide){
@@ -6487,16 +6520,21 @@ function coBuyHTML(cur,L,pend,done,H,si,wide){
  return h;
 }
 function coCatHTML(cur,H,inL){
- const tl=tlOf(cur);
- let h='<p class="co-tip">Touche un article : il est ajouté à <b>🛒 '+esc(tl.n)+'</b> (un second toucher le retire).</p>';
- h+='<input class="in" id="cat-q" type="search" placeholder="Chercher dans ma liste type…" autocomplete="off" value="'+esc(CV.q)+'" style="margin:.2rem 0 .4rem">';
- h+='<div class="chips" style="margin:0 0 .4rem"><button class="chip" data-act="co-catadd">＋ Ajouter des articles</button><button class="chip'+(CV.edit?' on':'')+'" data-act="co-catedit">'+(CV.edit?'✓ Terminé':'✏️ Modifier')+'</button></div>';
- if(!H.length)return h+'<p class="empty">Ta liste type est vide. « ＋ Ajouter des articles » : colle ta liste depuis Notes (un article par ligne). Les articles que tu achètes s’y ajoutent aussi tout seuls.</p>';
- const A=H.slice().sort((a,b)=>norm(a.n)<norm(b.n)?-1:norm(a.n)>norm(b.n)?1:0);
- let last='';
- h+='<div id="cat-list">'+A.map(x=>{const k=coKey(x.n),on=inL.has(k),L1=(norm(x.n).charAt(0)||'#').toUpperCase();let hd='';if(L1!==last){last=L1;hd='<div class="cat-h">'+esc(L1)+'</div>'}
-  const nm=x.n.charAt(0).toUpperCase()+x.n.slice(1);
-  return hd+'<div class="cat-r'+(on?' on':'')+'" data-n="'+esc(norm(x.n))+'"><button class="cat-b" data-act="co-cat" data-k="'+esc(k)+'"><span class="cat-c">'+(on?'✓':'')+'</span><b>'+esc(nm)+'</b></button>'+(CV.edit?'<button class="cat-del" data-act="co-catdel" data-k="'+esc(k)+'" aria-label="Retirer de la liste type">🗑</button>':'')+'</div>'}).join('')+'</div>';
+ const tl=tlOf(cur),cs=['az','ry','top'].includes(CV.cs)?CV.cs:'az';
+ let h='<p class="co-tip">Touche un produit : il va dans <b>🛒 '+esc(tl.n)+'</b>. Un second toucher le retire.</p>';
+ h+='<input class="in" id="cat-q" type="search" placeholder="🔍 Chercher un produit…" autocomplete="off" value="'+esc(CV.q)+'" style="margin:.2rem 0 .4rem">';
+ h+='<div class="seg cat-seg"><button data-act="co-cs" data-v="az" class="'+(cs==='az'?'on':'')+'">A → Z</button><button data-act="co-cs" data-v="ry" class="'+(cs==='ry'?'on':'')+'">Par rayon</button><button data-act="co-cs" data-v="top" class="'+(cs==='top'?'on':'')+'">⭐ Les plus achetés</button></div>';
+ h+='<div class="chips" style="margin:.4rem 0"><button class="chip" data-act="co-catadd">＋ Ajouter des produits</button><button class="chip'+(CV.edit?' on':'')+'" data-act="co-catedit">'+(CV.edit?'✓ Terminé':'✏️ Modifier')+'</button></div>';
+ if(!H.length)return h+'<p class="empty">Ta liste type est vide. « ＋ Ajouter des produits » : colle ta liste depuis Notes (un produit par ligne). Ce que tu achètes s’y ajoute aussi tout seul.</p>';
+ const byN=(a,b)=>norm(a.n)<norm(b.n)?-1:norm(a.n)>norm(b.n)?1:0;
+ let groups=[];
+ if(cs==='az'){const m=new Map();H.slice().sort(byN).forEach(x=>{const L1=(norm(x.n).charAt(0)||'#').toUpperCase();const k=/[A-Z]/.test(L1)?L1:'#';if(!m.has(k))m.set(k,[]);m.get(k).push(x)});groups=[...m].map(([k,a])=>({id:k,lbl:k,idx:k,a}))}
+ else if(cs==='ry'){groups=RAYONS.map(r=>({id:r[0],lbl:r[1],idx:r[1].split(' ')[0],a:H.filter(x=>(x.ry||rayOf(x.n))===r[0]).sort(byN)})).filter(g=>g.a.length)}
+ else groups=[{id:'top',lbl:'',idx:'',a:H.slice().sort((a,b)=>(b.c||0)-(a.c||0)||byN(a,b)).slice(0,60)}];
+ const row=x=>{const k=coKey(x.n),on=inL.has(k),nm=x.n.charAt(0).toUpperCase()+x.n.slice(1);
+  return '<div class="cat-r'+(on?' on':'')+'" data-n="'+esc(norm(x.n))+'"><button class="cat-b" data-act="co-cat" data-k="'+esc(k)+'"><span class="cat-c">'+(on?'✓':'')+'</span><b>'+esc(nm)+'</b></button>'+(CV.edit?'<button class="cat-del" data-act="co-catdel" data-k="'+esc(k)+'" aria-label="Retirer de la liste type">🗑</button>':'')+'</div>'};
+ h+='<div class="cat-wrap">'+(groups.length>1?'<nav class="cat-idx">'+groups.map(g=>'<button data-act="cat-jump" data-v="'+esc(g.id)+'">'+esc(g.idx)+'</button>').join('')+'</nav>':'')+
+  '<div id="cat-list">'+groups.map(g=>(g.lbl?'<div class="cat-h" id="cat-g-'+esc(g.id)+'">'+esc(g.lbl)+'</div>':'')+'<div class="cat-grid">'+g.a.map(row).join('')+'</div>').join('')+'</div></div>';
  return h;
 }
 async function coNewList(){
