@@ -1,6 +1,6 @@
 # AgenDam
 
-**L’organisateur de la famille, comme un carnet.** Gratuit, sans publicité, sans compte, aucune donnée collectée (aucun serveur) : tout reste sur l’appareil.
+**L’organisateur de la famille, comme un carnet.** Gratuit, sans publicité, sans compte, aucune donnée collectée : tout reste sur l’appareil, sauf la « Famille connectée » facultative (listes chiffrées de bout en bout).
 
 AgenDam : agenda, tâches, anniversaires et repas pour toute la famille, installable sur iPhone et Android (PWA).
 
@@ -14,6 +14,7 @@ AgenDam : agenda, tâches, anniversaires et repas pour toute la famille, install
 - Onglets : 📅 Agenda (Jour / Semaine / 2 sem. / Mois au choix, toucher le titre pour aller à une date), ☑ Tâches, 🎂 Anniversaires, 🍽 Repas, 🧳 Voyages
 - Tâches : listes à cocher, date facultative (visible dans l’agenda), qui s’en occupe, tâches qui reviennent, impression A4
 - Famille et contacts (prénom, nom, lien, téléphone, mail) pour distribuer les tâches et envoyer les partages
+- Famille connectée (facultative) : synchronisation automatique des tâches, courses, repas, anniversaires et voyages entre téléphones de la famille, chiffrée de bout en bout (AES-GCM, clé dérivée d’un secret de 32 octets transmis uniquement dans le lien d’invitation `#fam=`), via un Cloudflare Worker + KV qui ne stocke que des données chiffrées (code dans `worker/worker.js`)
 - Partage par lien (SMS, WhatsApp, mail) des tâches, anniversaires, recettes, menu et liste de courses : les données voyagent dans le fragment `#p=` du lien (compressé, jamais envoyé au serveur) et se fusionnent par identifiant chez la personne (ajouts, mises à jour, suppressions, sans doublon)
 - Repas : menu de la semaine (midi / soir, qui cuisine), carnet de recettes (import par copier-coller depuis Notes, un site, un message), portions ajustables, ingrédients manquants vers la liste Courses rangée par rayon
 - Anniversaires : bouton 🎉 pour souhaiter (messages personnalisés par ton, carte en image avec photo, envoi par le partage du téléphone) ; photos dans IndexedDB (`agd-media`) et dans la sauvegarde .json

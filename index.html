@@ -648,6 +648,16 @@ body.cansend .sendbtn{display:inline-flex}
 @media(max-width:560px){#top>#sendbtn{grid-column:2;grid-row:1}#top>.ib[data-act=help]{display:none}}
 @media(max-width:360px){.sendbtn span{display:none}}
 
+/* Courses rapides */
+.co-quick{display:flex;gap:.4rem;overflow-x:auto;padding:.1rem 0 .5rem;scrollbar-width:none}.co-quick .chip{flex:none}.co-quick small{opacity:.7}
+.co-hab{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:.55rem .65rem .6rem;margin:.2rem 0 .6rem}
+.co-habh{font-weight:800;margin:0 0 .4rem;font-family:var(--serif);font-style:italic}.co-habh small{font-family:inherit;font-style:normal;font-weight:600;color:var(--muted);font-size:.78rem;margin-left:.3rem}
+.co-hab .chips{gap:.35rem}.co-hab .chip{font-size:.9rem;padding:.4rem .7rem}.co-hab .chip.on{background:var(--sec);border-color:var(--sec);color:#fff}
+.rp-add .btn.pri{background:var(--sec);border-color:var(--sec)}
+.co-q{display:flex;gap:.25rem;margin-right:.6rem;flex:none}.co-q button{width:2.1rem;height:2.1rem;border-radius:.6rem;background:var(--surface2);font-weight:900;font-size:1.15rem}
+
+#fam-card .tgl-row b{font-weight:650}
+
 /* Aide à l'adresse */
 .adr{margin-top:.4rem}.adr small{display:block;margin-top:.35rem}
 .adr-l{display:flex;flex-direction:column;gap:.25rem;border:1.5px solid var(--line);border-radius:.85rem;background:var(--surface);padding:.3rem}
@@ -835,12 +845,20 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.5.5';
+const APP_VERSION='2.7.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.7.0',d:'31/10/2026',items:[
+  '🔄 Famille connectée : tes listes (tâches, courses, menus, recettes, anniversaires, voyages) se mettent à jour toutes seules chez ta famille, à l’ouverture de l’appli et toutes les minutes quand elle est ouverte. Réglages → Famille et contacts → « Créer notre famille connectée », puis invite tes proches avec le lien. Sans compte.',
+  '🔒 Chiffré de bout en bout : le petit serveur ne garde que des données illisibles. La clé ne voyage que dans le lien d’invitation. L’agenda (rendez-vous) reste sur chaque téléphone.']},
+ {v:'2.6.0',d:'31/10/2026',items:[
+  '🛒 Courses rapides : « ⭐ Mes habituels », les articles que tu achètes le plus, se remplissent tout seuls. Un toucher ajoute, un second retire.',
+  '📋 Listes types (courses de la semaine, apéro, barbecue…) : crée-les en collant ta liste depuis Notes, ou « Enregistrer comme liste type ». Un toucher les ajoute aux courses, tu décoches ce que tu as déjà.',
+  '🔁 « Refaire mes dernières courses » remet ce que tu as acheté la dernière fois (après « Vider le chariot »).',
+  'Quand tu tapes un article, l’appli te propose ceux que tu as déjà achetés. Boutons − / + pour changer la quantité.']},
  {v:'2.5.5',d:'31/10/2026',items:[
   '📤 Le bouton « Envoyer » est maintenant toujours visible en haut de l’écran, en couleur, dans Tâches, Anniversaires, Repas (menu, recettes, courses) et Voyages. Il envoie ce que tu as sous les yeux.']},
  {v:'2.5.4',d:'31/10/2026',items:[
@@ -1211,7 +1229,7 @@ if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
 let EV=[];
 let demo=false;
-const saveSet=()=>ls.set(K.set,S);
+const saveSet=()=>{ls.set(K.set,S);if(typeof famSchedule==='function')famSchedule()};
 const saveMeta=()=>{if(!demo)ls.set(K.meta,META)};
 const saveData=()=>{if(demo)return true;const ok=ls.set(K.data,{v:1,events:EV});if(!ok)toast('⚠️ Enregistrement impossible (stockage plein ou bloqué)');else msSchedule();return ok};
 function touch(){saveData();if(!demo){if(!META.dirtySince)META.dirtySince=Date.now();saveMeta()}}
@@ -1900,7 +1918,7 @@ function render(){
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
  document.body.classList.toggle('cansend',['tasks','bdays','repas','voyages'].includes(V.view));
- {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};sb.querySelector('span').textContent=L[V.view]||'Envoyer'}}
+ {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};sb.querySelector('span').textContent=window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
  body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='repas'&&V.view!=='voyages');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
@@ -4849,6 +4867,7 @@ function toast(msg,ms,action){
  const el=document.createElement('div');el.className='tst';
  el.innerHTML='<span>'+esc(msg)+'</span>'+(action?'<button>'+esc(action.label)+'</button>':'');
  if(action)el.querySelector('button').onclick=()=>{el.remove();action.fn()};
+ [...root.children].forEach(x=>{if(x.firstChild&&x.firstChild.textContent===msg)x.remove()});while(root.children.length>=2)root.firstChild.remove();
  root.appendChild(el);
  setTimeout(()=>el.remove(),ms||3200);
 }
@@ -5109,6 +5128,7 @@ function settingsView(){
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=contactsCard();
+ h+=famCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
  if(OL_ON)h+=msCard();
  h+=bdCard();
@@ -5163,7 +5183,9 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🛒 Courses rapides','<ul><li><b>⭐ Mes habituels</b> : les articles que tu achètes le plus. Un toucher les ajoute à la liste (un second les retire).</li><li><b>📋 Listes types</b> : « Créer une liste type », colle ta liste depuis Notes. Ensuite un toucher l’ajoute aux courses (tu décoches ce que tu as).</li><li><b>🔁 Refaire mes dernières courses</b> : après « Vider le chariot », ce bouton remet tout ce que tu avais acheté.</li><li>En tapant un article, des suggestions apparaissent. <b>− / +</b> change la quantité.</li><li>En magasin : coche au fur et à mesure, puis « Vider le chariot ». <b>📤 Envoyer les courses</b> (en haut) les envoie à celui ou celle qui fait les courses.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
+ h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>, puis <b>👪 Inviter dans la famille</b> : tes proches reçoivent un lien. En le touchant, ils rejoignent la famille (sans compte).</li><li>Ensuite, plus besoin d’envoyer : quand quelqu’un modifie une liste, les autres la reçoivent à l’ouverture de l’appli et toutes les minutes pendant qu’elle est ouverte. Un message indique qui a mis à jour quoi.</li><li><b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li>Tu choisis ce qui est partagé : tâches et courses, repas, anniversaires, voyages. L’agenda reste sur chaque téléphone.</li><li><b>Chiffré de bout en bout</b> : le serveur ne peut pas lire tes listes. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</li><li>iPhone avec l’appli sur l’écran d’accueil : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis 📥 Recevoir.</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -5486,8 +5508,15 @@ async function act(a,el,e){
   case 'rc-edit':closeSheet();rcEdit(ds_.id);break;
   case 'rc-del':{const r=rcOf(ds_.id);if(!r)break;const ok=await ask({title:'Supprimer « '+r.t+' » ?',text:'La recette sera retirée du carnet. Les repas déjà au menu gardent leur nom.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){Object.values(mnAll()).forEach(x=>['m','s'].forEach(k=>{if(x[k]&&x[k].r===r.id){x[k].t=r.t;x[k].r='';x[k].mt=Date.now()}}));S.rc=rcAll().filter(x=>x.id!==r.id);saveSet();closeSheet();render()}break}
   case 'co-add':{const i=$('#co-in');const g=i&&ingParse(i.value);if(!g){toast('Écris un article');break}const n=coursesAdd([g]);render();setTimeout(()=>{const j=$('#co-in');if(j)j.focus()},50);if(!n)toast('Déjà dans la liste');break}
-  case 'co-clear':{const gone=tkAll().filter(k=>k.l==='courses'&&k.x).map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
+  case 'co-clear':{const dn=tkAll().filter(k=>k.l==='courses'&&k.x);if(dn.length)S.coLast=dn.map(k=>k.ig?ingTxt(k.ig):k.t).slice(0,150);const gone=dn.map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
   case 'co-print':coPrint();break;
+  case 'co-hab':{const x=coHist()[ds_.k];if(!x)break;if(coPendKey().has(ds_.k)){const k=tkAll().find(t=>t.l==='courses'&&!t.x&&coKey(t.ig?t.ig.n:t.t)===ds_.k);if(k){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+x.n,2500)}break}coursesAdd([{q:x.q,u:x.u,n:x.n}]);render();break}
+  case 'co-haball':RV.coAll=!RV.coAll;render();break;
+  case 'co-q':{const k=tkAll().find(t=>t.id===ds_.id);if(!k)break;if(!k.ig)k.ig={q:null,u:'',n:k.t};let q=k.ig.q==null?1:k.ig.q;const st=k.ig.u&&/^(g|ml|cl)$/.test(k.ig.u)?(q>=500?100:50):k.ig.u==='kg'||k.ig.u==='l'?0.5:1;q=Math.round((q+st*(+ds_.n))*100)/100;if(q<=0){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+k.ig.n,2500);break}k.ig.q=q;k.t=ingTxt(k.ig);k.m=Date.now();saveSet();render();break}
+  case 'co-redo':if(S.coLast&&S.coLast.length)coAddLines('🔁 Refaire mes dernières courses',S.coLast,'Ce que tu as acheté la dernière fois.');break;
+  case 'co-tpl':{const t=coTpls().find(x=>x.id===ds_.id);if(t)coAddLines('📋 '+t.n,t.it,'Liste type « '+esc(t.n)+' ».');break}
+  case 'co-tpls':coTplManage();break;
+  case 'co-save':{const L=tkAll().filter(k=>k.l==='courses'&&!k.x).map(k=>k.ig?ingTxt(k.ig):k.t);coTplEdit(null,L);break}
   case 'sh-mn':shareSend('mn');break;
   case 'sh-co':shareSend('co');break;
   case 'sh-rc':closeSheet();shareSend('rc',ds_.id);break;
@@ -5496,6 +5525,9 @@ async function act(a,el,e){
   case 'tk-lists':tkManage('lists');break;
   case 'me-set':meSet();break;
   case 'fam-inv':inviteFamily();break;
+  case 'fam-create':famCreate();break;
+  case 'fam-sync':famPull(true);break;
+  case 'fam-quit':{const ok=await ask({title:'Quitter la famille connectée ?',text:'Tes listes restent sur ce téléphone, mais elles ne se mettront plus à jour avec la famille.',btns:[{label:'Quitter',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.fam=null;FAM_K=null;saveSet();render()}break}
   case 'tk-ppl':case 'ct-open':contactsManage();break;
   case 'sh-recv':sharePaste();break;
   case 'sh-tk':shareSend('tk');break;
@@ -5646,6 +5678,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
+ if(t.dataset.chg==='famdoc'&&S.fam){if(!S.fam.d)S.fam.d={};S.fam.d[t.dataset.d]=t.checked?1:0;if(t.checked&&S.fam.sent)delete S.fam.sent[t.dataset.d];saveSet();return}
  if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
  if(t.dataset.chg==='vacOn'){if(t.checked)vacEnable();else setSetting('vacOn',0);return}
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
@@ -5688,7 +5721,7 @@ document.addEventListener('touchend',e=>{
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,150)});
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible'){
-  tick();olAuto();
+  tick();olAuto();famPull(false);
   if(V.date!==today()&&V.view==='day'&&diff(today(),V.date)===1)V.date=today();
   if((S.remind||bdDue())&&!demo&&Date.now()-META.lastRemind>60*60*1000&&!SHEET_OPEN)showUpcoming(false);
   render();
@@ -5810,7 +5843,7 @@ function tkCheck(id){
   return;
  }
  k.x=!k.x;k.xa=k.x?Date.now():0;k.m=Date.now();saveSet();render();
- if(k.x)toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
+ if(k.x&&k.l!=='courses')toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
 }
 async function tkClear(){
  const n=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).length;if(!n)return;
@@ -6137,11 +6170,13 @@ async function shReceive(code,fromLink){
 async function sharePaste(){
  let t='';
  try{if(navigator.clipboard&&navigator.clipboard.readText)t=await navigator.clipboard.readText()}catch(e){}
+ if(/#fam=/.test(t)){const m=t.match(/#fam=([A-Za-z0-9_-]+)(?:&by=([^&\s]*))?/);if(m){famJoin(m[1],decodeURIComponent(m[2]||''));return}}
  let code=shCode(t);
  if(!code){
   const v={t:''};const pr=ask({title:'📥 Recevoir un partage',html:'<p style="margin:.2rem 0 .5rem">Colle ici le lien reçu par SMS, WhatsApp ou mail (appui long → Coller).</p><textarea class="in" id="sh-in" rows="4" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Recevoir',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
   const root=$('#dlg');root.oninput=e=>{if(e.target.id==='sh-in')v.t=e.target.value};
   const r=await pr;root.oninput=null;if(r!=='ok')return;
+  if(/#fam=/.test(v.t)){const m=v.t.match(/#fam=([A-Za-z0-9_-]+)(?:&by=([^&\s]*))?/);if(m){famJoin(m[1],decodeURIComponent(m[2]||''));return}}
   code=shCode(v.t);if(!code){toast('Ce n’est pas un lien de partage AgenDam',4000);return}
  }
  shReceive(code,false);
@@ -6168,7 +6203,7 @@ async function inviteFamily(){
  if(!(await ensureMe()))return;
  const me=pplOf(S.meId),name=meName();
  const app=location.origin+location.pathname;
- const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.';
+ const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.'+(fam()&&famJoinLink()?'\n\n🔄 Pour rejoindre notre famille connectée (nos listes à jour toutes seules) : une fois l’appli installée, touche ce lien, ou copie-le et colle-le dans l’appli (Réglages → Famille et contacts → 📥 Recevoir) :\n'+famJoinLink():'');
  const dest=pplSorted().filter(p=>(p.tel||p.mail)&&p.id!==S.meId);
  const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'WhatsApp, Messages… (autre appli)',value:'share',cls:dest.length?'':'pri'},{label:'Copier le message',value:'copy'},{label:'✏️ Ce n’est pas '+(name||'moi')+' ? Changer le prénom',value:'me'},{label:'Annuler',value:null}]);
  const r=await ask({title:'👪 Inviter ma famille',html:'<p style="margin:.2rem 0 .5rem">Envoie à tes proches le lien de l’appli et les 3 étapes pour l’installer. Ensuite, vous pourrez vous envoyer listes, courses, menus et voyages avec <b>📤 Envoyer</b>.</p><details class="sh-prev"><summary>Voir le message</summary><textarea class="in" rows="8" readonly onfocus="this.select()" style="font-size:.82rem">'+esc(msg)+'</textarea></details>'+(dest.length?'':'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Ajoute d’abord tes proches (avec leur téléphone) dans « Mes contacts » pour leur envoyer un SMS en un geste.</p>'),btns});
@@ -6273,25 +6308,76 @@ function rcListHTML(){
  h+='<div id="rc-list">'+(L.length?L.map(r=>'<button class="rc-r" data-act="rc-open" data-id="'+esc(r.id)+'"><span class="rc-i">'+esc(r.ic||'🍽️')+'</span><span class="rc-x"><b>'+(r.fav?'⭐ ':'')+esc(r.t)+'</b><small>'+[r.tm?r.tm+' min':'',r.pp?r.pp+' pers.':'',(r.ing||[]).length+' ingrédient'+((r.ing||[]).length>1?'s':''),(r.tags||[]).join(', ')].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide. Ajoute-en une, ou colle une recette copiée depuis Notes, un site ou un message.')+'</p>')+'</div>';
  return h;
 }
+/* ----- Courses rapides : habituels (historique), listes types, refaire les dernières courses ----- */
+const coHist=()=>S.coH&&typeof S.coH==='object'?S.coH:(S.coH={});
+const coTpls=()=>Array.isArray(S.coT)?S.coT:(S.coT=[]);
+const coKey=n=>norm(n).replace(/s$/,'').trim();
+function coRemember(it){if(!it||!it.n)return;const k=coKey(it.n);if(!k)return;const H=coHist(),h=H[k]||{n:it.n,c:0};h.n=it.n;h.u=it.u||'';h.q=it.q==null?null:it.q;h.ry=rayOf(it.n);h.c=(h.c||0)+1;h.at=Date.now();H[k]=h;
+ const ks=Object.keys(H);if(ks.length>400){ks.sort((x,y)=>(H[x].c*1e13+H[x].at)-(H[y].c*1e13+H[y].at)).slice(0,ks.length-400).forEach(x=>delete H[x])}}
+function coHabits(){const H=coHist();return Object.values(H).sort((a,b)=>(b.c-a.c)||(b.at-a.at))}
+function coPendKey(){const s=new Set();tkAll().forEach(k=>{if(k.l==='courses'&&!k.x)s.add(coKey(k.ig?k.ig.n:k.t))});return s}
+function coRow(k){
+ const q=k.ig&&k.ig.q!=null;
+ return '<div class="tk-r'+(k.x?' dn':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(k.n?'<small>'+esc(k.n)+'</small>':'')+'</button>'+
+  (k.x?'':'<span class="co-q"><button data-act="co-q" data-id="'+esc(k.id)+'" data-n="-1" aria-label="Moins">−</button><button data-act="co-q" data-id="'+esc(k.id)+'" data-n="1" aria-label="Plus">+</button></span>')+'</div>';
+}
 function coursesHTML(){
  const lid=tkLists().some(l=>l.id==='courses')?'courses':null;
  const L=lid?tkAll().filter(k=>k.l===lid):[];
  const pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
- let h='<div class="rp-add"><input class="in" id="co-in" placeholder="Ajouter : 2 citrons, lessive…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="co-add">'+ic('plus')+'</button></div>';
- if(!pend.length&&!done.length)h+='<p class="empty">La liste de courses est vide. Ajoute des articles ici, ou envoie les ingrédients d’une recette ou du menu de la semaine.</p>';
+ const H=coHabits(),inL=coPendKey();
+ let h='<div class="rp-add"><input class="in" id="co-in" list="co-dl" placeholder="Ajouter : 2 citrons, lessive…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="co-add">'+ic('plus')+'</button></div><datalist id="co-dl">'+H.slice(0,150).map(x=>'<option value="'+esc(x.n)+'">').join('')+'</datalist>';
+ /* raccourcis */
+ h+='<div class="co-quick">'+(S.coLast&&S.coLast.length?'<button class="chip" data-act="co-redo">🔁 Refaire mes dernières courses <small>'+S.coLast.length+'</small></button>':'')+
+  coTpls().map(t=>'<button class="chip" data-act="co-tpl" data-id="'+esc(t.id)+'">📋 '+esc(t.n)+' <small>'+t.it.length+'</small></button>').join('')+
+  '<button class="chip" data-act="co-tpls">'+(coTpls().length?'⚙ Listes types':'📋 Créer une liste type')+'</button></div>';
+ if(H.length){
+  const top=H.slice(0,RV.coAll?200:24).sort((a,b)=>RAYONS.findIndex(r=>r[0]===a.ry)-RAYONS.findIndex(r=>r[0]===b.ry)||(b.c-a.c));
+  h+='<div class="co-hab"><div class="co-habh">⭐ Mes habituels <small>un toucher = ajouté</small></div><div class="chips">'+top.map(x=>{const on=inL.has(coKey(x.n));return '<button class="chip'+(on?' on':'')+'" data-act="co-hab" data-k="'+esc(coKey(x.n))+'">'+(on?'✓ ':'')+esc(x.n.charAt(0).toUpperCase()+x.n.slice(1))+'</button>'}).join('')+(H.length>24?'<button class="chip" data-act="co-haball">'+(RV.coAll?'Moins':'Tous ('+H.length+')')+'</button>':'')+'</div></div>';
+ }
+ if(!pend.length&&!done.length)h+='<p class="empty">La liste est vide. Touche tes habituels, une liste type, ou ajoute un article en haut. Les ingrédients des recettes et du menu peuvent aussi arriver ici.</p>';
  for(const r of RAYONS){
   const l=pend.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]).sort((a,b)=>a.t.localeCompare(b.t));if(!l.length)continue;
-  h+='<section class="tk-g"><div class="tk-gh">'+r[1]+' <small>'+l.length+'</small></div>'+l.map(k=>tkRow(k,false)).join('')+'</section>';
+  h+='<section class="tk-g"><div class="tk-gh">'+r[1]+' <small>'+l.length+'</small></div>'+l.map(coRow).join('')+'</section>';
  }
- if(done.length)h+='<details class="tk-g tk-done"><summary>Dans le chariot <small>'+done.length+'</small></summary>'+done.map(k=>tkRow(k,false)).join('')+'<button class="btn sm blk" data-act="co-clear">Vider le chariot</button></details>';
- h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-co">📤 Envoyer la liste</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button></div>';
+ if(done.length)h+='<details class="tk-g tk-done" open><summary>Dans le chariot <small>'+done.length+'</small></summary>'+done.map(coRow).join('')+'<button class="btn sm blk" data-act="co-clear">Vider le chariot (courses finies)</button></details>';
+ h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button>'+(pend.length?'<button class="chip" data-act="co-save">💾 Enregistrer comme liste type</button>':'')+'</div>';
  return h;
+}
+async function coTplManage(){
+ for(let g=0;g<30;g++){
+  const T=coTpls();const root=$('#dlg');let pick=null;
+  const h=e=>{const b=e.target.closest&&e.target.closest('[data-ctp]');if(b){e.stopImmediatePropagation();e.preventDefault();pick=b.dataset.ctp;const f=root.querySelector('[data-v="1"]');if(f)f.click()}};
+  root.addEventListener('click',h,true);
+  const r=await ask({title:'📋 Listes types',html:'<p class="mut" style="margin:0 0 .5rem;font-size:.85rem">Des listes toutes prêtes (courses de la semaine, apéro, barbecue…) : un toucher les ajoute aux courses. Touche une liste pour la modifier.</p><div class="olbox">'+(T.length?T.map(t=>'<button type="button" class="ct-r" data-ctp="'+esc(t.id)+'"><i class="tk-dot big">📋</i><span><b>'+esc(t.n)+'</b><small>'+t.it.length+' articles : '+esc(t.it.slice(0,5).join(', '))+(t.it.length>5?'…':'')+'</small></span></button>').join(''):'<p class="mut" style="margin:.2rem 0">Aucune liste type pour l’instant.</p>')+'</div>',
+   btns:[{label:'Nouvelle liste type (coller depuis Notes)',value:'new',cls:'pri'},{label:'Fermer',value:null}]});
+  root.removeEventListener('click',h,true);
+  if(pick||r==='new'){const t=pick?T.find(x=>x.id===pick):null;const res=await coTplEdit(t,null);if(res==='del'&&t){S.coT=T.filter(x=>x.id!==t.id);saveSet();render()}continue}
+  break;
+ }
+}
+async function coTplEdit(t,items){
+ const vals={n:t?t.n:'',it:t?t.it.join('\n'):(items||[]).join('\n')};
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(t)btns.push({label:'Supprimer cette liste type',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
+ const pr=ask({title:t?'Modifier la liste type':'Nouvelle liste type',html:'<label class="lbl" for="ct-n2">Nom</label><input class="in" id="ct-n2" maxlength="40" value="'+esc(vals.n)+'" placeholder="Courses de la semaine, Apéro…"><label class="lbl" for="ct-it">Un article par ligne (tu peux coller depuis Notes)</label><textarea class="in" id="ct-it" rows="10" style="margin-bottom:.6rem" placeholder="Lait\nPain\n6 œufs\nCafé…">'+esc(vals.it)+'</textarea>',btns});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='ct-n2')vals.n=e.target.value;if(e.target.id==='ct-it')vals.it=e.target.value};
+ const r=await pr;root.oninput=null;
+ if(r==='del')return 'del';if(r!=='ok')return null;
+ const n=String(vals.n||'').trim().slice(0,40),it=vyLines(vals.it).slice(0,150);
+ if(!n||!it.length){toast('Il faut un nom et au moins un article');return coTplEdit(t,null)}
+ if(t)Object.assign(t,{n,it,m:Date.now()});else coTpls().push({id:'c'+uid(),n,it,m:Date.now()});
+ saveSet();render();toast('Liste type « '+n+' » enregistrée');return 'ok';
+}
+async function coAddLines(title,lines,intro){
+ const sel=await pickLines(title,lines.map(esc),intro,'🛒 Ajouter aux courses');if(!sel||!sel.length)return;
+ const n=coursesAdd(sel.map(i=>ingParse(lines[i])).filter(Boolean));render();toast(n?n+' article'+(n>1?'s':'')+' ajouté'+(n>1?'s':''):'Déjà dans la liste',3500);
 }
 /* ----- ajout aux courses : regroupe les mêmes articles ----- */
 function coursesList(){let l=tkLists().find(x=>x.id==='courses');if(!l){l={id:'courses',n:'Courses',i:'🛒',m:Date.now()};tkLists().push(l)}return l.id}
 function coursesAdd(items){
  const lid=coursesList();let n=0;
  for(const it of items){
+  coRemember(it);
   const key=norm(it.n).replace(/s$/,'')+'|'+(it.u||'');
   const ex=tkAll().find(k=>k.l===lid&&!k.x&&k.ig&&norm(k.ig.n).replace(/s$/,'')+'|'+(k.ig.u||'')===key);
   if(ex&&it.q!=null&&ex.ig.q!=null){ex.ig.q+=it.q;ex.t=ingTxt(ex.ig);ex.m=Date.now();n++;continue}
@@ -7032,6 +7118,121 @@ async function dupMulti(ev,from){
  }
 }
 
+/* ========= Famille connectée : synchronisation chiffrée de bout en bout =========
+   Les listes sont chiffrées sur le téléphone (AES-GCM) avec la clé de la famille, puis déposées sur un petit
+   serveur (Cloudflare Worker) qui ne peut pas les lire. Chaque téléphone de la famille va les chercher à l'ouverture
+   et toutes les minutes pendant que l'appli est ouverte. La clé ne voyage que dans le lien d'invitation. */
+const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
+const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
+const fam=()=>S.fam&&S.fam.k&&S.fam.on?S.fam:null;
+const FAM_DOCS=[['taches','☑ Tâches et courses'],['repas','🍽 Repas (menu et recettes)'],['anniv','🎂 Anniversaires'],['voyages','🧳 Voyages']];
+let FAM_K=null,FAM_T=null,FAM_BUSY=false,FAM_ERR='';
+async function famKeys(){
+ const f=S.fam;if(!f||!f.k)return null;
+ if(FAM_K&&FAM_K.k===f.k)return FAM_K;
+ const raw=shB64.dec(f.k);
+ const h=new Uint8Array(await crypto.subtle.digest('SHA-256',raw));
+ const space=[...h.slice(0,16)].map(b=>b.toString(16).padStart(2,'0')).join('');
+ const kb=await crypto.subtle.digest('SHA-256',new Uint8Array([...raw,...new TextEncoder().encode('agendam-cle')]));
+ const key=await crypto.subtle.importKey('raw',kb,'AES-GCM',false,['encrypt','decrypt']);
+ return FAM_K={k:f.k,space,key};
+}
+async function famEnc(obj){
+ const K=await famKeys(),iv=crypto.getRandomValues(new Uint8Array(12));
+ const z=await shZip(obj);
+ const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},K.key,new TextEncoder().encode(z)));
+ return{c:shB64.enc(c),iv:shB64.enc(iv)};
+}
+async function famDec(o){
+ const K=await famKeys();
+ const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},K.key,shB64.dec(o.c));
+ return shUnzip(new TextDecoder().decode(p));
+}
+function famPack(doc){
+ const base={app:'agd',v:1,from:meName(),at:Date.now(),lbl:''};
+ const pp=()=>ppl().map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}));
+ if(doc==='taches')return Object.assign(base,{k:'tk',lbl:'Tâches',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,m:l.m||0})),tk:tkAll().map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),ppl:pp()});
+ if(doc==='repas')return Object.assign(base,{k:'mn',lbl:'Repas',mn:mnAll(),rc:rcAll().map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp()});
+ if(doc==='anniv')return Object.assign(base,{k:'bd',lbl:'Anniversaires',bd:bdClean().map(b=>{const o=Object.assign({},b);if(o.p){delete o.g;o.note=''}delete o.p;delete o.ph;return o}),del:shTrim(S.bdDel)});
+ if(doc==='voyages')return Object.assign(base,{k:'vy',lbl:'Voyages',vy:vyAll().map(v=>JSON.parse(JSON.stringify(v))),del:shTrim(S.vyDel),mn:{},rc:[],ppl:pp()});
+ return null;
+}
+const famHash=o=>{const s=JSON.stringify(Object.assign({},o,{at:0,from:''}));let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
+function famSchedule(){if(!fam()||!famUrl()||demo)return;clearTimeout(FAM_T);FAM_T=setTimeout(()=>famPush(),2500)}
+async function famPush(){
+ const f=fam();if(!f||!famUrl()||FAM_BUSY)return;
+ FAM_BUSY=true;
+ try{
+  const K=await famKeys();if(!f.sent)f.sent={};
+  for(const [doc] of FAM_DOCS){
+   if(f.d&&f.d[doc]===0)continue;
+   const P=famPack(doc),h=famHash(P);
+   if(f.sent[doc]===h)continue;
+   const body=await famEnc(P);body.by=meName();
+   const r=await fetch(famUrl()+'/s/'+K.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   if(!r.ok)throw new Error('Serveur : '+r.status);
+   f.sent[doc]=h;
+  }
+  FAM_ERR='';f.pushAt=Date.now();ls.set(K.set,S);
+ }catch(e){FAM_ERR=e.message||'hors connexion'}
+ finally{FAM_BUSY=false}
+}
+async function famPull(manual){
+ const f=fam();if(!f||!famUrl()||demo)return;
+ try{
+  const K=await famKeys();
+  const r=await fetch(famUrl()+'/s/'+K.space+'?since='+(f.last||0),{cache:'no-store'});
+  if(!r.ok)throw new Error('Serveur : '+r.status);
+  const j=await r.json();const got=[];
+  for(const d of (j.docs||[])){
+   if(f.d&&f.d[d.doc]===0)continue;
+   let P;try{P=await famDec(JSON.parse(d.data))}catch(e){continue}
+   const st=shMerge(P,true),n=st.add+st.upd+st.del;
+   if(n)got.push({lbl:P.lbl||d.doc,by:d.by||P.from||'',n});
+  }
+  f.last=Math.max(f.last||0,(j.now||Date.now())-90000);f.pullAt=Date.now();FAM_ERR='';ls.set(K.set,S);
+  if(got.length){render();const by=[...new Set(got.map(g=>g.by).filter(Boolean))].join(', ');toast('🔄 '+(by?by+' a mis à jour : ':'Mis à jour : ')+got.map(g=>g.lbl+' ('+g.n+')').join(', '),6000);famSchedule()}
+  else if(manual)toast('Tout est à jour');
+  if(manual)await famPush();
+ }catch(e){FAM_ERR=e.message||'hors connexion';if(manual)toast('Synchronisation impossible : '+FAM_ERR,5000)}
+ if(V.view==='settings')render();
+}
+async function famCreate(){
+ const r=await ask({title:'🔄 Famille connectée',html:'<p style="margin:.2rem 0 .5rem">Tes listes (tâches, courses, menus, recettes, anniversaires, voyages) se mettent à jour toutes seules chez les membres de ta famille : à l’ouverture de l’appli et toutes les minutes quand elle est ouverte.</p><p style="margin:.2rem 0 .5rem"><b>Chiffré de bout en bout</b> : les listes sont chiffrées sur ton téléphone avec une clé secrète créée maintenant. Le serveur ne garde que des données illisibles. La clé ne voyage que dans ton lien d’invitation.</p><p class="mut" style="font-size:.85rem;margin:.2rem 0 .6rem">L’agenda (rendez-vous) reste sur chaque téléphone. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</p>',btns:[{label:'Créer notre famille connectée',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ if(!(await ensureMe()))return;
+ const k=shB64.enc(crypto.getRandomValues(new Uint8Array(32)));
+ S.fam={k,on:1,d:{taches:1,repas:1,anniv:1,voyages:1},last:0,sent:{}};saveSet();FAM_K=null;
+ await famPush();render();
+ toast('Famille connectée créée ! Invite maintenant ta famille',5000);
+ inviteFamily();
+}
+function famJoinLink(){const f=S.fam;return f&&f.k?location.origin+location.pathname+'#fam='+f.k+'&by='+encodeURIComponent(meName()):''}
+async function famJoin(k,by){
+ if(!/^[A-Za-z0-9_-]{40,50}$/.test(k))return;
+ if(S.fam&&S.fam.k===k&&S.fam.on){toast('Tu fais déjà partie de cette famille connectée');return}
+ const iosWeb=isIOS()&&!isStandalone();
+ const btns=[{label:'Rejoindre la famille',value:'y',cls:'pri'}];if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy'});btns.push({label:'Annuler',value:null});
+ const r=await ask({title:'🔄 Rejoindre la famille connectée',html:'<p style="margin:.2rem 0 .5rem"><b>'+esc(by||'Quelqu’un')+'</b> t’invite dans sa famille connectée : vos tâches, courses, menus, recettes, anniversaires et voyages se mettront à jour tout seuls entre vous.</p>'+(S.fam&&S.fam.k&&S.fam.on?'<p class="warn" style="margin:.2rem 0 .5rem">Tu fais déjà partie d’une autre famille connectée : tu la quitteras.</p>':'')+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari. Si tu utilises l’appli de l’écran d’accueil : touche « copier », ouvre AgenDam, puis Réglages → Famille et contacts → 📥 Recevoir.</p>':''),btns});
+ if(r==='copy'){try{await navigator.clipboard.writeText(location.origin+location.pathname+'#fam='+k+'&by='+encodeURIComponent(by||''));toast('Copié ! Ouvre AgenDam puis 📥 Recevoir',6000)}catch(e){}return}
+ if(r!=='y')return;
+ S.fam={k,on:1,d:{taches:1,repas:1,anniv:1,voyages:1},last:0,sent:{}};saveSet();FAM_K=null;
+ if(!S.meOk)await ensureMe();
+ await famPull(false);await famPush();render();toast('Bienvenue dans la famille connectée 👋',5000);
+}
+function famCard(){
+ const f=S.fam&&S.fam.k?S.fam:null;
+ let h='<div class="card" id="fam-card"><h3>🔄 Famille connectée</h3>';
+ if(!famUrl())return h+'<p class="mut" style="margin:.2rem 0">Bientôt disponible.</p></div>';
+ if(!f||!f.on)return h+'<p class="mut" style="margin:.2rem 0 .6rem">Tes listes se mettent à jour toutes seules chez ta famille, chiffrées de bout en bout. Sans compte.</p><button class="btn pri blk" data-act="fam-create">Créer notre famille connectée</button><p class="mut" style="font-size:.82rem;margin:.4rem 0 0">Quelqu’un t’a déjà invité ? Touche son lien d’invitation, ou « 📥 Recevoir un partage » ci-dessus pour le coller.</p></div>';
+ const t=x=>x?fmtDate(x):'jamais';
+ h+='<p style="margin:.2rem 0 .4rem">'+(FAM_ERR?'⚠️ <b>Pas de connexion au serveur</b> ('+esc(FAM_ERR)+'). Les changements partiront dès que possible.':'✅ <b>Active</b>')+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Dernière réception : '+esc(t(f.pullAt))+' · dernier envoi : '+esc(t(f.pushAt))+'</p>';
+ h+='<span class="lbl">Ce qui est partagé avec la famille</span>'+FAM_DOCS.map(([d,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="famdoc" data-d="'+d+'"'+(f.d&&f.d[d]===0?'':' checked')+'></label></div>').join('');
+ h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="fam-inv">👪 Inviter dans la famille</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour maintenant</button><button class="chip" data-act="fam-quit">Quitter</button></div></div>';
+ return h;
+}
+function famHash2(){const h=location.hash||'';const m=h.match(/^#fam=([A-Za-z0-9_-]+)(?:&by=([^&]*))?/);if(!m)return false;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}setTimeout(()=>famJoin(m[1],decodeURIComponent(m[2]||'')),400);return true}
+
 /* ---------- Démarrage ---------- */
 function registerSW(){
  if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))return;
@@ -7055,8 +7256,10 @@ async function init(){
  if(q.get('demo')==='1'){demo=true;EV=demoData()}
  render();
  registerSW();
- shareCheckHash();
- window.addEventListener('hashchange',shareCheckHash);
+ if(!famHash2())shareCheckHash();
+ window.addEventListener('hashchange',()=>{if(!famHash2())shareCheckHash()});
+ setTimeout(()=>famPull(false),1800);
+ setInterval(()=>{if(document.visibilityState==='visible')famPull(false)},60000);
  setInterval(tick,30000);tick();
  setTimeout(()=>{if(!demo&&!S.mergeDone){S.mergeDone=1;saveSet();const n=mergeLocal();if(n)toast(n+' jour'+(n>1?'s':'')+' identique'+(n>1?'s':'')+' regroupé'+(n>1?'s':'')+' (événements importés)',5000)}},1200);
  setTimeout(olAuto,1500);
