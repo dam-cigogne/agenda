@@ -665,6 +665,21 @@ body.cansend .sendbtn{display:inline-flex}
 .fam-out summary{cursor:pointer;color:var(--muted);font-size:.88rem;margin:.4rem 0}
 .co-ppl,.co-lists{margin:.2rem 0 .35rem}.co-lbl{align-self:center;font-size:.85rem;color:var(--muted);margin-right:.1rem}
 .co-info{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;margin:.2rem 0 .5rem}.co-info>span{font-size:.85rem;color:var(--muted);flex:1;min-width:8rem}
+.sendbtn i{font-style:normal}.sendbtn.opt{background:var(--surface2);color:var(--text);box-shadow:none;border:1px solid var(--line);font-size:.88rem;padding:.42rem .75rem}.sendbtn.opt i{font-weight:900;font-size:1.1rem;line-height:1}
+html[data-theme=dark] .sendbtn.opt{color:var(--text)}
+.co-cp .co-head{display:flex;align-items:baseline;gap:.35rem;margin:.15rem 0 .35rem;flex-wrap:wrap}.co-cp .co-head>b{font-size:1rem}.co-cp .co-head small{color:var(--muted);font-size:.8rem;font-weight:600;flex:1;min-width:0}
+.co-hs{font-size:.78rem;font-weight:700;color:var(--muted);padding:.15rem .5rem;border:1px solid var(--line);border-radius:999px;background:none}
+.co-cp .co-seg{margin:.1rem 0 .45rem}.co-cp .seg button{padding:.36rem .2rem;font-size:.8rem}
+.co-cp .rp-add{margin:.1rem 0 .4rem}.co-cp .rp-add .in{padding:.5rem .7rem;font-size:.95rem;min-height:0}.co-cp .rp-add .btn{width:2.5rem;min-height:0;padding:.35rem}
+.co-cp .tk-g{margin:.4rem 0;border-radius:.8rem}
+.co-cp .tk-gh,.co-cp .tk-done>summary{padding:.35rem .7rem;font-size:.86rem;font-family:inherit;font-style:normal;font-weight:800;color:var(--muted);letter-spacing:.01em}
+.co-cp .tk-c{width:1.5rem;height:1.5rem;margin:.32rem .1rem .32rem .6rem;border-width:2px;border-radius:.4rem;font-size:.9rem}
+.co-cp .tk-t{padding:.32rem .5rem .32rem .35rem}.co-cp .tk-t b{font-size:.93rem;font-weight:600}.co-cp .tk-t small{font-size:.75rem}
+.co-cp .co-q{gap:.2rem;margin-right:.45rem}.co-cp .co-q button{width:1.65rem;height:1.65rem;font-size:.95rem;border-radius:.45rem}
+.co-cp .co-quick .chip{font-size:.8rem;padding:.3rem .6rem}
+.btn.mnu{text-align:left;justify-content:flex-start;padding:.6rem .9rem;font-size:.95rem;margin:.25rem 0;min-height:0}
+.dup-g{display:block;border:1px solid var(--line);border-radius:.7rem;padding:.15rem .6rem;margin:.35rem 0;text-align:left}.dup-g .olrow{display:flex!important;width:100%;text-align:left;font-size:.92rem;padding:.4rem 0}.dup-g .olrow input{flex:none}.dup-g .olrow b{font-weight:700}.dup-g .dup-no span{color:var(--muted);font-size:.85rem}
+.co-more{font-size:.78rem;text-align:center;margin:.7rem 0 .3rem}
 .co-seg{margin:.2rem 0 .6rem}.co-seg small{opacity:.7;margin-left:.2rem}
 .co-big{background:var(--surface);border:1px solid var(--sec,var(--accent));border-radius:.8rem;padding:.7rem .8rem;margin:.4rem 0 .6rem;font-size:.92rem}.co-big .btn{margin-top:.5rem}
 .co-tip{font-size:.9rem;margin:.1rem 0 .3rem}
@@ -879,7 +894,7 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
     <button class="ib" data-act="focus" aria-label="Plein écran : masquer les boutons" data-ic="eye"></button>
     <button class="ib" data-act="print" aria-label="Imprimer" data-ic="print"></button>
     <button class="ib" data-act="help" aria-label="Mode d’emploi" data-ic="help"></button>
-    <button class="sendbtn" id="sendbtn" data-act="send-cur" aria-label="Envoyer à la famille">📤 <span>Envoyer</span></button>
+    <button class="sendbtn" id="sendbtn" data-act="send-cur" aria-label="Envoyer à la famille"><i>📤</i> <span>Envoyer</span></button>
     <button class="ib" id="srchbtn" data-act="view" data-v="search" aria-label="Rechercher" data-ic="search"></button>
     <button class="ib" id="gearbtn" data-act="view" data-v="settings" aria-label="Réglages" data-ic="cog"></button>
     <div class="seg" id="agseg"><button data-act="view" data-v="day">Jour</button><button data-act="view" data-v="week">Semaine</button><button data-act="view" data-v="fort">2 sem.</button><button data-act="view" data-v="month">Mois</button></div>
@@ -910,12 +925,17 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.12.2';
+const APP_VERSION='2.12.4';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.12.4',d:'31/10/2026',items:[
+  '🧹 Doublons dans la liste type : « 🧹 Doublons » (dans Ma liste type ou ⋯ Options) repère les produits écrits deux fois (Tomate / Tomates, Brocolis surgelés / surgeler, Œufs / 6 œufs…). Tu choisis lequel garder pour chaque groupe, ou « Pas un doublon ». Les autres sont supprimés, et leurs achats comptent pour celui que tu gardes.']},
+ {v:'2.12.3',d:'31/10/2026',items:[
+  '🛒 Courses plus épurées : textes et cases plus petits, plus d’articles visibles d’un coup. Les boutons du bas (Envoyer, Recevoir, Imprimer, Paquets…) sont rangés dans le menu « ⋯ Options » en haut.',
+  '📒 Envoyer ma liste type : ⋯ Options → « Envoyer ma liste type ». La personne reçoit tous tes produits habituels dans sa liste type (sans doublon), sans rien ajouter à ses courses.']},
  {v:'2.12.2',d:'31/10/2026',items:[
   '📜 Suivi par groupe : en haut du Suivi, « Tous les groupes / 👪 Famille / 💼 Travail… / 🙋 Perso » pour ne voir que ce qui a été fait dans un groupe. ⚙ range chaque liste dans un groupe (sinon l’appli devine d’après qui fait les tâches). L’export Excel indique le groupe.']},
  {v:'2.12.1',d:'31/10/2026',items:[
@@ -2031,7 +2051,7 @@ function render(){
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
  document.body.classList.toggle('cansend',['tasks','courses','bdays','repas','voyages'].includes(V.view));
- {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};sb.querySelector('span').textContent=window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
+ {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};const om=V.view==='courses';sb.dataset.act=om?'co-menu':'send-cur';sb.classList.toggle('opt',om);sb.setAttribute('aria-label',om?'Options des courses':'Envoyer à la famille');sb.querySelector('i').textContent=om?'⋯':'📤';sb.querySelector('span').textContent=om?'Options':window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
  body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='courses'&&V.view!=='repas'&&V.view!=='voyages');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
@@ -5317,7 +5337,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
- h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
+ h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis Recettes → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
@@ -5709,6 +5729,9 @@ async function act(a,el,e){
   case 'co-redo':if(S.coLast&&S.coLast.length)coAddLines('🔁 Refaire mes dernières courses',S.coLast,'Ce que tu as acheté la dernière fois.');break;
   case 'co-tpl':{const t=coTpls().find(x=>x.id===ds_.id);if(t)coAddLines('📋 '+t.n,t.it,'Liste type « '+esc(t.n)+' ».');break}
   case 'co-tpls':coTplManage();break;
+  case 'co-menu':coMenu();break;
+  case 'co-dups':coDupManage();break;
+  case 'sh-ch':shareSend('ch');break;
   case 'co-save':{const L=tkAll().filter(k=>k.l===coCur()&&!k.x).map(k=>k.ig?ingTxt(k.ig):k.t);coTplEdit(null,L);break}
   case 'sh-mn':shareSend('mn');break;
   case 'sh-co':shareSend('co');break;
@@ -6335,6 +6358,7 @@ function shPack(kind,arg){
  const base={app:'agd',v:1,k:kind,from:meName(),at:Date.now()};
  const pplPack=ids=>ppl().filter(x=>ids.includes(x.id)).map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}));
  const rcPack=r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0});
+ if(kind==='ch')return Object.assign(base,{lbl:'Liste type',ch:coHabits().map(x=>({n:x.n,ry:x.ry||rayOf(x.n),u:x.u||''}))});
  if(kind==='co'){const sv=Object.assign({},TKV);TKV.l=coursesList();TKV.w='';const P=shPack('tk');Object.assign(TKV,sv);P.lbl='Liste de courses';return P}
  if(kind==='vy'){const v=vyOf(arg);if(!v)return Object.assign(base,{lbl:'Voyage',vy:[]});const D=vyDays(v),mn={},rids=new Set(),wids=new Set((v.ls||[]).map(l=>l.w).filter(Boolean));
   for(const d of D){const x=mnAll()[d];if(!x)continue;mn[d]={};for(const k of ['m','s'])if(x[k]){mn[d][k]=x[k];if(x[k].r)rids.add(x[k].r);if(x[k].w)wids.add(x[k].w)}}
@@ -6358,7 +6382,7 @@ function shPack(kind,arg){
  }
  return base;
 }
-function shCount(P){if(P.k==='vy'){const v=(P.vy||[])[0];let n=0;if(v)(v.ls||[]).forEach(l=>n+=(l.it||[]).length);return (v&&(v.ls||[]).length||0)+' liste'+(v&&(v.ls||[]).length>1?'s':'')+', '+n+' élément'+(n>1?'s':'')}if(P.k==='rc')return (P.rc||[]).length+' recette'+((P.rc||[]).length>1?'s':'');if(P.k==='mn')return Object.values(P.mn||{}).reduce((n,x)=>n+Object.keys(x).length,0)+' repas';return P.k==='tk'?(P.tk||[]).length+' tâche'+((P.tk||[]).length>1?'s':''):P.k==='bd'?(P.bd||[]).length+' anniversaire'+((P.bd||[]).length>1?'s':''):''}
+function shCount(P){if(P.k==='ch')return (P.ch||[]).length+' produit'+((P.ch||[]).length>1?'s':'');if(P.k==='vy'){const v=(P.vy||[])[0];let n=0;if(v)(v.ls||[]).forEach(l=>n+=(l.it||[]).length);return (v&&(v.ls||[]).length||0)+' liste'+(v&&(v.ls||[]).length>1?'s':'')+', '+n+' élément'+(n>1?'s':'')}if(P.k==='rc')return (P.rc||[]).length+' recette'+((P.rc||[]).length>1?'s':'');if(P.k==='mn')return Object.values(P.mn||{}).reduce((n,x)=>n+Object.keys(x).length,0)+' repas';return P.k==='tk'?(P.tk||[]).length+' tâche'+((P.tk||[]).length>1?'s':''):P.k==='bd'?(P.bd||[]).length+' anniversaire'+((P.bd||[]).length>1?'s':''):''}
 async function shareSend(kind,arg){
  if(!(await ensureMe()))return;
  if(!S.me){
@@ -6369,6 +6393,7 @@ async function shareSend(kind,arg){
  const P=shPack(kind,arg);
  if((kind==='tk'||kind==='co')&&!P.tk.length){toast(kind==='co'?'La liste de courses est vide':'Aucune tâche à partager ici');return}
  if(kind==='rc'&&!P.rc.length){toast('Aucune recette à partager');return}
+ if(kind==='ch'&&!P.ch.length){toast('Ta liste type est vide');return}
  if(kind==='vy'&&!P.vy.length){toast('Voyage introuvable');return}
  if(kind==='mn'&&!Object.keys(P.mn).length){toast('Le menu de cette semaine est vide');return}
  if(kind==='bd'&&!P.bd.length){toast('Aucun anniversaire à partager');return}
@@ -6446,6 +6471,10 @@ function shMerge(P,apply){
    loc&&(loc.r||loc.t)?st.upd++:st.add++;
    if(apply){if(!mnAll()[d])mnAll()[d]={};mnAll()[d][k]={r:String(x.r||''),t:String(x.t||'').slice(0,60),w:map[x.w]||'',p:Math.max(0,Math.min(30,+x.p||0)),mt:+x.mt||now}}}}
  }
+ if(P.k==='ch'){
+  const Hh=coHist();
+  for(const x of (P.ch||[])){const n=String(x&&x.n||'').trim().slice(0,60);const k=n&&coKey(n);if(!k||Hh[k])continue;st.add++;if(apply)Hh[k]={n,c:0,at:now,u:String(x.u||'').slice(0,20),q:null,ry:RAYONS.some(r=>r[0]===x.ry)?x.ry:rayOf(n)}}
+ }
  if(P.k==='bd'){
   const L=bdClean();
   for(const b of (P.bd||[])){
@@ -6478,6 +6507,7 @@ async function shReceive(code,fromLink){
  const st2=shMerge(P,true);const det2=[st2.add?st2.add+' nouveau'+(st2.add>1?'x':''):'',st2.upd?st2.upd+' mis à jour':'',st2.del?st2.del+' supprimé'+(st2.del>1?'s':''):''].filter(Boolean).join(', ')||'rien de neuf';
  if(P.k==='tk'){TKV.l='';TKV.w='';V.view='tasks';if(P.lbl==='Liste de courses'){V.view='courses'}}
  if(P.k==='rc'){RV.tab='rc';V.view='repas'}
+ if(P.k==='ch'){V.view='courses';CV.mode='cat'}
  if(P.k==='vy'){const v=(P.vy||[])[0];if(v&&vyOf(v.id)){VY.id=v.id;VY.tab='li';V.view='voyages'}}
  if(P.k==='mn'){RV.tab='menu';RV.ws=P.ws&&RX_D.test(P.ws)?P.ws:RV.ws;V.view='repas'}
  render();toast('AgenDam mis à jour : '+det2,5000);
@@ -6671,8 +6701,7 @@ function coursesHTML(){
  const L=tkAll().filter(k=>k.l===cur),pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
  const H=coHabits(),inL=coPendKey();
  const si=coShareInfo(cur),tl=tlOf(cur),who=si.from||si.to[0]||'',col=who?coPersonColor(who):'var(--k-co)';
- let h='<div class="co-head"><div class="co-ht"><b>🛒 '+esc(tl.n)+'</b><small>'+(si.from?'📥 Liste de <b>'+esc(famName(si.from))+'</b>':si.to.length?'👥 Partagée avec <b>'+esc(si.to.map(famName).join(', '))+'</b>':'🔒 Rien que pour toi')+'</small></div>'+
-  (f&&mem.length&&!si.from?'<button class="chip" data-act="co-share">👥 Partager</button>':'')+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-ren" aria-label="Renommer">✏️</button>':'')+'</div>';
+ let h='<div class="co-head"><b>🛒 '+esc(tl.n)+'</b><small>'+(si.from?'· 📥 de '+esc(famName(si.from)):si.to.length?'· 👥 '+esc(si.to.map(famName).join(', ')):'')+'</small>'+(f&&mem.length&&!si.from?'<button class="co-hs" data-act="co-share">'+(si.to.length?'Modifier':'👥 Partager')+'</button>':'')+'</div>';
  if(coWide())h+='<div class="co-2col"><div class="co-colA"><h4 class="co-h4">🛒 À acheter <small>'+pend.length+'</small></h4>'+coBuyHTML(cur,L,pend,done,H,si,true)+'</div><div class="co-colB"><h4 class="co-h4">📒 Ma liste type <small>'+H.length+'</small></h4>'+coCatHTML(cur,H,inL)+'</div></div>';
  else{
   h+='<div class="seg co-seg"><button data-act="co-mode" data-v="buy" class="'+(CV.mode!=='cat'?'on':'')+'">🛒 À acheter <small>'+pend.length+'</small></button><button data-act="co-mode" data-v="cat" class="'+(CV.mode==='cat'?'on':'')+'">📒 Ma liste type <small>'+H.length+'</small></button></div>';
@@ -6680,15 +6709,15 @@ function coursesHTML(){
  }
  if(!lstSide()){
   const top='<div class="chips tk-chips co-lists">'+coLists().map(l=>{const i=coShareInfo(l.id),n=tkAll().filter(k=>k.l===l.id&&!k.x).length;const who=i.from?'📥 '+famName(i.from):i.to.length?'👥 '+i.to.map(famName).join(', '):'';return '<button class="chip'+(l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(l.id)+'">🛒 '+esc(l.n)+(who?' <small>'+esc(who)+'</small>':'')+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="co-new">＋ Nouvelle liste</button></div>';
-  return '<div class="co-flat" style="--tcur:'+col+'">'+top+h+'</div>';
+  return '<div class="co-flat co-cp" style="--tcur:'+col+'">'+top+h+'</div>';
  }
- return '<div class="co-book" style="--tcur:'+col+'"><div class="co-page">'+h+'</div>'+coTabsHTML(cur)+'</div>';
+ return '<div class="co-book co-cp" style="--tcur:'+col+'"><div class="co-page">'+h+'</div>'+coTabsHTML(cur)+'</div>';
 }
 const coWide=()=>window.innerWidth>=1000;
 const lstSide=()=>S.lstPos!=='top';
 function coBuyHTML(cur,L,pend,done,H,si,wide){
  let h='<div class="rp-add"><input class="in" id="co-in" list="co-dl" placeholder="Ajouter : 2 citrons, lessive…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="co-add">'+ic('plus')+'</button></div><datalist id="co-dl">'+H.slice(0,150).map(x=>'<option value="'+esc(x.n)+'">').join('')+'</datalist>';
- h+='<div class="co-quick">'+(wide?'':'<button class="chip" data-act="co-mode" data-v="cat">📒 Choisir dans ma liste type</button>')+(S.coLast&&S.coLast.length?'<button class="chip" data-act="co-redo">🔁 Refaire mes dernières courses <small>'+S.coLast.length+'</small></button>':'')+
+ if(!pend.length)h+='<div class="co-quick">'+(wide?'':'<button class="chip" data-act="co-mode" data-v="cat">📒 Choisir dans ma liste type</button>')+(S.coLast&&S.coLast.length?'<button class="chip" data-act="co-redo">🔁 Refaire mes dernières courses <small>'+S.coLast.length+'</small></button>':'')+
   coTpls().map(t=>'<button class="chip" data-act="co-tpl" data-id="'+esc(t.id)+'">📋 '+esc(t.n)+' <small>'+t.it.length+'</small></button>').join('')+'</div>';
  if(pend.length>=40)h+='<div class="co-big"><b>'+pend.length+' articles à acheter.</b> Si c’est en fait ta liste de tous les produits habituels, range-la dans « 📒 Ma liste type » : la liste à acheter redevient vide, et tu choisis ensuite ce qu’il faut acheter d’un toucher.<button class="btn pri blk" data-act="co-tocat">📒 Tout ranger dans ma liste type</button></div>';
  if(!pend.length&&!done.length)h+='<p class="empty">Rien à acheter. Ajoute un article en haut, ou touche un produit dans « 📒 Ma liste type »'+(wide?' à droite':'')+'.</p>';
@@ -6697,7 +6726,7 @@ function coBuyHTML(cur,L,pend,done,H,si,wide){
   h+='<section class="tk-g"><div class="tk-gh">'+r[1]+' <small>'+l.length+'</small></div>'+l.map(coRow).join('')+'</section>';
  }
  if(done.length)h+='<details class="tk-g tk-done" open><summary>Dans le chariot <small>'+done.length+'</small></summary>'+done.map(coRow).join('')+'<button class="btn sm blk" data-act="co-clear">Vider le chariot (courses finies)</button></details>';
- h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-co">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button>'+(pend.length?'<button class="chip" data-act="co-save">💾 Enregistrer comme paquet</button>':'')+'<button class="chip" data-act="co-tpls">📋 Paquets (apéro, barbecue…)</button>'+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-del">🗑 Supprimer cette liste</button>':'')+'</div>';
+ h+='<p class="co-more mut">Envoyer, recevoir, imprimer, paquets… : <b>⋯ Options</b> en haut.</p>';
  return h;
 }
 function coCatHTML(cur,H,inL){
@@ -6705,7 +6734,7 @@ function coCatHTML(cur,H,inL){
  let h='<p class="co-tip">Touche un produit : il va dans <b>🛒 '+esc(tl.n)+'</b>. Un second toucher le retire.</p>';
  h+='<input class="in" id="cat-q" type="search" placeholder="🔍 Chercher un produit…" autocomplete="off" value="'+esc(CV.q)+'" style="margin:.2rem 0 .4rem">';
  h+='<div class="seg cat-seg"><button data-act="co-cs" data-v="az" class="'+(cs==='az'?'on':'')+'">A → Z</button><button data-act="co-cs" data-v="ry" class="'+(cs==='ry'?'on':'')+'">Par rayon</button><button data-act="co-cs" data-v="top" class="'+(cs==='top'?'on':'')+'">⭐ Les plus achetés</button></div>';
- h+='<div class="chips" style="margin:.4rem 0"><button class="chip" data-act="co-catadd">＋ Ajouter des produits</button><button class="chip'+(CV.edit?' on':'')+'" data-act="co-catedit">'+(CV.edit?'✓ Terminé':'✏️ Modifier')+'</button></div>';
+ h+='<div class="chips" style="margin:.4rem 0"><button class="chip" data-act="co-catadd">＋ Ajouter des produits</button><button class="chip'+(CV.edit?' on':'')+'" data-act="co-catedit">'+(CV.edit?'✓ Terminé':'✏️ Modifier')+'</button>'+(()=>{const nd=H.length>1?coDups().length:0;return nd?'<button class="chip" data-act="co-dups">🧹 Doublons <small>'+nd+'</small></button>':''})()+'</div>';
  if(!H.length)return h+'<p class="empty">Ta liste type est vide. « ＋ Ajouter des produits » : colle ta liste depuis Notes (un produit par ligne). Ce que tu achètes s’y ajoute aussi tout seul.</p>';
  const byN=(a,b)=>norm(a.n)<norm(b.n)?-1:norm(a.n)>norm(b.n)?1:0;
  let groups=[];
@@ -6717,6 +6746,68 @@ function coCatHTML(cur,H,inL){
  h+='<div class="cat-wrap">'+(groups.length>1?'<nav class="cat-idx">'+groups.map(g=>'<button data-act="cat-jump" data-v="'+esc(g.id)+'">'+esc(g.idx)+'</button>').join('')+'</nav>':'')+
   '<div id="cat-list">'+groups.map(g=>(g.lbl?'<div class="cat-h" id="cat-g-'+esc(g.id)+'">'+esc(g.lbl)+'</div>':'')+'<div class="cat-grid">'+g.a.map(row).join('')+'</div>').join('')+'</div></div>';
  return h;
+}
+/* Doublons de la liste type : même nom à l'accent, au pluriel, à la quantité ou à une faute près */
+const CO_STOP=new Set(['de','du','des','la','le','les','l','d','en','a','au','aux','et']);
+function coDupKey(n){
+ let t=norm(n).replace(/[’'`]/g,' ').replace(/[^a-z0-9 ]+/g,' ').trim();
+ t=t.replace(/^\d+([.,]\d+)?\s*(x|g|gr|kg|l|cl|ml|paquets?|boites?|sachets?|bouteilles?|pots?|packs?|tranches?|barquettes?)?\s+/,'');
+ return t.split(/\s+/).filter(w=>w&&!CO_STOP.has(w)).map(w=>w.length>3?w.replace(/(s|x)$/,''):w).join(' ');
+}
+function coLev(a,b,max){
+ if(Math.abs(a.length-b.length)>max)return max+1;
+ let pr=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){const cu=[i];let mn=i;for(let j=1;j<=b.length;j++){cu[j]=Math.min(pr[j]+1,cu[j-1]+1,pr[j-1]+(a[i-1]===b[j-1]?0:1));if(cu[j]<mn)mn=cu[j]}if(mn>max)return max+1;pr=cu}
+ return pr[b.length];
+}
+function coDups(){
+ const H=coHist(),ks=Object.keys(H),D=ks.map(k=>coDupKey(H[k].n)),ok=new Set(Array.isArray(S.coDupOk)?S.coDupOk:[]);
+ const par=ks.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i]));
+ for(let i=0;i<ks.length;i++)for(let j=i+1;j<ks.length;j++){
+  const a=D[i],b=D[j];if(!a||!b)continue;
+  const L=Math.min(a.length,b.length);const max=L>=8?2:L>=5?1:0;
+  if(a===b||(max&&coLev(a,b,max)<=max)){if(ok.has([ks[i],ks[j]].sort().join('|')))continue;par[f(i)]=f(j)}
+ }
+ const G={};ks.forEach((k,i)=>{const r=f(i);(G[r]=G[r]||[]).push(k)});
+ const q=k=>/^\d/.test(H[k].n)?1:0;
+ return Object.values(G).filter(g=>g.length>1).map(g=>g.sort((x,y)=>q(x)-q(y)||(H[y].c||0)-(H[x].c||0)||(H[y].at||0)-(H[x].at||0)));
+}
+async function coDupManage(){
+ const H=coHist(),G=coDups();
+ if(!G.length){toast('Aucun doublon dans ta liste type 👍',3500);return}
+ const keep=G.map(g=>g[0]);
+ const html='<p style="margin:.2rem 0 .5rem">'+G.length+' groupe'+(G.length>1?'s':'')+' de produits qui se ressemblent. Pour chacun, coche <b>celui à garder</b> : les autres sont supprimés de ta liste type (leurs achats comptent pour celui gardé).</p><div class="olbox">'+
+  G.map((g,gi)=>'<div class="dup-g">'+g.map(k=>'<label class="olrow"><input type="radio" name="dg'+gi+'" data-dg="'+gi+'" value="'+esc(k)+'"'+(k===keep[gi]?' checked':'')+'><span><b>'+esc(cap(H[k].n))+'</b>'+(H[k].c?' <small class="mut">· acheté '+H[k].c+' fois</small>':'')+'</span></label>').join('')+
+   '<label class="olrow dup-no"><input type="radio" name="dg'+gi+'" data-dg="'+gi+'" value=""><span>Pas un doublon, tout garder</span></label></div>').join('')+'</div>';
+ const pr=ask({title:'🧹 Doublons de la liste type',html,btns:[{label:'Supprimer les doublons',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.onchange=e=>{const d=e.target.dataset&&e.target.dataset.dg;if(d!=null)keep[+d]=e.target.value};
+ const r=await pr;root.onchange=null;if(r!=='ok')return;
+ let del=0;const okL=Array.isArray(S.coDupOk)?S.coDupOk:(S.coDupOk=[]);
+ G.forEach((g,gi)=>{const kp=keep[gi];
+  if(!kp){for(let i=0;i<g.length;i++)for(let j=i+1;j<g.length;j++)okL.push([g[i],g[j]].sort().join('|'));return}
+  const K=H[kp];if(!K)return;
+  g.forEach(k=>{if(k===kp||!H[k])return;K.c=(K.c||0)+(H[k].c||0);K.at=Math.max(K.at||0,H[k].at||0);delete H[k];del++});
+ });
+ S.coDupOk=okL.slice(-300);saveSet();render();
+ toast(del?del+' doublon'+(del>1?'s':'')+' supprimé'+(del>1?'s':''):'Rien de supprimé',3500);
+}
+async function coMenu(){
+ const cur=coCur(),tl=tlOf(cur),si=coShareInfo(cur),pend=tkAll().filter(k=>k.l===cur&&!k.x),H=coHabits(),mem=fam()?famActive():[];
+ const B=[];const b=(label,value,cls)=>B.push({label,value,cls:'mnu '+(cls||'')});
+ b('📤 Envoyer « '+tl.n+' »'+(pend.length?' ('+pend.length+')':''),'sh-co','pri');
+ b('📒 Envoyer ma liste type ('+H.length+' produits)','sh-ch');
+ {const nd=coDups().length;if(nd)b('🧹 Doublons dans ma liste type ('+nd+')','co-dups')}
+ b('📥 Recevoir une liste','sh-recv');
+ if(mem.length&&!si.from)b('👥 Partager avec ma famille connectée','co-share');
+ b('🖨 Imprimer','co-print');
+ if(S.coLast&&S.coLast.length)b('🔁 Refaire mes dernières courses ('+S.coLast.length+')','co-redo');
+ b('📋 Paquets (apéro, barbecue…)','co-tpls');
+ if(pend.length)b('💾 Enregistrer comme paquet','co-save');
+ b('＋ Nouvelle liste','co-new');
+ if(cur!=='courses'&&!si.from){b('✏️ Renommer « '+tl.n+' »','co-ren');b('🗑 Supprimer « '+tl.n+' »','co-del','dng')}
+ b('Fermer',null);
+ const r=await ask({title:'⋯ Courses',html:'<div style="height:.1rem"></div>',btns:B});
+ if(r)act(r,document.body,null);
 }
 async function coNewList(){
  const v={t:''};const pr=ask({title:'🛒 Nouvelle liste de courses',html:'<p style="margin:.2rem 0 .5rem">Par exemple : Leclerc, Marché, Pharmacie, Courses avec Morgane…</p><input class="in" id="col-n" maxlength="30" placeholder="Nom de la liste" style="margin-bottom:.6rem">',btns:[{label:'Créer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
@@ -7479,12 +7570,13 @@ async function shPick(P){
  (P.tk||[]).forEach((k,i)=>it.push({lbl:'☑ '+esc(k.t)+(k.d?' <small class="mut">· '+esc(fShort(k.d))+'</small>':''),f:Q=>Q.tk.push(P.tk[i])}));
  (P.bd||[]).forEach((b,i)=>it.push({lbl:'🎂 '+esc(b.n)+' <small class="mut">· '+b.d+' '+ML[b.m-1]+'</small>',f:Q=>Q.bd.push(P.bd[i])}));
  if(P.k==='rc')(P.rc||[]).forEach((r,i)=>it.push({lbl:'🍽 '+esc(r.t),f:Q=>Q.rc.push(P.rc[i])}));
+ if(P.k==='ch')(P.ch||[]).forEach((x,i)=>{if(!coHist()[coKey(x.n||'')])it.push({lbl:'📒 '+esc(x.n),f:Q=>Q.ch.push(P.ch[i])})});
  if(P.k==='mn'||P.k==='vy')Object.keys(P.mn||{}).sort().forEach(d=>['m','s'].forEach(k=>{const x=(P.mn[d]||{})[k];if(!x||!(x.r||x.t))return;const r=(P.rc||[]).find(z=>z.id===x.r);it.push({lbl:'🍽 '+esc(cap(fShort(d)))+' '+(k==='m'?'midi':'soir')+' : '+esc(r?r.t:x.t),f:Q=>{if(!Q.mn[d])Q.mn[d]={};Q.mn[d][k]=x;if(r&&!Q.rc.includes(r))Q.rc.push(r)}})}));
  if(P.k==='vy')((P.vy||[])[0]||{ls:[]}).ls.forEach((l,i)=>it.push({lbl:'🧳 Liste « '+esc(l.n)+' » <small class="mut">· '+(l.it||[]).length+' éléments</small>',f:Q=>Q.vy[0].ls.push(l)}));
  if(it.length<2)return P;
  const sel=await pickLines('Choisir ce que j’importe',it.map(x=>x.lbl),(esc(P.from||'Quelqu’un'))+' t’envoie « '+esc(P.lbl||'')+' ».');
  if(!sel)return null;
- const Q=Object.assign({},P,{tk:[],bd:[],rc:P.k==='rc'?[]:[],mn:{},del:[],vy:P.k==='vy'?[Object.assign({},P.vy[0],{ls:[]})]:[]});
+ const Q=Object.assign({},P,{tk:[],bd:[],ch:[],rc:P.k==='rc'?[]:[],mn:{},del:[],vy:P.k==='vy'?[Object.assign({},P.vy[0],{ls:[]})]:[]});
  if(P.k==='tk')Q.tl=P.tl;
  sel.forEach(i=>it[i].f(Q));
  if(P.k==='vy'){Q.vy[0].pg=P.vy[0].pg;Q.vy[0].in=P.vy[0].in}
@@ -7532,6 +7624,12 @@ function expData(kind,arg){
   const txt=L.map(l=>l.n+'\n'+sel.filter(k=>k.l===l.id).map(k=>(k.x?'☑ ':'☐ ')+k.t+(k.d?' ('+fShort(k.d)+')':'')+(who(k)?' – '+who(k):'')+(k.x&&k.xb?' · fait par '+k.xb+(k.xa?' le '+tkWhen(k.xa):''):'')+(k.x&&k.xn?' · '+k.xn:'')).join('\n')).join('\n\n');
   const csv=['Liste;Tâche;Date;Qui;Revient;Fait;Fait par;Le;Note'].concat(sel.map(k=>[tlOf(k.l).n,k.t,k.d||'',who(k),k.r?tkRepTxt(k.r):'',k.x?'oui':'',k.xb||'',k.xa?tkWhen(k.xa):'',k.xn||''].map(csvC).join(';'))).join('\n');
   return{title:TKV.l?tlOf(TKV.l).n:'Tâches',txt,csv,n:sel.length,file:'taches'};
+ }
+ if(kind==='ch'){
+  const H=coHabits();
+  const txt=RAYONS.map(r=>{const l=H.filter(x=>(x.ry||rayOf(x.n))===r[0]).map(x=>cap(x.n)).sort((a,b)=>a.localeCompare(b));return l.length?r[1]+'\n'+l.join(', '):''}).filter(Boolean).join('\n\n');
+  const csv=['Rayon;Produit'].concat(H.map(x=>[rayLbl(x.ry||rayOf(x.n)).replace(/^\S+\s/,''),x.n].map(csvC).join(';'))).join('\n');
+  return{title:'Liste type',txt,csv,n:H.length,file:'liste-type'};
  }
  if(kind==='co'){
   const L=tkAll().filter(k=>k.l===coCur()&&!k.x);
