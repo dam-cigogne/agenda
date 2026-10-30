@@ -316,6 +316,21 @@ details ul,details ol{padding-left:1.2rem;margin:.3rem 0}
 html[data-theme=dark] .tst{background:#eef1f5;color:#10151c}
 html[data-theme=dark] .tst button{color:#2f5bea}
 #printzone{display:none}
+.mp{display:flex;flex-direction:column;height:190mm;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:#2a241c}
+#printzone .mp{height:192mm}
+.mp-h{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#c0682e,#e3a14f);color:#fff;border-radius:12px;padding:10px 18px;margin-bottom:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mp-h b{display:block;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:24pt;line-height:1.1}.mp-h span{font-size:11.5pt;font-weight:600;opacity:.95}.mp-h i{font-style:normal;font-size:30pt}
+.mp-g{flex:1;min-height:0;display:grid;grid-template-columns:64px repeat(7,1fr);grid-template-rows:auto 1fr 1fr;gap:6px}
+.mp-k{display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:12pt;color:#8a5a2b;background:#fbf1e4;border-radius:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mp-g>.mp-k:first-child{background:none}
+.mp-d{text-align:center;padding:6px 2px;border-radius:10px;background:#f4ece0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.mp-d b{display:block;font-size:12pt}.mp-d span{font-size:9.5pt;color:#6b5f4f}
+.mp-d.we,.mp-w.we .mp-c{background:#eef4fb}.mp-d.td{background:#c0682e;color:#fff}.mp-d.td span{color:#fff}
+.mp-w{min-height:0;display:flex}.mp-w.td .mp-c{border-color:#c0682e;border-width:2px}
+.mp-c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;border:1px solid #e2d6c4;border-radius:10px;padding:6px 5px;background:#fffdf8;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mp-c.mp-e{background:repeating-linear-gradient(135deg,#fff,#fff 6px,#f6f1e9 6px,#f6f1e9 12px);border-style:dashed}
+.mp-i{font-size:22pt;line-height:1}.mp-c b{font-size:11pt;line-height:1.2;font-weight:700;overflow-wrap:anywhere}
+.mp-c small{font-size:8.5pt;color:#6b5f4f;white-space:nowrap}.mp-c em{font-style:normal;font-size:8.5pt;font-weight:700;padding:1px 7px;border-radius:999px;background:#fff;border:1.5px solid var(--c);color:#2a241c}
+.mp-f{text-align:right;font-size:8pt;color:#8a7f70;margin-top:5px}
 /* mise en page des impressions (écran = capture PDF, papier = @media print) */
 .pz h1{font-size:20pt;margin:0 0 .5rem;font-weight:800}.pz h1 small{font-size:12pt;font-weight:600;color:#444;margin-left:.4rem}
 .pz .pr-f{margin:.8rem 0 0;font-size:8pt;color:#555;text-align:right}
@@ -680,6 +695,23 @@ html[data-theme=dark] .sendbtn.opt{color:var(--text)}
 .btn.mnu{text-align:left;justify-content:flex-start;padding:.6rem .9rem;font-size:.95rem;margin:.25rem 0;min-height:0}
 .dup-g{display:block;border:1px solid var(--line);border-radius:.7rem;padding:.15rem .6rem;margin:.35rem 0;text-align:left}.dup-g .olrow{display:flex!important;width:100%;text-align:left;font-size:.92rem;padding:.4rem 0}.dup-g .olrow input{flex:none}.dup-g .olrow b{font-weight:700}.dup-g .dup-no span{color:var(--muted);font-size:.85rem}
 .steps{margin:.3rem 0 .6rem;padding-left:1.3rem;text-align:left}.steps li{margin:.35rem 0}
+.rc-fl{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding:.15rem 0;margin:.25rem 0}.rc-fl .chip{flex:none;font-size:.82rem;padding:.32rem .65rem}.rc-fl small{opacity:.65}
+.rc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem;margin:.5rem 0 5rem}
+.rc-card{display:flex;flex-direction:column;text-align:left;background:var(--surface);border:1px solid var(--line2);border-radius:1rem;overflow:hidden;padding:0;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.rc-ph{position:relative;display:grid;place-items:center;aspect-ratio:4/3;background:linear-gradient(135deg,color-mix(in srgb,var(--rc) 55%,#fff),var(--rc));background-size:cover;background-position:center}
+html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb,var(--rc) 70%,#000),color-mix(in srgb,var(--rc) 35%,#000));background-size:cover;background-position:center}
+.rc-ph i{font-style:normal;font-size:2.6rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}.rc-ph.has i{display:none}
+.rc-ph.has{background-size:cover!important;background-position:center!important}
+.rc-ph s{position:absolute;top:.35rem;right:.4rem;text-decoration:none;font-size:1rem}
+.rc-ph u{position:absolute;left:.4rem;bottom:.4rem;text-decoration:none;font-size:.7rem;font-weight:800;background:rgba(0,0,0,.55);color:#fff;padding:.12rem .45rem;border-radius:999px}
+.rc-cx{display:flex;flex-direction:column;gap:.15rem;padding:.5rem .6rem .6rem}.rc-cx b{font-size:.9rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.rc-cx small{color:var(--muted);font-size:.74rem}
+.rc-hero{position:relative;display:grid;place-items:center;height:11rem;border-radius:1rem;margin:0 0 .6rem;background:linear-gradient(135deg,color-mix(in srgb,var(--rc) 55%,#fff),var(--rc));background-size:cover;background-position:center;overflow:hidden}
+.rc-hero.has{background-size:cover!important}.rc-hero i{font-style:normal;font-size:4rem}.rc-hero.has i{display:none}
+.rc-phb{position:absolute;right:.5rem;bottom:.5rem;display:flex;gap:.3rem}.rc-phb .chip{background:rgba(0,0,0,.6);color:#fff;border-color:transparent;font-size:.78rem;padding:.3rem .6rem}
+.rc-badges{display:flex;flex-wrap:wrap;gap:.3rem;margin:0 0 .6rem}.rc-badges span,.rc-badges a{font-size:.78rem;font-weight:700;padding:.18rem .55rem;border-radius:999px;background:var(--surface2);color:var(--text);text-decoration:none}
+.rc-badges span[style]{background:var(--c);color:#fff}
+.rc-tq{margin:.2rem 0 .35rem}.rc-tq .chip{font-size:.78rem;padding:.25rem .55rem}
+.mp-im{width:100%;height:58%;min-height:0;object-fit:cover;border-radius:7px;flex:none}.mp-c.mp-hp{justify-content:flex-start;padding:4px}
 .co-more{font-size:.78rem;text-align:center;margin:.7rem 0 .3rem}
 .co-seg{margin:.2rem 0 .6rem}.co-seg small{opacity:.7;margin-left:.2rem}
 .co-big{background:var(--surface);border:1px solid var(--sec,var(--accent));border-radius:.8rem;padding:.7rem .8rem;margin:.4rem 0 .6rem;font-size:.92rem}.co-big .btn{margin-top:.5rem}
@@ -926,12 +958,20 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.12.5';
+const APP_VERSION='2.13.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.13.0',d:'31/10/2026',items:[
+  '🍽 Recettes plus belles : des cartes avec photo (ou une grande icône colorée), rangées par 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj et triables 🥕 Végétarien, 🥩 Viande, 🐟 Poisson. L’appli devine toute seule pour tes recettes ; tu peux corriger dans « Modifier ».',
+  '🍟 Air fryer : nouvelle étiquette, reconnue toute seule à l’import (air fryer, airfryer, friteuse sans huile). Filtres pour Thermomix, Air fryer, Rapide…',
+  '📷 Photos : « 📷 Ajouter une photo » dans une recette (appareil photo ou galerie). À l’import par lien, la photo du site est récupérée quand c’est possible. Le planning imprimé du menu montre aussi les photos.',
+  '⋯ Options dans Repas : les boutons du bas (coller, importer, recevoir, envoyer, imprimer, copier la semaine…) sont rangés dans le menu « ⋯ Options » en haut, différent pour Menu et Recettes.']},
+ {v:'2.12.6',d:'31/10/2026',items:[
+  '🍽 Recettes importées : le nombre de personnes change bien les quantités, même quand le site écrit l’ingrédient à l’envers (« Chocolat noir - 200 grammes », « Oeufs - 3 », « Farine : 50 g »). Les recettes déjà importées sont corrigées toutes seules. Attention : les quantités écrites dans les étapes ne changent pas, un message le rappelle quand tu changes le nombre de personnes.',
+  '🖨 Impression du menu : un vrai planning de la semaine en paysage, une colonne par jour, midi et soir, avec l’icône du plat, le temps, le nombre de personnes et qui cuisine. Aujourd’hui et le week-end sont colorés.']},
  {v:'2.12.5',d:'31/10/2026',items:[
   '📲 iPhone : un lien de partage s’ouvre dans Safari, pas dans l’appli de l’écran d’accueil. La fenêtre « Partage reçu » propose maintenant en premier « Ajouter dans mon appli » (le lien est copié, puis les 3 étapes s’affichent), et le message envoyé l’explique aussi.',
   '🔄 Réglages → À propos : « Rechercher une mise à jour » et l’explication pour mettre à jour l’appli de l’écran d’accueil (fermer complètement, rouvrir, « Mettre à jour »). Expliqué aussi dans l’aide « ? ».']},
@@ -2055,7 +2095,7 @@ function render(){
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
  document.body.classList.toggle('cansend',['tasks','courses','bdays','repas','voyages'].includes(V.view));
- {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};const om=V.view==='courses';sb.dataset.act=om?'co-menu':'send-cur';sb.classList.toggle('opt',om);sb.setAttribute('aria-label',om?'Options des courses':'Envoyer à la famille');sb.querySelector('i').textContent=om?'⋯':'📤';sb.querySelector('span').textContent=om?'Options':window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
+ {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};const om=V.view==='courses'||V.view==='repas';sb.dataset.act=V.view==='repas'?'rp-menu':om?'co-menu':'send-cur';sb.classList.toggle('opt',om);sb.setAttribute('aria-label',om?'Options':'Envoyer à la famille');sb.querySelector('i').textContent=om?'⋯':'📤';sb.querySelector('span').textContent=om?'Options':window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
  body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='courses'&&V.view!=='repas'&&V.view!=='voyages');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
@@ -5353,7 +5393,7 @@ function openHelp(hist){
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
- h+=d('🍽 Repas','<ul><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis Recettes → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
+ h+=d('🍽 Repas','<ul><li><b>⋯ Options</b> (en haut) : dans Recettes, nouvelle recette, importer avec un lien, coller, recevoir, envoyer ; dans Menu, imprimer le planning de la semaine, envoyer, copier la semaine précédente.</li><li><b>Recettes rangées</b> : 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj, et 🥕 Végé / 🥩 Viande / 🐟 Poisson, plus Thermomix, 🍟 Air fryer, Rapide… L’appli devine ; corrige dans « Modifier » (Type, Régime, étiquettes).</li><li><b>📷 Photo</b> : dans une recette, « Ajouter une photo » (appareil photo ou galerie). À l’import par lien, la photo du site vient toute seule quand le site le permet.</li><li><b>Quantités</b> : « Pour − 4 + personnes » recalcule la liste des ingrédients. Les quantités écrites dans le texte des étapes ne changent pas : fie-toi à la liste (un message te le rappelle).</li><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis ⋯ Options → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li><b>Plusieurs personnes</b> : dans une tâche, « Qui s’en occupe » accepte plusieurs prénoms. La première qui la fait la coche.</li><li><b>Suivi</b> : en cochant, ton prénom et l’heure sont notés. Touche « 📝 Ajouter une note » si besoin. L’onglet <b>📜 Suivi</b> montre tout ce qui a été fait, par qui et quand : filtre par groupe (Famille, Travail…), par liste et par personne, export Excel. ⚙ dans le Suivi range chaque liste dans un groupe. Pratique pour une liste de travail partagée avec des collègues.</li><li><b>🗄 Archiver</b> les tâches faites : elles quittent les listes et restent dans le Suivi.</li><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
@@ -5704,13 +5744,18 @@ async function act(a,el,e){
   case 'rc-new':rcEdit(null);break;
   case 'rc-imp':rcImport();break;
   case 'rc-tag':RV.tag=ds_.v;render();break;
+  case 'rc-ty':RV.ty=ds_.v;render();break;
+  case 'rc-rg':RV.rg=ds_.v;render();break;
+  case 'rc-photo':rcPhPick(ds_.id);break;
+  case 'rc-phdel':{await rcPhSet(ds_.id,null);render();rcOpen(ds_.id);break}
+  case 'rp-menu':rpMenu();break;
   case 'rc-open':RC_PP=null;rcOpen(ds_.id);break;
   case 'rc-pp':if(RC_PP){RC_PP.pp=Math.max(1,Math.min(30,RC_PP.pp+(+ds_.n)));rcOpen(RC_PP.id)}break;
   case 'rc-shop':{const r=rcOf(ds_.id);if(!r)break;const f=(RC_PP&&RC_PP.id===r.id?RC_PP.pp:r.pp||4)/(r.pp||4);closeSheet();pickIngredients('🛒 '+r.t,(r.ing||[]).map(g=>({q:g.q!=null?Math.round(g.q*f*100)/100:null,u:g.u,n:g.n,from:r.t})),'Pour '+(RC_PP?RC_PP.pp:r.pp)+' personne'+((RC_PP?RC_PP.pp:r.pp)>1?'s':'')+' :');break}
   case 'rc-plan':{const id=ds_.id;closeSheet();const v={d:today(),k:new Date().getHours()<14?'m':'s'};const pr=ask({title:'📅 Mettre au menu',html:'<div class="tk-2"><div><label class="lbl" for="pl-d">Jour</label><input class="in" type="date" id="pl-d" value="'+v.d+'"></div><div><label class="lbl" for="pl-k">Repas</label><select class="in" id="pl-k"><option value="m"'+(v.k==='m'?' selected':'')+'>Midi</option><option value="s"'+(v.k==='s'?' selected':'')+'>Soir</option></select></div></div>',btns:[{label:'Mettre au menu',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=root.onchange=e=>{if(e.target.id==='pl-d')v.d=e.target.value;if(e.target.id==='pl-k')v.k=e.target.value};const r=await pr;root.oninput=root.onchange=null;if(r!=='ok'||!RX_D.test(v.d))break;if(!mnAll()[v.d])mnAll()[v.d]={};const old=mnAll()[v.d][v.k]||{};mnAll()[v.d][v.k]={r:id,t:'',w:old.w||'',p:old.p||0,mt:Date.now()};saveSet();RV.tab='menu';RV.ws=mondayOf(v.d,S.weekStart);go('repas');toast('Au menu : '+fShort(v.d)+(v.k==='m'?' midi':' soir'));break}
   case 'rc-fav':{const r=rcOf(ds_.id);if(r){r.fav=!r.fav;r.m=Date.now();saveSet();render();rcOpen(r.id)}break}
   case 'rc-edit':closeSheet();rcEdit(ds_.id);break;
-  case 'rc-del':{const r=rcOf(ds_.id);if(!r)break;const ok=await ask({title:'Supprimer « '+r.t+' » ?',text:'La recette sera retirée du carnet. Les repas déjà au menu gardent leur nom.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){Object.values(mnAll()).forEach(x=>['m','s'].forEach(k=>{if(x[k]&&x[k].r===r.id){x[k].t=r.t;x[k].r='';x[k].mt=Date.now()}}));S.rc=rcAll().filter(x=>x.id!==r.id);saveSet();closeSheet();render()}break}
+  case 'rc-del':{const r=rcOf(ds_.id);if(!r)break;const ok=await ask({title:'Supprimer « '+r.t+' » ?',text:'La recette sera retirée du carnet. Les repas déjà au menu gardent leur nom.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){Object.values(mnAll()).forEach(x=>['m','s'].forEach(k=>{if(x[k]&&x[k].r===r.id){x[k].t=r.t;x[k].r='';x[k].mt=Date.now()}}));S.rc=rcAll().filter(x=>x.id!==r.id);PH.del('rc-'+r.id);saveSet();closeSheet();render()}break}
   case 'co-add':{const i=$('#co-in');const g=i&&ingParse(i.value);if(!g){toast('Écris un article');break}const n=coursesAdd([g]);render();setTimeout(()=>{const j=$('#co-in');if(j)j.focus()},50);if(!n)toast('Déjà dans la liste');break}
   case 'co-clear':{const dn=tkAll().filter(k=>k.l===coCur()&&k.x);if(dn.length)S.coLast=dn.map(k=>k.ig?ingTxt(k.ig):k.t).slice(0,150);const gone=dn.map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
   case 'co-print':coPrint();break;
@@ -6374,7 +6419,7 @@ function tkTomb(ids){S.tkDel=shTrim(S.tkDel).filter(d=>!ids.includes(d.id)).conc
 function shPack(kind,arg){
  const base={app:'agd',v:1,k:kind,from:meName(),at:Date.now()};
  const pplPack=ids=>ppl().filter(x=>ids.includes(x.id)).map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}));
- const rcPack=r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0});
+ const rcPack=r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',ty:r.ty||'',rg:r.rg||'',m:r.m||0});
  if(kind==='ch')return Object.assign(base,{lbl:'Liste type',ch:coHabits().map(x=>({n:x.n,ry:x.ry||rayOf(x.n),u:x.u||''}))});
  if(kind==='co'){const sv=Object.assign({},TKV);TKV.l=coursesList();TKV.w='';const P=shPack('tk');Object.assign(TKV,sv);P.lbl='Liste de courses';return P}
  if(kind==='vy'){const v=vyOf(arg);if(!v)return Object.assign(base,{lbl:'Voyage',vy:[]});const D=vyDays(v),mn={},rids=new Set(),wids=new Set((v.ls||[]).map(l=>l.w).filter(Boolean));
@@ -6465,6 +6510,7 @@ function shMerge(P,apply){
    if(!r||!r.id||!r.t)continue;const loc=rcOf(r.id);
    const o={id:String(r.id),t:String(r.t).slice(0,80),ic:String(r.ic||'🍽️').slice(0,4),pp:Math.max(1,Math.min(30,+r.pp||4)),tm:Math.max(0,Math.min(600,+r.tm||0)),tags:(Array.isArray(r.tags)?r.tags:[]).map(String).slice(0,8),
     ing:(Array.isArray(r.ing)?r.ing:[]).filter(g=>g&&g.n).map(g=>({q:g.q==null?null:+g.q,u:String(g.u||'').slice(0,20),n:String(g.n).slice(0,60)})).slice(0,80),st:(Array.isArray(r.st)?r.st:[]).map(x=>String(x).slice(0,500)).slice(0,60),src:/^https?:\/\//.test(r.src||'')?String(r.src).slice(0,300):'',m:+r.m||now};
+   if(RC_TY.some(x=>x[0]===r.ty))o.ty=r.ty;if(RC_RG.some(x=>x[0]===r.rg))o.rg=r.rg;
    if(!loc){if(P.k==='rc')st.add++;if(apply)rcAll().push(Object.assign(o,{fav:false}))}
    else if((r.m||0)>(loc.m||0)){if(P.k==='rc')st.upd++;if(apply)Object.assign(loc,o)}
   }
@@ -6590,7 +6636,32 @@ function contactsCard(){
 /* ========= Repas : recettes, menu de la semaine, courses (dans la liste « Courses » des Tâches) =========
    S.rc recettes, S.mn menu {date:{m:{r,t,w,p,mt},s:{…}}}. Tout est dans la sauvegarde et partageable par lien. */
 const RV={tab:'menu',ws:null,q:'',tag:''};
-const RC_TAGS=['Thermomix','Rapide','Végé','Enfants','Soupe','Plat','Dessert','Apéro','Petit-déj','Batch'];
+const RC_TAGS=['Thermomix','Air fryer','Rapide','Four','Cookeo','Enfants','Soupe','Batch','Sans cuisson'];
+const RC_TY=[['ent','🥗','Entrées','Entrée','#4caf7a'],['plat','🍲','Plats','Plat','#e0823d'],['des','🍰','Desserts','Dessert','#e46aa0'],['apero','🥂','Apéro','Apéro','#9b6ad6'],['pdj','🥐','Petit-déj','Petit-déj / goûter','#d9a521']];
+const RC_RG=[['vege','🥕','Végé','Végétarien'],['viande','🥩','Viande','Viande'],['poisson','🐟','Poisson','Poisson']];
+const AF_RX=/air ?fryer|airfryer|friteuse (sans huile|à air|a air)|cosori|ninja foodi/i;
+function rcTy(r){if(r.ty)return r.ty;const tg=(r.tags||[]).join(' ').toLowerCase(),t=norm(r.t+' '+tg);
+ if(/dessert/.test(tg)||/g[aâ]teau|fondant|mousse au|cookie|brownie|creme (brul|dessert|caramel|anglaise)|clafoutis|crumble|muffin|cake au|^cake|flan|tiramisu|panna|compote|glace|sorbet|crepe|gaufre|madeleine|biscuit|dessert|tarte (aux|au|tatin|fine aux) ?(pomme|poire|fraise|citron|chocolat|abricot|prune|framboise|myrtille)|charlotte|macaron|financier|meringue|cheesecake|riz au lait|beignet/.test(t))return 'des';
+ if(/apero/.test(tg)||/apero|tapas|verrine|tartinade|houmous|hummus|guacamole|rillette|toasts?\b|feuillete|amuse/.test(t))return 'apero';
+ if(/petit-dej/.test(tg)||/pancake|porridge|granola|petit[- ]dej|brioche|smoothie|muesli|pain perdu/.test(t))return 'pdj';
+ if(/soupe/.test(tg)||/entree|soupe|veloute|gaspacho|potage|salade (de|composee|grecque|cesar|nicoise|verte)|terrine|carpaccio|mimosa|tartare de (saumon|thon)|bouillon/.test(t))return 'ent';
+ return 'plat'}
+const RG_FISH=/saumon|thon|cabillaud|colin|poisson|crevette|moule|truite|sardine|maquereau|\blieu\b|merlu|dorade|\bbar\b|\bsole\b|gambas|saint[- ]jacques|calamar|seiche|crabe|homard|hareng|anchois|surimi|fruits de mer|langoustine|morue|haddock|perche|tilapia/;
+const RG_MEAT=/poulet|b[oœ]e?uf|porc|veau|agneau|dinde|canard|lardon|jambon|saucisse|chorizo|bacon|steak|viande|merguez|lapin|gesier|magret|roti|escalope|hache|boulette|cote de|filet mignon|pintade|chair a saucisse|cordon bleu|nugget|kebab|confit|foie gras|pancetta|coppa|salami|andouille|boudin|mouton|chevreuil|sanglier|gelatine/;
+function rcRg(r){if(r.rg)return r.rg;const t=norm(r.t+' '+(r.ing||[]).map(g=>g.n).join(' ')+' '+(r.tags||[]).join(' '));
+ if(RG_FISH.test(t))return 'poisson';if(RG_MEAT.test(t))return 'viande';return 'vege'}
+const rcTyOf=k=>RC_TY.find(x=>x[0]===k)||RC_TY[1];
+const rcRgOf=k=>RC_RG.find(x=>x[0]===k)||RC_RG[0];
+/* photos de recettes : dans la base photos (comme les anniversaires), clé « rc-<id> » */
+const RCPH={};
+async function rcPhGet(id){if(RCPH[id]!==undefined)return RCPH[id];const d=await PH.get('rc-'+id);RCPH[id]=d||null;return RCPH[id]}
+function rcPhFill(){document.querySelectorAll('[data-rph]').forEach(el=>{const id=el.dataset.rph;rcPhGet(id).then(d=>{if(d){el.style.backgroundImage='url("'+d+'")';el.classList.add('has')}})})}
+async function rcPhSet(id,data){const r=rcOf(id);if(!r)return;if(data){await PH.put('rc-'+id,data);r.ph=1;RCPH[id]=data}else{await PH.del('rc-'+id);delete r.ph;RCPH[id]=null}r.m=Date.now();saveSet()}
+function rcPhPick(id){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';document.body.appendChild(inp);
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];inp.remove();if(!f)return;try{const d=await photoShrink(f,900);await rcPhSet(id,d);toast('Photo ajoutée 📷');render();rcOpen(id)}catch(e){toast('Photo illisible',4000)}};inp.click()}
+async function rcPhFromUrl(id,u){if(!u||!famUrl())return;try{const r=await fetch(famUrl()+'/img?u='+encodeURIComponent(u),{cache:'no-store'});if(!r.ok)return;const b=await r.blob();if(!/^image\//.test(b.type))return;const d=await photoShrink(b,900);await rcPhSet(id,d);render()}catch(e){}}
+function rcImgUrl(x){if(!x)return '';if(typeof x==='string')return x;if(Array.isArray(x))return rcImgUrl(x[x.length>1?1:0]||x[0]);return x.url||x.contentUrl||''}
+function rcMig(){if(S.rcMig>=1)return;let ch=0;for(const r of rcAll()){if(!(r.tags||[]).includes('Air fryer')&&AF_RX.test(r.t+' '+(r.st||[]).join(' '))){(r.tags=r.tags||[]).push('Air fryer');ch++}}S.rcMig=1;saveSet()}
 const RAYONS=[['fl','🥕 Fruits et légumes',/pomme|poire|banane|citron|orange|fraise|framboise|tomate|carotte|courgette|aubergine|poivron|oignon|échalote|ail|salade|laitue|épinard|chou|brocoli|poireau|pomme de terre|patate|champignon|concombre|avocat|herbe|persil|basilic|coriandre|ciboulette|menthe|thym|laurier|gingembre|courge|potiron|haricot vert|petits? pois|radis|céleri|fenouil|navet|betterave|raisin|kiwi|mangue|ananas|melon|pêche|abricot|cerise|légume|fruit/],
  ['cr','🧀 Crèmerie et œufs',/lait|beurre|crème|fromage|emmental|gruyère|comté|parmesan|mozzarella|chèvre|feta|yaourt|yogourt|œuf|oeuf|mascarpone|ricotta|raclette|reblochon/],
  ['vp','🥩 Viande et poisson',/poulet|dinde|boeuf|bœuf|veau|porc|agneau|canard|jambon|lardon|bacon|saucisse|chorizo|steak|viande|haché|poisson|saumon|thon|cabillaud|colin|crevette|moule|lieu|sardine|merguez|filet/],
@@ -6606,22 +6677,34 @@ const rcAll=()=>Array.isArray(S.rc)?S.rc:(S.rc=[]);
 const rcOf=id=>id?rcAll().find(r=>r.id===id):null;
 const mnAll=()=>S.mn&&typeof S.mn==='object'?S.mn:(S.mn={});
 /* lecture d'une ligne d'ingrédient : « 200 g de farine », « 3 œufs », « 1/2 citron », « sel » */
-const UNIT_RX='kg|g|mg|l|cl|ml|dl|c\\.? ?à ?s\\.?|c\\.? ?à ?c\\.?|cs|cc|cuill[eè]res? à soupe|cuill[eè]res? à café|cuill[eè]res?|pinc[ée]es?|sachets?|bo[iî]tes?|tranches?|gousses?|verres?|bottes?|pots?|briques?|paquets?|bouquets?|brins?|feuilles?|filets?|pav[ée]s?|morceaux?|poign[ée]es?|tasses?';
+const UNIT_RX='kilogrammes?|kilos?|grammes?|gr|kg|g|mg|litres?|centilitres?|millilitres?|l|cl|ml|dl|c\\.? ?à ?s\\.?|c\\.? ?à ?c\\.?|cs|cc|cuill[eè]res? à soupe|cuill[eè]res? à café|cuill[eè]res?|pinc[ée]es?|sachets?|bo[iî]tes?|tranches?|gousses?|verres?|bottes?|pots?|briques?|paquets?|bouquets?|brins?|feuilles?|filets?|pav[ée]s?|morceaux?|poign[ée]es?|tasses?';
+function ingUnit(u){u=String(u||'').toLowerCase().replace(/\s+/g,' ').replace(/\.$/,'');
+ if(/^c\.? ?à ?s|^cs$|soupe/.test(u))return 'c. à s.';if(/^c\.? ?à ?c|^cc$|café/.test(u))return 'c. à c.';
+ if(/^(grammes?|gr)$/.test(u))return 'g';if(/^(kilogrammes?|kilos?)$/.test(u))return 'kg';if(/^litres?$/.test(u))return 'l';if(/^centilitres?$/.test(u))return 'cl';if(/^millilitres?$/.test(u))return 'ml';return u}
+function ingQ(q){const frac={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3};q=String(q).trim();const v=frac[q]!=null?frac[q]:/\//.test(q)?(()=>{const [a,b]=q.split('/').map(x=>parseFloat(x));return b?a/b:a})():parseFloat(q.replace(',','.'));return isNaN(v)?null:v}
 function ingParse(line){
  let s=String(line||'').replace(/^[\s\-–—•*·◦▪☐☑✓✔○●\[\]x]+/i,'').replace(/\s+/g,' ').trim();
  if(!s)return null;
- const frac={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3};
- const m=s.match(new RegExp('^(\\d+(?:[.,]\\d+)?(?:\\s*/\\s*\\d+)?|[½¼¾⅓⅔])\\s*(?:('+UNIT_RX+')\\b\\.?)?\\s*(?:d[e\'’]\\s*|des\\s+|du\\s+)?(.*)$','i'));
- if(m&&m[3]){
-  let q=m[1].trim();q=frac[q]!=null?frac[q]:/\//.test(q)?(()=>{const [a,b]=q.split('/').map(x=>parseFloat(x));return b?a/b:a})():parseFloat(q.replace(',','.'));
-  let u=(m[2]||'').toLowerCase().replace(/\s+/g,' ');
-  if(/^c\.? ?à ?s|^cs$|soupe/.test(u))u='c. à s.';else if(/^c\.? ?à ?c|^cc$|café/.test(u))u='c. à c.';
-  return{q:isNaN(q)?null:q,u,n:m[3].trim()};
+ const NUM='(\\d+(?:[.,]\\d+)?(?:\\s*/\\s*\\d+)?|[½¼¾⅓⅔])';
+ const m=s.match(new RegExp('^'+NUM+'(?=\\s|$|(?:'+UNIT_RX+')(?![a-zà-ÿ]))\\s*(?:('+UNIT_RX+')(?![a-zà-ÿ])\\.?)?\\s*(?:d[e\'’]\\s*|des\\s+|du\\s+)?(.*)$','i'));
+ if(m&&m[3])return{q:ingQ(m[1]),u:ingUnit(m[2]),n:m[3].trim()};
+ /* quantité après le nom : « Chocolat noir - 200 grammes », « Oeufs - 3 », « Farine : 50 g », « Lait (25 cl) », « Sucre 100 g » */
+ const m2=s.match(new RegExp('^(.+?)\\s*(?:[-–—:,]\\s*|\\(\\s*|\\s)'+NUM+'\\s*(?:('+UNIT_RX+')(?![a-zà-ÿ])\\.?)?\\s*\\)?\\s*([^\\d]{0,40})$','i'));
+ if(m2&&m2[1]&&!/\d/.test(m2[1])&&(m2[3]||/[-–—:,(]/.test(s.slice(m2[1].length,m2[1].length+3))||!m2[4])){
+  let n=m2[1].replace(/[\s\-–—:,(]+$/,'').replace(/\s+x$/i,'').trim();const extra=(m2[4]||'').replace(/^[\s)]+/,'').trim();
+  if(n.length>1&&!/^[A-ZÀ-Ý]{2,}$/.test(n.split(' ')[0]))n=n.charAt(0).toLowerCase()+n.slice(1);
+  return{q:ingQ(m2[2]),u:ingUnit(m2[3]),n:n+(extra?' '+extra:'')};
  }
  return{q:null,u:'',n:s};
 }
+/* recettes déjà importées avec « Nom - 200 grammes » : on relit les lignes sans quantité */
+function rcFixIng(){let ch=0;for(const r of rcAll())(r.ing||[]).forEach((g,i)=>{if(g&&g.q==null&&g.n&&/\d/.test(g.n)){const x=ingParse(g.n);if(x&&x.q!=null){r.ing[i]=x;ch++}}});if(ch)saveSet();return ch}
 const fmtQ=q=>q==null?'':(Math.round(q*100)/100).toString().replace('.',',');
-function ingTxt(i,f){let q=i.q!=null?i.q*(f||1):null;if(q!=null&&!i.u&&q>1)q=Math.ceil(q-0.01);if(q==null)return i.n;const u=i.u;return fmtQ(q)+(u?' '+u+(/^[aeiouyhéèœ]/i.test(i.n)?' d’':' de ')+i.n:' '+i.n)}
+function ingRound(q,u){if(q==null||q<=0)return q;const r=(x,st)=>Math.max(st,Math.round(x/st)*st);
+ if(/^(g|mg|ml|cl|dl)$/.test(u))return q>=50?r(q,5):q>=10?r(q,1):r(q,.5);
+ if(/^(kg|l)$/.test(u))return r(q,q>=2?.25:.05);
+ return q<1?r(q,.25):r(q,.5)}
+function ingTxt(i,f){let q=i.q!=null?i.q*(f||1):null;if(q!=null&&!i.u&&q>1)q=Math.ceil(q-0.01);else if(q!=null&&f&&f!==1)q=ingRound(q,i.u);if(q==null)return i.n;const u=i.u;return fmtQ(q)+(u?' '+u+(/^[aeiouyhéèœ]/i.test(i.n)?' d’':' de ')+i.n:' '+i.n)}
 /* import d'une recette collée (Notes iPhone, site, mail…) */
 function rcFromText(txt){
  const lines=String(txt||'').replace(/\r/g,'').split('\n').map(l=>l.trim());
@@ -6664,17 +6747,26 @@ function menuHTML(){
   const slot=(k,l)=>{const x=day[k],p=x&&pplOf(x.w);return '<button class="rp-sl'+(x&&mealTxt(x)?'':' empty')+'" data-act="rp-meal" data-d="'+d+'" data-k="'+k+'"><small>'+l+'</small><b>'+(x&&mealTxt(x)?esc(mealTxt(x)):'+ Ajouter')+'</b>'+(x&&(p||x.p)?'<em>'+(p?'<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>':'')+(x.p?' · '+x.p+' pers.':'')+'</em>':'')+'</button>'};
   h+='<section class="rp-day'+(d===t?' today':'')+'"><div class="rp-dh">'+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="rp-2">'+slot('m','Midi')+slot('s','Soir')+'</div></section>';
  }
- h+='</div><div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Envoyer le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
+ h+='</div><div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><p class="co-more mut">Imprimer le planning, envoyer, copier la semaine… : <b>⋯ Options</b> en haut.</p></div>';
  return h;
 }
 function rcListHTML(){
  const q=norm(RV.q||'').trim();
- const L=rcAll().filter(r=>(!RV.tag||(r.tags||[]).includes(RV.tag))&&(!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')).includes(q))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
- const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))];
- let h='<div class="rp-top"><button class="btn pri grow" data-act="rc-new">'+ic('plus')+' Nouvelle recette</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><div class="chips" style="margin:-.1rem 0 .5rem"><button class="chip" data-act="rc-link">🔗 Importer avec un lien</button><button class="chip" data-act="rc-site">❓ Recette d’un site : comment faire</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="sh-rcall">📤 Envoyer mes recettes</button></div>'+
-  '<input class="in" id="rc-q" type="search" placeholder="Chercher : nom, ingrédient, « rapide »…" value="'+esc(RV.q)+'" autocomplete="off">'+
-  (used.length?'<div class="chips tk-chips" style="margin:.4rem 0"><button class="chip'+(RV.tag?'':' on')+'" data-act="rc-tag" data-v="">Toutes</button>'+used.map(t=>'<button class="chip'+(RV.tag===t?' on':'')+'" data-act="rc-tag" data-v="'+esc(t)+'">'+esc(t)+'</button>').join('')+'</div>':'');
- h+='<div id="rc-list">'+(L.length?L.map(r=>'<button class="rc-r" data-act="rc-open" data-id="'+esc(r.id)+'"><span class="rc-i">'+esc(r.ic||'🍽️')+'</span><span class="rc-x"><b>'+(r.fav?'⭐ ':'')+esc(r.t)+'</b><small>'+[r.tm?r.tm+' min':'',r.pp?r.pp+' pers.':'',(r.ing||[]).length+' ingrédient'+((r.ing||[]).length>1?'s':''),(r.tags||[]).join(', ')].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide. Ajoute-en une, ou colle une recette copiée depuis Notes, un site ou un message.')+'</p>')+'</div>';
+ const base=rcAll().filter(r=>!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')+' '+rcTyOf(rcTy(r))[3]+' '+rcRgOf(rcRg(r))[3]).includes(q));
+ const okTy=r=>!RV.ty||rcTy(r)===RV.ty,okRg=r=>!RV.rg||rcRg(r)===RV.rg,okTag=r=>!RV.tag||(r.tags||[]).includes(RV.tag);
+ const L=base.filter(r=>okTy(r)&&okRg(r)&&okTag(r)).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
+ const chip=(act,v,on,lbl,n)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-v="'+esc(v)+'">'+lbl+(n!=null?' <small>'+n+'</small>':'')+'</button>';
+ let h='<input class="in" id="rc-q" type="search" placeholder="🔍 Chercher : nom, ingrédient, « air fryer »…" value="'+esc(RV.q)+'" autocomplete="off">';
+ if(rcAll().length){
+  const nTy=k=>base.filter(r=>rcTy(r)===k&&okRg(r)&&okTag(r)).length,nRg=k=>base.filter(r=>rcRg(r)===k&&okTy(r)&&okTag(r)).length;
+  h+='<div class="rc-fl">'+chip('rc-ty','',!RV.ty,'Tout')+RC_TY.filter(x=>['ent','plat','des'].includes(x[0])||nTy(x[0])).map(x=>chip('rc-ty',x[0],RV.ty===x[0],x[1]+' '+x[2],nTy(x[0]))).join('')+'</div>';
+  const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))].filter(t=>!/^(végé|vege|plat|dessert|apéro|petit-déj)$/i.test(t)).sort((a,b)=>RC_TAGS.indexOf(a)-RC_TAGS.indexOf(b));
+  h+='<div class="rc-fl">'+chip('rc-rg','',!RV.rg,'Tous')+RC_RG.map(x=>chip('rc-rg',x[0],RV.rg===x[0],x[1]+' '+x[2],nRg(x[0]))).join('')+used.map(t=>chip('rc-tag',RV.tag===t?'':t,RV.tag===t,(t==='Air fryer'?'🍟 ':t==='Thermomix'?'🥣 ':t==='Rapide'?'⚡ ':'')+esc(t))).join('')+'</div>';
+ }
+ const card=r=>{const ty=rcTyOf(rcTy(r)),rg=rcRgOf(rcRg(r));
+  return '<button class="rc-card" data-act="rc-open" data-id="'+esc(r.id)+'" style="--rc:'+ty[4]+'"><span class="rc-ph" data-rph="'+(r.ph?esc(r.id):'')+'"><i>'+esc(r.ic&&r.ic!=='🍽️'?r.ic:ty[1])+'</i>'+(r.fav?'<s>⭐</s>':'')+'<u>'+ty[1]+' '+esc(ty[3].replace(/ \/.*/,''))+'</u></span><span class="rc-cx"><b>'+esc(r.t)+'</b><small>'+[r.tm?'⏱ '+r.tm+' min':'',r.pp?'👤 '+r.pp:'',rg[1]].filter(Boolean).join(' · ')+((r.tags||[]).includes('Air fryer')?' · 🍟':'')+((r.tags||[]).includes('Thermomix')?' · 🥣':'')+'</small></span></button>'};
+ h+='<div id="rc-list">'+(L.length?'<div class="rc-grid">'+L.map(card).join('')+'</div>':'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide.')+'</p>'+(rcAll().length?'':'<div class="btns"><button class="btn pri grow" data-act="rc-link">🔗 Importer avec un lien</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><p class="mut" style="text-align:center;font-size:.85rem">Et plus d’options dans « ⋯ Options » en haut.</p>'))+'</div>';
+ setTimeout(rcPhFill,0);
  return h;
 }
 /* ----- Courses rapides : habituels (historique), listes types, refaire les dernières courses ----- */
@@ -6810,6 +6902,17 @@ async function coDupManage(){
  S.coDupOk=okL.slice(-300);saveSet();render();
  toast(del?del+' doublon'+(del>1?'s':'')+' supprimé'+(del>1?'s':''):'Rien de supprimé',3500);
 }
+async function rpMenu(){
+ const B=[];const b=(label,value,cls)=>B.push({label,value,cls:'mnu '+(cls||'')});
+ if(RV.tab==='rc'){
+  b('＋ Nouvelle recette','rc-new','pri');b('🔗 Importer avec un lien','rc-link');b('📋 Coller une recette','rc-imp');b('❓ Recette d’un site : comment faire','rc-site');b('📥 Recevoir des recettes','sh-recv');if(rcAll().length)b('📤 Envoyer mes recettes','sh-rcall');
+ }else{
+  b('🖨 Imprimer le planning de la semaine','rp-print','pri');b('📤 Envoyer le menu','sh-mn');b('🛒 Ingrédients de la semaine → courses','rp-wkshop');b('📋 Copier la semaine précédente','rp-copy');b('📥 Recevoir un menu','sh-recv');
+ }
+ b('Fermer',null);
+ const r=await ask({title:'⋯ '+(RV.tab==='rc'?'Recettes':'Menu'),html:'<div style="height:.1rem"></div>',btns:B});
+ if(r)act(r,document.body,null);
+}
 async function coMenu(){
  const cur=coCur(),tl=tlOf(cur),si=coShareInfo(cur),pend=tkAll().filter(k=>k.l===cur&&!k.x),H=coHabits(),mem=fam()?famActive():[];
  const B=[];const b=(label,value,cls)=>B.push({label,value,cls:'mnu '+(cls||'')});
@@ -6915,35 +7018,41 @@ function rcOpen(id){
  const r=rcOf(id);if(!r)return;
  if(RC_PP==null||RC_PP.id!==id)RC_PP={id,pp:r.pp||4};
  const f=RC_PP.pp/(r.pp||4);
- let h='<div class="sh-h"><b style="font-size:1.25rem;font-family:var(--serif);font-style:italic">'+esc((r.ic||'🍽️')+' '+r.t)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+='<p class="mut" style="margin:0 0 .5rem">'+[r.tm?'⏱ '+r.tm+' min':'',(r.tags||[]).join(' · ')].filter(Boolean).join('   ')+(r.src?' · <a href="'+esc(r.src)+'" target="_blank" rel="noopener">source</a>':'')+'</p>';
+ const ty=rcTyOf(rcTy(r)),rg=rcRgOf(rcRg(r));
+ let h='<div class="sh-h"><b style="font-size:1.25rem;font-family:var(--serif);font-style:italic">'+esc(r.t)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<div class="rc-hero" style="--rc:'+ty[4]+'" data-rph="'+(r.ph?esc(r.id):'')+'"><i>'+esc(r.ic&&r.ic!=='🍽️'?r.ic:ty[1])+'</i><span class="rc-phb">'+(r.ph?'<button class="chip" data-act="rc-photo" data-id="'+esc(id)+'">📷 Changer</button><button class="chip" data-act="rc-phdel" data-id="'+esc(id)+'">Retirer</button>':'<button class="chip" data-act="rc-photo" data-id="'+esc(id)+'">📷 Ajouter une photo</button>')+'</span></div>';
+ h+='<div class="rc-badges"><span style="--c:'+ty[4]+'">'+ty[1]+' '+esc(ty[3])+'</span><span>'+rg[1]+' '+esc(rg[3])+'</span>'+(r.tm?'<span>⏱ '+r.tm+' min</span>':'')+(r.tags||[]).filter(t=>!/^(dessert|plat|apéro|petit-déj|végé|entrée)$/i.test(t)).map(t=>'<span>'+esc(t)+'</span>').join('')+(r.src?'<a href="'+esc(r.src)+'" target="_blank" rel="noopener">🔗 source</a>':'')+'</div>';
  h+='<div class="rc-pp"><span>Pour</span><button class="ib" data-act="rc-pp" data-n="-1" aria-label="Moins">−</button><b>'+RC_PP.pp+'</b><button class="ib" data-act="rc-pp" data-n="1" aria-label="Plus">+</button><span>personne'+(RC_PP.pp>1?'s':'')+'</span></div>';
  h+='<h3 class="rc-h">Ingrédients</h3>'+((r.ing||[]).length?'<ul class="rc-ing">'+r.ing.map(g=>'<li>'+esc(ingTxt(g,f))+'</li>').join('')+'</ul>':'<p class="mut">Aucun ingrédient noté.</p>');
  h+='<button class="btn pri blk" data-act="ck-open" data-id="'+esc(id)+'">👩‍🍳 Mode cuisine (plein écran)</button><button class="btn blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
- if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3><ol class="rc-st">'+r.st.map(x=>'<li>'+tmMark(x)+'</li>').join('')+'</ol>';
+ if((r.st||[]).length)h+='<h3 class="rc-h">Préparation</h3>'+(RC_PP.pp!==(r.pp||4)&&/\d/.test(r.st.join(' '))?'<div class="warn" style="margin:0 0 .5rem;font-size:.86rem"><b>⚠️ Attention aux quantités des étapes</b>Les ingrédients ci-dessus sont recalculés pour '+RC_PP.pp+' personne'+(RC_PP.pp>1?'s':'')+', mais les quantités écrites dans les étapes restent celles de la recette d’origine ('+(r.pp||4)+' personne'+((r.pp||4)>1?'s':'')+'). Fie-toi à la liste des ingrédients.</div>':'')+'<ol class="rc-st">'+r.st.map(x=>'<li>'+tmMark(x)+'</li>').join('')+'</ol>';
  h+='<div class="btns" style="margin-top:.6rem"><button class="btn grow" data-act="rc-plan" data-id="'+esc(id)+'">📅 Mettre au menu</button><button class="btn grow" data-act="rc-fav" data-id="'+esc(id)+'">'+(r.fav?'★ Favori':'☆ Favori')+'</button></div>'+
   '<div class="btns"><button class="btn grow" data-act="rc-edit" data-id="'+esc(id)+'">'+ic('edit')+' Modifier</button><button class="btn grow" data-act="sh-rc" data-id="'+esc(id)+'">📤 Envoyer</button></div>'+
   '<button class="btn dng blk" data-act="rc-del" data-id="'+esc(id)+'">'+ic('trash')+' Supprimer la recette</button>';
- openSheet(h);
+ openSheet(h);setTimeout(rcPhFill,0);
 }
 async function rcEdit(id,pre){
  const r0=id?rcOf(id):null;
- const v=pre||{t:r0?r0.t:'',ic:r0?r0.ic||'🍽️':'🍽️',pp:r0?r0.pp:4,tm:r0?r0.tm||'':'',tags:r0?(r0.tags||[]).join(', '):'',ing:r0?(r0.ing||[]).map(g=>ingTxt(g)).join('\n'):'',st:r0?(r0.st||[]).join('\n'):'',src:r0?r0.src||'':''};
+ const v=pre||{t:r0?r0.t:'',ic:r0?r0.ic||'🍽️':'🍽️',pp:r0?r0.pp:4,tm:r0?r0.tm||'':'',ty:r0?r0.ty||'':'',rg:r0?r0.rg||'':'',tags:r0?(r0.tags||[]).join(', '):'',ing:r0?(r0.ing||[]).map(g=>ingTxt(g)).join('\n'):'',st:r0?(r0.st||[]).join('\n'):'',src:r0?r0.src||'':''};
  const html='<div style="display:flex;gap:.4rem"><input class="in" id="rc-ic" maxlength="4" value="'+esc(v.ic)+'" style="width:3.6rem;text-align:center" aria-label="Emoji"><input class="in" id="rc-t" maxlength="80" value="'+esc(v.t)+'" placeholder="Nom de la recette"></div>'+
   '<div class="tk-2"><div><label class="lbl" for="rc-pp">Personnes</label><input class="in" id="rc-pp" type="number" min="1" max="30" value="'+esc(v.pp)+'"></div><div><label class="lbl" for="rc-tm">Temps (min)</label><input class="in" id="rc-tm" type="number" min="0" max="600" value="'+esc(v.tm)+'"></div></div>'+
   '<label class="lbl" for="rc-ing">Ingrédients (un par ligne : « 200 g de farine », « 3 œufs »)</label><textarea class="in" id="rc-ing" rows="6">'+esc(v.ing)+'</textarea>'+
   '<label class="lbl" for="rc-st">Préparation (une étape par ligne)</label><textarea class="in" id="rc-st" rows="5">'+esc(v.st)+'</textarea>'+
-  '<label class="lbl" for="rc-tags">Étiquettes</label><input class="in" id="rc-tags" value="'+esc(v.tags)+'" placeholder="'+RC_TAGS.slice(0,4).join(', ')+'…">'+
+  '<div class="tk-2"><div><label class="lbl" for="rc-ty">Type</label><select class="in" id="rc-ty"><option value="">Deviner ('+esc(rcTyOf(rcTy({t:v.t,tags:String(v.tags||'').split(',')}))[3])+')</option>'+RC_TY.map(x=>'<option value="'+x[0]+'"'+(v.ty===x[0]?' selected':'')+'>'+x[1]+' '+esc(x[3])+'</option>').join('')+'</select></div><div><label class="lbl" for="rc-rg">Régime</label><select class="in" id="rc-rg"><option value="">Deviner</option>'+RC_RG.map(x=>'<option value="'+x[0]+'"'+(v.rg===x[0]?' selected':'')+'>'+x[1]+' '+esc(x[3])+'</option>').join('')+'</select></div></div>'+
+  '<label class="lbl" for="rc-tags">Étiquettes (touche pour ajouter)</label><div class="chips rc-tq">'+RC_TAGS.map(t=>'<button type="button" class="chip" data-tq="'+esc(t)+'">'+esc(t)+'</button>').join('')+'</div><input class="in" id="rc-tags" value="'+esc(v.tags)+'" placeholder="Thermomix, Air fryer, Rapide…">'+
   '<label class="lbl" for="rc-src">Lien (facultatif)</label><input class="in" id="rc-src" type="url" value="'+esc(v.src)+'" style="margin-bottom:.6rem">';
  const pr=ask({title:r0?'Modifier la recette':'Nouvelle recette',html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg'),map={'rc-ic':'ic','rc-t':'t','rc-pp':'pp','rc-tm':'tm','rc-ing':'ing','rc-st':'st','rc-tags':'tags','rc-src':'src'};
+ const root=$('#dlg'),map={'rc-ic':'ic','rc-t':'t','rc-pp':'pp','rc-tm':'tm','rc-ing':'ing','rc-st':'st','rc-tags':'tags','rc-src':'src','rc-ty':'ty','rc-rg':'rg'};
  root.oninput=root.onchange=e=>{const k=map[e.target.id];if(k)v[k]=e.target.value};
- const res=await pr;root.oninput=root.onchange=null;
+ const tq=e=>{const b=e.target.closest&&e.target.closest('[data-tq]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const L=String(v.tags||'').split(',').map(x=>x.trim()).filter(Boolean);const t=b.dataset.tq;const i=L.findIndex(x=>x.toLowerCase()===t.toLowerCase());i>=0?L.splice(i,1):L.push(t);v.tags=L.join(', ');const inp=$('#rc-tags');if(inp)inp.value=v.tags};
+ root.addEventListener('click',tq,true);
+ const res=await pr;root.oninput=root.onchange=null;root.removeEventListener('click',tq,true);
  if(res!=='ok')return;
  const t=String(v.t||'').trim().slice(0,80);if(!t){toast('Donne un nom à la recette');return rcEdit(id,v)}
  const o=r0||{id:'r'+uid(),fav:false};
  Object.assign(o,{t,ic:String(v.ic||'').trim().slice(0,4)||'🍽️',pp:Math.max(1,Math.min(30,+v.pp||4)),tm:Math.max(0,Math.min(600,+v.tm||0)),
   ing:String(v.ing||'').split('\n').map(ingParse).filter(Boolean).slice(0,80),st:String(v.st||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,60),
+  ty:RC_TY.some(x=>x[0]===v.ty)?v.ty:undefined,rg:RC_RG.some(x=>x[0]===v.rg)?v.rg:undefined,
   tags:String(v.tags||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,8),src:/^https?:\/\//.test(String(v.src||'').trim())?String(v.src).trim().slice(0,300):'',m:Date.now()});
  if(!r0)rcAll().push(o);
  saveSet();RV.tab='rc';render();toast(r0?'Recette modifiée':'Recette ajoutée');rcOpen(o.id);
@@ -6986,9 +7095,17 @@ function rpDayHTML(day){
 }
 /* ----- impression du menu / des courses ----- */
 function rpPrintHTML(){
- const ws=rwStart();let h='<h1>🍽 Menu de la semaine <small>du '+esc(fShort(ws))+' au '+esc(fShort(add(ws,6)))+'</small></h1><table class="rp-pt"><tr><th></th><th>Midi</th><th>Soir</th></tr>';
- for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d]||{};h+='<tr><th>'+esc(cap(DL[dow(d)]))+' '+pd(d).getDate()+'</th><td>'+esc(mealTxt(x.m))+'</td><td>'+esc(mealTxt(x.s))+'</td></tr>'}
- return h+'</table>';
+ const ws=rwStart(),we=add(ws,6),td=today();
+ const p0=pd(ws),p1=pd(we);
+ const per=p0.getMonth()===p1.getMonth()?p0.getDate()+' au '+p1.getDate()+' '+ML[p1.getMonth()]+' '+p1.getFullYear():p0.getDate()+' '+ML[p0.getMonth()]+' au '+p1.getDate()+' '+ML[p1.getMonth()]+' '+p1.getFullYear();
+ const cell=x=>{const t=x&&mealTxt(x);if(!t)return '<div class="mp-c mp-e"></div>';const r=rcOf(x.r),p=pplOf(x.w);const ph=r&&RCPH[r.id];const ic=r&&r.ic&&r.ic!=='🍽️'?r.ic:r?rcTyOf(rcTy(r))[1]:'🍽️';const nm=r?r.t:x.t;
+  const meta=[r&&r.tm?'⏱ '+r.tm+' min':'',(x.p||(r&&r.pp))?'👤 '+(x.p||r.pp):''].filter(Boolean).join('  ');
+  return '<div class="mp-c'+(ph?' mp-hp':'')+'">'+(ph?'<img class="mp-im" src="'+ph+'" alt="">':'<span class="mp-i">'+esc(ic)+'</span>')+'<b>'+esc(nm)+'</b>'+(meta?'<small>'+esc(meta)+'</small>':'')+(p?'<em style="--c:'+p.c+'">'+esc(p.n)+'</em>':'')+'</div>'};
+ let h='<div class="mp"><div class="mp-h"><div><b>Menu de la semaine</b><span>du '+esc(per)+'</span></div><i>🍽️</i></div><div class="mp-g"><div class="mp-k"></div>';
+ const D=[...Array(7)].map((_,i)=>add(ws,i));
+ D.forEach(d=>{const w=[0,6].includes(dow(d));h+='<div class="mp-d'+(d===td?' td':w?' we':'')+'"><b>'+esc(cap(DL[dow(d)]))+'</b><span>'+pd(d).getDate()+' '+['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'][pd(d).getMonth()]+'</span></div>'});
+ [['m','☀️ Midi'],['s','🌙 Soir']].forEach(([k,l])=>{h+='<div class="mp-k">'+l+'</div>';D.forEach(d=>{const w=[0,6].includes(dow(d));h+='<div class="mp-w'+(d===td?' td':w?' we':'')+'">'+cell((mnAll()[d]||{})[k])+'</div>'})});
+ return h+'</div><div class="mp-f">AgenDam · imprimé le '+esc(fShort(td))+'</div></div>';
 }
 function plainPDF(title,blocks){
  /* blocks : [{h:'titre'}, {t:'ligne', box:true, sub:'petit texte'}] ; texte seul (Helvetica), plusieurs pages */
@@ -7029,10 +7146,17 @@ async function outPrint(html,pdfTitle,blocks,fname){
  st.textContent='@page{size:A4 portrait;margin:12mm}';
  setTimeout(()=>{try{window.print()}catch(e){toast('Impression impossible ici')}},150);
 }
-function rpPrint(){
- const ws=rwStart(),bl=[];
- for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d]||{};bl.push({h:cap(DL[dow(d)])+' '+pd(d).getDate()});bl.push({t:'Midi : '+(mealTxt(x.m)||'-')});bl.push({t:'Soir : '+(mealTxt(x.s)||'-')})}
- outPrint(rpPrintHTML(),'Menu de la semaine du '+fShort(ws),bl,'menu-agendam.pdf');
+async function rpPrint(){
+ const ws=rwStart();let any=false;const ids=new Set();for(let i=0;i<7;i++){const x=mnAll()[add(ws,i)]||{};if(mealTxt(x.m)||mealTxt(x.s))any=true;['m','s'].forEach(k=>{const r=x[k]&&rcOf(x[k].r);if(r&&r.ph)ids.add(r.id)})}
+ if(!any){toast('Le menu de cette semaine est vide');return}
+ for(const id of ids)await rcPhGet(id);
+ const html=rpPrintHTML();
+ if(isIOS()||/Android/i.test(navigator.userAgent)){printPDF(html,true,'menu-agendam.pdf');return}
+ let z=$('#printzone');if(!z){z=document.createElement('div');z.id='printzone';document.body.appendChild(z)}
+ z.className='pz land';z.innerHTML=html;
+ let st=$('#pgstyle');if(!st){st=document.createElement('style');st.id='pgstyle';document.head.appendChild(st)}
+ st.textContent='@page{size:A4 landscape;margin:8mm}';
+ setTimeout(()=>{try{window.print()}catch(e){toast('Impression impossible ici')}},150);
 }
 function coPrint(){
  const L=tkAll().filter(k=>k.l===coCur()&&!k.x);if(!L.length){toast('La liste de courses est vide');return}
@@ -7489,7 +7613,8 @@ function rcNormalizeImport(r){
    tags:[],src:String(r.src||'').slice(0,300),m:r.m||Date.now()};
   if(o.tm&&o.tm<=30)o.tags.push('Rapide');
   if(TM_RX.test(o.st.join(' ')+' '+o.src+' '+o.t))o.tags.push('Thermomix');
-  if(/dessert|g[âa]teau|tarte sucr|cookie|cr[èe]me|mousse/i.test(o.t+' '+(r.cat||'')))o.tags.push('Dessert');
+  if(AF_RX.test(o.st.join(' ')+' '+o.src+' '+o.t))o.tags.push('Air fryer');
+  {const c=norm(r.cat||'');if(/dessert|patisserie|gouter/.test(c))o.ty='des';else if(/entree|soupe|salade/.test(c))o.ty='ent';else if(/apero|amuse/.test(c))o.ty='apero';else if(/petit/.test(c))o.ty='pdj';else if(/plat|principal/.test(c))o.ty='plat'}
   return o;
  }
  return r;
@@ -7530,6 +7655,7 @@ async function rcFromLink(url){
   const P={app:'agd',v:1,k:'rc',from:host,lbl:o.t,rc:[o]};
   const tr=$('#toast');if(tr)tr.innerHTML='';
   await shReceive('j'+shB64.enc(new TextEncoder().encode(JSON.stringify(P))),false);
+  {const iu=rcImgUrl(R.image);if(iu&&rcOf(o.id))rcPhFromUrl(o.id,iu)}
   if(!st.length)toast(/cookidoo/i.test(host)?'Cookidoo ne donne pas les étapes sans connexion : ajoute-les, ou copie le texte de la recette et « 📋 Coller une recette ».':'Ce site ne donne pas les étapes : tu peux les ajouter dans la recette.',8000);
   return;
  }
@@ -8179,6 +8305,7 @@ function registerSW(){
 }
 async function init(){
  setTheme();fillIcons(document);
+ try{rcFixIng();rcMig()}catch(e){}
  loadData();
  const q=new URLSearchParams(location.search);
  const pv=q.get('view');
