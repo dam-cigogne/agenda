@@ -652,6 +652,11 @@ body.cansend .sendbtn{display:inline-flex}
 .fam-mb{display:flex;gap:.6rem;align-items:center;justify-content:space-between;padding:.55rem 0;border-top:1px solid var(--line,rgba(0,0,0,.08))}
 .fam-mb-t{display:flex;flex-direction:column;min-width:0}.fam-mb-t small{color:var(--muted);font-size:.8rem;line-height:1.3}
 .fam-mb-b{display:flex;gap:.35rem;flex-shrink:0}.fam-mb-b .btn{padding:.35rem .65rem;font-size:.85rem}
+.tk-by{color:var(--k-tk);font-weight:700}.tk-done-info{background:color-mix(in srgb,var(--k-tk) 10%,var(--surface));border-radius:.6rem;padding:.4rem .6rem;margin:.5rem 0;font-size:.9rem}
+.tk-sh{margin:.8rem 0 .2rem}
+.tk-ev{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .6rem;background:var(--surface);border:1px solid var(--line2);border-radius:.7rem;margin:.3rem 0}.tk-ev.ar{opacity:.7}
+.tk-evc{color:#fff;background:var(--k-tk);border-radius:.4rem;width:1.5rem;height:1.5rem;display:grid;place-items:center;font-weight:900;flex:none;font-size:.85rem}
+.tk-evt{flex:1;min-width:0}.tk-evt>b{display:block}.tk-evt small{display:block;color:var(--muted);font-size:.82rem}.tk-evt .tk-evn{color:var(--text)}
 .fam-grp{border:1px solid var(--line2);border-radius:.9rem;padding:.5rem .7rem .4rem;margin:.6rem 0;background:var(--surface)}
 .fam-gh{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.2rem}.fam-gh>b{font-size:1.05rem}.fam-gh>small{color:var(--muted)}.fam-gh .sp1{flex:1}
 .fam-ren{background:none;border:0;padding:.1rem .2rem;font-size:.85rem;cursor:pointer;opacity:.7}
@@ -904,12 +909,20 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.10.2';
+const APP_VERSION='2.12.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.12.0',d:'31/10/2026',items:[
+  '👥 Une tâche peut être confiée à plusieurs personnes : la première qui la fait la coche.',
+  '✓ Qui a fait quoi : quand quelqu’un coche une tâche, son prénom et l’heure s’affichent (« ✓ par Morgann 31 oct. 18:30 »). Après avoir coché : « 📝 Ajouter une note » (ex. « fait avec Paul »).',
+  '📜 Nouvel onglet « Suivi » dans Tâches : l’historique de tout ce qui a été fait, par qui, quand, avec les notes, par liste et par personne. Exportable pour Excel. Les tâches qui reviennent gardent aussi leur historique.',
+  '🗄 « Archiver les tâches faites » : elles quittent les listes mais restent dans le Suivi.']},
+ {v:'2.11.0',d:'31/10/2026',items:[
+  '🎉 Cartes d’anniversaire plus belles : 8 décors (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic), un cadre, et le titre au choix (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête).',
+  '📷 Avec une photo : 5 mises en page (Rond, Cœur, Carré, Polaroïd, Plein écran) et 5 effets (Normal, Vif, Chaud, Noir et blanc, Sépia).']},
  {v:'2.10.2',d:'31/10/2026',items:[
   '🔗 Importer une recette, beaucoup plus simple sur iPhone : dans Safari, Partager ⬆️ → Copier, puis dans AgenDam « 🔗 Importer avec un lien » → « 📋 Coller le lien ». AgenDam lit la recette tout seul (nom, portions, temps, ingrédients, étapes). Plus besoin du favori.']},
  {v:'2.10.1',d:'31/10/2026',items:[
@@ -5296,12 +5309,12 @@ function openHelp(hist){
  if(OL_ON)h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
- h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis Recettes → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
- h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
+ h+=d('☑ Tâches','<ul><li><b>Plusieurs personnes</b> : dans une tâche, « Qui s’en occupe » accepte plusieurs prénoms. La première qui la fait la coche.</li><li><b>Suivi</b> : en cochant, ton prénom et l’heure sont notés. Touche « 📝 Ajouter une note » si besoin. L’onglet <b>📜 Suivi</b> montre tout ce qui a été fait, par qui et quand (filtre par liste et par personne, export Excel). Pratique pour une liste de travail partagée avec des collègues.</li><li><b>🗄 Archiver</b> les tâches faites : elles quittent les listes et restent dans le Suivi.</li><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
  h+=d('Lisibilité du mois','<ul><li>Les mots longs sont coupés par syllabes, avec un tiret.</li><li><b>Réglages → Affichage → Texte des événements dans le mois</b> : Petit (plus de lettres par ligne), Normal ou Grand.</li><li>Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
@@ -5591,6 +5604,9 @@ async function act(a,el,e){
   case 'ws-tone':if(WS){WS.tone=ds_.v;WS.i=0;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
   case 'ws-next':if(WS){WS.i++;WS.txt=null;WS.edited=false;bdWish(WS.id)}break;
   case 'ws-theme':if(WS){WS.theme=ds_.v;$$('[data-act="ws-theme"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
+  case 'ws-ti':if(WS){WS.ti=+ds_.v;$$('[data-act="ws-ti"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
+  case 'ws-lay':if(WS){WS.lay=ds_.v;S.wsLay=ds_.v;saveSet();$$('[data-act="ws-lay"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
+  case 'ws-fx':if(WS){WS.fx=ds_.v;$$('[data-act="ws-fx"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
   case 'ws-sig':{if(!WS)break;let v=ds_.v;if(v==='txt'){const t=await vyField(null,'Signature de la carte',S.wsSigTxt||'',false);if(t==null)break;S.wsSigTxt=t.slice(0,40)}WS.sig=v;S.wsSig=v;saveSet();$$('[data-act="ws-sig"]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));wishDraw();break}
   case 'ws-useph':if(WS){WS.usePh=!WS.usePh;bdWish(WS.id)}break;
   case 'ws-copy':if(WS){try{await navigator.clipboard.writeText(WS.txt);toast('Message copié')}catch(e){const t=$('#ws-txt');if(t){t.focus();t.select()}toast('Sélectionne le texte puis Copier')}}break;
@@ -5661,6 +5677,10 @@ async function act(a,el,e){
   case 'sh-co':shareSend('co');break;
   case 'sh-rc':closeSheet();shareSend('rc',ds_.id);break;
   case 'tk-chk':tkCheck(ds_.id);break;
+  case 'tk-note':tkNote(ds_.id);break;
+  case 'tk-arc':tkArchive();break;
+  case 'tk-sl':TKV.sl=ds_.v||'';render();break;
+  case 'tk-suivi-exp':tkSuiviExport();break;
   case 'tk-f':TKV[ds_.k]=ds_.v;render();break;
   case 'tk-lists':tkManage('lists');break;
   case 'me-set':meSet();break;
@@ -5907,15 +5927,59 @@ function tkHits(k,day){
 }
 const tkOn=day=>tkAll().filter(k=>tkHits(k,day));
 function tkMark(d){return tkOn(d).length?'<em class="tkm" title="Tâches">☑</em>':''}
+/* Plusieurs personnes par tâche (k.ws) : la première qui la fait la coche. Qui l'a faite, quand, avec une note : k.xb, k.xa, k.xn.
+   Tâches qui reviennent : chaque fois est gardée dans k.h. Archiver (k.ar) les retire de la liste, elles restent dans « Suivi ». */
+const tkWho=k=>Array.isArray(k.ws)&&k.ws.length?k.ws:(k.w?[k.w]:[]);
+const tkFor=(k,w)=>!w||tkWho(k).includes(w);
+const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
 function tkMeta(k,showList){
- const p=pplOf(k.w),t=today(),m=[];
+ const P=tkWho(k).map(pplOf).filter(Boolean),t=today(),m=[];
  if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+'</span>');
  if(k.r)m.push('🔁 '+esc(tkRepTxt(k.r)));
- if(p)m.push('<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>');
+ P.forEach(p=>m.push('<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>'));
+ if(k.x&&(k.xb||k.xa))m.push('<span class="tk-by">✓ '+(k.xb?'par '+esc(k.xb)+' ':'')+(k.xa?esc(tkWhen(k.xa)):'')+'</span>');
+ if(k.x&&k.xn)m.push('💬 '+esc(k.xn.slice(0,60)));
+ if(!k.x&&Array.isArray(k.h)&&k.h.length){const z=k.h[k.h.length-1];m.push('<span class="tk-by">dernière fois : '+esc(z.b||'')+' '+esc(tkWhen(z.a))+'</span>')}
  if(showList){const l=tlOf(k.l);if(l)m.push(esc((l.i?l.i+' ':'')+l.n))}
  if(k.n)m.push('📝');
  return m.join(' · ');
 }
+function tkSuiviEvents(){
+ const ev=[];
+ for(const k of tkAll()){if(isCoL(k.l))continue;
+  if(k.x&&k.xa)ev.push({k,a:k.xa,b:k.xb||'',n:k.xn||'',rep:false});
+  (Array.isArray(k.h)?k.h:[]).forEach(z=>ev.push({k,a:z.a,b:z.b||'',n:z.n||'',rep:true}))}
+ const p=pplOf(TKV.w);
+ return ev.filter(e=>(!TKV.sl||e.k.l===TKV.sl)&&(!p||norm(e.b)===norm(p.n)||tkWho(e.k).includes(p.id))).sort((a,b)=>b.a-a.a);
+}
+function tkSuiviHTML(){
+ const E=tkSuiviEvents(),L=tkLists().filter(l=>!isCoL(l.id)),t=today();
+ const arcN=tkAll().filter(k=>k.x&&!k.ar&&!isCoL(k.l)).length;
+ let h='<div class="tk-suivi"><p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Qui a fait quoi, et quand. Les personnes avec qui la liste est partagée voient le même suivi.</p>';
+ h+='<div class="chips tk-chips" style="margin:0 0 .5rem"><button class="chip'+(!TKV.sl?' on':'')+'" data-act="tk-sl" data-v="">Toutes les listes</button>'+L.map(l=>'<button class="chip'+(TKV.sl===l.id?' on':'')+'" data-act="tk-sl" data-v="'+esc(l.id)+'">'+esc((l.i?l.i+' ':'')+l.n)+'</button>').join('')+'</div>';
+ if(!E.length)h+='<p class="empty">Rien de fait pour l’instant'+(TKV.w?' par cette personne':'')+'. Quand quelqu’un coche une tâche, elle s’affiche ici avec son nom et l’heure.</p>';
+ let last='';
+ for(const e of E.slice(0,300)){
+  const d=ds(new Date(e.a));if(d!==last){last=d;h+='<div class="tk-gh tk-sh">'+(d===t?'Aujourd’hui':d===add(t,-1)?'Hier':esc(cap(fLong(d))))+'</div>'}
+  const l=tlOf(e.k.l),tm=new Date(e.a).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  h+='<div class="tk-ev'+(e.k.ar?' ar':'')+'"><span class="tk-evc">✓</span><div class="tk-evt"><b>'+esc(e.k.t)+'</b><small>'+(e.b?'par <b>'+esc(e.b)+'</b> · ':'')+esc(tm)+(l?' · '+esc((l.i?l.i+' ':'')+l.n):'')+(e.rep?' · 🔁':'')+(e.k.ar?' · 🗄 archivée':'')+'</small>'+(e.n?'<small class="tk-evn">💬 '+esc(e.n)+'</small>':'')+'</div>'+(!e.rep&&!e.n?'<button class="chip" data-act="tk-note" data-id="'+esc(e.k.id)+'" aria-label="Ajouter une note">📝</button>':'')+'</div>';
+ }
+ h+='<div class="chips" style="margin:.8rem 0">'+(arcN?'<button class="chip" data-act="tk-arc">🗄 '+(arcN>1?'Archiver les '+arcN+' tâches faites':'Archiver la tâche faite')+'</button>':'')+'<button class="chip" data-act="tk-suivi-exp">📤 Exporter le suivi (Excel)</button></div></div>';
+ return h;
+}
+async function tkArchive(){
+ const L=tkAll().filter(k=>k.x&&!k.ar&&!isCoL(k.l)&&(!TKV.l||TKV.l==='__done'||k.l===TKV.l));if(!L.length){toast('Aucune tâche faite à archiver');return}
+ const r=await ask({title:'🗄 Archiver '+L.length+' tâche'+(L.length>1?'s':'')+' faite'+(L.length>1?'s':'')+' ?',text:'Elles disparaissent des listes mais restent dans 📜 Suivi (qui, quand, notes). Pour toutes les personnes qui partagent ces listes.',btns:[{label:'Archiver',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;const now=Date.now();L.forEach(k=>{k.ar=1;k.m=now});saveSet();render();toast(L.length+' tâche'+(L.length>1?'s':'')+' archivée'+(L.length>1?'s':''));
+}
+async function tkSuiviExport(){
+ const E=tkSuiviEvents();if(!E.length){toast('Rien à exporter');return}
+ const csv='\ufeff'+['Date;Heure;Tâche;Liste;Fait par;Note;Qui devait le faire'].concat(E.map(e=>{const d=new Date(e.a);return [d.toLocaleDateString('fr-FR'),d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),e.k.t,(tlOf(e.k.l)||{}).n||'',e.b,e.n,tkWho(e.k).map(pplOf).filter(Boolean).map(p=>p.n).join(', ')].map(csvC).join(';')})).join('\n');
+ const f=new File([csv],'suivi-taches.csv',{type:'text/csv'});
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Suivi des tâches'});return}}catch(e){if(e&&e.name==='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download='suivi-taches.csv';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+const tkWhen=ts=>{const d=new Date(ts);return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
 function tkRow(k,showList){
  return '<div class="tk-r'+(k.x?' dn':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(tkMeta(k,showList)?'<small>'+tkMeta(k,showList)+'</small>':'')+'</button></div>';
 }
@@ -5929,21 +5993,22 @@ function tkDayHTML(day,compact){
 }
 function tasksView(){
  const L=tkLists(),P=ppl(),t=today(),wk=add(t,7);
- const all=tkAll().filter(k=>(TKV.l?k.l===TKV.l:!isCoL(k.l))&&(!TKV.w||k.w===TKV.w));
+ const all=tkAll().filter(k=>!k.ar&&(TKV.l?k.l===TKV.l:!isCoL(k.l))&&tkFor(k,TKV.w));
  const pend=all.filter(k=>!k.x),done=all.filter(k=>k.x).sort((a,b)=>(b.xa||0)-(a.xa||0));
- const cnt=id=>tkAll().filter(k=>!k.x&&k.l===id).length;
+ const cnt=id=>tkAll().filter(k=>!k.x&&!k.ar&&k.l===id).length;
  const chip=(act,k,v,lbl,on)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-k="'+k+'" data-v="'+esc(v)+'">'+lbl+'</button>';
  const coN=tkAll().filter(k=>!k.x&&isCoL(k.l)).length;
  const side=lstSide();
  let h='<div class="tk-wrap"><div class="tk-bar">'+(side?'<div class="tk-dummy">':'<div class="chips tk-chips">')+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x&&!isCoL(k.l)).length+'</small>',!TKV.l)+
 
-  L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
+  L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+chip('tk-f','l','__done','📜 Suivi',TKV.l==='__done')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
   '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  if(isCoL(TKV.l)){S.coLid=TKV.l;TKV.l='';setTimeout(()=>go('courses'),0)}
  const showList=!TKV.l;
  let any=false;
+ if(TKV.l==='__done'){h+=tkSuiviHTML()}else{
  h+='<div class="tk-cols">';
  for(const [lbl,f] of G){
   const l=pend.filter(f).sort(by);if(!l.length)continue;any=true;
@@ -5951,11 +6016,12 @@ function tasksView(){
  }
  h+='</div>';
  if(!any)h+='<p class="empty">'+(done.length?'Tout est fait 👍':'Aucune tâche pour l’instant.')+' Touche + pour en ajouter une.</p>';
- if(done.length)h+='<details class="tk-g tk-done"><summary>Faites <small>'+done.length+'</small></summary>'+done.slice(0,60).map(k=>tkRow(k,showList)).join('')+'<button class="btn sm blk" data-act="tk-clear">Effacer les tâches faites</button></details>';
+ if(done.length)h+='<details class="tk-g tk-done"><summary>Faites <small>'+done.length+'</small></summary>'+done.slice(0,60).map(k=>tkRow(k,showList)).join('')+'<button class="btn sm blk" data-act="tk-arc">🗄 Archiver les tâches faites (elles restent dans 📜 Suivi)</button><button class="btn sm blk" data-act="tk-clear">Effacer les tâches faites</button></details>';
+ }
  h+='<p class="mut tk-hint">Une tâche avec une date apparaît aussi ce jour-là dans l’agenda (☑). Une tâche qui revient passe toute seule à la date suivante quand tu la coches.</p></div>';
  if(side){
   h=h.replace(/<div class="tk-dummy">[\s\S]*?<\/div>/,'');
-  const tabs=[{v:'',n:'Toutes',c:tkAll().filter(k=>!k.x&&!isCoL(k.l)).length,on:!TKV.l}].concat(L.filter(l=>!isCoL(l.id)).map(l=>({v:l.id,n:(l.i?l.i+' ':'')+l.n,c:cnt(l.id),on:TKV.l===l.id})));
+  const tabs=[{v:'',n:'Toutes',c:tkAll().filter(k=>!k.x&&!k.ar&&!isCoL(k.l)).length,on:!TKV.l}].concat(L.filter(l=>!isCoL(l.id)).map(l=>({v:l.id,n:(l.i?l.i+' ':'')+l.n,c:cnt(l.id),on:TKV.l===l.id})),[{v:'__done',n:'📜 Suivi',c:0,on:TKV.l==='__done'}]);
   const nav='<nav class="co-tabs" aria-label="Mes listes de tâches">'+tabs.map(x=>'<button class="co-tab'+(x.on?' on':'')+'" data-act="tk-f" data-k="l" data-v="'+esc(x.v)+'" style="--tc:var(--k-tk)"><span class="co-tn">'+esc(x.n)+'</span>'+(x.c?'<b class="co-tc">'+x.c+'</b>':'')+'</button>').join('')+'<button class="co-tab co-tadd" data-act="tk-lists" title="Gérer les listes" aria-label="Gérer les listes">⚙</button></nav>';
   h=h.replace('<div class="tk-wrap">','<div class="tk-wrap"><div class="co-book" style="--tcur:var(--k-tk)"><div class="co-page">');
   h=h.replace(/<\/div>$/,'</div>'+nav+'</div></div>');
@@ -5966,11 +6032,14 @@ function tasksView(){
 async function tkEdit(id,pre){
  const k0=id?tkAll().find(k=>k.id===id):null;
  if(id&&!k0)return;
- const v=Object.assign({t:'',l:TKV.l||tkLists()[0].id,d:'',w:TKV.w||'',r:'',n:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',r:tkRepKey(k0.r),n:k0.n||''}:{},pre||{});
+ const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||''}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
  const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
  const html='<label class="lbl" for="tk-t">Tâche</label><input class="in" id="tk-t" maxlength="120" value="'+esc(v.t)+'" placeholder="Ex. Acheter du pain, rendre les livres…" autocomplete="off">'+
   '<div class="tk-2"><div><label class="lbl" for="tk-l">Liste</label><select class="in" id="tk-l">'+opt(tkLists().map(l=>[l.id,(l.i?l.i+' ':'')+l.n]),v.l)+'</select></div>'+
-  '<div><label class="lbl" for="tk-w">Qui s’en occupe</label><select class="in" id="tk-w">'+opt([['','Personne en particulier']].concat(pplSorted().map(p=>[p.id,pplName(p)])),v.w)+'</select></div></div>'+
+  '</div><label class="lbl">Qui s’en occupe <small class="mut" style="text-transform:none;font-weight:600">(un ou plusieurs : le premier qui la fait la coche)</small></label><div class="chips" id="tk-ws" style="margin:.1rem 0 .3rem">'+(pplSorted().length?pplSorted().map(p=>'<button type="button" class="chip'+(v.ws.includes(p.id)?' on':'')+'" data-tw="'+esc(p.id)+'"><i class="tk-dot" style="background:'+p.c+'"></i>'+esc(pplName(p))+'</button>').join(''):'<span class="mut" style="font-size:.85rem">Ajoute des personnes avec « 👪 Famille ».</span>')+'</div>'+
+  (k0&&k0.x?'<p class="tk-done-info">✓ Fait'+(k0.xb?' par <b>'+esc(k0.xb)+'</b>':'')+(k0.xa?' le '+esc(tkWhen(k0.xa)):'')+(k0.xn?'<br>💬 '+esc(k0.xn):'')+'</p>':'')+
+  (k0&&Array.isArray(k0.h)&&k0.h.length?'<details class="sfold"><summary>Historique ('+k0.h.length+' fois)</summary><div class="mut" style="font-size:.85rem">'+k0.h.slice().reverse().map(z=>'✓ '+esc(tkWhen(z.a))+(z.b?' · '+esc(z.b):'')+(z.n?' · 💬 '+esc(z.n):'')).join('<br>')+'</div></details>':'')+
+  '<div class="tk-2" style="display:none"><div></div></div>'+
   '<div class="tk-2"><div><label class="lbl" for="tk-d">Date (facultatif)</label><input class="in" type="date" id="tk-d" value="'+esc(v.d)+'"></div>'+
   '<div><label class="lbl" for="tk-r">Revient</label><select class="in" id="tk-r">'+opt(TK_REP,v.r)+'</select></div></div>'+
   '<label class="lbl" for="tk-n">Note</label><textarea class="in" id="tk-n" rows="2" maxlength="500">'+esc(v.n)+'</textarea>'+
@@ -5979,8 +6048,9 @@ async function tkEdit(id,pre){
  const p=ask({title:k0?'Modifier la tâche':'Nouvelle tâche',html,btns});
  const root=$('#dlg');const map={'tk-t':'t','tk-l':'l','tk-d':'d','tk-w':'w','tk-r':'r','tk-n':'n'};
  root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
+ const tw=e=>{const b=e.target.closest&&e.target.closest('[data-tw]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const id=b.dataset.tw;const i=v.ws.indexOf(id);if(i>=0)v.ws.splice(i,1);else v.ws.push(id);b.classList.toggle('on',i<0)};root.addEventListener('click',tw,true);
  setTimeout(()=>{const i=$('#tk-t');if(i&&!k0)i.focus()},60);
- const r=await p;root.oninput=root.onchange=null;
+ const r=await p;root.oninput=root.onchange=null;root.removeEventListener('click',tw,true);
  if(r==='del'){const ok=await ask({title:'Supprimer cette tâche ?',text:k0.t,btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.tk=tkAll().filter(k=>k.id!==id);tkTomb([id]);saveSet();render();toast('Tâche supprimée')}return}
  if(r!=='ok')return;
  const t=String(v.t||'').trim().slice(0,120);
@@ -5990,7 +6060,8 @@ async function tkEdit(id,pre){
  if(rk&&!d)d=today();
  const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
  const k=k0||{id:uid(),ca:Date.now()};
- Object.assign(k,{t,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:pplOf(v.w)?v.w:'',r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ const ws=v.ws.filter(x=>pplOf(x));
+ Object.assign(k,{t,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
  if(rr)k.x=false;
  if(!k0)tkAll().push(k);
  saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
@@ -5998,18 +6069,28 @@ async function tkEdit(id,pre){
 function tkCheck(id){
  const k=tkAll().find(x=>x.id===id);if(!k)return;
  if(k.r&&!k.x){
-  const prev=k.d,pm=k.m;k.d=tkStep(k.d,k.r);k.m=Date.now();saveSet();render();
-  toast('Fait ! Prochaine fois : '+fShort(k.d),5000,{label:'Annuler',fn:()=>{k.d=prev;k.m=pm;saveSet();render()}});
+  const prev=k.d,pm=k.m;k.d=tkStep(k.d,k.r);k.m=Date.now();if(!Array.isArray(k.h))k.h=[];k.h.push({a:Date.now(),b:meName()||'',d:prev});if(k.h.length>30)k.h=k.h.slice(-30);saveSet();render();
+  toast('Fait ! Prochaine fois : '+fShort(k.d),6000,{label:'📝 Ajouter une note',fn:()=>tkNote(k.id,true)});
   return;
  }
- k.x=!k.x;k.xa=k.x?Date.now():0;k.m=Date.now();saveSet();render();
- if(k.x&&!isCoL(k.l))toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
+ k.x=!k.x;k.xa=k.x?Date.now():0;k.xb=k.x?(meName()||''):'';if(!k.x)k.xn='';k.m=Date.now();saveSet();render();
+ if(k.x&&!isCoL(k.l))toast('Fait !',6000,{label:'📝 Ajouter une note',fn:()=>tkNote(k.id)});
+}
+async function tkNote(id,rep){
+ const k=tkAll().find(x=>x.id===id);if(!k)return;
+ const cur=rep?((k.h||[]).slice(-1)[0]||{}).n||'':k.xn||'';
+ const v={t:cur};const pr=ask({title:'📝 Note : '+k.t,html:'<p class="mut" style="font-size:.85rem;margin:.2rem 0 .4rem">Visible dans le suivi par les personnes qui partagent cette liste (ex. « fait avec Paul », « reste à rappeler le client »).</p><textarea class="in" id="tkn-in" rows="3" maxlength="300" style="margin-bottom:.6rem">'+esc(cur)+'</textarea>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='tkn-in')v.t=e.target.value};setTimeout(()=>{const i=$('#tkn-in');if(i)i.focus()},100);
+ const r=await pr;root.oninput=null;if(r!=='ok')return;
+ const t=String(v.t||'').trim().slice(0,300);
+ if(rep){const z=(k.h||[]).slice(-1)[0];if(z)z.n=t}else k.xn=t;
+ k.m=Date.now();saveSet();render();toast('Note enregistrée');
 }
 async function tkClear(){
- const n=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).length;if(!n)return;
+ const n=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w)).length;if(!n)return;
  const r=await ask({title:'Effacer les tâches faites ?',text:n+' tâche'+(n>1?'s':'')+' cochée'+(n>1?'s':'')+' ser'+(n>1?'ont':'a')+' supprimée'+(n>1?'s':'')+'.',btns:[{label:'Effacer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
- const gone=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();
+ const gone=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w)).map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();
 }
 /* gestion simple d'une liste (famille ou listes de tâches) dans une fenêtre */
 async function tkManage(kind){
@@ -6043,7 +6124,7 @@ async function tkManage(kind){
 }
 /* impression A4 : cases à cocher, groupées par liste, avec quelques lignes vides pour écrire à la main */
 function tkPrintGroups(){
- const sel=tkAll().filter(k=>!k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+ const sel=tkAll().filter(k=>!k.x&&(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w));
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  return tkLists().filter(l=>!TKV.l||l.id===TKV.l).map(l=>({l,items:sel.filter(k=>k.l===l.id).sort(by)})).filter(g=>g.items.length||TKV.l);
 }
@@ -6190,12 +6271,12 @@ function shPack(kind,arg){
   for(let i=0;i<7;i++){const d=add(ws,i),x=mnAll()[d];if(!x)continue;mn[d]={};for(const k of ['m','s'])if(x[k]){mn[d][k]=x[k];if(x[k].r)rids.add(x[k].r);if(x[k].w)wids.add(x[k].w)}}
   return Object.assign(base,{lbl:'Menu de la semaine du '+fShort(ws),ws,mn,rc:rcAll().filter(r=>rids.has(r.id)).map(rcPack),ppl:pplPack([...wids])})}
  if(kind==='tk'){
-  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w));
   const lids=TKV.l?[TKV.l]:tkLists().map(l=>l.id);
-  const wids=[...new Set(sel.map(k=>k.w).filter(Boolean))];
+  const wids=[...new Set(sel.flatMap(k=>tkWho(k)))];
   const p=pplOf(TKV.w);
   return Object.assign(base,{lbl:(TKV.l?tlOf(TKV.l).n:'Tâches')+(p?' de '+p.n:''),tl:tkLists().filter(l=>lids.includes(l.id)).map(l=>({id:l.id,n:l.n,i:l.i,m:l.m||0})),
-   tk:sel.map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),
+   tk:sel.map(k=>tkPack(k)),del:shTrim(S.tkDel),
    ppl:ppl().filter(x=>wids.includes(x.id)).map(x=>({id:x.id,n:x.n,ln:x.ln||'',rel:x.rel||'aut',tel:x.tel||'',mail:x.mail||'',c:x.c}))});
  }
  if(kind==='bd'){
@@ -6252,7 +6333,7 @@ function shMerge(P,apply){
    map[p.id]=loc?loc.id:'';
   }
   for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),co:l.co?1:undefined,m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
-  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',w:map[k.w]||'',r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?now:0,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
+  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
   for(const k of (P.tk||[])){
    if(!k||!k.id||!k.t)continue;
    const loc=tkAll().find(x=>x.id===k.id);
@@ -6818,7 +6899,10 @@ const WISH={
   'Un an de plus, et alors ?\n{p}, tu brilles encore plus fort !\n{A}Bougies, gâteau et cotillons,\nbon anniversaire, champion ! 🎉'],
  pro:['Joyeux anniversaire {p} ! Toute l’équipe te souhaite une excellente journée 🎉','Bon anniversaire {p} ! {A}Une très belle année à toi, sur le plan perso comme au travail.']
 };
-const WISH_THEMES=[['ballons','🎈 Ballons'],['gateau','🎂 Gâteau'],['fleurs','🌸 Fleurs'],['etoiles','✨ Étoiles']];
+const WISH_THEMES=[['ballons','🎈 Ballons'],['guirlande','🎉 Guirlande'],['gateau','🎂 Gâteau'],['fleurs','🌸 Fleurs'],['arcenciel','🌈 Arc-en-ciel'],['bulles','🫧 Bulles'],['etoiles','✨ Étoiles'],['chic','🥂 Chic']];
+const WISH_TITLES=[['ja','Joyeux anniversaire'],['ba','Bon anniversaire'],['hb','Happy birthday'],['bf','Bonne fête']];
+const WISH_LAYS=[['rond','⚪ Rond'],['coeur','❤️ Cœur'],['carre','◻️ Carré'],['polaroid','🖼 Polaroïd'],['plein','🌄 Plein écran']];
+const WISH_FX=[['normal','Normal'],['vif','Vif'],['chaud','Chaud'],['nb','Noir et blanc'],['sepia','Sépia']];
 let WS=null; /* état de la fenêtre « Souhaiter » */
 function wishAgeTxt(b){const a=bdAge(b,bdNext(b,today()));return a&&a>0?a+' ans':''}
 function wishFill(tpl,b){const age=wishAgeTxt(b);return tpl.replace(/\{p\}/g,b.n.split(' ')[0]).replace('{A}',age?age.replace(' ans',' ans, ')+'ça se fête ! ':'').replace(/\s+\n/g,'\n').replace(/ {2,}/g,' ').trim()}
@@ -6826,7 +6910,7 @@ async function bdWish(id){
  const b=bdClean().find(x=>x.id===id);if(!b)return;
  const ct=pplOf(b.ct);
  const tone=WS&&WS.id===id?WS.tone:(ct&&ct.rel==='enf'?'enfant':ct&&ct.rel==='par'?'ainé':'tendre');
- WS={id,tone,sig:WS&&WS.id===id&&WS.sig!=null?WS.sig:(S.wsSig!=null?S.wsSig:'me'),i:WS&&WS.id===id?WS.i:0,theme:WS&&WS.id===id?WS.theme:'ballons',usePh:WS&&WS.id===id?WS.usePh:!!b.ph,txt:WS&&WS.id===id&&WS.edited?WS.txt:null,edited:WS&&WS.id===id?WS.edited:false};
+ WS={lay:WS&&WS.id===id?WS.lay:(S.wsLay||'rond'),fx:WS&&WS.id===id?WS.fx:'normal',ti:WS&&WS.id===id?WS.ti:0,id,tone,sig:WS&&WS.id===id&&WS.sig!=null?WS.sig:(S.wsSig!=null?S.wsSig:'me'),i:WS&&WS.id===id?WS.i:0,theme:WS&&WS.id===id?WS.theme:'ballons',usePh:WS&&WS.id===id?WS.usePh:!!b.ph,txt:WS&&WS.id===id&&WS.edited?WS.txt:null,edited:WS&&WS.id===id?WS.edited:false};
  const L=WISH[WS.tone];if(WS.txt==null)WS.txt=wishFill(L[WS.i%L.length],b);
  const sent=b.ws&&b.ws.y===new Date().getFullYear();
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎉 Souhaiter à '+esc(b.n)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
@@ -6834,11 +6918,13 @@ async function bdWish(id){
  h+='<div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+WISH_TONES.map(t=>'<button class="chip'+(WS.tone===t[0]?' on':'')+'" data-act="ws-tone" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
  h+='<textarea class="in" id="ws-txt" rows="5">'+esc(WS.txt)+'</textarea><div class="chips" style="margin:.4rem 0 .7rem"><button class="chip" data-act="ws-next">🔀 Un autre message</button></div>';
  h+='<b class="rc-h" style="display:block">La carte</b><div class="chips tk-chips" style="margin:.2rem 0 .4rem">'+WISH_THEMES.map(t=>'<button class="chip'+(WS.theme===t[0]?' on':'')+'" data-act="ws-theme" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
+ h+='<div class="chips tk-chips" style="margin:0 0 .4rem">'+WISH_TITLES.map((t,i)=>'<button class="chip'+((WS.ti||0)===i?' on':'')+'" data-act="ws-ti" data-v="'+i+'">'+t[1]+'</button>').join('')+'</div>';
  const me=meName(),conj=ppl().find(p=>p.rel==='conj'&&p.id!==S.meId),fam=(pplOf(S.meId)||{}).ln||((ppl().find(p=>p.ln)||{}).ln)||'';
  const SIG=[['me',me||'Moi'],conj&&me?['duo',me+' et '+conj.n]:null,['papa','Papa'],['maman','Maman'],['papi','Papi'],['mamie','Mamie'],['fam','Toute la famille'],fam?['famn','La famille '+fam]:null,['none','Sans signature'],['txt','✏️ Autre…']].filter(Boolean);
  h+='<b class="rc-h" style="display:block;margin-top:.2rem">Signé</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+SIG.map(x=>'<button class="chip'+(WS.sig===x[0]?' on':'')+'" data-act="ws-sig" data-v="'+x[0]+'">'+esc(x[1])+'</button>').join('')+'</div>';
  h+='<div class="wish-card"><canvas id="ws-cv" width="1080" height="1350"></canvas></div>';
- h+='<div class="chips" style="margin:.5rem 0 .7rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(b.ph?'Changer la photo':'Ajouter une photo')+'<input type="file" accept="image/*" id="ws-ph" style="position:absolute;inset:0;opacity:0"></label>'+(b.ph?'<button class="chip'+(WS.usePh?' on':'')+'" data-act="ws-useph">'+(WS.usePh?'✓ Photo sur la carte':'Photo sur la carte')+'</button>':'')+'</div>';
+ h+='<div class="chips" style="margin:.5rem 0 .4rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(b.ph?'Changer la photo':'Ajouter une photo')+'<input type="file" accept="image/*" id="ws-ph" style="position:absolute;inset:0;opacity:0"></label>'+(b.ph?'<button class="chip'+(WS.usePh?' on':'')+'" data-act="ws-useph">'+(WS.usePh?'✓ Photo sur la carte':'Photo sur la carte')+'</button>':'')+'</div>';
+ if(b.ph&&WS.usePh){h+='<b class="rc-h" style="display:block">La photo</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem">'+WISH_LAYS.map(t=>'<button class="chip'+((WS.lay||'rond')===t[0]?' on':'')+'" data-act="ws-lay" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="chips tk-chips" style="margin:0 0 .7rem">'+WISH_FX.map(t=>'<button class="chip'+((WS.fx||'normal')===t[0]?' on':'')+'" data-act="ws-fx" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'}
  h+='<button class="btn pri blk" data-act="ws-send">📤 Envoyer la carte et le message</button>';
  if(ct&&ct.tel)h+='<button class="btn blk" data-act="ws-sms">💬 SMS à '+esc(pplName(ct))+' (message seul)</button>';
  h+='<button class="btn blk" data-act="ws-copy">Copier le message</button>';
@@ -6849,26 +6935,88 @@ async function bdWish(id){
 async function wishDraw(){
  const cv=$('#ws-cv');if(!cv||!WS)return;const b=bdClean().find(x=>x.id===WS.id);if(!b)return;
  const g=cv.getContext('2d'),W=cv.width,H=cv.height;
- const TH={ballons:['#fdf4e7','#e76f51','#2a9d8f','#e9c46a','#264653'],gateau:['#fff1f2','#be185d','#f472b6','#fbbf24','#7c2d12'],fleurs:['#f3f7ee','#4d7c0f','#f9a8d4','#fde68a','#365314'],etoiles:['#0f1b33','#fbbf24','#93c5fd','#f9a8d4','#e2e8f0']}[WS.theme];
- const dark=WS.theme==='etoiles';
- g.fillStyle=TH[0];g.fillRect(0,0,W,H);
+ const TH={ballons:['#fdf4e7','#e76f51','#2a9d8f','#e9c46a','#264653'],gateau:['#fff1f2','#be185d','#f472b6','#fbbf24','#7c2d12'],fleurs:['#f3f7ee','#4d7c0f','#f9a8d4','#fde68a','#365314'],etoiles:['#0f1b33','#fbbf24','#93c5fd','#f9a8d4','#e2e8f0'],
+  guirlande:['#fffaf0','#ef4444','#3b82f6','#f59e0b','#1f2937'],chic:['#14141a','#d4af37','#f3e5ab','#b8860b','#f8f5ec'],arcenciel:['#f8fbff','#ef4444','#f59e0b','#22c55e','#1e3a8a'],bulles:['#f5f3ff','#8b5cf6','#f472b6','#60a5fa','#3b0764']}[WS.theme]||['#fdf4e7','#e76f51','#2a9d8f','#e9c46a','#264653'];
+ const dark=WS.theme==='etoiles'||WS.theme==='chic';
  let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
- if(WS.theme==='ballons'){for(let i=0;i<9;i++){const x=80+rnd()*920,y=80+rnd()*300,r=50+rnd()*30,c=TH[1+(i%4)];g.strokeStyle=dark?'#fff8':'#0003';g.lineWidth=3;g.beginPath();g.moveTo(x,y+r*1.2);g.bezierCurveTo(x+20,y+r*2,x-20,y+r*2.6,x+5,y+r*3.2);g.stroke();g.fillStyle=c;g.beginPath();g.ellipse(x,y,r*.85,r,0,0,7);g.fill();g.fillStyle='#fff6';g.beginPath();g.ellipse(x-r*.3,y-r*.35,r*.18,r*.28,-.5,0,7);g.fill()}}
- if(WS.theme==='fleurs'){for(let i=0;i<14;i++){const x=rnd()*W,y=i<7?rnd()*260:H-rnd()*260,r=26+rnd()*26,c=TH[2+(i%2)];g.fillStyle=c;for(let k=0;k<5;k++){const a=k*1.2566;g.beginPath();g.arc(x+Math.cos(a)*r,y+Math.sin(a)*r,r*.7,0,7);g.fill()}g.fillStyle=TH[1];g.beginPath();g.arc(x,y,r*.5,0,7);g.fill()}}
- if(WS.theme==='etoiles'){for(let i=0;i<70;i++){const x=rnd()*W,y=rnd()*H,r=2+rnd()*6;g.fillStyle=TH[1+(i%4)];g.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5,rr=k%2?r*.45:r*1.6;g.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}g.fill()}}
- if(WS.theme==='gateau'){g.font='150px serif';g.textAlign='center';['🎂','🧁','🎁','🍰'].forEach((e,i)=>g.fillText(e,140+i*265,210))}
- for(let i=0;i<60;i++){g.fillStyle=TH[1+(i%4)];g.globalAlpha=.55;g.save();g.translate(rnd()*W,rnd()*H);g.rotate(rnd()*3);g.fillRect(-9,-4,18,8);g.restore()}g.globalAlpha=1;
+ const usePh=WS.usePh&&b.ph;let im=null;
+ if(usePh){try{const src=await PH.get(b.id);if(src){im=await loadImg(src);if(WS.fx&&WS.fx!=='normal')im=wishFx(im,WS.fx)}}catch(e){im=null}}
+ const lay=im?(WS.lay||'rond'):'';
+ const title=(WISH_TITLES[WS.ti||0]||WISH_TITLES[0])[1];
  const ink=dark?'#ffffff':TH[4],acc=TH[1];
- let y0=430;
- const usePh=WS.usePh&&b.ph;const ph=usePh?await PH.get(b.id):null;
- if(ph){try{const im=await loadImg(ph);const R=230,cx=W/2,cy=640;g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.closePath();g.clip();const k=Math.max(2*R/im.width,2*R/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();g.lineWidth=14;g.strokeStyle='#fff';g.beginPath();g.arc(cx,cy,R+7,0,7);g.stroke();y0=950}catch(e){}}
- g.textAlign='center';g.fillStyle=acc;g.font='italic 700 92px "New York",Georgia,serif';g.fillText('Joyeux',W/2,y0);g.fillText('anniversaire',W/2,y0+105);
- const nm=b.n.split(' ')[0];let fs=150;g.font='800 '+fs+'px -apple-system,"Segoe UI",Roboto,sans-serif';while(g.measureText(nm).width>W-140&&fs>60){fs-=8;g.font='800 '+fs+'px -apple-system,"Segoe UI",Roboto,sans-serif'}
- g.fillStyle=ink;g.fillText(nm,W/2,y0+(ph?250:290));
- const age=wishAgeTxt(b);
- if(!age&&!ph){g.font='240px "Apple Color Emoji","Segoe UI Emoji",serif';g.textAlign='center';g.fillText({ballons:'🎈',gateau:'🎂',fleurs:'💐',etoiles:'🌟'}[WS.theme]||'🎉',W/2,y0+560)}
- if(age){const cy=ph?y0-560:y0+470;if(!ph){g.fillStyle=acc;g.beginPath();g.arc(W/2,cy,120,0,7);g.fill();g.fillStyle='#fff';g.font='800 96px -apple-system,sans-serif';g.fillText(age.split(' ')[0],W/2,cy+20);g.font='700 40px -apple-system,sans-serif';g.fillText('ans',W/2,cy+70)}else{g.fillStyle=acc;g.beginPath();g.arc(W/2+190,640-170,78,0,7);g.fill();g.fillStyle='#fff';g.font='800 64px -apple-system,sans-serif';g.fillText(age.split(' ')[0],W/2+190,640-162);g.font='700 28px -apple-system,sans-serif';g.fillText('ans',W/2+190,640-125)}}
- const sg=wishSig();if(sg){g.fillStyle=ink;g.globalAlpha=.85;let f=48;g.font='italic 500 '+f+'px "New York",Georgia,serif';while(g.measureText('— '+sg).width>W-120&&f>28){f-=4;g.font='italic 500 '+f+'px "New York",Georgia,serif'}g.fillText('— '+sg,W/2,H-80);g.globalAlpha=1}
+ /* ---- fond et décor ---- */
+ g.save();g.fillStyle=TH[0];g.fillRect(0,0,W,H);
+ if(lay==='plein'){
+  const k=Math.max(W/im.width,H/im.height);g.drawImage(im,(W-im.width*k)/2,(H-im.height*k)/2,im.width*k,im.height*k);
+  const gr=g.createLinearGradient(0,H*.42,0,H);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.78)');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  for(let i=0;i<45;i++){g.fillStyle=TH[1+(i%4)];g.globalAlpha=.8;g.save();g.translate(rnd()*W,rnd()*H*.45);g.rotate(rnd()*3);g.fillRect(-10,-4,20,8);g.restore()}g.globalAlpha=1;
+ }else{
+  wishDecor(g,W,H,WS.theme,TH,rnd,!!im);
+  for(let i=0;i<50;i++){g.fillStyle=TH[1+(i%4)];g.globalAlpha=.5;g.save();g.translate(rnd()*W,rnd()*H);g.rotate(rnd()*3);g.fillRect(-9,-4,18,8);g.restore()}g.globalAlpha=1;
+  g.strokeStyle=dark?TH[1]:TH[4];g.globalAlpha=dark?.8:.18;g.lineWidth=dark?4:3;wishRR(g,34,34,W-68,H-68,38);g.stroke();g.globalAlpha=1;
+ }
+ g.restore();
+ const fit=(txt,font,max,start,min)=>{let f=start;g.font=font.replace('{s}',f);while(g.measureText(txt).width>max&&f>min){f-=6;g.font=font.replace('{s}',f)}return f};
+ const nm=b.n.split(' ')[0],age=wishAgeTxt(b),nAge=age?age.split(' ')[0]:'';
+ const SERIF='italic 700 {s}px "New York",Georgia,serif',SANS='800 {s}px -apple-system,"Segoe UI",Roboto,sans-serif';
+ const badge=(x,y,r)=>{if(!nAge)return;g.save();g.shadowColor='rgba(0,0,0,.25)';g.shadowBlur=18;g.fillStyle=acc;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.restore();g.fillStyle=dark&&WS.theme==='chic'?'#14141a':'#fff';g.textAlign='center';g.font='800 '+Math.round(r*.8)+'px -apple-system,sans-serif';g.fillText(nAge,x,y+r*.17);g.font='700 '+Math.round(r*.33)+'px -apple-system,sans-serif';g.fillText('ans',x,y+r*.58)};
+ const two=t=>{const w=t.split(' ');return w.length>1?[w[0],w.slice(1).join(' ')]:[t,'']};
+ g.textAlign='center';
+ /* ---- photo + textes selon la mise en page ---- */
+ if(lay==='plein'){
+  g.fillStyle='#fff';fit(title,SERIF,W-140,96,50);g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=14;g.fillText(title,W/2,H-400);
+  fit(nm,SANS,W-140,170,70);g.fillText(nm,W/2,H-230);g.shadowBlur=0;
+  badge(W-170,170,105);
+ }else if(lay==='polaroid'){
+  const pw=660,ph=760,cx=W/2,cy=520;g.save();g.translate(cx,cy);g.rotate(-.06);
+  g.shadowColor='rgba(0,0,0,.28)';g.shadowBlur=36;g.shadowOffsetY=14;g.fillStyle='#fff';g.fillRect(-pw/2,-ph/2,pw,ph);g.shadowColor='transparent';
+  const s=pw-60,k=Math.max(s/im.width,s/im.height);g.save();g.beginPath();g.rect(-s/2,-ph/2+30,s,s);g.clip();g.drawImage(im,-im.width*k/2,-ph/2+30+s/2-im.height*k/2,im.width*k,im.height*k);g.restore();
+  g.fillStyle='#3a3a3a';g.font='italic 600 46px "Bradley Hand","Segoe Script","Comic Sans MS",cursive';g.fillText(nm+(nAge?' · '+nAge+' ans':''),0,ph/2-40);
+  g.fillStyle='rgba(255,236,170,.75)';g.save();g.translate(-pw/2+40,-ph/2+6);g.rotate(-.5);g.fillRect(-60,-18,120,36);g.restore();g.save();g.translate(pw/2-40,-ph/2+6);g.rotate(.5);g.fillRect(-60,-18,120,36);g.restore();
+  g.restore();
+  g.fillStyle=acc;fit(title,SERIF,W-120,100,56);g.fillText(title,W/2,1020);
+  g.fillStyle=ink;fit(nm,SANS,W-160,120,60);g.fillText(nm,W/2,1150);
+ }else if(lay){
+  const cx=W/2,cy=560,R=270;g.save();
+  if(lay==='coeur'){wishHeart(g,cx,cy,R*1.15);}else if(lay==='carre'){wishRR(g,cx-R,cy-R,2*R,2*R,46);}else{g.beginPath();g.arc(cx,cy,R,0,7);g.closePath()}
+  g.save();g.shadowColor='rgba(0,0,0,.25)';g.shadowBlur=30;g.fillStyle='#fff';g.fill();g.restore();
+  g.clip();const k=Math.max(2*R*1.15/im.width,2*R*1.15/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();
+  g.save();g.lineWidth=16;g.strokeStyle=dark?TH[1]:'#fff';if(lay==='coeur')wishHeart(g,cx,cy,R*1.15);else if(lay==='carre')wishRR(g,cx-R,cy-R,2*R,2*R,46);else{g.beginPath();g.arc(cx,cy,R,0,7)}g.stroke();g.restore();
+  badge(cx+R*.82,cy-R*.78,92);
+  const [l1,l2]=two(title);g.fillStyle=acc;fit(l1+' '+l2,SERIF,W-120,92,56);
+  if(l2&&g.measureText(title).width>W-160){g.fillText(l1,W/2,940);g.fillText(l2,W/2,1035)}else g.fillText(title,W/2,990);
+  g.fillStyle=ink;fit(nm,SANS,W-160,130,60);g.fillText(nm,W/2,1165);
+ }else{
+  const [l1,l2]=two(title);g.fillStyle=acc;g.font=SERIF.replace('{s}',96);
+  if(l2){fit(l2.length>l1.length?l2:l1,SERIF,W-140,100,56);g.fillText(l1,W/2,430);g.fillText(l2,W/2,540)}else{fit(l1,SERIF,W-140,110,56);g.fillText(l1,W/2,500)}
+  g.fillStyle=ink;fit(nm,SANS,W-140,170,64);g.fillText(nm,W/2,740);
+  if(nAge)badge(W/2,960,125);else{g.font='230px "Apple Color Emoji","Segoe UI Emoji",serif';g.fillText({ballons:'🎈',gateau:'🎂',fleurs:'💐',etoiles:'🌟',guirlande:'🎉',chic:'🥂',arcenciel:'🌈',bulles:'🫧'}[WS.theme]||'🎉',W/2,1040)}
+ }
+ const sg=wishSig();if(sg){g.fillStyle=lay==='plein'?'#fff':ink;g.globalAlpha=.9;fit('— '+sg,'italic 500 {s}px "New York",Georgia,serif',W-140,50,28);g.fillText('— '+sg,W/2,H-82);g.globalAlpha=1}
+}
+function wishRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function wishHeart(g,cx,cy,s){const w=s*2,h=s*1.9,x=cx-s,y=cy-h*.45;g.beginPath();g.moveTo(cx,y+h*.28);g.bezierCurveTo(cx,y,x,y,x,y+h*.33);g.bezierCurveTo(x,y+h*.62,cx,y+h*.78,cx,y+h);g.bezierCurveTo(cx,y+h*.78,x+w,y+h*.62,x+w,y+h*.33);g.bezierCurveTo(x+w,y,cx,y,cx,y+h*.28);g.closePath()}
+function wishFx(im,fx){
+ const c=document.createElement('canvas'),mx=1400,k=Math.min(1,mx/Math.max(im.width,im.height));c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+ const x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+ for(let i=0;i<p.length;i+=4){const r=p[i],gg=p[i+1],bb=p[i+2];
+  if(fx==='nb'){const v=.3*r+.59*gg+.11*bb;p[i]=p[i+1]=p[i+2]=v}
+  else if(fx==='sepia'){p[i]=Math.min(255,.393*r+.769*gg+.189*bb);p[i+1]=Math.min(255,.349*r+.686*gg+.168*bb);p[i+2]=Math.min(255,.272*r+.534*gg+.131*bb)}
+  else if(fx==='chaud'){p[i]=Math.min(255,r*1.08+12);p[i+1]=Math.min(255,gg*1.02+4);p[i+2]=bb*.9}
+  else if(fx==='vif'){const m=(r+gg+bb)/3;p[i]=Math.max(0,Math.min(255,m+(r-m)*1.35));p[i+1]=Math.max(0,Math.min(255,m+(gg-m)*1.35));p[i+2]=Math.max(0,Math.min(255,m+(bb-m)*1.35))}}
+ x.putImageData(d,0,0);return c;
+}
+function wishDecor(g,W,H,th,TH,rnd,withPh){
+ const dark=th==='etoiles'||th==='chic';
+ if(th==='ballons'){for(let i=0;i<9;i++){const x=80+rnd()*920,y=80+rnd()*(withPh?160:300),r=50+rnd()*30,c=TH[1+(i%4)];g.strokeStyle='#0003';g.lineWidth=3;g.beginPath();g.moveTo(x,y+r*1.2);g.bezierCurveTo(x+20,y+r*2,x-20,y+r*2.6,x+5,y+r*3.2);g.stroke();g.fillStyle=c;g.beginPath();g.ellipse(x,y,r*.85,r,0,0,7);g.fill();g.fillStyle='#fff6';g.beginPath();g.ellipse(x-r*.3,y-r*.35,r*.18,r*.28,-.5,0,7);g.fill()}}
+ if(th==='fleurs'){for(let i=0;i<16;i++){const x=rnd()*W,y=i<8?rnd()*230:H-rnd()*230,r=26+rnd()*26,c=TH[2+(i%2)];g.fillStyle=c;for(let k=0;k<5;k++){const a=k*1.2566;g.beginPath();g.arc(x+Math.cos(a)*r,y+Math.sin(a)*r,r*.7,0,7);g.fill()}g.fillStyle=TH[1];g.beginPath();g.arc(x,y,r*.5,0,7);g.fill()}}
+ if(th==='etoiles'){for(let i=0;i<80;i++){const x=rnd()*W,y=rnd()*H,r=2+rnd()*6;g.fillStyle=TH[1+(i%4)];g.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5,rr=k%2?r*.45:r*1.6;g.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr)}g.fill()}}
+ if(th==='gateau'){g.font='140px "Apple Color Emoji","Segoe UI Emoji",serif';g.textAlign='center';['🎂','🧁','🎁','🍰'].forEach((e,i)=>g.fillText(e,140+i*265,200));if(!withPh)['🎈','🎉','🥳'].forEach((e,i)=>g.fillText(e,200+i*340,H-150))}
+ if(th==='guirlande'){for(const [y0,sag] of [[70,90],[200,70]]){g.strokeStyle='#0004';g.lineWidth=3;g.beginPath();g.moveTo(40,y0);g.quadraticCurveTo(W/2,y0+sag*2,W-40,y0);g.stroke();const n=11;for(let i=0;i<n;i++){const t=(i+.5)/n,x=40+(W-80)*t,y=y0+sag*2*2*t*(1-t);g.fillStyle=TH[1+(i%4)];g.beginPath();g.moveTo(x-38,y);g.lineTo(x+38,y);g.lineTo(x,y+80);g.closePath();g.fill()}}}
+ if(th==='chic'){g.strokeStyle=TH[1];g.lineWidth=2;g.globalAlpha=.6;wishRR(g,60,60,W-120,H-120,26);g.stroke();g.globalAlpha=1;for(let i=0;i<40;i++){const x=rnd()*W,y=rnd()*H,r=3+rnd()*9;g.fillStyle=TH[1+(i%3)];g.globalAlpha=.75;g.beginPath();g.moveTo(x,y-r*2);g.lineTo(x+r*.5,y-r*.5);g.lineTo(x+r*2,y);g.lineTo(x+r*.5,y+r*.5);g.lineTo(x,y+r*2);g.lineTo(x-r*.5,y+r*.5);g.lineTo(x-r*2,y);g.lineTo(x-r*.5,y-r*.5);g.closePath();g.fill()}g.globalAlpha=1}
+ if(th==='arcenciel'){const C=['#ef4444','#f97316','#facc15','#22c55e','#3b82f6','#8b5cf6'];g.lineWidth=34;C.forEach((c,i)=>{g.strokeStyle=c;g.globalAlpha=.85;g.beginPath();g.arc(W/2,withPh?40:330,560-i*34,Math.PI*1.08,Math.PI*1.92);g.stroke()});g.globalAlpha=1;g.fillStyle='#fff';[[150,withPh?40:320],[W-150,withPh?40:320]].forEach(([x,y])=>{[0,50,100].forEach(d=>{g.beginPath();g.arc(x-50+d,y+(d===50?-20:0),48,0,7);g.fill()})})}
+ if(th==='bulles'){for(let i=0;i<26;i++){const x=rnd()*W,y=rnd()*H,r=20+rnd()*90;g.fillStyle=TH[1+(i%3)];g.globalAlpha=.16+rnd()*.18;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.globalAlpha=.5;g.strokeStyle='#fff';g.lineWidth=4;g.beginPath();g.arc(x-r*.3,y-r*.3,r*.35,3.6,4.8);g.stroke()}g.globalAlpha=1}
+ if(dark){}
 }
 function wishSig(){
  const me=meName(),conj=ppl().find(p=>p.rel==='conj'&&p.id!==S.meId),fam=(pplOf(S.meId)||{}).ln||((ppl().find(p=>p.ln)||{}).ln)||'';
@@ -7305,10 +7453,11 @@ async function fileToText(file){
 const csvC=v=>{v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 function expData(kind,arg){
  if(kind==='tk'){
-  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+  const sel=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w));
   const L=tkLists().filter(l=>sel.some(k=>k.l===l.id));
-  const txt=L.map(l=>l.n+'\n'+sel.filter(k=>k.l===l.id).map(k=>(k.x?'☑ ':'☐ ')+k.t+(k.d?' ('+fShort(k.d)+')':'')+(pplOf(k.w)?' – '+pplOf(k.w).n:'')).join('\n')).join('\n\n');
-  const csv=['Liste;Tâche;Date;Qui;Revient;Fait'].concat(sel.map(k=>[tlOf(k.l).n,k.t,k.d||'',pplOf(k.w)?pplName(pplOf(k.w)):'',k.r?tkRepTxt(k.r):'',k.x?'oui':''].map(csvC).join(';'))).join('\n');
+  const who=k=>tkWho(k).map(pplOf).filter(Boolean).map(p=>p.n).join(', ');
+  const txt=L.map(l=>l.n+'\n'+sel.filter(k=>k.l===l.id).map(k=>(k.x?'☑ ':'☐ ')+k.t+(k.d?' ('+fShort(k.d)+')':'')+(who(k)?' – '+who(k):'')+(k.x&&k.xb?' · fait par '+k.xb+(k.xa?' le '+tkWhen(k.xa):''):'')+(k.x&&k.xn?' · '+k.xn:'')).join('\n')).join('\n\n');
+  const csv=['Liste;Tâche;Date;Qui;Revient;Fait;Fait par;Le;Note'].concat(sel.map(k=>[tlOf(k.l).n,k.t,k.d||'',who(k),k.r?tkRepTxt(k.r):'',k.x?'oui':'',k.xb||'',k.xa?tkWhen(k.xa):'',k.xn||''].map(csvC).join(';'))).join('\n');
   return{title:TKV.l?tlOf(TKV.l).n:'Tâches',txt,csv,n:sel.length,file:'taches'};
  }
  if(kind==='co'){
@@ -7476,7 +7625,7 @@ function famChanSelf(id){
  const pp=ppl().map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',tel:p.tel||'',mail:p.mail||'',c:p.c}));
  const f=FG,gr={};for(const i of Object.keys(f.gr||{}))if(i!==id)gr[i]=Object.assign({},f.gr[i],{cid:(f.mb[i]&&f.mb[i].cid)||''});
  return{app:'agd',v:2,k:'fc',from:meName(),g:{self:1},gr,gra:f.grAt||0,og,rm:{},
-  tk:{k:'tk',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,co:l.co||undefined,m:l.m||0})),tk:tkAll().map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),ppl:pp},
+  tk:{k:'tk',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,co:l.co||undefined,m:l.m||0})),tk:tkAll().map(k=>tkPack(k)),del:shTrim(S.tkDel),ppl:pp},
   rc:{k:'rc',rc:rcAll().map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn:mnAll(),ppl:pp},
   bd:{k:'bd',bd:bdClean().map(b=>{const o=Object.assign({},b);delete o.ph;return o}),del:shTrim(S.bdDel)},
@@ -7493,7 +7642,7 @@ function famChan(id){
  // et chacun renvoie à son créateur ce qu'il y ajoute.
  const lOwn=l=>l==='courses'||mySelf(famOrg(l)),lHis=l=>l==='courses'?((f.rg[id]||{}).ci||[]).includes('courses'):famOrg(l)===id;
  const tk=[];if(!g.removed)for(const k of tkAll()){if(!k||!k.id)continue;
-  const inc=his(k.id)||(isCoL(k.l)?((cos.has(k.l)&&lOwn(k.l))||(lHis(k.l)&&mine(k.id))):(mine(k.id)&&(g.tk===2||(g.tk===1&&!!cid&&k.w===cid))));
+  const inc=his(k.id)||(isCoL(k.l)?((cos.has(k.l)&&lOwn(k.l))||(lHis(k.l)&&mine(k.id))):(mine(k.id)&&(g.tk===2||(g.tk===1&&!!cid&&tkWho(k).includes(cid)))));
   if(inc){tk.push(k);og[k.id]=famOrg(k.id)}else if(mine(k.id))rm.tk.push({id:k.id,m:k.m||k.ca||0})}
  else for(const k of tkAll())if(mine(k.id))rm.tk.push({id:k.id,m:k.m||k.ca||0});
  const rc=g.removed?[]:take(rcAll(),()=>!!g.rp,'rc',r=>r.m||0);
@@ -7503,11 +7652,11 @@ function famChan(id){
  if(g.removed){for(const r of rcAll())if(mine(r.id))rm.rc.push({id:r.id,m:r.m||0});for(const b of bdClean())if(mine(b.id))rm.bd.push({id:b.id,m:b.mt||0});for(const v of vyAll())if(mine(v.id))rm.vy.push({id:v.id,m:v.m||0})}
  rm.tl=coLists().filter(l=>l.id!=='courses'&&mySelf(famOrg(l.id))&&(g.removed||!cos.has(l.id))).map(l=>({id:l.id}));
  const mn=g.rp&&!g.removed?mnAll():{};
- const used=new Set();tk.forEach(k=>k.w&&used.add(k.w));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
+ const used=new Set();tk.forEach(k=>tkWho(k).forEach(x=>used.add(x)));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
  const pp=ppl().filter(p=>used.has(p.id)).map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',c:p.c}));
  const delOk=d=>{const o=famOrg(d.id);return mySelf(o)||o===id};
  return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy},og,rm,
-  tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
+  tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>tkPack(k)),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
   rc:{k:'rc',rc:rc.map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn,ppl:pp},
   bd:{k:'bd',bd:bd.map(b=>{const o=Object.assign({},b);if(o.p){delete o.g;o.note=''}delete o.p;delete o.ph;return o}),del:shTrim(S.bdDel).filter(delOk)},
