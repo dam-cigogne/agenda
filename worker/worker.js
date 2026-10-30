@@ -37,7 +37,18 @@ export default {
       return json(req, { error: 'méthode' }, 405);
     }
     // Lire une recette sur un site (Marmiton, 750g…) : on ne renvoie que la recette trouvée (données schema.org), jamais la page
-    if (url.pathname === '/recette' && req.method === 'GET') {
+    if (url.pathname === '/img' && req.method === 'GET') {
+const u = url.searchParams.get('u') || '';
+if (!/^https:\/\/[^\s]{4,2000}$/.test(u)) return json(req, { error: 'lien' }, 400);
+let r;
+try { r = await fetch(u, { headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1', 'Accept': 'image/*' }, redirect: 'follow' }) } catch (e) { return json(req, { error: 'injoignable' }, 502) }
+const ct = r.headers.get('Content-Type') || '';
+if (!r.ok || !/^image\/(jpeg|png|webp|gif|avif)/.test(ct)) return json(req, { error: 'pas une image' }, 415);
+const buf = await r.arrayBuffer();
+if (buf.byteLength > 6 * 1024 * 1024) return json(req, { error: 'trop gros' }, 413);
+return new Response(buf, { headers: { 'Content-Type': ct, 'Cache-Control': 'no-store', ...cors(req) } });
+}
+if (url.pathname === '/recette' && req.method === 'GET') {
       const u = url.searchParams.get('u') || '';
       if (!/^https?:\/\/[^\s]{4,2000}$/.test(u)) return json(req, { error: 'lien' }, 400);
       let r;
@@ -51,7 +62,7 @@ export default {
       found.forEach(f);
       const title = ((html.match(/<title[^>]*>([^<]*)/i) || [])[1] || '').trim().slice(0, 200);
       if (!rec) return json(req, { error: 'pas de recette', title }, 404);
-      const k = ['name', 'recipeYield', 'totalTime', 'cookTime', 'prepTime', 'recipeIngredient', 'recipeInstructions', 'recipeCategory'];
+      const k = ['name', 'recipeYield', 'totalTime', 'cookTime', 'prepTime', 'recipeIngredient', 'recipeInstructions', 'recipeCategory', 'image'];
       const out = {}; for (const x of k) if (rec[x] != null) out[x] = rec[x];
       return json(req, { recipe: out, url: r.url });
     }
