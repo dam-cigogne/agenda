@@ -652,6 +652,10 @@ body.cansend .sendbtn{display:inline-flex}
 .fam-mb{display:flex;gap:.6rem;align-items:center;justify-content:space-between;padding:.55rem 0;border-top:1px solid var(--line,rgba(0,0,0,.08))}
 .fam-mb-t{display:flex;flex-direction:column;min-width:0}.fam-mb-t small{color:var(--muted);font-size:.8rem;line-height:1.3}
 .fam-mb-b{display:flex;gap:.35rem;flex-shrink:0}.fam-mb-b .btn{padding:.35rem .65rem;font-size:.85rem}
+.fam-grp{border:1px solid var(--line2);border-radius:.9rem;padding:.5rem .7rem .4rem;margin:.6rem 0;background:var(--surface)}
+.fam-gh{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.2rem}.fam-gh>b{font-size:1.05rem}.fam-gh>small{color:var(--muted)}.fam-gh .sp1{flex:1}
+.fam-ren{background:none;border:0;padding:.1rem .2rem;font-size:.85rem;cursor:pointer;opacity:.7}
+.fam-quit{display:block;margin:.4rem 0 .1rem auto;background:none;border:0;color:var(--muted);font-size:.8rem;text-decoration:underline;cursor:pointer}
 .fam-out summary{cursor:pointer;color:var(--muted);font-size:.88rem;margin:.4rem 0}
 .co-ppl,.co-lists{margin:.2rem 0 .35rem}.co-lbl{align-self:center;font-size:.85rem;color:var(--muted);margin-right:.1rem}
 .co-info{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;margin:.2rem 0 .5rem}.co-info>span{font-size:.85rem;color:var(--muted);flex:1;min-width:8rem}
@@ -900,12 +904,16 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.9.1';
+const APP_VERSION='2.10.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.10.0',d:'31/10/2026',items:[
+  '👪🎉 Plusieurs groupes connectés en parallèle : Famille, Amis, Coloc… « ＋ Nouveau groupe », chacun avec son code d’invitation. Ce que tu reçois d’un groupe n’est jamais renvoyé à un autre.',
+  '⚙ Réglages : « Famille et contacts » et « Famille connectée » sont réunis dans une seule carte, plus claire : qui utilise ce téléphone, tes contacts, puis tes groupes et leurs membres.',
+  '🗑 Une personne retirée peut maintenant être supprimée définitivement de la liste.']},
  {v:'2.9.1',d:'31/10/2026',items:[
   '📑 Courses comme un carnet : tes listes sont des intercalaires sur le côté droit. Chaque intercalaire porte le nom de la liste et de la personne avec qui elle est partagée (👥 Morgann) ou de qui elle vient (📥), dans sa couleur.',
   '📒 Ma liste type plus rapide : produits sur 2 colonnes, lettres A B C… sur le côté pour sauter directement, rangement A → Z, par rayon ou « ⭐ Les plus achetés ».']},
@@ -4584,7 +4592,7 @@ function bdOpen(){go('bdays')}
 function bdShow(){if(V.view==='bdays'&&!SHEET_OPEN){render();return}openSheet(bdHTML(false))}
 function bdaysView(){return{html:'<div class="bd-page">'+bdHTML(true)+'</div>',fixed:false}}
 let BD_SEL=null;
-function bdSelBar(){return '<div class="bdselbar"><b id="bd-seln">'+BD_SEL.size+' sélectionné'+(BD_SEL.size>1?'s':'')+'</b><div class="chips"><button class="chip" data-act="bd-selall">Tout</button><button class="chip" data-act="bd-selnone">Aucun</button><button class="chip" data-act="bd-selsend">📤 Envoyer</button>'+(fam()&&famMembers().some(id=>!S.fam.mb[id].x&&!S.fam.mb[id].self)?'<button class="chip" data-act="bd-selfam">🔄 Partager avec…</button>':'')+'<button class="chip" data-act="bd-selend">Terminer</button></div></div>'}
+function bdSelBar(){return '<div class="bdselbar"><b id="bd-seln">'+BD_SEL.size+' sélectionné'+(BD_SEL.size>1?'s':'')+'</b><div class="chips"><button class="chip" data-act="bd-selall">Tout</button><button class="chip" data-act="bd-selnone">Aucun</button><button class="chip" data-act="bd-selsend">📤 Envoyer</button>'+(famActive().length?'<button class="chip" data-act="bd-selfam">🔄 Partager avec…</button>':'')+'<button class="chip" data-act="bd-selend">Terminer</button></div></div>'}
 function bdHTML(inMain){
  const t=today(),mode=['next','az','month'].includes(S.bdSort)?S.bdSort:'next';
  const nk=x=>bdHide(x.b)?'￿':norm(x.b.n);
@@ -5228,7 +5236,6 @@ function settingsView(){
  h+=sec('s-agenda','Mon agenda');
  h+='<div class="card"><h3>Catégories</h3>'+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>').join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
- h+=contactsCard();
  h+=famCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
  if(OL_ON)h+=msCard();
@@ -5286,7 +5293,7 @@ function openHelp(hist){
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet. Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
- h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> (une seule personne) : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>.</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
+ h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -5638,7 +5645,7 @@ async function act(a,el,e){
    const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);CV.mode='cat';saveSet();render();window.scrollTo(0,0);toast(L.length+' articles rangés dans ta liste type',4000);break}
   case 'co-ren':{const tl=tlOf(coCur());const v={t:tl.n};const pr=ask({title:'✏️ Renommer la liste',html:'<input class="in" id="col-n" maxlength="30" value="'+esc(tl.n)+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')break;const n=String(v.t||'').trim().slice(0,30);if(n){tl.n=n;tl.m=Date.now();saveSet();render()}break}
   case 'co-del':{const cur=coCur();if(cur==='courses')break;const tl=tlOf(cur);const L=tkAll().filter(t=>t.l===cur);const r=await ask({title:'Supprimer « '+tl.n+' » ?',text:L.length?'Ses '+L.length+' articles seront supprimés aussi.':'La liste est vide.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;
-   const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);S.tl=tkLists().filter(l=>l.id!==cur);S.coLid='courses';if(S.fam&&S.fam.gr)for(const id of Object.keys(S.fam.gr)){const g=S.fam.gr[id];if(Array.isArray(g.cos))g.cos=g.cos.filter(x=>x!==cur)}saveSet();render();toast('Liste supprimée');break}
+   const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);S.tl=tkLists().filter(l=>l.id!==cur);S.coLid='courses';for(const fg of famAll())for(const id of Object.keys(fg.gr||{})){const g=fg.gr[id];if(Array.isArray(g.cos))g.cos=g.cos.filter(x=>x!==cur)}saveSet();render();toast('Liste supprimée');break}
   case 'co-q':{const k=tkAll().find(t=>t.id===ds_.id);if(!k)break;if(!k.ig)k.ig={q:null,u:'',n:k.t};let q=k.ig.q==null?1:k.ig.q;const st=k.ig.u&&/^(g|ml|cl)$/.test(k.ig.u)?(q>=500?100:50):k.ig.u==='kg'||k.ig.u==='l'?0.5:1;q=Math.round((q+st*(+ds_.n))*100)/100;if(q<=0){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+k.ig.n,2500);break}k.ig.q=q;k.t=ingTxt(k.ig);k.m=Date.now();saveSet();render();break}
   case 'co-redo':if(S.coLast&&S.coLast.length)coAddLines('🔁 Refaire mes dernières courses',S.coLast,'Ce que tu as acheté la dernière fois.');break;
   case 'co-tpl':{const t=coTpls().find(x=>x.id===ds_.id);if(t)coAddLines('📋 '+t.n,t.it,'Liste type « '+esc(t.n)+' ».');break}
@@ -5653,13 +5660,15 @@ async function act(a,el,e){
   case 'me-set':meSet();break;
   case 'fam-inv':inviteFamily();break;
   case 'fam-create':famCreate();break;
-  case 'fam-code':famShowCode();break;
+  case 'fam-code':famShowCode((S.fams||[])[+ds_.g]);break;
   case 'fam-code-join':famCodeJoin();break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
   case 'fam-rm':famRemove(ds_.id);break;
   case 'fam-readd':famReadd(ds_.id);break;
   case 'fam-sync':famPull(true);break;
-  case 'fam-quit':{const ok=await ask({title:'Quitter la famille connectée ?',text:'Tes listes restent sur ce téléphone, mais elles ne se mettront plus à jour avec la famille.',btns:[{label:'Quitter',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.fam=null;FAM_K=null;saveSet();render()}break}
+  case 'fam-quit':{const g=(S.fams||[])[+ds_.g];if(!g)break;const ok=await ask({title:'Quitter « '+(g.nm||'ce groupe')+' » ?',text:'Tes listes restent sur ce téléphone, mais elles ne se mettront plus à jour avec ce groupe. Tes autres groupes ne changent pas.',btns:[{label:'Quitter',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.fams=S.fams.filter(x=>x!==g);saveSet();render()}break}
+  case 'fam-ren':{const g=(S.fams||[])[+ds_.g];if(!g)break;const v={t:g.nm||''};const pr=ask({title:'✏️ Nom du groupe',html:'<input class="in" id="gn-in" maxlength="24" value="'+esc(g.nm||'')+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='gn-in')v.t=e.target.value};const r=await pr;root.oninput=null;if(r==='ok'&&String(v.t).trim()){g.nm=String(v.t).trim().slice(0,24);saveSet();render()}break}
+  case 'fam-forget':famForget(ds_.id);break;
   case 'tk-ppl':case 'ct-open':contactsManage();break;
   case 'sh-recv':sharePaste();break;
   case 'sh-tk':shareSend('tk');break;
@@ -5811,7 +5820,6 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='tabshow'){const H=new Set(S.tabsHide||[]);t.checked?H.delete(t.dataset.v):H.add(t.dataset.v);S.tabsHide=[...H];saveSet();tabsApply();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
- if(t.dataset.chg==='famdoc'&&S.fam){if(!S.fam.d)S.fam.d={};S.fam.d[t.dataset.d]=t.checked?1:0;if(t.checked&&S.fam.sent)delete S.fam.sent[t.dataset.d];saveSet();return}
  if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
  if(t.dataset.chg==='vacOn'){if(t.checked)vacEnable();else setSetting('vacOn',0);return}
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
@@ -6339,17 +6347,17 @@ async function meSet(){
  const r=await pr;root.oninput=root.onchange=null;if(r!=='ok')return false;
  const p=pplOf(vals.id);S.meId=p?p.id:'';S.me=String((p&&!vals.t?p.n:vals.t)||'').trim().slice(0,30);S.meOk=1;saveSet();render();toast(S.me?'Ce téléphone est à '+S.me:'Prénom retiré');return true;
 }
-async function inviteFamily(){
+async function inviteFamily(grp){
  if(!(await ensureMe()))return;
- let fcode='';if(fam()){try{fcode=await famInvCode()}catch(e){}}
+ let fcode='';if(grp&&grp.k){try{fcode=await famInvCode(grp)}catch(e){}}
  const me=pplOf(S.meId),name=meName();
  const app=location.origin+location.pathname;
- const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.'+(fcode?'\n\n🔄 Pour rejoindre notre famille connectée (nos listes à jour toutes seules) : une fois l’appli installée, ouvre-la depuis l’écran d’accueil → Réglages → Famille et contacts → « 🔢 Rejoindre avec un code » et tape : '+famCodeShow(fcode)+' (valable 7 jours).':(fam()&&famJoinLink()?'\n\n🔄 Pour rejoindre notre famille connectée : une fois l’appli installée, touche ce lien :\n'+famJoinLink():''));
+ const msg='Salut ! J’utilise AgenDam pour organiser la famille : agenda, tâches, courses, menus, anniversaires, voyages. C’est gratuit, sans pub et sans compte.\n\n1. Ouvre ce lien dans Safari (iPhone) ou Chrome (Android) : '+app+'\n2. iPhone : bouton Partager → « Sur l’écran d’accueil ». Android : menu ⋮ → « Installer l’application ».\n3. Dans l’appli : Réglages → Famille et contacts → « Ce téléphone est à » ton prénom, puis ajoute-moi'+(name?' ('+name+(me&&me.tel?', '+me.tel:'')+')':'')+'.\n\nEnsuite on s’envoie nos listes avec le bouton « 📤 Envoyer » en haut de l’écran (Tâches, Anniversaires, Repas, Voyages) : un SMS, un lien, et c’est dans ton AgenDam.'+(fcode?'\n\n🔄 Pour rejoindre notre groupe « '+((grp&&grp.nm)||'Famille')+' » (nos listes à jour toutes seules) : une fois l’appli installée, ouvre-la depuis l’écran d’accueil → Réglages → Famille et contacts → « 🔢 Rejoindre avec un code » et tape : '+famCodeShow(fcode)+' (valable 7 jours).':'');
  const dest=pplSorted().filter(p=>(p.tel||p.mail)&&p.id!==S.meId);
  const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'WhatsApp, Messages… (autre appli)',value:'share',cls:dest.length?'':'pri'},{label:'Copier le message',value:'copy'},{label:'✏️ Ce n’est pas '+(name||'moi')+' ? Changer le prénom',value:'me'},{label:'Annuler',value:null}]);
  const r=await ask({title:'👪 Inviter ma famille',html:'<p style="margin:.2rem 0 .5rem">Envoie à tes proches le lien de l’appli et les 3 étapes pour l’installer. Ensuite, vous pourrez vous envoyer listes, courses, menus et voyages avec <b>📤 Envoyer</b>.</p><details class="sh-prev"><summary>Voir le message</summary><textarea class="in" rows="8" readonly onfocus="this.select()" style="font-size:.82rem">'+esc(msg)+'</textarea></details>'+(dest.length?'':'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Ajoute d’abord tes proches (avec leur téléphone) dans « Mes contacts » pour leur envoyer un SMS en un geste.</p>'),btns});
  if(!r)return;
- if(r==='me'){if(await meSet())return inviteFamily();return}
+ if(r==='me'){if(await meSet())return inviteFamily(grp);return}
  if(r.indexOf('to:')===0){const p=pplOf(r.slice(3));if(!p)return;const a=document.createElement('a');a.href=p.tel?'sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(msg):'mailto:'+encodeURIComponent(p.mail)+'?subject='+encodeURIComponent('AgenDam, l’organisateur de la famille')+'&body='+encodeURIComponent(msg);document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800);return}
  if(r==='share'&&navigator.share){try{await navigator.share({title:'AgenDam',text:msg});return}catch(e){if(e&&e.name==='AbortError')return}}
  try{await navigator.clipboard.writeText(msg);toast('Message copié')}catch(e){toast('Sélectionne le message et copie-le')}
@@ -6469,9 +6477,9 @@ function coRow(k){
    et « 📒 Liste type » (tous les articles habituels, A → Z : un toucher = ajouté à la liste choisie). */
 const CV={mode:'buy',edit:false,p:'',q:''};
 function coShareInfo(lid){
- const f=fam();if(!f)return{to:[],from:''};
- const to=famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self&&famCoShared(famGrant(id),lid));
- const o=lid!=='courses'&&f.org&&f.org[lid];const from=o&&o!==f.me&&f.mb[o]&&!f.mb[o].self?o:'';
+ if(!fam())return{to:[],from:''};
+ const to=famActive().filter(id=>famCoShared(famGrant(id),lid));
+ const o=lid!=='courses'&&S.forg&&S.forg[lid];const om=o&&mbOf(o);const from=om&&!om.self?o:'';
  return{to,from};
 }
 function coListsFor(p){if(!p)return coLists();return coLists().filter(l=>{const i=coShareInfo(l.id);return i.to.includes(p)||i.from===p})}
@@ -6491,7 +6499,7 @@ function coTabsHTML(cur){
   '<button class="co-tab co-tadd" data-act="co-new" title="Nouvelle liste" aria-label="Nouvelle liste">＋</button></nav>';
 }
 function coursesHTML(){
- const cur=coCur(),f=fam(),mem=f?famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self):[];
+ const cur=coCur(),f=fam(),mem=famActive();
  const L=tkAll().filter(k=>k.l===cur),pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
  const H=coHabits(),inL=coPendKey();
  const si=coShareInfo(cur),tl=tlOf(cur),who=si.from||si.to[0]||'',col=who?coPersonColor(who):'var(--k-co)';
@@ -6542,17 +6550,17 @@ async function coNewList(){
  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};setTimeout(()=>{const i=$('#col-n');if(i)i.focus()},120);
  const r=await pr;root.oninput=null;if(r!=='ok')return;const n=String(v.t||'').trim().slice(0,30);if(!n)return;
  const l={id:'co'+uid(),n,i:'🛒',co:1,m:Date.now()};tkLists().push(l);S.coLid=l.id;CV.mode='buy';saveSet();render();
- if(fam()&&famMembers().some(id=>!S.fam.mb[id].x&&!S.fam.mb[id].self))toast('Liste « '+n+' » créée',6000,{label:'👥 La partager',fn:()=>coShare()});else toast('Liste « '+n+' » créée');
+ if(famActive().length)toast('Liste « '+n+' » créée',6000,{label:'👥 La partager',fn:()=>coShare()});else toast('Liste « '+n+' » créée');
 }
 async function coShare(){
- const f=fam();if(!f)return;const cur=coCur(),tl=tlOf(cur);
- const mem=famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self);if(!mem.length){toast('Personne dans ta famille connectée pour l’instant');return}
+ if(!fam())return;const cur=coCur(),tl=tlOf(cur);
+ const mem=famActive();if(!mem.length){toast('Personne de connecté pour l’instant');return}
  const on=new Set(mem.filter(id=>famCoShared(famGrant(id),cur)));
- const pr=ask({title:'👥 Partager « '+tl.n+' »',html:'<p style="margin:.2rem 0 .5rem">Les personnes cochées voient cette liste et peuvent ajouter ou cocher des articles. Les changements arrivent chez tout le monde.</p>'+mem.map(id=>'<div class="tgl-row"><b>👤 '+esc(famName(id))+'</b><label class="tgl"><input type="checkbox" data-cs="'+esc(id)+'"'+(on.has(id)?' checked':'')+'></label></div>').join('')+'<div style="height:.5rem"></div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const pr=ask({title:'👥 Partager « '+tl.n+' »',html:'<p style="margin:.2rem 0 .5rem">Les personnes cochées voient cette liste et peuvent ajouter ou cocher des articles. Les changements arrivent chez tout le monde.</p>'+mem.map(id=>'<div class="tgl-row"><b>👤 '+esc(famWho(id))+'</b><label class="tgl"><input type="checkbox" data-cs="'+esc(id)+'"'+(on.has(id)?' checked':'')+'></label></div>').join('')+'<div style="height:.5rem"></div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.onchange=e=>{const id=e.target.dataset&&e.target.dataset.cs;if(id)e.target.checked?on.add(id):on.delete(id)};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
- for(const id of mem){const g=famGrant(id);const set=new Set(famCoArr(g));on.has(id)?set.add(cur):set.delete(cur);g.cos=[...set];g.co=g.cos.length?1:0;delete g.removed;f.gr[id]=g}
- f.grAt=Date.now();saveSet();render();toast(on.size?'« '+tl.n+' » partagée avec '+[...on].map(famName).join(', '):'« '+tl.n+' » n’est plus partagée',4500);
+ for(const id of mem){const f=grpOf(id);const g=famGrant(id);const set=new Set(famCoArr(g));on.has(id)?set.add(cur):set.delete(cur);g.cos=[...set];g.co=g.cos.length?1:0;delete g.removed;f.gr[id]=g;f.grAt=Date.now()}
+saveSet();render();toast(on.size?'« '+tl.n+' » partagée avec '+[...on].map(famName).join(', '):'« '+tl.n+' » n’est plus partagée',4500);
 }
 async function coTplManage(){
  for(let g=0;g<30;g++){
@@ -7336,22 +7344,36 @@ async function dupMulti(ev,from){
    Clé de la famille (dans le code d'invitation) : sert seulement à se reconnaître entre membres (fiches « m-… »).
    Chaque téléphone a sa propre paire de clés (ECDH P-256). Entre deux personnes, une clé à elles deux est calculée :
    ce que Damien partage avec Morgane est chiffré avec la clé Damien↔Morgane, illisible pour les autres membres et pour le serveur.
-   Chaque élément garde son « origine » (S.fam.org) : on n'envoie que ses propres éléments (selon ce qu'on a autorisé)
+   Chaque élément garde son « origine » (S.forg) : on n'envoie que ses propres éléments (selon ce qu'on a autorisé)
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
-const fam=()=>S.fam&&S.fam.k&&S.fam.on?S.fam:null;
+/* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
+   L'origine des éléments (S.forg) est commune à tous les groupes : ce qui vient d'un ami n'est jamais renvoyé à la famille. */
+function famMig(){
+ if(S.fam&&!S.fams){S.fams=[S.fam];if(!S.fam.nm)S.fam.nm='Famille';if(!S.fam.em)S.fam.em='👪'}
+ if(S.fam){if(S.fam.org){S.forg=Object.assign({},S.fam.org,S.forg||{});delete S.fam.org}delete S.fam}
+ if(!S.forg)S.forg={};
+}
+const famAll=()=>{famMig();return (S.fams||[]).filter(g=>g&&g.k&&g.on)};
+const fam=()=>famAll()[0]||null;
+const grpOf=id=>famAll().find(g=>g.mb&&g.mb[id]&&id!==g.me)||null;
+const mbOf=id=>{const g=grpOf(id);return g?g.mb[id]:null};
+const grpIdx=g=>(S.fams||[]).indexOf(g);
+const grpLbl=g=>(g.em||'👥')+' '+(g.nm||'Groupe');
+let FG=null;
 const FAM_G=[['co','🛒 Courses'],['tk','☑ Tâches'],['rp','🍽 Repas (menu et recettes)'],['bd','🎂 Anniversaires'],['vy','🧳 Voyages']];
-let FAM_K=null,FAM_T=null,FAM_BUSY=false,FAM_ERR='',FAM_PK={};
-async function famKeys(){
- const f=S.fam;if(!f||!f.k)return null;
- if(FAM_K&&FAM_K.k===f.k)return FAM_K;
+let FAM_T=null,FAM_BUSY=false,FAM_ERR='',FAM_PK={};
+const FAM_KS={};
+async function famKeys(f){
+ if(!f||!f.k)return null;
+ if(FAM_KS[f.k])return FAM_KS[f.k];
  const raw=shB64.dec(f.k);
  const h=new Uint8Array(await crypto.subtle.digest('SHA-256',raw));
  const space=[...h.slice(0,16)].map(b=>b.toString(16).padStart(2,'0')).join('');
  const kb=await crypto.subtle.digest('SHA-256',new Uint8Array([...raw,...new TextEncoder().encode('agendam-cle')]));
  const key=await crypto.subtle.importKey('raw',kb,'AES-GCM',false,['encrypt','decrypt']);
- return FAM_K={k:f.k,space,key};
+ return FAM_KS[f.k]={k:f.k,space,key};
 }
 async function famEncK(obj,key){
  const iv=crypto.getRandomValues(new Uint8Array(12));
@@ -7363,16 +7385,16 @@ async function famDecK(o,key){
  const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},key,shB64.dec(o.c));
  return shUnzip(new TextDecoder().decode(p));
 }
-function famInit(f){['mb','gr','rg','org','sent'].forEach(k=>{if(!f[k]||typeof f[k]!=='object')f[k]={}});return f}
-async function famMe(){
- const f=famInit(S.fam);if(f.me&&f.priv&&f.pub)return f;
+function famInit(f){['mb','gr','rg','sent'].forEach(k=>{if(!f[k]||typeof f[k]!=='object')f[k]={}});return f}
+async function famMe(f){
+ famInit(f);if(f.me&&f.priv&&f.pub)return f;
  f.me=Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');
  const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
  f.priv=await crypto.subtle.exportKey('jwk',kp.privateKey);f.pub=await crypto.subtle.exportKey('jwk',kp.publicKey);
  ls.set(K.set,S);return f;
 }
-async function famPair(id){
- const f=S.fam,m=f&&f.mb&&f.mb[id];if(!m||!m.pub||!f.priv)return null;
+async function famPair(f,id){
+ const m=f&&f.mb&&f.mb[id];if(!m||!m.pub||!f.priv)return null;
  const ck=f.me+'|'+m.pub.x+m.pub.y;
  if(FAM_PK[id]&&FAM_PK[id].ck===ck)return FAM_PK[id].key;
  const priv=await crypto.subtle.importKey('jwk',f.priv,{name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
@@ -7382,19 +7404,22 @@ async function famPair(id){
  const key=await crypto.subtle.importKey('raw',kb,'AES-GCM',false,['encrypt','decrypt']);
  FAM_PK[id]={ck,key};return key;
 }
-const famOrg=id=>{const f=S.fam;return (f&&f.org&&f.org[id])||(f&&f.me)||''};
-const famMembers=()=>{const f=fam();return f&&f.mb?Object.keys(f.mb).filter(id=>id!==f.me):[]};
+const famOrg=id=>(S.forg&&S.forg[id])||(FG&&FG.me)||'';
+// « À moi » vu de l'interface : sans origine, ou créé sur un de mes appareils
+const famMine=id=>{const o=S.forg&&S.forg[id];return !o||famAll().some(g=>g.me===o||(g.mb[o]&&g.mb[o].self))};
+const famMembers=g=>(g?[g]:famAll()).flatMap(f=>f.mb?Object.keys(f.mb).filter(id=>id!==f.me):[]);
+const famActive=()=>famMembers().filter(id=>{const m=mbOf(id);return m&&!m.x&&!m.self&&!m.gone});
 const famDev=()=>{const u=navigator.userAgent||'';return /iPad/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?(/Mobile/.test(u)?'Android':'Tablette'):'Ordinateur'};
-const famName=id=>{const f=S.fam,m=f&&f.mb&&f.mb[id];return m?m.n||'?':'?'};
+const famName=id=>{const m=mbOf(id);return m?m.n||'?':'?'};
 function famCid(id){
- const f=S.fam,m=f&&f.mb&&f.mb[id];if(!m)return '';
+ const m=mbOf(id);if(!m)return '';
  if(m.cid&&pplOf(m.cid))return m.cid;
  const p=ppl().find(x=>norm(x.n)===norm(m.n))||ppl().find(x=>norm(pplName(x))===norm(m.n));
  return p?p.id:'';
 }
 function famCoArr(g){return Array.isArray(g.cos)?g.cos.slice():(g.co?['courses']:[])}
 const famCoShared=(g,lid)=>famCoArr(g).includes(lid);
-function famGrant(id){return Object.assign({co:0,tk:0,rp:0,bd:0,vy:0},(S.fam&&S.fam.gr&&S.fam.gr[id])||{})}
+function famGrant(id){const g=grpOf(id);return Object.assign({co:0,tk:0,rp:0,bd:0,vy:0},(g&&g.gr&&g.gr[id])||{})}
 function famGSum(g){
  if(g.self)return 'tout (autre appareil)';
  const L=[];const ca=Array.isArray(g.cos)?g.cos:(g.co?['courses']:[]);if(ca.length)L.push(ca.length===1&&(ca[0]==='courses'||ca[0]==='Courses')?'Courses':'Courses ('+ca.map(x=>x==='courses'?'Courses':(tkLists().find(l=>l.id===x)||{n:x}).n).join(', ')+')');if(g.tk===2)L.push('Tâches');else if(g.tk===1)L.push('ses tâches');if(g.rp)L.push('Repas');if(g.bd===2)L.push('Anniversaires');else if(g.bd===1){const n=Array.isArray(g.bds)?g.bds.length:(g.nbd||0);L.push(n+' anniversaire'+(n>1?'s':''))}if(g.vy)L.push('Voyages');
@@ -7404,7 +7429,7 @@ function famChanSelf(id){
  const og={};const tag=a=>a.forEach(x=>{if(x&&x.id)og[x.id]=famOrg(x.id)});
  tag(tkAll());tag(rcAll());tag(bdClean());tag(vyAll());
  const pp=ppl().map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',tel:p.tel||'',mail:p.mail||'',c:p.c}));
- const f=S.fam,gr={};for(const i of Object.keys(f.gr||{}))if(i!==id)gr[i]=Object.assign({},f.gr[i],{cid:(f.mb[i]&&f.mb[i].cid)||''});
+ const f=FG,gr={};for(const i of Object.keys(f.gr||{}))if(i!==id)gr[i]=Object.assign({},f.gr[i],{cid:(f.mb[i]&&f.mb[i].cid)||''});
  return{app:'agd',v:2,k:'fc',from:meName(),g:{self:1},gr,gra:f.grAt||0,og,rm:{},
   tk:{k:'tk',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,co:l.co||undefined,m:l.m||0})),tk:tkAll().map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),ppl:pp},
   rc:{k:'rc',rc:rcAll().map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
@@ -7413,8 +7438,8 @@ function famChanSelf(id){
   vy:{k:'vy',vy:vyAll().map(v=>JSON.parse(JSON.stringify(v))),del:shTrim(S.vyDel),mn:{},rc:[],ppl:pp}};
 }
 function famChan(id){
- if(S.fam.mb[id]&&S.fam.mb[id].self&&!S.fam.mb[id].x)return famChanSelf(id);
- const f=S.fam,me=f.me,g=famGrant(id),cid=famCid(id),rm={tk:[],rc:[],bd:[],vy:[]},og={};
+ const f=FG;if(f.mb[id]&&f.mb[id].self&&!f.mb[id].x)return famChanSelf(id);
+ const me=f.me,g=famGrant(id),cid=famCid(id),rm={tk:[],rc:[],bd:[],vy:[]},og={};
  const mySelf=o=>o===me||(f.mb[o]&&f.mb[o].self&&!f.mb[o].x);
  const mine=x=>mySelf(famOrg(x)),his=x=>famOrg(x)===id;
  const take=(arr,ok,key,mt)=>{const out=[];for(const x of arr){if(!x||!x.id)continue;if(his(x.id)||(mine(x.id)&&ok(x))){out.push(x);og[x.id]=famOrg(x.id)}else if(mine(x.id))rm[key].push({id:x.id,m:mt(x)})}return out};
@@ -7469,22 +7494,22 @@ function famGo(go){
  if(go==='vy'){V.view='voyages';render();return}
 }
 function famApply(from,P){
- const f=S.fam,me=f.me,cats=new Set();let n=0;
+ const f=FG,me=f.me,om=S.forg,cats=new Set();let n=0;
  const prev=f.rg[from]||{};f.rg[from]=P.g||{};
  const det=famDetail(P);
  const run=(Q,lbl)=>{if(!Q)return;const s=shMerge(Object.assign({app:'agd',v:1,from:P.from||'',at:Date.now()},Q),true);const x=s.add+s.upd+s.del;if(x){n+=x;cats.add(lbl)}};
  run(P.tk,'Tâches');run(P.rc,'Recettes');if(P.mn&&Object.keys(P.mn.mn||{}).length)run(P.mn,'Menu');run(P.bd,'Anniversaires');run(P.vy,'Voyages');
- for(const [id,o] of Object.entries(P.og||{})){if(id==='courses')continue;if(o===me)delete f.org[id];else f.org[id]=String(o).slice(0,12)}
+ for(const [id,o] of Object.entries(P.og||{})){if(id==='courses')continue;if(o===me)delete om[id];else om[id]=String(o).slice(0,12)}
  if(P.g&&P.g.self&&P.gr&&(P.gra||0)>(f.grAt||0)){for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}f.grAt=P.gra}
  const R=P.rm||{};
  // Éléments d'avant la v2 (sans origine connue) : le créateur de la famille les garde, les autres choisissent (famLegacyAsk)
  const legacyOk=!f.own&&!f.icAt&&!(f.lgDone&&f.lgDone[from]);
  const drop=(list,key,getArr,setArr,lm,lbl)=>{let c=0;for(const x of (R[key]||[])){const loc=getArr().find(y=>y.id===x.id);if(!loc)continue;
-  if(f.org[x.id]===from){setArr(getArr().filter(y=>y.id!==x.id));delete f.org[x.id];c++}
-  else if(!f.org[x.id]&&legacyOk&&lm(loc)<=(x.m||0)){if(!f.lg)f.lg={};if(!f.lg[from])f.lg[from]=[];if(!f.lg[from].some(y=>y.id===x.id))f.lg[from].push({k:key,id:x.id,n:String(loc.t||loc.n||'').slice(0,60)})}}
+  if(om[x.id]===from){setArr(getArr().filter(y=>y.id!==x.id));delete om[x.id];c++}
+  else if(!om[x.id]&&legacyOk&&lm(loc)<=(x.m||0)){if(!f.lg)f.lg={};if(!f.lg[from])f.lg[from]=[];if(!f.lg[from].some(y=>y.id===x.id))f.lg[from].push({k:key,id:x.id,n:String(loc.t||loc.n||'').slice(0,60)})}}
   if(c){n+=c;cats.add(lbl)}};
  drop(0,'tk',tkAll,a=>S.tk=a,k=>k.m||k.ca||0,'Tâches');
- for(const x of (R.tl||[])){if(x&&x.id&&x.id!=='courses'&&f.org[x.id]===from&&!tkAll().some(k=>k.l===x.id)){S.tl=tkLists().filter(l=>l.id!==x.id);delete f.org[x.id];if(S.coLid===x.id)S.coLid='courses'}}
+ for(const x of (R.tl||[])){if(x&&x.id&&x.id!=='courses'&&om[x.id]===from&&!tkAll().some(k=>k.l===x.id)){S.tl=tkLists().filter(l=>l.id!==x.id);delete om[x.id];if(S.coLid===x.id)S.coLid='courses'}}
  drop(0,'rc',rcAll,a=>S.rc=a,r=>r.m||0,'Recettes');
  drop(0,'bd',bdClean,a=>S.bd=a,b=>b.mt||0,'Anniversaires');
  drop(0,'vy',vyAll,a=>S.vy=a,v=>v.m||0,'Voyages');
@@ -7495,66 +7520,73 @@ function famApply(from,P){
 const famHash=o=>{const s=JSON.stringify(Object.assign({},o,{at:0,from:''}));let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
 function famSchedule(){if(!fam()||!famUrl()||demo)return;clearTimeout(FAM_T);FAM_T=setTimeout(()=>famPush(),2500)}
 async function famPush(){
- const f=fam();if(!f||!famUrl()||FAM_BUSY||demo)return;
+ if(!famUrl()||FAM_BUSY||demo||!famAll().length)return;
  FAM_BUSY=true;
- try{
-  await famMe();const FK=await famKeys();
-  const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
-  const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
-  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
-  if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
-  for(const id of famMembers()){
-   const key=await famPair(id);if(!key)continue;
-   const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
-   await put('c-'+f.me+'-'+id,P,key);f.sent['c'+id]=h;
-  }
-  FAM_ERR='';f.pushAt=Date.now();ls.set(K.set,S);
- }catch(e){FAM_ERR=e.message||'hors connexion'}
+ try{for(const g of famAll())await famPushG(g);FAM_ERR=''}
+ catch(e){FAM_ERR=e.message||'hors connexion'}
  finally{FAM_BUSY=false}
 }
+async function famPushG(f){
+ await famMe(f);const FK=await famKeys(f);
+ const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
+ const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
+ if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
+ if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
+ for(const id of famMembers(f)){
+  if(f.mb[id].gone&&f.sent['c'+id]==='gone')continue;
+  const key=await famPair(f,id);if(!key)continue;
+  FG=f;const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
+  await put('c-'+f.me+'-'+id,P,key);f.sent['c'+id]=f.mb[id].gone?'gone':h;
+ }
+ f.pushAt=Date.now();ls.set(K.set,S);
+}
 async function famPull(manual){
- const f=fam();if(!f||!famUrl()||demo)return;
- try{
-  await famMe();const FK=await famKeys();
-  const r=await fetch(famUrl()+'/s/'+FK.space+'?since='+(f.last||0),{cache:'no-store'});
-  if(!r.ok)throw new Error('Serveur : '+r.status);
-  const j=await r.json(),docs=j.docs||[],got=[],joined=[],granted=[],selfNew=[];let hold=false,chg=false;
-  for(const d of docs){
-   const m=d.doc.match(/^m-([a-z0-9]{6,16})$/);if(!m||m[1]===f.me)continue;
-   let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
-   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
-   const was=f.mb[M.id];
-   if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),pub:{x:M.pub.x,y:M.pub.y},at:d.at});chg=true;if(!was)joined.push(M.id)}
-   if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;chg=true;selfNew.push(M.id)}
-  }
-  for(const d of docs){
-   const m=d.doc.match(/^c-([a-z0-9]{6,16})-([a-z0-9]{6,16})$/);if(!m||m[2]!==f.me)continue;
-   if(f.seen&&f.seen[d.doc]===d.at)continue;
-   const mb=f.mb[m[1]];if(mb&&mb.x)continue;
-   const key=await famPair(m[1]);if(!key){hold=true;continue}
-   let P;try{P=await famDecK(JSON.parse(d.data),key)}catch(e){continue}
-   const res=famApply(m[1],P);if(!f.seen)f.seen={};f.seen[d.doc]=d.at;chg=true;
-   if(res.n)got.push({by:P.from||famName(m[1]),c:res.cats,n:res.n,det:res.det});
-   if(res.newG.length)granted.push({id:m[1],by:P.from||famName(m[1]),l:res.newG});
-  }
-  if(!hold)f.last=Math.max(f.last||0,(j.now||Date.now())-90000);
-  f.pullAt=Date.now();FAM_ERR='';ls.set(K.set,S);
-  if(got.length){render();
-   for(const g of got){const D=(g.det||[]).filter(d=>d.a.length||d.x.length||d.u||d.d);
-    if(!D.length){toast('🔄 '+g.by+' a mis à jour : '+g.c.join(', '),6000);continue}
-    toast('🔄 '+g.by+' a '+D.map(famDetTxt).join(' · ').replace(/^([^:]+) : /,'mis à jour $1 : '),9000,{label:'Voir',fn:()=>famGo(D[0].go)})}}
-  for(const id of selfNew)toast('📱 Ton '+(f.mb[id].d||'autre appareil')+' est relié : tout se synchronise entre tes appareils',8000);
-  for(const id of joined)if(!f.mb[id].x&&!f.gr[id]&&!f.mb[id].self)toast('👋 '+famName(id)+' a rejoint la famille connectée',12000,{label:'Choisir ce que je partage',fn:()=>famGrantEdit(id)});
-  for(const g of granted)toast('🔄 '+g.by+' partage avec toi : '+g.l.join(', '),12000,{label:'Partager aussi',fn:()=>famGrantEdit(g.id)});
-  if(!got.length&&manual)toast('Tout est à jour');
-  if(f.lg)for(const id of Object.keys(f.lg))if(f.lg[id].length){setTimeout(()=>famLegacyAsk(id),600);break}
-  if(chg||joined.length||manual)famSchedule();
-  if(manual)await famPush();
- }catch(e){FAM_ERR=e.message||'hors connexion';if(manual)toast('Synchronisation impossible : '+FAM_ERR,5000)}
+ if(!famUrl()||demo||!famAll().length)return;
+ const out={got:[],joined:[],granted:[],selfNew:[],chg:false};
+ try{for(const g of famAll())await famPullG(g,out);FAM_ERR=''}
+ catch(e){FAM_ERR=e.message||'hors connexion';if(manual)toast('Synchronisation impossible : '+FAM_ERR,5000)}
+ const many=famAll().length>1;
+ if(out.got.length){render();
+  for(const g of out.got){const D=(g.det||[]).filter(d=>d.a.length||d.x.length||d.u||d.d);
+   if(!D.length){toast('🔄 '+g.by+' a mis à jour : '+g.c.join(', '),6000);continue}
+   toast('🔄 '+g.by+' a '+D.map(famDetTxt).join(' · ').replace(/^([^:]+) : /,'mis à jour $1 : '),9000,{label:'Voir',fn:()=>famGo(D[0].go)})}}
+ for(const id of out.selfNew){const m=mbOf(id);toast('📱 Ton '+((m&&m.d)||'autre appareil')+' est relié : tout se synchronise entre tes appareils',8000)}
+ for(const [id,g] of out.joined){const m=g.mb[id];if(!m.x&&!g.gr[id]&&!m.self)toast('👋 '+famName(id)+' a rejoint '+(many?'« '+(g.nm||'le groupe')+' »':'la famille connectée'),12000,{label:'Choisir ce que je partage',fn:()=>famGrantEdit(id)})}
+ for(const g of out.granted)toast('🔄 '+g.by+' partage avec toi : '+g.l.join(', '),12000,{label:'Partager aussi',fn:()=>famGrantEdit(g.id)});
+ if(!out.got.length&&manual&&!FAM_ERR)toast('Tout est à jour');
+ for(const g of famAll())if(g.lg){const id=Object.keys(g.lg).find(i=>g.lg[i].length);if(id){setTimeout(()=>famLegacyAsk(id),600);break}}
+ if(out.chg||out.joined.length||manual)famSchedule();
+ if(manual)await famPush();
  if(V.view==='settings')render();
 }
+async function famPullG(f,out){
+ await famMe(f);const FK=await famKeys(f);
+ const r=await fetch(famUrl()+'/s/'+FK.space+'?since='+(f.last||0),{cache:'no-store'});
+ if(!r.ok)throw new Error('Serveur : '+r.status);
+ const j=await r.json(),docs=j.docs||[];let hold=false;
+ for(const d of docs){
+  const m=d.doc.match(/^m-([a-z0-9]{6,16})$/);if(!m||m[1]===f.me)continue;
+  let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
+  if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
+  const was=f.mb[M.id];
+  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
+  if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
+ }
+ for(const d of docs){
+  const m=d.doc.match(/^c-([a-z0-9]{6,16})-([a-z0-9]{6,16})$/);if(!m||m[2]!==f.me)continue;
+  if(f.seen&&f.seen[d.doc]===d.at)continue;
+  const mb=f.mb[m[1]];if(mb&&mb.x)continue;
+  const key=await famPair(f,m[1]);if(!key){hold=true;continue}
+  let P;try{P=await famDecK(JSON.parse(d.data),key)}catch(e){continue}
+  FG=f;const res=famApply(m[1],P);if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
+  if(res.n)out.got.push({by:P.from||famName(m[1]),c:res.cats,n:res.n,det:res.det});
+  if(res.newG.length)out.granted.push({id:m[1],by:P.from||famName(m[1]),l:res.newG});
+ }
+ if(!hold)f.last=Math.max(f.last||0,(j.now||Date.now())-90000);
+ f.pullAt=Date.now();ls.set(K.set,S);
+}
 async function famLegacyAsk(from){
- const f=fam();if(!f||!f.lg||!f.lg[from]||!f.lg[from].length)return;
+ const f=grpOf(from);if(!f||!f.lg||!f.lg[from]||!f.lg[from].length)return;
  const tr=$('#toast');if(tr)tr.innerHTML='';
  const L=f.lg[from],who=famName(from),lbl={tk:'☑',rc:'🍽',bd:'🎂',vy:'🧳'};
  const keep=new Set();const pr=ask({title:'🧹 Faire le tri',html:'<p style="margin:.2rem 0 .5rem">Avant, tout était partagé dans la famille. <b>'+esc(who)+'</b> ne te partage pas ces éléments, arrivés à ce moment-là :</p><div style="margin:.2rem 0 .5rem;max-height:42vh;overflow:auto">'+L.map((x,i)=>'<label style="display:flex;gap:.5rem;align-items:center;padding:.25rem 0"><input type="checkbox" data-lg="'+i+'" checked> '+(lbl[x.k]||'')+' '+esc(x.n||'(sans nom)')+'</label>').join('')+'</div><p class="mut" style="font-size:.85rem;margin:0 0 .6rem">Décoche ce qui est à toi : ce sera gardé.</p>',btns:[{label:'Retirer ce qui est coché',value:'rm',cls:'pri'},{label:'Tout garder',value:'keep'},{label:'Plus tard',value:null}]});
@@ -7565,14 +7597,14 @@ async function famLegacyAsk(from){
  if(!f.lgDone)f.lgDone={};f.lgDone[from]=1;delete f.lg[from];saveSet();render();
 }
 async function famGrantEdit(id){
- const f=fam();const m=f&&f.mb&&f.mb[id];if(!m)return;
+ const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;
  const tr=$('#toast');if(tr)tr.innerHTML='';
  const g=famGrant(id);delete g.removed;let cid=famCid(id);
  const rg=f.rg[id]||{},L=pplSorted();
  const tg=(k,l)=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" id="fg-'+k+'"'+(g[k]?' checked':'')+'></label></div>';
  let self=!!m.self;const cos=new Set(famCoArr(g));
  const html='<div class="tgl-row"><b>📱 C’est un autre appareil à moi</b><label class="tgl"><input type="checkbox" id="fg-self"'+(self?' checked':'')+'></label></div><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">Coche si ce '+esc(m.d||'téléphone')+' est à toi (iPad, ancien téléphone…) : tout se synchronise entre tes appareils, dans les deux sens.</p><p style="margin:.2rem 0 .5rem">Sinon, ce que <b>tu</b> partages avec <b>'+esc(m.n)+'</b>. Il ou elle ne voit que ça. De son côté, '+esc(m.n)+' choisit ce qu’il ou elle te partage.</p>'+
-  coLists().filter(l=>{const o=f.org&&f.org[l.id];return !o||o===f.me||(f.mb[o]&&f.mb[o].self)}).map(l=>'<div class="tgl-row"><b>🛒 '+esc(l.n)+'</b><label class="tgl"><input type="checkbox" id="fg-co-'+esc(l.id)+'"'+(cos.has(l.id)?' checked':'')+'></label></div>').join('')+
+  coLists().filter(l=>famMine(l.id)).map(l=>'<div class="tgl-row"><b>🛒 '+esc(l.n)+'</b><label class="tgl"><input type="checkbox" id="fg-co-'+esc(l.id)+'"'+(cos.has(l.id)?' checked':'')+'></label></div>').join('')+
   '<div class="tgl-row"><b>☑ Tâches</b><select class="in" id="fg-tk" style="width:auto;max-width:62%"><option value="0"'+(g.tk===0?' selected':'')+'>Aucune</option><option value="1"'+(g.tk===1?' selected':'')+'>Les siennes</option><option value="2"'+(g.tk===2?' selected':'')+'>Toutes</option></select></div>'+
   tg('rp','🍽 Repas (menu et recettes)')+
   '<div class="tgl-row"><b>🎂 Anniversaires</b><select class="in" id="fg-bd" style="width:auto;max-width:62%"><option value="0"'+(!g.bd?' selected':'')+'>Aucun</option><option value="1"'+(g.bd===1?' selected':'')+'>Certains ('+(Array.isArray(g.bds)?g.bds.length:0)+')</option><option value="2"'+(g.bd===2?' selected':'')+'>Tous</option></select></div>'+
@@ -7590,7 +7622,7 @@ async function famGrantEdit(id){
  toast('Partage avec '+m.n+' : '+famGSum(g),4500);
 }
 async function famBdPick(id){
- const f=fam();const m=f&&f.mb&&f.mb[id];if(!m)return;
+ const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;
  const g=famGrant(id);const sel=new Set(Array.isArray(g.bds)?g.bds:[]);
  const L=bdClean().slice().sort((a,b)=>norm(a.n)<norm(b.n)?-1:1);
  const pr=ask({title:'🎂 Anniversaires pour '+m.n,html:'<p style="margin:.2rem 0 .4rem">Coche ceux que '+esc(m.n)+' recevra (ses copains, la famille…).</p><div style="max-height:46vh;overflow:auto;margin:0 0 .6rem">'+L.map(b=>'<label style="display:flex;gap:.55rem;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--line2)"><input type="checkbox" data-bp="'+esc(b.id)+'"'+(sel.has(b.id)?' checked':'')+'> <span>'+esc(bdHide(b)?'Anniversaire protégé':b.n)+' <small class="mut">'+b.d+' '+ML[b.m-1]+'</small></span></label>').join('')+'</div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
@@ -7599,58 +7631,81 @@ async function famBdPick(id){
  g.bd=sel.size?1:0;g.bds=[...sel];f.gr[id]=g;saveSet();f.grAt=Date.now();render();toast('Partage avec '+m.n+' : '+famGSum(g),4500);
 }
 async function famBdShareTo(ids){
- const f=fam();if(!f)return;
- const L=famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self);if(!L.length){toast('Personne dans ta famille connectée pour l’instant');return}
- const r=await ask({title:'🔄 Partager '+ids.length+' anniversaire'+(ids.length>1?'s':''),html:'<p style="margin:.2rem 0 .6rem">Avec qui ? Il ou elle les recevra à la prochaine ouverture de son appli, et les modifications suivront.</p>',btns:L.map(id=>({label:famName(id)+(f.mb[id].d?' · '+f.mb[id].d:''),value:id,cls:'pri'})).concat([{label:'Annuler',value:null}])});
+ const L=famActive();if(!L.length){toast('Personne de connecté pour l’instant');return}
+ const r=await ask({title:'🔄 Partager '+ids.length+' anniversaire'+(ids.length>1?'s':''),html:'<p style="margin:.2rem 0 .6rem">Avec qui ? Il ou elle les recevra à la prochaine ouverture de son appli, et les modifications suivront.</p>',btns:L.map(id=>({label:famWho(id),value:id,cls:'pri'})).concat([{label:'Annuler',value:null}])});
  if(!r)return;
- const g=famGrant(r);
+ const f=grpOf(r);const g=famGrant(r);
  if(g.bd===2){toast(famName(r)+' reçoit déjà tous tes anniversaires');return}
  const set=new Set(Array.isArray(g.bds)?g.bds:[]);ids.forEach(i=>set.add(i));g.bd=1;g.bds=[...set];delete g.removed;f.gr[r]=g;f.grAt=Date.now();
  BD_SEL=null;saveSet();render();toast('Partagé avec '+famName(r)+' : '+famGSum(g),5000);
 }
 async function famRemove(id){
- const f=fam();const m=f&&f.mb&&f.mb[id];if(!m)return;
+ const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;
  const r=await ask({title:'Retirer '+m.n+' ?',html:'<p style="margin:.2rem 0 .5rem">'+esc(m.n)+' ne recevra plus rien de toi, et ce que tu lui avais partagé sera retiré de son téléphone dès qu’il ou elle ouvrira AgenDam. Tu ne recevras plus ses mises à jour.</p><p class="mut" style="font-size:.85rem;margin:0 0 .6rem">Ton code d’invitation est aussi changé. Tu pourras le ou la réintégrer plus tard.</p>',btns:[{label:'Retirer '+m.n,value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
  f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1};f.grAt=Date.now();m.x=1;delete m.self;f.sent.m='';f.ic=null;saveSet();render();toast(m.n+' est retiré(e)',4000);
 }
-function famReadd(id){const f=fam();const m=f&&f.mb&&f.mb[id];if(!m)return;delete m.x;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0};f.grAt=Date.now();if(f.seen)Object.keys(f.seen).forEach(k=>{if(k.indexOf('c-'+id+'-')===0)delete f.seen[k]});f.last=0;saveSet();render();famGrantEdit(id)}
-function famNew(k){return famInit({k,on:1,last:0,v2:1})}
+function famForget(id){const f=grpOf(id);const m=f&&f.mb[id];if(!m)return;ask({title:'Supprimer '+m.n+' ?',text:'Il ou elle disparaît de ta liste pour de bon. S’il ou elle veut revenir, il faudra un nouveau code d’invitation.',btns:[{label:'Supprimer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]}).then(r=>{if(r!=='y')return;m.gone=1;m.x=1;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1};saveSet();render();toast(m.n+' est supprimé(e)')})}
+const famWho=id=>{const g=grpOf(id),m=g&&g.mb[id];return famName(id)+(m&&m.d?' · '+m.d:'')+(famAll().length>1&&g?' ('+(g.nm||'groupe')+')':'')};
+function famReadd(id){const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;delete m.x;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0};f.grAt=Date.now();if(f.seen)Object.keys(f.seen).forEach(k=>{if(k.indexOf('c-'+id+'-')===0)delete f.seen[k]});f.last=0;saveSet();render();famGrantEdit(id)}
+function famNew(k,nm,em){return famInit({k,on:1,last:0,v2:1,nm:nm||'Famille',em:em||'👪'})}
+function famAdd(g){famMig();if(!S.fams)S.fams=[];S.fams.push(g);return g}
 async function famCreate(){
- const r=await ask({title:'🔄 Famille connectée',html:'<p style="margin:.2rem 0 .5rem">Tes listes se mettent à jour toutes seules chez les personnes de ton choix : à l’ouverture de l’appli et toutes les minutes quand elle est ouverte.</p><p style="margin:.2rem 0 .5rem"><b>C’est toi qui choisis</b>, pour chaque personne, ce que tu partages avec elle (courses, tâches, repas, anniversaires, voyages). Au départ, rien n’est partagé. Chacun fait pareil de son côté.</p><p style="margin:.2rem 0 .5rem"><b>Chiffré de bout en bout</b> : le serveur ne garde que des données illisibles.</p><p class="mut" style="font-size:.85rem;margin:.2rem 0 .6rem">L’agenda (rendez-vous) reste sur chaque téléphone. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</p>',btns:[{label:'Créer notre famille connectée',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
- if(r!=='y')return;
+ const first=!famAll().length;const v={nm:first?'Famille':'Amis',ic:first?'👪':'🎉'};
+ const r=ask({title:first?'🔄 Créer un groupe connecté':'＋ Nouveau groupe connecté',html:'<label class="lbl" for="fg-nm">Nom du groupe</label><div class="chips" style="margin:.2rem 0 .4rem"><button type="button" class="chip" data-gn="👪|Famille">👪 Famille</button><button type="button" class="chip" data-gn="🎉|Amis">🎉 Amis</button><button type="button" class="chip" data-gn="🏠|Coloc">🏠 Coloc</button><button type="button" class="chip" data-gn="⚽|Club">⚽ Club</button></div><input class="in" id="fg-nm" maxlength="24" value="'+esc(v.nm)+'" style="margin-bottom:.5rem"><p style="margin:.2rem 0 .5rem">Tes listes se mettent à jour toutes seules chez les personnes de ton choix : à l’ouverture de l’appli et toutes les minutes quand elle est ouverte.</p><p style="margin:.2rem 0 .5rem"><b>C’est toi qui choisis</b>, pour chaque personne, ce que tu partages avec elle (courses, tâches, repas, anniversaires, voyages). Au départ, rien n’est partagé. Chacun fait pareil de son côté.</p><p style="margin:.2rem 0 .5rem"><b>Chiffré de bout en bout</b> : le serveur ne garde que des données illisibles.</p><p class="mut" style="font-size:.85rem;margin:.2rem 0 .6rem">L’agenda (rendez-vous) reste sur chaque téléphone. Appli fermée, pas de notification : la mise à jour arrive à la prochaine ouverture.</p>',btns:[{label:'Créer le groupe',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');
+ const pick=e=>{const b=e.target.closest&&e.target.closest('[data-gn]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const [ic,nm]=b.dataset.gn.split('|');v.ic=ic;v.nm=nm;const i=$('#fg-nm');if(i)i.value=nm};
+ root.oninput=e=>{if(e.target.id==='fg-nm')v.nm=e.target.value};root.addEventListener('click',pick,true);
+ const ans=await r;root.oninput=null;root.removeEventListener('click',pick,true);
+ if(ans!=='y')return;
  if(!(await ensureMe()))return;
- S.fam=famNew(shB64.enc(crypto.getRandomValues(new Uint8Array(32))));S.fam.own=1;saveSet();FAM_K=null;FAM_PK={};
+ const g=famAdd(famNew(shB64.enc(crypto.getRandomValues(new Uint8Array(32))),String(v.nm||'Groupe').trim().slice(0,24)||'Groupe',v.ic));g.own=1;saveSet();
  await famPush();render();
- famShowCode();
+ famShowCode(g);
 }
-function famJoinLink(){const f=S.fam;return f&&f.k?location.origin+location.pathname+'#fam='+f.k+'&by='+encodeURIComponent(meName()):''}
-async function famJoin(k,by,viaCode){
+function famJoinLink(f){f=f||fam();return f&&f.k?location.origin+location.pathname+'#fam='+f.k+'&by='+encodeURIComponent(meName()):''}
+async function famJoin(k,by,viaCode,nm,ic){
  if(!/^[A-Za-z0-9_-]{40,50}$/.test(k))return;
- if(S.fam&&S.fam.k===k&&S.fam.on){toast('Tu fais déjà partie de cette famille connectée');return}
+ {const ex=famAll().find(g=>g.k===k);if(ex){toast('Tu fais déjà partie de « '+(ex.nm||'ce groupe')+' »');return}}
  const iosWeb=!viaCode&&isIOS()&&!isStandalone();
- const btns=[{label:'Rejoindre la famille',value:'y',cls:'pri'}];if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy'});btns.push({label:'Annuler',value:null});
- const r=await ask({title:'🔄 Rejoindre la famille connectée',html:'<p style="margin:.2rem 0 .5rem"><b>'+esc(by||'Quelqu’un')+'</b> t’invite dans sa famille connectée.</p><p style="margin:.2rem 0 .5rem">Chacun choisit ensuite ce qu’il partage, et avec qui : au départ, rien de tes listes n’est partagé.</p>'+(S.fam&&S.fam.k&&S.fam.on?'<p class="warn" style="margin:.2rem 0 .5rem">Tu fais déjà partie d’une autre famille connectée : tu la quitteras.</p>':'')+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari. Si tu utilises l’appli de l’écran d’accueil : touche « copier », ouvre AgenDam, puis Réglages → Famille et contacts → 📥 Recevoir.</p>':''),btns});
+ const btns=[{label:'Rejoindre « '+(nm||'Famille')+' »',value:'y',cls:'pri'}];if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy'});btns.push({label:'Annuler',value:null});
+ const r=await ask({title:'🔄 Rejoindre un groupe connecté',html:'<p style="margin:.2rem 0 .5rem"><b>'+esc(by||'Quelqu’un')+'</b> t’invite dans son groupe connecté <b>« '+esc(nm||'Famille')+' »</b>.</p><p style="margin:.2rem 0 .5rem">Chacun choisit ensuite ce qu’il partage, et avec qui : au départ, rien de tes listes n’est partagé.</p>'+(famAll().length?'<p class="mut" style="margin:.2rem 0 .5rem">Tes autres groupes restent connectés, en parallèle.</p>':'')+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari. Si tu utilises l’appli de l’écran d’accueil : touche « copier », ouvre AgenDam, puis Réglages → Famille et contacts → 📥 Recevoir.</p>':''),btns});
  if(r==='copy'){try{await navigator.clipboard.writeText(location.origin+location.pathname+'#fam='+k+'&by='+encodeURIComponent(by||''));toast('Copié ! Ouvre AgenDam puis 📥 Recevoir',6000)}catch(e){}return}
  if(r!=='y')return;
  if(!S.meOk)await ensureMe();
- S.fam=famNew(k);saveSet();FAM_K=null;FAM_PK={};
+ famAdd(famNew(k,String(nm||'Famille').slice(0,24),ic||'👪'));saveSet();
  await famPush();await famPull(false);render();
- toast('Bienvenue dans la famille connectée 👋 Choisis maintenant ce que tu partages, et avec qui',7000);
+ toast('Bienvenue dans « '+(nm||'Famille')+' » 👋 Choisis maintenant ce que tu partages, et avec qui',7000);
+}
+function famMbRow(id,g){
+ const m=g.mb[id],gr=famGrant(id),rg=g.rg[id]||{},dv=m.d?' <small style="display:inline;font-weight:400">· '+esc(m.d)+'</small>':'';
+ if(m.self)return '<div class="fam-mb"><div class="fam-mb-t"><b>📱 '+esc(famName(id))+dv+'</b><small>Ton autre appareil : <b>tout se synchronise</b></small></div><div class="fam-mb-b"><button class="btn" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>';
+ return '<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+dv+'</b><small>Tu lui partages : <b>'+esc(famGSum(gr))+'</b></small><small>Te partage : '+esc(rg.x?'rien':famGSum(rg))+'</small></div><div class="fam-mb-b"><button class="btn pri" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>';
 }
 function famCard(){
- const f=S.fam&&S.fam.k?S.fam:null;
- let h='<div class="card" id="fam-card"><h3>🔄 Famille connectée</h3>';
- if(!famUrl())return h+'<p class="mut" style="margin:.2rem 0">Bientôt disponible.</p></div>';
- if(!f||!f.on)return h+'<p class="mut" style="margin:.2rem 0 .6rem">Tes listes se mettent à jour toutes seules chez les personnes de ton choix, chiffrées de bout en bout. Sans compte.</p><button class="btn pri blk" data-act="fam-code-join">🔢 J’ai reçu un code : rejoindre</button><button class="btn blk" style="margin-top:.5rem" data-act="fam-create">Créer notre famille connectée</button><p class="mut" style="font-size:.82rem;margin:.4rem 0 0">Une seule personne crée la famille, puis donne son code d’invitation aux autres.</p></div>';
- const t=x=>x?fmtDate(x):'jamais';
- h+='<p style="margin:.2rem 0 .4rem">'+(FAM_ERR?'⚠️ <b>Pas de connexion au serveur</b> ('+esc(FAM_ERR)+'). Les changements partiront dès que possible.':'✅ <b>Active</b>')+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Dernière réception : '+esc(t(f.pullAt))+' · dernier envoi : '+esc(t(f.pushAt))+'</p>';
- const L=famMembers(),act=L.filter(id=>!f.mb[id].x),out=L.filter(id=>f.mb[id].x);
- h+='<span class="lbl">Personnes connectées</span>';
- if(!act.length)h+='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Personne pour l’instant. Donne ton code d’invitation.</p>';
- h+=act.map(id=>{const g=famGrant(id),rg=f.rg[id]||{};const mb=f.mb[id],dv=mb.d?' <small style="display:inline;font-weight:400">· '+esc(mb.d)+'</small>':'';if(mb.self)return '<div class="fam-mb"><div class="fam-mb-t"><b>📱 '+esc(famName(id))+dv+'</b><small>Ton autre appareil : <b>tout se synchronise</b></small></div><div class="fam-mb-b"><button class="btn" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>';return '<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+dv+'</b><small>Tu lui partages : <b>'+esc(famGSum(g))+'</b></small><small>Te partage : '+esc(rg.x?'rien':famGSum(rg))+'</small></div><div class="fam-mb-b"><button class="btn pri" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>'}).join('');
- if(out.length)h+='<details class="fam-out"><summary>Personnes retirées ('+out.length+')</summary>'+out.map(id=>'<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+'</b><small>Ne reçoit plus rien</small></div><div class="fam-mb-b"><button class="btn" data-act="fam-readd" data-id="'+esc(id)+'">Réintégrer</button></div></div>').join('')+'</details>';
- h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="fam-code">🔢 Code d’invitation</button><button class="chip" data-act="fam-inv">👪 Inviter par SMS</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour maintenant</button><button class="chip" data-act="fam-quit">Quitter</button></div></div>';
+ const n=ppl().length;
+ let h='<div class="card" id="fam-card"><h3>👪 Famille, amis et contacts</h3>'+
+  mrow('me-set','👤 Ce téléphone est à',meName()||'Choisir qui utilise ce téléphone')+
+  mrow('ct-open','📇 Mes contacts',n?n+' contact'+(n>1?'s':'')+' · pour dire qui fait quoi':'Conjoint(e), enfants, amis… pour distribuer les tâches');
+ if(!famUrl())return h+'</div>';
+ const G=famAll(),t=x=>x?fmtDate(x):'jamais';
+ if(!G.length){
+  h+='<div class="fam-grp"><b>🔄 Partager en direct</b><p class="mut" style="margin:.2rem 0 .6rem;font-size:.9rem">Tes listes se mettent à jour toutes seules chez les personnes de ton choix, chiffrées de bout en bout. Sans compte.</p><button class="btn pri blk" data-act="fam-code-join">🔢 J’ai reçu un code : rejoindre</button><button class="btn blk" style="margin-top:.5rem" data-act="fam-create">＋ Créer un groupe (famille, amis…)</button></div>';
+ }else{
+  const last=Math.max(0,...G.map(g=>g.pullAt||0));
+  h+='<p style="margin:.6rem 0 .2rem">'+(FAM_ERR?'⚠️ <b>Pas de connexion au serveur</b> ('+esc(FAM_ERR)+'). Les changements partiront dès que possible.':'✅ <b>Connecté</b> <small class="mut">· dernière mise à jour '+esc(t(last))+'</small>')+'</p>';
+  for(const g of G){
+   const gi=grpIdx(g),L=famMembers(g),act=L.filter(id=>!g.mb[id].x),out=L.filter(id=>g.mb[id].x&&!g.mb[id].gone);
+   h+='<div class="fam-grp"><div class="fam-gh"><b>'+esc(grpLbl(g))+'</b><button class="fam-ren" data-act="fam-ren" data-g="'+gi+'" aria-label="Renommer le groupe">✏️</button><small>'+act.length+' pers.</small><span class="sp1"></span><button class="chip" data-act="fam-code" data-g="'+gi+'">🔢 Inviter</button></div>';
+   if(!act.length)h+='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Personne pour l’instant. Touche « 🔢 Inviter » et donne le code.</p>';
+   h+=act.map(id=>famMbRow(id,g)).join('');
+   if(out.length)h+='<details class="fam-out"><summary>Personnes retirées ('+out.length+')</summary>'+out.map(id=>'<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+'</b><small>Ne reçoit plus rien</small></div><div class="fam-mb-b"><button class="btn" data-act="fam-readd" data-id="'+esc(id)+'">Réintégrer</button><button class="btn" data-act="fam-forget" data-id="'+esc(id)+'" aria-label="Supprimer définitivement">🗑</button></div></div>').join('')+'</details>';
+   h+='<button class="fam-quit" data-act="fam-quit" data-g="'+gi+'">Quitter « '+esc(g.nm||'ce groupe')+' »</button></div>';
+  }
+  h+='<div class="chips" style="margin:.6rem 0 .2rem"><button class="chip" data-act="fam-create">＋ Nouveau groupe (amis…)</button><button class="chip" data-act="fam-code-join">🔢 J’ai reçu un code</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour</button></div>';
+ }
+ h+='<div style="height:.4rem"></div>'+mrow('fam-inv','📨 Faire installer l’appli','Le lien et les 3 étapes, par SMS')+mrow('sh-recv','📥 Recevoir un partage','Coller un lien reçu par SMS, WhatsApp ou mail')+
+  sfold('Comment ça marche ?','<b>Groupes connectés</b> (Famille, Amis…) : chaque personne que tu invites avec un code apparaît dans le groupe. Avec « Choisir », tu décides ce que tu lui partages (courses, tâches, repas, anniversaires, voyages) ; au départ, rien. Les mises à jour arrivent toutes seules, chiffrées de bout en bout. Ce qui vient d’un groupe n’est jamais renvoyé à un autre groupe.<br><b>Retirer</b> une personne : elle ne reçoit plus rien et ce que tu lui avais partagé disparaît de chez elle. 🗑 la supprime définitivement de ta liste.<br><b>Mes contacts</b> servent à dire qui fait quoi (tâches, repas). <b>📥 Recevoir un partage</b> sert aux liens envoyés par SMS, sans groupe.')+'</div>';
  return h;
 }
 /* Code d'invitation : 8 caractères faciles à taper. La clé de la famille est chiffrée avec une clé tirée du code
@@ -7671,12 +7726,12 @@ async function famCodeKeys(code){
  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:te.encode('agendam-invitation'),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
  return{id,key};
 }
-async function famInvCode(){
- const f=fam();if(!f||!famUrl())return '';
+async function famInvCode(f){
+ f=f||fam();if(!f||!famUrl())return '';
  if(f.ic&&f.icAt&&Date.now()-f.icAt<6*864e5&&f.icK===f.k)return f.ic;
  const r=crypto.getRandomValues(new Uint8Array(8));let code='';for(const b of r)code+=FAM_ABC[b%FAM_ABC.length];
  const FK=await famCodeKeys(code),iv=crypto.getRandomValues(new Uint8Array(12));
- const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify({k:f.k,by:meName()}))));
+ const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify({k:f.k,by:meName(),nm:f.nm||'Famille',em:f.em||'👪'}))));
  const res=await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:shB64.enc(c),iv:shB64.enc(iv)})});
  if(!res.ok)throw new Error('Serveur : '+res.status);
  f.ic=code;f.icAt=Date.now();f.icK=f.k;ls.set(K.set,S);
@@ -7706,19 +7761,19 @@ async function famCodeJoin(pre){
   const o=await res.json();
   const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
   const d=JSON.parse(new TextDecoder().decode(p));
-  await famJoin(d.k,d.by||'',true);
+  await famJoin(d.k,d.by||'',true,d.nm,d.em);
  }catch(e){toast('Impossible de rejoindre : '+(e.message||'hors connexion'),5000)}
 }
 function famSms(p,body){const a=document.createElement('a');a.href=p&&p.tel?'sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(body):'sms:'+(isIOS()?'&':'?')+'body='+encodeURIComponent(body);document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800)}
-async function famShowCode(){
- let code='';try{code=await famInvCode()}catch(e){toast('Pas de connexion au serveur',4000);return}
+async function famShowCode(g){
+ g=g||fam();let code='';try{code=await famInvCode(g)}catch(e){toast('Pas de connexion au serveur',4000);return}
  if(!code)return;
  const tr=$('#toast');if(tr)tr.innerHTML='';
  const dest=pplSorted().filter(p=>p.tel&&p.id!==S.meId);
  const btns=dest.map(p=>({label:'💬 Juste le code à '+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'💬 Juste le code par SMS (choisir)',value:'sms',cls:dest.length?'':'pri'},{label:'👪 Message complet (avec l’installation)',value:'inv'},{label:'Copier le code',value:'copy'},{label:'Fermer',value:null}]);
- const r=await ask({title:'🔢 Code d’invitation',html:'<p style="margin:.2rem 0 .4rem">Dans <b>son appli AgenDam</b> (celle de l’écran d’accueil) : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;margin:.4rem 0 .3rem">'+famCodeShow(code)+'</p><p class="mut" style="font-size:.82rem;margin:0 0 .6rem;text-align:center">Valable 7 jours. « Juste le code » envoie un SMS qui ne contient que le code : facile à copier.</p>',btns});
+ const r=await ask({title:'🔢 Inviter dans « '+(g.nm||'Famille')+' »',html:'<p style="margin:.2rem 0 .4rem">Dans <b>son appli AgenDam</b> (celle de l’écran d’accueil) : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;margin:.4rem 0 .3rem">'+famCodeShow(code)+'</p><p class="mut" style="font-size:.82rem;margin:0 0 .6rem;text-align:center">Valable 7 jours. « Juste le code » envoie un SMS qui ne contient que le code : facile à copier.</p>',btns});
  if(!r)return;
- if(r==='inv')return inviteFamily();
+ if(r==='inv')return inviteFamily(g);
  if(r==='copy'){try{await navigator.clipboard.writeText(famCodeShow(code));toast('Code copié')}catch(e){}return}
  if(r==='sms')return famSms(null,famCodeShow(code));
  if(r.indexOf('to:')===0)famSms(pplOf(r.slice(3)),famCodeShow(code));
