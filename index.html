@@ -679,6 +679,7 @@ html[data-theme=dark] .sendbtn.opt{color:var(--text)}
 .co-cp .co-quick .chip{font-size:.8rem;padding:.3rem .6rem}
 .btn.mnu{text-align:left;justify-content:flex-start;padding:.6rem .9rem;font-size:.95rem;margin:.25rem 0;min-height:0}
 .dup-g{display:block;border:1px solid var(--line);border-radius:.7rem;padding:.15rem .6rem;margin:.35rem 0;text-align:left}.dup-g .olrow{display:flex!important;width:100%;text-align:left;font-size:.92rem;padding:.4rem 0}.dup-g .olrow input{flex:none}.dup-g .olrow b{font-weight:700}.dup-g .dup-no span{color:var(--muted);font-size:.85rem}
+.steps{margin:.3rem 0 .6rem;padding-left:1.3rem;text-align:left}.steps li{margin:.35rem 0}
 .co-more{font-size:.78rem;text-align:center;margin:.7rem 0 .3rem}
 .co-seg{margin:.2rem 0 .6rem}.co-seg small{opacity:.7;margin-left:.2rem}
 .co-big{background:var(--surface);border:1px solid var(--sec,var(--accent));border-radius:.8rem;padding:.7rem .8rem;margin:.4rem 0 .6rem;font-size:.92rem}.co-big .btn{margin-top:.5rem}
@@ -925,12 +926,15 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.12.4';
+const APP_VERSION='2.12.5';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.12.5',d:'31/10/2026',items:[
+  '📲 iPhone : un lien de partage s’ouvre dans Safari, pas dans l’appli de l’écran d’accueil. La fenêtre « Partage reçu » propose maintenant en premier « Ajouter dans mon appli » (le lien est copié, puis les 3 étapes s’affichent), et le message envoyé l’explique aussi.',
+  '🔄 Réglages → À propos : « Rechercher une mise à jour » et l’explication pour mettre à jour l’appli de l’écran d’accueil (fermer complètement, rouvrir, « Mettre à jour »). Expliqué aussi dans l’aide « ? ».']},
  {v:'2.12.4',d:'31/10/2026',items:[
   '🧹 Doublons dans la liste type : « 🧹 Doublons » (dans Ma liste type ou ⋯ Options) repère les produits écrits deux fois (Tomate / Tomates, Brocolis surgelés / surgeler, Œufs / 6 œufs…). Tu choisis lequel garder pour chaque groupe, ou « Pas un doublon ». Les autres sont supprimés, et leurs achats comptent pour celui que tu gardes.']},
  {v:'2.12.3',d:'31/10/2026',items:[
@@ -2703,6 +2707,17 @@ function whatsNew(){
  h+='<p style="margin:.2rem 0 .6rem">AgenDam vient d’être mis à jour : <b>version '+esc(APP_VERSION)+'</b>.</p>'+histHTML(list);
  h+='<div class="btns"><button class="btn pri grow" data-act="wn-ok">OK, compris</button><button class="btn" data-act="hist">Tout l’historique</button></div>';
  openSheet(h,'full');
+}
+const UPD_HOW='<p>L’appli se met à jour <b>toute seule</b>, mais seulement <b>quand on l’ouvre</b> avec internet.</p><ol class="steps"><li><b>Ferme complètement</b> l’appli : balaie vers le haut depuis le bas de l’écran (pause au milieu), puis pousse AgenDam vers le haut.</li><li><b>Rouvre-la depuis son icône</b> et attends quelques secondes.</li><li>Touche <b>« Mettre à jour »</b> dans le message « Nouvelle version disponible ». Si rien ne vient, recommence une fois, ou touche « 🔄 Rechercher une mise à jour ».</li></ol><p><b>iPhone</b> : l’appli de l’écran d’accueil et le site dans Safari sont <b>deux AgenDam séparés</b> (chacun ses données et sa version). Mettre à jour l’un ne met pas à jour l’autre, et un lien reçu par SMS s’ouvre dans Safari. Pour un partage reçu : « 📲 Ajouter dans mon appli », puis dans l’appli Réglages → 📥 Recevoir un partage.</p><p class="mut">Pour vérifier : Réglages → À propos indique le numéro de version.</p>';
+async function updCheck(){
+ toast('Recherche d’une mise à jour…',3000);
+ let live='';try{const t=await fetch('sw.js?x='+Date.now(),{cache:'no-store'}).then(r=>r.text());live=(t.match(/VERSION\s*=\s*'([^']+)'/)||[])[1]||''}catch(e){toast('Pas de connexion internet : réessaie plus tard',4000);return}
+ if(!live||live===APP_VERSION){toast('Tu as la dernière version ('+APP_VERSION+') 👍',4000);return}
+ try{if(swReg){await swReg.update();await new Promise(r=>setTimeout(r,2500));if(swReg.waiting){toast('Version '+live+' prête',15000,{label:'Mettre à jour',fn:()=>swReg.waiting.postMessage('skipWaiting')});return}}}catch(e){}
+ const r=await ask({title:'🔄 Version '+live+' disponible',text:'Tu as la version '+APP_VERSION+'. L’appli va se recharger avec la nouvelle version. Tes données ne sont pas touchées.',btns:[{label:'Mettre à jour maintenant',value:'y',cls:'pri'},{label:'Plus tard',value:null}]});
+ if(r!=='y')return;
+ try{if(navigator.serviceWorker){const rs=await navigator.serviceWorker.getRegistrations();for(const x of rs)await x.unregister()}if(window.caches){const ks=await caches.keys();for(const k of ks)if(k.startsWith('agd-'))await caches.delete(k)}}catch(e){}
+ location.reload();
 }
 async function forceUpdate(){
  const r=await ask({title:'Forcer la mise à jour',text:'L’appli va se recharger depuis internet pour récupérer la dernière version. Tes événements et réglages ne sont pas touchés.',btns:[{label:'Mettre à jour',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
@@ -5309,7 +5324,7 @@ h+='<div class="card" id="ics-card">'+
   (demo?mrow('exitdemo','Quitter le mode démo',''):mrow('demo','Voir le mode démo','Avec des données d’exemple'))+
   mrow('help','Mode d’emploi et historique','Le guide, expliqué simplement')+
   (installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
- h+='<div class="card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
+ h+='<div class="card" id="about-card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><button class="btn blk" data-act="upd-check">🔄 Rechercher une mise à jour</button>'+sfold('Comment l’appli se met à jour ?',UPD_HOW)+'<p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
   '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
  h+=devCard()+'<div style="height:2rem"></div>';
  return{html:'<div class="sgrid">'+h+'</div>',fixed:false};
@@ -5356,6 +5371,7 @@ function openHelp(hist){
  h+=d('Imprimer','<ul><li>Touche l’icône <b>imprimante</b> en haut. Depuis Jour, Semaine, Mois ou 2 sem., elle imprime la vue affichée ; depuis les autres écrans, elle te demande <b>quoi imprimer</b>. <b>Une seule page</b> par impression.</li><li><b>Sur iPhone et iPad</b> : l’appli prépare un <b>PDF d’une page A4</b> ; touche « Imprimer / Partager le PDF », puis <b>Imprimer</b> dans le menu (ou Mail, Enregistrer dans Fichiers…). Sur ordinateur et Android, la fenêtre d’impression s’ouvre directement.</li><li>Le jour s’imprime en <b>portrait</b> (avec lieu et notes) ; la semaine, le mois et les 2 semaines en <b>paysage</b>, avec l’heure devant chaque rendez-vous.</li><li>Si une case est trop chargée, « +2 » indique les événements qui ne rentrent pas : passe alors par la vue Jour.</li><li>Sur <b>iPhone</b> : si rien ne s’ouvre, touche Partager puis « Imprimer », ou « Enregistrer dans Fichiers » pour faire un PDF.</li></ul>');
  h+=d('Ajouter à l’agenda du téléphone','<ul><li>Réglages → <b>Ajouter à mon agenda</b>. Sur <b>iPhone</b>, choisis « Calendrier » puis « Tout ajouter ». Sur <b>Android</b>, ouvre le fichier avec Google Agenda ou Outlook.</li><li>C’est un <b>envoi unique</b>, pas une synchronisation : refais-le après une modification (les événements déjà présents sont mis à jour par l’agenda, selon l’appli). L’intérêt : les rappels de l’agenda natif sont fiables, même appli fermée.</li></ul>');
  h+=d('Import et export .ics','<ul><li><b>Exporter</b> : crée un fichier .ics (calendrier standard) avec tes événements, leurs répétitions et leurs rappels. Les rotations sont exportées jour par jour (environ 14 mois).</li><li><b>Importer</b> : lis un fichier .ics venant de Google Agenda, Apple, Outlook… Les événements déjà présents ne sont pas dupliqués. Les fuseaux horaires sont lus comme heure locale.</li></ul>');
+ h+=d('Mettre à jour l’appli (et partages sur iPhone)',UPD_HOW);
  h+=d('Installer sur iPhone ou Android','<p><b>iPhone (Safari)</b> : ouvre le lien dans <b>Safari</b> → bouton Partager (carré avec flèche) → <b>Sur l’écran d’accueil</b> → Ajouter.</p><p><b>Android (Chrome)</b> : ouvre le lien → menu ⋮ → <b>Installer l’application</b> (ou « Ajouter à l’écran d’accueil »).</p><p>Une fois installée, l’appli fonctionne <b>sans connexion</b>.</p>');
  h+=d('Confidentialité et stockage','<ul><li>Aucun compte, aucun serveur, aucune publicité, aucune statistique : tes données restent sur l’appareil.</li><li>Sur iPhone, Safari peut effacer les données d’un site non installé après environ 7 jours sans visite. <b>Installe l’appli sur l’écran d’accueil et sauvegarde</b> pour ne rien perdre.</li></ul>');
  h+='<details id="hist"'+(hist?' open':'')+'><summary>Historique des 5 dernières versions</summary>'+CHANGELOG.slice(0,5).map(c=>'<div class="ver"><b>Version '+c.v+' · '+c.d+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('')+'<p class="mut">Tout l’historique depuis le début : Réglages → Outils développeur.</p></details>';
@@ -5610,6 +5626,7 @@ async function act(a,el,e){
   case 'remind-off':S.remind=false;saveSet();closeSheet();toast('Fenêtre désactivée. Réactive-la dans Réglages → Affichage');break;
   case 'wn-ok':closeSheet();if((S.remind||bdDue())&&!demo)setTimeout(()=>{if(!SHEET_OPEN)showUpcoming(false)},250);break;
   case 'force-update':forceUpdate();break;
+  case 'upd-check':updCheck();break;
   case 'jump':{const x=document.getElementById(el.dataset.t);if(x&&x.tagName==='DETAILS'){x.open=true;V.optOpen=true}if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'fiche-share':ficheShare();break;
   case 'fiche-view':window.open(ficheBase()+'presentation.html','_blank');break;
@@ -6401,7 +6418,7 @@ async function shareSend(kind,arg){
  const D=expData(kind,arg)||{title:P.lbl,txt:'',csv:'',file:'agendam'};
  const intro=(meName()?meName()+' t’envoie':'Voici')+' « '+P.lbl+' »';
  const short=D.txt.length>700?D.txt.slice(0,700).replace(/\n[^\n]*$/,'')+'\n…':D.txt;
- const msg=intro+(short?' :\n\n'+short:'.')+'\n\n📲 Pour l’ajouter dans ton AgenDam, touche ce lien :\n'+url;
+ const msg=intro+(short?' :\n\n'+short:'.')+'\n\n📲 Pour l’ajouter dans ton AgenDam, touche ce lien :\n'+url+'\n\n(iPhone avec AgenDam sur l’écran d’accueil : le lien s’ouvre dans Safari. Copie plutôt tout ce message, ouvre l’appli puis Réglages → 📥 Recevoir un partage.)';
  const dest=pplSorted().filter(p=>(p.tel||p.mail)&&p.id!==S.meId);
  const btns=dest.map(p=>({label:(p.tel?'💬 SMS à ':'✉️ Mail à ')+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'WhatsApp, Messages, mail… (autre appli)',value:'share',cls:dest.length?'':'pri'},{label:'Fichier Excel (.csv)',value:'csv'},{label:'Copier le message',value:'copy'},{label:'✏️ Envoyé au nom de « '+(meName()||'?')+' » : changer',value:'me'},{label:'Annuler',value:null}]);
  const big=url.length>6000;
@@ -6498,10 +6515,12 @@ async function shReceive(code,fromLink){
  const btns=[];
  if(tot)btns.push({label:'Mettre à jour mon AgenDam',value:'y',cls:'pri'});
  if(tot)btns.push({label:'Choisir ce que j’importe…',value:'pick'});
- if(iosWeb)btns.push({label:'J’utilise l’appli de l’écran d’accueil : copier',value:'copy',cls:tot?'':'pri'});
+ if(iosWeb)btns.unshift({label:'📲 Ajouter dans mon appli (écran d’accueil)',value:'copy',cls:'pri'});
+ if(iosWeb&&btns[1]&&btns[1].value==='y'){btns[1].cls='';btns[1].label='Ajouter ici, dans Safari'}
  btns.push({label:tot?'Annuler':'OK',value:null});
- const r=await ask({title:'📥 Partage reçu',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.from||'Quelqu’un')+'</b> t’envoie <b>« '+esc(P.lbl||'')+' »</b> ('+esc(shCount(P))+').</p><p style="margin:.2rem 0 .6rem">'+(tot?'Chez toi : '+esc(det)+'.':'Tu as déjà tout, rien à mettre à jour.')+'</p>'+(iosWeb?'<p class="mut" style="font-size:.82rem;margin:0 0 .6rem">Sur iPhone, ce lien s’ouvre dans Safari, pas dans l’appli de l’écran d’accueil. Si tu utilises l’appli : touche « copier », ouvre AgenDam, puis Tâches → 📥 Recevoir.</p>':''),btns});
- if(r==='copy'){try{await navigator.clipboard.writeText(shUrl(code));toast('Copié ! Ouvre AgenDam puis Tâches → 📥 Recevoir',7000)}catch(e){await ask({title:'Copie ce texte',html:'<textarea class="in" rows="4" readonly onfocus="this.select()">'+esc(shUrl(code))+'</textarea>',btns:[{label:'Fermer',value:null}]})}return}
+ const r=await ask({title:'📥 Partage reçu',html:'<p style="margin:.2rem 0 .4rem"><b>'+esc(P.from||'Quelqu’un')+'</b> t’envoie <b>« '+esc(P.lbl||'')+' »</b> ('+esc(shCount(P))+').</p><p style="margin:.2rem 0 .6rem">'+(tot?'Chez toi : '+esc(det)+'.':'Tu as déjà tout, rien à mettre à jour.')+'</p>'+(iosWeb?'<div class="warn" style="margin:0 0 .6rem;font-size:.86rem"><b>Tu es dans Safari</b>Sur iPhone, un lien s’ouvre toujours dans Safari, pas dans l’appli de l’écran d’accueil (ce sont deux AgenDam séparés). Si tu utilises l’appli installée, touche « 📲 Ajouter dans mon appli ».</div>':''),btns});
+ if(r==='copy'){let ok=false;try{await navigator.clipboard.writeText(shUrl(code));ok=true}catch(e){}
+  await ask({title:ok?'✅ Copié ! Maintenant :':'Copie ce lien, puis :',html:(ok?'':'<textarea class="in" rows="3" readonly onfocus="this.select()">'+esc(shUrl(code))+'</textarea>')+'<ol class="steps"><li>Quitte Safari et ouvre <b>AgenDam depuis l’icône</b> de l’écran d’accueil.</li><li>Va dans <b>Réglages</b> (roue dentée) → <b>📥 Recevoir un partage</b>.</li><li>Touche <b>Coller</b> si l’iPhone le demande : le partage s’ajoute.</li></ol>',btns:[{label:'OK',value:null,cls:'pri'}]});return}
  if(r==='pick'){const Q=await shPick(P);if(!Q)return;P=Q}
  else if(r!=='y')return;
  const st2=shMerge(P,true);const det2=[st2.add?st2.add+' nouveau'+(st2.add>1?'x':''):'',st2.upd?st2.upd+' mis à jour':'',st2.del?st2.del+' supprimé'+(st2.del>1?'s':''):''].filter(Boolean).join(', ')||'rien de neuf';
