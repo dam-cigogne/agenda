@@ -25,14 +25,14 @@
   /* Carnet : papier crème, encre bleue, intercalaires de couleur par onglet */
   --bg:#f7f4ec;--surface:#fffdf7;--surface2:#efe9dc;--text:#25211a;--muted:#736a5b;--line:#e3dbc9;--line2:#ece5d6;
   --accent:#2f6fb3;--on-accent:#fff;--accent-soft:rgba(47,111,179,.11);--todaybg:rgba(47,111,179,.09);--todayc:rgba(47,111,179,.17);
-  --sec:#2f6fb3;--k-ag:#2f6fb3;--k-tk:#4d7c0f;--k-bd:#be185d;--k-rp:#c2410c;--k-vy:#0e7490;--margin:rgba(214,74,74,.28);
+  --sec:#2f6fb3;--k-ag:#2f6fb3;--k-tk:#4d7c0f;--k-bd:#be185d;--k-rp:#c2410c;--k-vy:#0e7490;--k-co:#0f766e;--margin:rgba(214,74,74,.28);
   --serif:"New York",ui-serif,"Iowan Old Style",Charter,"Bitstream Charter",Georgia,serif;
   --danger:#d92d20;--warn:#f59e0b;--shadow:0 10px 40px rgba(16,24,40,.22);--scale:1;
 }
 html[data-theme=dark]{
   --bg:#15130f;--surface:#1e1b16;--surface2:#29251e;--text:#f2ede2;--muted:#a99f8d;--line:#3a3429;--line2:#2b2720;
   --accent:#7fb2e8;--on-accent:#0d1520;--accent-soft:rgba(127,178,232,.15);--todaybg:rgba(127,178,232,.12);--todayc:rgba(127,178,232,.22);
-  --k-ag:#7fb2e8;--k-tk:#9ccc5a;--k-bd:#f17bb0;--k-rp:#fb923c;--k-vy:#4fc3d9;--margin:rgba(240,110,110,.22);
+  --k-ag:#7fb2e8;--k-tk:#9ccc5a;--k-bd:#f17bb0;--k-rp:#fb923c;--k-vy:#4fc3d9;--k-co:#5eead4;--margin:rgba(240,110,110,.22);
   --danger:#ff6b5f;--shadow:0 10px 40px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -356,6 +356,7 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .mo2.fort .mn.today small{color:inherit}
 @media(min-width:700px){.mo2.fort .mband{font-size:calc(.9rem*var(--bsc,1))}}
 #tabs em{white-space:nowrap}
+@media (max-width:420px){#tabs em{font-size:.66rem}#tabs button .ic{width:1.45rem;height:1.45rem}}
 .mn{white-space:nowrap}
 .mo2.fort .mn.today small{display:none}
 
@@ -652,6 +653,33 @@ body.cansend .sendbtn{display:inline-flex}
 .fam-mb-t{display:flex;flex-direction:column;min-width:0}.fam-mb-t small{color:var(--muted);font-size:.8rem;line-height:1.3}
 .fam-mb-b{display:flex;gap:.35rem;flex-shrink:0}.fam-mb-b .btn{padding:.35rem .65rem;font-size:.85rem}
 .fam-out summary{cursor:pointer;color:var(--muted);font-size:.88rem;margin:.4rem 0}
+.co-ppl,.co-lists{margin:.2rem 0 .35rem}.co-lbl{align-self:center;font-size:.85rem;color:var(--muted);margin-right:.1rem}
+.co-info{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .6rem;margin:.2rem 0 .5rem}.co-info>span{font-size:.85rem;color:var(--muted);flex:1;min-width:8rem}
+.co-seg{margin:.2rem 0 .6rem}.co-seg small{opacity:.7;margin-left:.2rem}
+.co-big{background:var(--surface);border:1px solid var(--sec,var(--accent));border-radius:.8rem;padding:.7rem .8rem;margin:.4rem 0 .6rem;font-size:.92rem}.co-big .btn{margin-top:.5rem}
+.co-tip{font-size:.9rem;margin:.1rem 0 .3rem}
+.cat-h{font-weight:800;color:var(--muted);font-size:.85rem;margin:.6rem .2rem .15rem}
+.cat-r{display:flex;align-items:stretch;background:var(--surface);border:1px solid var(--line2);border-radius:.7rem;margin:.25rem 0;overflow:hidden}
+.cat-r.on{border-color:var(--sec,var(--accent));background:color-mix(in srgb,var(--sec,var(--accent)) 12%,var(--surface))}
+.co-lists .chip.on,.co-ppl .chip.on{background:var(--sec,var(--accent));border-color:var(--sec,var(--accent));color:#fff}.co-lbl{flex:none}
+.cat-b{flex:1;display:flex;align-items:center;gap:.7rem;background:none;border:0;color:inherit;font:inherit;text-align:left;padding:.6rem .8rem;min-height:2.9rem}
+.cat-c{width:1.6rem;height:1.6rem;border-radius:.45rem;border:2px solid var(--sec,var(--accent));display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+.cat-r.on .cat-c{background:var(--sec,var(--accent))}
+.cat-del{background:none;border:0;border-left:1px solid var(--line2);padding:0 .9rem;font-size:1.1rem}
+/* Grands écrans (tablette à l'horizontale, ordinateur) : plusieurs colonnes, largeur maîtrisée */
+.co-h4{margin:.2rem 0 .5rem;font-size:1.05rem}.co-h4 small{color:var(--muted);font-weight:700}
+@media (min-width:1000px){
+ #main>.tk-wrap,#main>.bd-page,#main>.rp-wrap,#main>.vy-wrap{max-width:1500px;margin-left:auto;margin-right:auto}
+ .co-2col{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+ .co-colB{position:sticky;top:.4rem;max-height:calc(100vh - 7.5rem);overflow:auto;padding:0 .3rem 1rem 0}
+ .tk-cols{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:0 1rem;align-items:start}
+ #bd-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0 .8rem}
+ #bd-list .bdh{grid-column:1/-1}
+ .bd-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.5rem}.bd-acts .btn{margin:0;height:100%}
+ .rp-days{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 .8rem}
+ #rc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.4rem .8rem}
+ #cat-list .cat-h{position:sticky;top:0;background:var(--bg);z-index:1;padding:.15rem 0}
+}
 /* Courses rapides */
 .co-quick{display:flex;gap:.4rem;overflow-x:auto;padding:.1rem 0 .5rem;scrollbar-width:none}.co-quick .chip{flex:none}.co-quick small{opacity:.7}
 .co-hab{background:var(--surface);border:1px solid var(--line);border-radius:1rem;padding:.55rem .65rem .6rem;margin:.2rem 0 .6rem}
@@ -836,8 +864,9 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
   <nav id="tabs">
     <button data-act="view" data-v="agenda" style="--k:var(--k-ag)"><span data-ic="month"></span><em>Agenda</em></button>
     <button data-act="view" data-v="tasks" style="--k:var(--k-tk)"><span data-ic="tasks"></span><em>Tâches</em></button>
-    <button data-act="view" data-v="bdays" style="--k:var(--k-bd)"><span data-ic="cake"></span><em>Anniv.</em></button>
+    <button data-act="view" data-v="courses" style="--k:var(--k-co)"><span data-ic="cart"></span><em>Courses</em></button>
     <button data-act="view" data-v="repas" style="--k:var(--k-rp)"><span data-ic="meal"></span><em>Repas</em></button>
+    <button data-act="view" data-v="bdays" style="--k:var(--k-bd)"><span data-ic="cake"></span><em>Anniv.</em></button>
     <button data-act="view" data-v="voyages" style="--k:var(--k-vy)"><span data-ic="bag"></span><em>Voyages</em></button>
   </nav>
 </div>
@@ -852,12 +881,19 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.8.1';
+const APP_VERSION='2.9.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.9.0',d:'31/10/2026',items:[
+  '🛒 Courses repensées : deux onglets, « 🛒 À acheter » (la liste actuelle) et « 📒 Ma liste type » (tous tes produits habituels, de A à Z). Dans la liste type, un toucher ajoute l’article à la liste choisie, un second le retire. Recherche, ajout par collage depuis Notes, ✏️ Modifier pour retirer un produit.',
+  '📒 Ta liste est très longue ? « Tout ranger dans ma liste type » : la liste à acheter redevient vide.',
+  '🛒 Plusieurs listes de courses (Leclerc, Marché, Pharmacie…) : « ＋ Nouvelle liste ». « 👥 Partager » choisit avec qui chaque liste est partagée. En haut, « Avec : Morgane » montre les listes partagées avec elle ou lui.',
+  '🛒 Un onglet Courses rien que pour elles, en bas : Agenda · Tâches · Courses · Repas · Anniv. · Voyages. Les courses ne se mélangent plus aux tâches.',
+  '⚙ Réglages → Affichage → Onglets en bas : cache ceux dont tu ne te sers pas.',
+  '💻 L’appli s’adapte à l’écran : sur iPhone une colonne ; sur tablette à l’horizontale et sur ordinateur, les onglets passent sur le côté et l’écran se remplit mieux. Courses : « À acheter » et « Ma liste type » côte à côte. Tâches, anniversaires, menu de la semaine et recettes : en plusieurs colonnes.']},
  {v:'2.8.1',d:'31/10/2026',items:[
   '🔄 Messages de mise à jour plus précis : « Morgane a mis à jour 🛒 Courses : ajouté « lait », coché « Pain » », avec un bouton « Voir » qui ouvre directement la bonne liste.',
   '🛒 Les courses rapides (⭐ habituels, 📋 listes types, 🔁 refaire mes dernières courses) s’affichent aussi dans Tâches → Courses, plus seulement dans Repas → Courses.']},
@@ -1563,6 +1599,7 @@ const IC={
  bag:'<rect x="4" y="7" width="16" height="13" rx="2.5"/><path d="M9 7V4.5h6V7M9 11v5M15 11v5"/>',
  meal:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 1.5-3 4-3 7h3v11"/>',
  tasks:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
+ cart:'<path d="M3 4h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.1L20 8H6.2"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>',
  left:'<path d="M15 5l-7 7 7 7"/>',
  right:'<path d="M9 5l7 7-7 7"/>',
  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -1616,7 +1653,8 @@ function titles(){
  if(V.view==='voyages'){const v=VY.id&&vyOf(VY.id);return v?[v.t,v.a?fShort(v.a)+(v.b&&v.b!==v.a?' → '+fShort(v.b):''):'Voyage']:['Voyages',vyAll().length?vyAll().length+' voyage'+(vyAll().length>1?'s':''):'Listes, programme, repas, infos']}
  if(V.view==='repas')return['Repas',RV.tab==='rc'?rcAll().length+' recette'+(rcAll().length>1?'s':''):RV.tab==='co'?'Liste de courses':'Menu de la semaine'];
  if(V.view==='bdays'){const n=bdClean().length;return['Anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant']}
- if(V.view==='tasks'){const n=tkAll().filter(k=>!k.x).length;return['Tâches',n?n+' à faire':'Rien à faire']}
+ if(V.view==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',(CV.mode==='cat'?'Ma liste type · ':'')+tlOf(coCur()).n+(n?' · '+n+' à acheter':'')]}
+ if(V.view==='tasks'){if(TKV.l==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}const n=tkAll().filter(k=>!k.x&&!isCoL(k.l)).length;return['Tâches',n?n+' à faire':'Rien à faire']}
  return['Réglages','Version '+APP_VERSION];
 }
 
@@ -1914,6 +1952,7 @@ function render(){
   case 'fort':r=monthViewTitles(true);break;
   case 'search':r=searchView();break;
   case 'tasks':r=tasksView();break;
+  case 'courses':r={html:'<div class="tk-wrap tk-co">'+coursesHTML()+'</div>',fixed:false};break;
   case 'bdays':r=bdaysView();break;
   case 'repas':r=repasView();break;
   case 'voyages':r=voyagesView();break;
@@ -1932,18 +1971,20 @@ function render(){
  $('#nav').style.display=nav?'':'none';
  $$('#tabs button,#gearbtn,#srchbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view||(b.dataset.v==='agenda'&&nav)));
  $$('#agseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
- const SEC={tasks:'--k-tk',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy'};
+ const SEC={tasks:'--k-tk',courses:'--k-co',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy'};
  document.documentElement.style.setProperty('--sec','var('+(SEC[V.view]||'--k-ag')+')');
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
- document.body.classList.toggle('cansend',['tasks','bdays','repas','voyages'].includes(V.view));
- {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};sb.querySelector('span').textContent=window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
+ document.body.classList.toggle('cansend',['tasks','courses','bdays','repas','voyages'].includes(V.view));
+ {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};sb.querySelector('span').textContent=window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
- body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='repas'&&V.view!=='voyages');
+ body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='courses'&&V.view!=='repas'&&V.view!=='voyages');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
  $('#side').innerHTML=(nav&&isWide()&&S.side!==0)?sideHTML():'';
  $('#banner').innerHTML=bannerHTML();
+ tabsApply();
 }
+function tabsApply(){const H=S.tabsHide||[];$$('#tabs button').forEach(b=>{b.style.display=H.includes(b.dataset.v)?'none':''})}
 function go(view){
  if(view==='agenda')view=['day','week','month','fort'].includes(S.agv)?S.agv:'month';
  if(['day','week','month','fort'].includes(view)&&S.agv!==view){S.agv=view;saveSet()}
@@ -4542,12 +4583,12 @@ function bdHTML(inMain){
    else if(mode==='az'){const L=hid?'🔒':(norm(x.b.n).charAt(0)||'#').toUpperCase();if(lastH!==L){lastH=L;hd='<div class="bdh">'+esc(L)+'</div>'}}
    return hd+'<div class="bdrw" data-n="'+(hid?'':esc(norm(x.b.n)))+'"><button class="bdrow'+(BD_SEL&&BD_SEL.has(x.b.id)?' sel':'')+'" data-n="'+(hid?'':esc(norm(x.b.n)))+'" data-act="'+(BD_SEL?'bd-sel':'bd-edit')+'" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(BD_SEL?(BD_SEL.has(x.b.id)?'✅':'⬜'):x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'+(BD_SEL?'':'<button class="bdwish'+(dd===0?' now':'')+'" data-act="wish-open" data-id="'+esc(x.b.id)+'" aria-label="Souhaiter l’anniversaire">🎉</button>')+'</div>'}).join('')+'</div>';
  }else h+='<p class="mut" style="margin:.6rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
- h+='<div style="height:.4rem"></div>';
+ h+='<div style="height:.4rem"></div><div class="bd-acts">';
  if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
  h+='<button class="btn blk" data-act="bdimp-open">📥 Importer des anniversaires (Word, Excel, contacts, texte collé…)</button>';
  h+='<button class="btn blk" data-act="bd-print"'+(list.length?'':' disabled')+'>'+ic('print')+' Imprimer / PDF de tous les anniversaires</button>';
  h+='<button class="btn blk" data-act="bd-exp"'+(list.length?'':' disabled')+'>🔔 Mettre dans le calendrier du téléphone avec alarme…</button>';
- h+='<b style="display:block;margin:.8rem 0 .2rem">Rappel à l’ouverture de l’appli</b><div class="seg" style="flex-wrap:wrap">'+chip(0,'Le jour J')+chip(1,'La veille')+chip(3,'3 jours avant')+chip(7,'1 semaine avant')+'</div>';
+ h+='</div><b style="display:block;margin:.8rem 0 .2rem">Rappel à l’ouverture de l’appli</b><div class="seg" style="flex-wrap:wrap">'+chip(0,'Le jour J')+chip(1,'La veille')+chip(3,'3 jours avant')+chip(7,'1 semaine avant')+'</div>';
  h+='<div class="seg" style="margin-top:.4rem"><button data-act="bd-on" data-v="1" class="'+(S.bdOn!==false?'on':'')+'">Rappels activés</button><button data-act="bd-on" data-v="0" class="'+(S.bdOn===false?'on':'')+'">Désactivés</button></div>';
  h+='<p class="mut" style="font-size:.85rem;margin:.3rem 0 .6rem">Une appli fermée ne peut pas t’envoyer de notification : le rappel s’affiche quand tu ouvres l’appli (une fois par jour). Pour une vraie sonnerie, utilise le bouton « calendrier du téléphone ».</p>';
  h+='<b style="display:block;margin:.8rem 0 .2rem">🔒 Protéger les idées cadeaux</b><p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Dans la fiche d’une personne, coche « Protéger » : ses idées cadeaux (et sa fiche) sont cachées tant que tu n’as pas saisi ton code (ou utilisé Face ID). Les noms restent toujours visibles.</p>';
@@ -4880,6 +4921,13 @@ function bdCard(){
  return '<div class="card" id="bd-card"><h3>🎂 Anniversaires</h3>'+mrow('bd-open','Ouvrir les anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant')+(n?mrow('sh-bd','📤 Partager les anniversaires','Par SMS, WhatsApp ou mail : met à jour l’appli de l’autre'):'')+sfold('Comment ça marche ?','Une liste à part, sans encombrer l’agenda : rappel à l’ouverture de l’appli, et export avec alarme vers le calendrier du téléphone (iPhone et Android).')+'</div>';
 }
 
+/* recherche dans la liste type des courses */
+document.addEventListener('input',e=>{
+ const q=e.target;if(!q||q.id!=='cat-q')return;
+ const v=norm(q.value||'').trim();CV.q=q.value||'';
+ $$('#cat-list .cat-r').forEach(r=>{r.style.display=(!v||(r.dataset.n||'').includes(v))?'':'none'});
+ $$('#cat-list .cat-h').forEach(h=>{let n=h.nextElementSibling,vis=false;while(n&&!n.classList.contains('cat-h')){if(n.style.display!=='none')vis=true;n=n.nextElementSibling}h.style.display=vis?'':'none'});
+});
 /* recherche dans la liste (filtre sans recharger) */
 document.addEventListener('input',e=>{
  const q=e.target;if(!q||q.id!=='bd-q')return;
@@ -5143,6 +5191,7 @@ function settingsView(){
  h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="tgl-row"><b>Fenêtre « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
+  '<span class="lbl" style="display:block;margin-top:.5rem">Onglets en bas</span>'+[['tasks','☑ Tâches'],['courses','🛒 Courses'],['repas','🍽 Repas'],['bdays','🎂 Anniversaires'],['voyages','🧳 Voyages']].map(([v,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="'+v+'"'+((S.tabsHide||[]).includes(v)?'':' checked')+'></label></div>').join('')+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
   '<div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div>'+
@@ -5213,7 +5262,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
- h+=d('🛒 Courses rapides','<ul><li>Où ? Onglet <b>Tâches → Courses</b>, ou <b>Repas → Courses</b> (c’est la même liste).</li><li><b>⭐ Mes habituels</b> : les articles que tu achètes le plus. Un toucher les ajoute à la liste (un second les retire).</li><li><b>📋 Listes types</b> : « Créer une liste type », colle ta liste depuis Notes. Ensuite un toucher l’ajoute aux courses (tu décoches ce que tu as).</li><li><b>🔁 Refaire mes dernières courses</b> : après « Vider le chariot », ce bouton remet tout ce que tu avais acheté.</li><li>En tapant un article, des suggestions apparaissent. <b>− / +</b> change la quantité.</li><li>En magasin : coche au fur et à mesure, puis « Vider le chariot ». <b>📤 Envoyer les courses</b> (en haut) les envoie à celui ou celle qui fait les courses.</li></ul>');
+ h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : « ＋ Nouvelle liste » (Leclerc, Marché, Pharmacie…). Touche le nom d’une liste en haut pour l’ouvrir.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements. En haut, <b>Avec : Morgane</b> n’affiche que les listes partagées avec elle ou lui.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup.</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>Importer depuis un site</b> (Marmiton, Cookidoo…) : Recettes → « Importer depuis un site » explique comment ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Famille connectée','<ul><li><b>Créer</b> (une seule personne) : Réglages → Famille et contacts → <b>Créer notre famille connectée</b>.</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
@@ -5464,7 +5513,7 @@ async function act(a,el,e){
   case 'map':openMap(el.dataset.p);break;
   case 'print':printCurrent();break;
   case 'focus':document.body.classList.toggle('focus');render();break;
-  case 'new':if(V.view==='voyages'){const v=VY.id&&vyOf(VY.id);if(!v)vyEdit(null);else if(VY.tab==='li')vyPaste(v);else if(VY.tab==='in')act('vy-info',{dataset:{k:'no'}},e);else{toast('Touche une case pour la remplir')}}else if(V.view==='repas'){if(RV.tab==='rc')rcEdit(null);else if(RV.tab==='co'){const i=$('#co-in');if(i)i.focus()}else mealEdit(today(),new Date().getHours()<14?'m':'s')}else if(V.view==='tasks'){if(TKV.l==='courses'){const i=$('#co-in');if(i){i.focus();break}}tkEdit(null)}else if(V.view==='bdays')bdEdit(null);else openEditor({date:V.date});break;
+  case 'new':if(V.view==='voyages'){const v=VY.id&&vyOf(VY.id);if(!v)vyEdit(null);else if(VY.tab==='li')vyPaste(v);else if(VY.tab==='in')act('vy-info',{dataset:{k:'no'}},e);else{toast('Touche une case pour la remplir')}}else if(V.view==='repas'){if(RV.tab==='rc')rcEdit(null);else if(RV.tab==='co'){const i=$('#co-in');if(i)i.focus()}else mealEdit(today(),new Date().getHours()<14?'m':'s')}else if(V.view==='courses'){if(CV.mode==='cat'){act('co-catadd',{dataset:{}},e);break}const i=$('#co-in');if(i)i.focus()}else if(V.view==='tasks'){if(TKV.l==='courses'){const i=$('#co-in');if(i){i.focus();break}}tkEdit(null)}else if(V.view==='bdays')bdEdit(null);else openEditor({date:V.date});break;
   case 'tk-edit':tkEdit(ds_.id);break;
   case 'vy-new':vyEdit(null);break;
   case 'vy-open':VY.id=ds_.id;VY.tab='li';go('voyages');break;
@@ -5489,7 +5538,7 @@ async function act(a,el,e){
   case 'sh-vy':shareSend('vy',VY.id);break;
   case 'tk-imp':tkImport();break;
   case 'sh-rcall':shareSend('rc');break;
-  case 'send-cur':{const v=V.view;if(v==='tasks')shareSend('tk');else if(v==='bdays')shareSend('bd');else if(v==='repas')shareSend(RV.tab==='rc'?'rc':RV.tab==='co'?'co':'mn');else if(v==='voyages'){if(VY.id&&vyOf(VY.id))shareSend('vy',VY.id);else{const L=vyAll().filter(x=>!x.b||x.b>=today());if(L.length===1)shareSend('vy',L[0].id);else if(!vyAll().length)toast('Crée d’abord un voyage');else{const r=await ask({title:'📤 Quel voyage envoyer ?',html:'<div style="height:.2rem"></div>',btns:vyAll().map(x=>({label:(x.ic||'🧳')+' '+x.t,value:x.id})).concat([{label:'Annuler',value:null}])});if(r)shareSend('vy',r)}}}break}
+  case 'send-cur':{const v=V.view;if(v==='courses'||(v==='tasks'&&TKV.l==='courses'))shareSend('co');else if(v==='tasks')shareSend('tk');else if(v==='bdays')shareSend('bd');else if(v==='repas')shareSend(RV.tab==='rc'?'rc':RV.tab==='co'?'co':'mn');else if(v==='voyages'){if(VY.id&&vyOf(VY.id))shareSend('vy',VY.id);else{const L=vyAll().filter(x=>!x.b||x.b>=today());if(L.length===1)shareSend('vy',L[0].id);else if(!vyAll().length)toast('Crée d’abord un voyage');else{const r=await ask({title:'📤 Quel voyage envoyer ?',html:'<div style="height:.2rem"></div>',btns:vyAll().map(x=>({label:(x.ic||'🧳')+' '+x.t,value:x.id})).concat([{label:'Annuler',value:null}])});if(r)shareSend('vy',r)}}}break}
   case 'ex-tk':exportAny('tk');break;
   case 'ex-bd':exportAny('bd');break;
   case 'ex-rc':exportAny('rc');break;
@@ -5538,15 +5587,39 @@ async function act(a,el,e){
   case 'rc-edit':closeSheet();rcEdit(ds_.id);break;
   case 'rc-del':{const r=rcOf(ds_.id);if(!r)break;const ok=await ask({title:'Supprimer « '+r.t+' » ?',text:'La recette sera retirée du carnet. Les repas déjà au menu gardent leur nom.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){Object.values(mnAll()).forEach(x=>['m','s'].forEach(k=>{if(x[k]&&x[k].r===r.id){x[k].t=r.t;x[k].r='';x[k].mt=Date.now()}}));S.rc=rcAll().filter(x=>x.id!==r.id);saveSet();closeSheet();render()}break}
   case 'co-add':{const i=$('#co-in');const g=i&&ingParse(i.value);if(!g){toast('Écris un article');break}const n=coursesAdd([g]);render();setTimeout(()=>{const j=$('#co-in');if(j)j.focus()},50);if(!n)toast('Déjà dans la liste');break}
-  case 'co-clear':{const dn=tkAll().filter(k=>k.l==='courses'&&k.x);if(dn.length)S.coLast=dn.map(k=>k.ig?ingTxt(k.ig):k.t).slice(0,150);const gone=dn.map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
+  case 'co-clear':{const dn=tkAll().filter(k=>k.l===coCur()&&k.x);if(dn.length)S.coLast=dn.map(k=>k.ig?ingTxt(k.ig):k.t).slice(0,150);const gone=dn.map(k=>k.id);S.tk=tkAll().filter(k=>!gone.includes(k.id));tkTomb(gone);saveSet();render();break}
   case 'co-print':coPrint();break;
-  case 'co-hab':{const x=coHist()[ds_.k];if(!x)break;if(coPendKey().has(ds_.k)){const k=tkAll().find(t=>t.l==='courses'&&!t.x&&coKey(t.ig?t.ig.n:t.t)===ds_.k);if(k){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+x.n,2500)}break}coursesAdd([{q:x.q,u:x.u,n:x.n}]);render();break}
+  case 'co-hab':{const x=coHist()[ds_.k];if(!x)break;if(coPendKey().has(ds_.k)){const k=tkAll().find(t=>t.l===coCur()&&!t.x&&coKey(t.ig?t.ig.n:t.t)===ds_.k);if(k){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+x.n,2500)}break}coursesAdd([{q:x.q,u:x.u,n:x.n}]);render();break}
   case 'co-haball':RV.coAll=!RV.coAll;render();break;
+  case 'co-p':CV.p=ds_.v||'';render();break;
+  case 'co-l':S.coLid=ds_.v;CV.q='';saveSet();render();break;
+  case 'co-new':coNewList();break;
+  case 'co-share':coShare();break;
+  case 'co-mode':CV.mode=ds_.v==='cat'?'cat':'buy';CV.edit=false;render();window.scrollTo(0,0);break;
+  case 'co-catedit':CV.edit=!CV.edit;render();break;
+  case 'co-cat':{const x=coHist()[ds_.k];if(!x)break;const row=el.closest('.cat-r');const cur=coCur();
+   const k=tkAll().find(t=>t.l===cur&&!t.x&&coKey(t.ig?t.ig.n:t.t)===ds_.k);
+   if(k){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet()}else{const n=coursesAdd([{q:x.q,u:x.u,n:x.n}]);if(!n)break;saveSet()}
+   const on=!k;if(coWide()&&V.view==='courses'){const cb=$('.co-colB'),sc=cb?cb.scrollTop:0;render();const cb2=$('.co-colB');if(cb2)cb2.scrollTop=sc;toast((on?'Ajouté : ':'Retiré : ')+x.n,1500);break}if(row){row.classList.toggle('on',on);const c=row.querySelector('.cat-c');if(c)c.textContent=on?'✓':''}
+   const sb=$('.co-seg [data-v="buy"] small');if(sb)sb.textContent=tkAll().filter(t=>t.l===cur&&!t.x).length;
+   const lc=$('.co-lists [data-v="'+cur+'"] small:last-child');if(lc)lc.textContent=tkAll().filter(t=>t.l===cur&&!t.x).length;
+   toast((on?'Ajouté : ':'Retiré : ')+x.n,1500);break}
+  case 'co-catdel':{const x=coHist()[ds_.k];if(!x)break;delete coHist()[ds_.k];saveSet();const row=el.closest('.cat-r');if(row)row.remove();toast('Retiré de ta liste type : '+x.n,2500);break}
+  case 'co-catadd':{const v={t:''};const pr=ask({title:'＋ Ajouter à ma liste type',html:'<p style="margin:.2rem 0 .5rem">Un article par ligne. Tu peux coller ta liste depuis Notes.</p><textarea class="in" id="cat-in" rows="7" placeholder="Pain&#10;Lait&#10;Bicarbonate…" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Ajouter',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+   const root=$('#dlg');root.oninput=e=>{if(e.target.id==='cat-in')v.t=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')break;
+   let n=0;for(const ln of String(v.t).split(/\n/)){const t=ln.replace(/^\s*[-•*☐☑✓✔□▢◻️◯○]+\s*/,'').trim();if(!t)continue;const g=ingParse(t);if(!g)continue;const k=coKey(g.n);if(!k)continue;if(!coHist()[k]){coHist()[k]={n:g.n,u:g.u||'',q:null,ry:rayOf(g.n),c:0,at:Date.now()};n++}}
+   saveSet();render();toast(n?n+' article'+(n>1?'s':'')+' ajouté'+(n>1?'s':'')+' à ta liste type':'Déjà dans ta liste type',3500);break}
+  case 'co-tocat':{const cur=coCur();const L=tkAll().filter(t=>t.l===cur&&!t.x);const r=await ask({title:'📒 Ranger dans ma liste type',html:'<p style="margin:.2rem 0 .6rem">Les '+L.length+' articles vont dans « Ma liste type » (A → Z). La liste « À acheter » sera vide : ensuite, touche simplement ce qu’il faut acheter.</p>',btns:[{label:'Ranger les '+L.length+' articles',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')break;
+   for(const t of L){const g=t.ig||ingParse(t.t);if(!g||!g.n)continue;const k=coKey(g.n);if(k&&!coHist()[k])coHist()[k]={n:g.n,u:g.u||'',q:null,ry:t.ry||rayOf(g.n),c:1,at:Date.now()}}
+   const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);CV.mode='cat';saveSet();render();window.scrollTo(0,0);toast(L.length+' articles rangés dans ta liste type',4000);break}
+  case 'co-ren':{const tl=tlOf(coCur());const v={t:tl.n};const pr=ask({title:'✏️ Renommer la liste',html:'<input class="in" id="col-n" maxlength="30" value="'+esc(tl.n)+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')break;const n=String(v.t||'').trim().slice(0,30);if(n){tl.n=n;tl.m=Date.now();saveSet();render()}break}
+  case 'co-del':{const cur=coCur();if(cur==='courses')break;const tl=tlOf(cur);const L=tkAll().filter(t=>t.l===cur);const r=await ask({title:'Supprimer « '+tl.n+' » ?',text:L.length?'Ses '+L.length+' articles seront supprimés aussi.':'La liste est vide.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;
+   const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);S.tl=tkLists().filter(l=>l.id!==cur);S.coLid='courses';if(S.fam&&S.fam.gr)for(const id of Object.keys(S.fam.gr)){const g=S.fam.gr[id];if(Array.isArray(g.cos))g.cos=g.cos.filter(x=>x!==cur)}saveSet();render();toast('Liste supprimée');break}
   case 'co-q':{const k=tkAll().find(t=>t.id===ds_.id);if(!k)break;if(!k.ig)k.ig={q:null,u:'',n:k.t};let q=k.ig.q==null?1:k.ig.q;const st=k.ig.u&&/^(g|ml|cl)$/.test(k.ig.u)?(q>=500?100:50):k.ig.u==='kg'||k.ig.u==='l'?0.5:1;q=Math.round((q+st*(+ds_.n))*100)/100;if(q<=0){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+k.ig.n,2500);break}k.ig.q=q;k.t=ingTxt(k.ig);k.m=Date.now();saveSet();render();break}
   case 'co-redo':if(S.coLast&&S.coLast.length)coAddLines('🔁 Refaire mes dernières courses',S.coLast,'Ce que tu as acheté la dernière fois.');break;
   case 'co-tpl':{const t=coTpls().find(x=>x.id===ds_.id);if(t)coAddLines('📋 '+t.n,t.it,'Liste type « '+esc(t.n)+' ».');break}
   case 'co-tpls':coTplManage();break;
-  case 'co-save':{const L=tkAll().filter(k=>k.l==='courses'&&!k.x).map(k=>k.ig?ingTxt(k.ig):k.t);coTplEdit(null,L);break}
+  case 'co-save':{const L=tkAll().filter(k=>k.l===coCur()&&!k.x).map(k=>k.ig?ingTxt(k.ig):k.t);coTplEdit(null,L);break}
   case 'sh-mn':shareSend('mn');break;
   case 'sh-co':shareSend('co');break;
   case 'sh-rc':closeSheet();shareSend('rc',ds_.id);break;
@@ -5712,6 +5785,7 @@ document.addEventListener('change',e=>{
  if(t.id==='sel-per'){SEL.per=t.value;selRefilter();return}
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
+ if(t.dataset.chg==='tabshow'){const H=new Set(S.tabsHide||[]);t.checked?H.delete(t.dataset.v):H.add(t.dataset.v);S.tabsHide=[...H];saveSet();tabsApply();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
  if(t.dataset.chg==='famdoc'&&S.fam){if(!S.fam.d)S.fam.d={};S.fam.d[t.dataset.d]=t.checked?1:0;if(t.checked&&S.fam.sent)delete S.fam.sent[t.dataset.d];saveSet();return}
  if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
@@ -5817,22 +5891,26 @@ function tkDayHTML(day,compact){
 }
 function tasksView(){
  const L=tkLists(),P=ppl(),t=today(),wk=add(t,7);
- const all=tkAll().filter(k=>(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w));
+ const all=tkAll().filter(k=>(TKV.l?k.l===TKV.l:!isCoL(k.l))&&(!TKV.w||k.w===TKV.w));
  const pend=all.filter(k=>!k.x),done=all.filter(k=>k.x).sort((a,b)=>(b.xa||0)-(a.xa||0));
  const cnt=id=>tkAll().filter(k=>!k.x&&k.l===id).length;
  const chip=(act,k,v,lbl,on)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-k="'+k+'" data-v="'+esc(v)+'">'+lbl+'</button>';
- let h='<div class="tk-wrap"><div class="tk-bar"><div class="chips tk-chips">'+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x).length+'</small>',!TKV.l)+
-  L.map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
+ const coN=tkAll().filter(k=>!k.x&&isCoL(k.l)).length;
+ let h='<div class="tk-wrap"><div class="tk-bar"><div class="chips tk-chips">'+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x&&!isCoL(k.l)).length+'</small>',!TKV.l)+
+
+  L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
   '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>';
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
- if(TKV.l==='courses'&&tkLists().some(l=>l.id==='courses'))return{html:h.replace('<div class="tk-wrap">','<div class="tk-wrap tk-co">')+coursesHTML()+'</div>',fixed:false};
+ if(isCoL(TKV.l)){S.coLid=TKV.l;TKV.l='';setTimeout(()=>go('courses'),0)}
  const showList=!TKV.l;
  let any=false;
+ h+='<div class="tk-cols">';
  for(const [lbl,f] of G){
   const l=pend.filter(f).sort(by);if(!l.length)continue;any=true;
   h+='<section class="tk-g'+(lbl==='En retard'?' late':'')+'"><div class="tk-gh">'+lbl+' <small>'+l.length+'</small></div>'+l.map(k=>tkRow(k,showList)).join('')+'</section>';
  }
+ h+='</div>';
  if(!any)h+='<p class="empty">'+(done.length?'Tout est fait 👍':'Aucune tâche pour l’instant.')+' Touche + pour en ajouter une.</p>';
  if(done.length)h+='<details class="tk-g tk-done"><summary>Faites <small>'+done.length+'</small></summary>'+done.slice(0,60).map(k=>tkRow(k,showList)).join('')+'<button class="btn sm blk" data-act="tk-clear">Effacer les tâches faites</button></details>';
  h+='<p class="mut tk-hint">Une tâche avec une date apparaît aussi ce jour-là dans l’agenda (☑). Une tâche qui revient passe toute seule à la date suivante quand tu la coches.</p></div>';
@@ -5879,7 +5957,7 @@ function tkCheck(id){
   return;
  }
  k.x=!k.x;k.xa=k.x?Date.now():0;k.m=Date.now();saveSet();render();
- if(k.x&&k.l!=='courses')toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
+ if(k.x&&!isCoL(k.l))toast('Fait !',4000,{label:'Annuler',fn:()=>{k.x=false;k.xa=0;k.m=Date.now();saveSet();render()}});
 }
 async function tkClear(){
  const n=tkAll().filter(k=>k.x&&(!TKV.l||k.l===TKV.l)&&(!TKV.w||k.w===TKV.w)).length;if(!n)return;
@@ -6127,7 +6205,7 @@ function shMerge(P,apply){
    if(!loc&&apply){loc={id:p.id,n:String(p.n||'?').slice(0,30),ln:String(p.ln||'').slice(0,40),rel:p.rel||'aut',tel:String(p.tel||'').slice(0,20),mail:String(p.mail||'').slice(0,80),c:/^#[0-9a-f]{6}$/i.test(p.c)?p.c:PPL_COLS[0],m:now};ppl().push(loc)}
    map[p.id]=loc?loc.id:'';
   }
-  for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
+  for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),co:l.co?1:undefined,m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
   const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',w:map[k.w]||'',r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?now:0,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
   for(const k of (P.tk||[])){
    if(!k||!k.id||!k.t)continue;
@@ -6198,7 +6276,7 @@ async function shReceive(code,fromLink){
  if(r==='pick'){const Q=await shPick(P);if(!Q)return;P=Q}
  else if(r!=='y')return;
  const st2=shMerge(P,true);const det2=[st2.add?st2.add+' nouveau'+(st2.add>1?'x':''):'',st2.upd?st2.upd+' mis à jour':'',st2.del?st2.del+' supprimé'+(st2.del>1?'s':''):''].filter(Boolean).join(', ')||'rien de neuf';
- if(P.k==='tk'){TKV.l='';TKV.w='';V.view='tasks';if(P.lbl==='Liste de courses'){RV.tab='co';V.view='repas'}}
+ if(P.k==='tk'){TKV.l='';TKV.w='';V.view='tasks';if(P.lbl==='Liste de courses'){V.view='courses'}}
  if(P.k==='rc'){RV.tab='rc';V.view='repas'}
  if(P.k==='vy'){const v=(P.vy||[])[0];if(v&&vyOf(v.id)){VY.id=v.id;VY.tab='li';V.view='voyages'}}
  if(P.k==='mn'){RV.tab='menu';RV.ws=P.ws&&RX_D.test(P.ws)?P.ws:RV.ws;V.view='repas'}
@@ -6322,20 +6400,22 @@ function rcFromText(txt){
 const rwStart=()=>{if(!RV.ws)RV.ws=mondayOf(today(),S.weekStart);return RV.ws};
 function repasView(){
  const sg=(k,l)=>'<button data-act="rp-tab" data-v="'+k+'" class="'+(RV.tab===k?'on':'')+'">'+l+'</button>';
- let h='<div class="rp-wrap"><div class="seg rp-seg">'+sg('menu','Menu')+sg('rc','Recettes')+sg('co','Courses')+'</div>';
- if(RV.tab==='rc')h+=rcListHTML();else if(RV.tab==='co')h+=coursesHTML();else h+=menuHTML();
+ let h='<div class="rp-wrap"><div class="seg rp-seg">'+sg('menu','Menu')+sg('rc','Recettes')+'<button data-act="view" data-v="courses">🛒 Courses</button></div>';
+ if(RV.tab==='co')RV.tab='menu';
+ if(RV.tab==='rc')h+=rcListHTML();else h+=menuHTML();
  return{html:h+'</div>',fixed:false};
 }
 function mealTxt(x){if(!x)return '';const r=rcOf(x.r);return r?(r.ic?r.ic+' ':'')+r.t:(x.t||'')}
 function menuHTML(){
  const ws=rwStart(),t=today();
  let h='<div class="rp-wk"><button class="ib" data-act="rp-wk" data-n="-1" aria-label="Semaine précédente">'+ic('left')+'</button><b>Semaine du '+esc(fShort(ws))+'</b><button class="ib" data-act="rp-wk" data-n="1" aria-label="Semaine suivante">'+ic('right')+'</button></div>';
+ h+='<div class="rp-days">';
  for(let i=0;i<7;i++){
   const d=add(ws,i),day=mnAll()[d]||{};
   const slot=(k,l)=>{const x=day[k],p=x&&pplOf(x.w);return '<button class="rp-sl'+(x&&mealTxt(x)?'':' empty')+'" data-act="rp-meal" data-d="'+d+'" data-k="'+k+'"><small>'+l+'</small><b>'+(x&&mealTxt(x)?esc(mealTxt(x)):'+ Ajouter')+'</b>'+(x&&(p||x.p)?'<em>'+(p?'<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>':'')+(x.p?' · '+x.p+' pers.':'')+'</em>':'')+'</button>'};
   h+='<section class="rp-day'+(d===t?' today':'')+'"><div class="rp-dh">'+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="rp-2">'+slot('m','Midi')+slot('s','Soir')+'</div></section>';
  }
- h+='<div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Envoyer le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
+ h+='</div><div class="rp-act"><button class="btn pri blk" data-act="rp-wkshop">🛒 Ingrédients de la semaine → courses</button><div class="chips"><button class="chip" data-act="rp-copy">Copier la semaine précédente</button><button class="chip" data-act="sh-mn">📤 Envoyer le menu</button><button class="chip" data-act="rp-print">'+ic('print')+' Imprimer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button></div></div>';
  return h;
 }
 function rcListHTML(){
@@ -6355,34 +6435,86 @@ const coKey=n=>norm(n).replace(/s$/,'').trim();
 function coRemember(it){if(!it||!it.n)return;const k=coKey(it.n);if(!k)return;const H=coHist(),h=H[k]||{n:it.n,c:0};h.n=it.n;h.u=it.u||'';h.q=it.q==null?null:it.q;h.ry=rayOf(it.n);h.c=(h.c||0)+1;h.at=Date.now();H[k]=h;
  const ks=Object.keys(H);if(ks.length>400){ks.sort((x,y)=>(H[x].c*1e13+H[x].at)-(H[y].c*1e13+H[y].at)).slice(0,ks.length-400).forEach(x=>delete H[x])}}
 function coHabits(){const H=coHist();return Object.values(H).sort((a,b)=>(b.c-a.c)||(b.at-a.at))}
-function coPendKey(){const s=new Set();tkAll().forEach(k=>{if(k.l==='courses'&&!k.x)s.add(coKey(k.ig?k.ig.n:k.t))});return s}
+function coPendKey(){const s=new Set(),c=coCur();tkAll().forEach(k=>{if(k.l===c&&!k.x)s.add(coKey(k.ig?k.ig.n:k.t))});return s}
 function coRow(k){
  const q=k.ig&&k.ig.q!=null;
  return '<div class="tk-r'+(k.x?' dn':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(k.n?'<small>'+esc(k.n)+'</small>':'')+'</button>'+
   (k.x?'':'<span class="co-q"><button data-act="co-q" data-id="'+esc(k.id)+'" data-n="-1" aria-label="Moins">−</button><button data-act="co-q" data-id="'+esc(k.id)+'" data-n="1" aria-label="Plus">+</button></span>')+'</div>';
 }
+/* Courses : plusieurs listes (Courses, Leclerc, avec Morgane…), « À acheter » (la liste actuelle)
+   et « 📒 Liste type » (tous les articles habituels, A → Z : un toucher = ajouté à la liste choisie). */
+const CV={mode:'buy',edit:false,p:'',q:''};
+function coShareInfo(lid){
+ const f=fam();if(!f)return{to:[],from:''};
+ const to=famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self&&famCoShared(famGrant(id),lid));
+ const o=lid!=='courses'&&f.org&&f.org[lid];const from=o&&o!==f.me&&f.mb[o]&&!f.mb[o].self?o:'';
+ return{to,from};
+}
+function coListsFor(p){if(!p)return coLists();return coLists().filter(l=>{const i=coShareInfo(l.id);return i.to.includes(p)||i.from===p})}
 function coursesHTML(){
- const lid=tkLists().some(l=>l.id==='courses')?'courses':null;
- const L=lid?tkAll().filter(k=>k.l===lid):[];
- const pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
- const H=coHabits(),inL=coPendKey();
+ let cur=coCur();const f=fam(),mem=f?famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self):[];
+ if(CV.p&&!mem.includes(CV.p))CV.p='';
+ const LL=coListsFor(CV.p);if(LL.length&&!LL.some(l=>l.id===cur)){cur=LL[0].id;S.coLid=cur}
+ const L=tkAll().filter(k=>k.l===cur),pend=L.filter(k=>!k.x),done=L.filter(k=>k.x);
+ const H=coHabits(),inL=coPendKey(),cnt=id=>tkAll().filter(k=>k.l===id&&!k.x).length;
+ const nm=l=>esc(l.n);
+ let h='';
+ if(mem.length)h+='<div class="chips tk-chips co-ppl"><span class="co-lbl">Avec :</span><button class="chip'+(!CV.p?' on':'')+'" data-act="co-p" data-v="">Toutes mes listes</button>'+mem.map(id=>'<button class="chip'+(CV.p===id?' on':'')+'" data-act="co-p" data-v="'+esc(id)+'">👤 '+esc(famName(id))+'</button>').join('')+'</div>';
+ h+='<div class="chips tk-chips co-lists"><span class="co-lbl">Mes listes :</span>'+(LL.length?LL:coLists()).map(l=>{const i=coShareInfo(l.id);return '<button class="chip'+(l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(l.id)+'">🛒 '+nm(l)+(i.to.length?' 👥':'')+(i.from?' <small>de '+esc(famName(i.from))+'</small>':'')+' <small>'+cnt(l.id)+'</small></button>'}).join('')+'<button class="chip" data-act="co-new">＋ Nouvelle liste</button></div>';
+ if(CV.p&&!LL.length)h+='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .4rem">Aucune liste partagée avec '+esc(famName(CV.p))+'. Choisis une liste puis « 👥 Partager ».</p>';
+ const si=coShareInfo(cur),tl=tlOf(cur);
+ h+='<div class="co-info"><b>🛒 '+nm(tl)+'</b><span>'+(si.from?'📥 Liste de '+esc(famName(si.from)):si.to.length?'👥 Partagée avec '+esc(si.to.map(famName).join(', ')):'🔒 Rien que pour toi')+'</span>'+
+  (f&&mem.length&&!si.from?'<button class="chip" data-act="co-share">👥 Partager</button>':'')+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-ren">✏️</button>':'')+'</div>';
+ const wide=coWide();
+ if(wide){return h+'<div class="co-2col"><div class="co-colA"><h4 class="co-h4">🛒 À acheter <small>'+pend.length+'</small></h4>'+coBuyHTML(cur,L,pend,done,H,si,true)+'</div><div class="co-colB"><h4 class="co-h4">📒 Ma liste type <small>'+H.length+'</small></h4>'+coCatHTML(cur,H,inL)+'</div></div>'}
+ h+='<div class="seg co-seg"><button data-act="co-mode" data-v="buy" class="'+(CV.mode!=='cat'?'on':'')+'">🛒 À acheter <small>'+pend.length+'</small></button><button data-act="co-mode" data-v="cat" class="'+(CV.mode==='cat'?'on':'')+'">📒 Ma liste type <small>'+H.length+'</small></button></div>';
+ if(CV.mode==='cat')return h+coCatHTML(cur,H,inL);
+ return h+coBuyHTML(cur,L,pend,done,H,si,false);
+}
+const coWide=()=>window.innerWidth>=1000;
+function coBuyHTML(cur,L,pend,done,H,si,wide){
  let h='<div class="rp-add"><input class="in" id="co-in" list="co-dl" placeholder="Ajouter : 2 citrons, lessive…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="co-add">'+ic('plus')+'</button></div><datalist id="co-dl">'+H.slice(0,150).map(x=>'<option value="'+esc(x.n)+'">').join('')+'</datalist>';
- /* raccourcis */
- h+='<div class="co-quick">'+(S.coLast&&S.coLast.length?'<button class="chip" data-act="co-redo">🔁 Refaire mes dernières courses <small>'+S.coLast.length+'</small></button>':'')+
-  coTpls().map(t=>'<button class="chip" data-act="co-tpl" data-id="'+esc(t.id)+'">📋 '+esc(t.n)+' <small>'+t.it.length+'</small></button>').join('')+
-  '<button class="chip" data-act="co-tpls">'+(coTpls().length?'⚙ Listes types':'📋 Créer une liste type')+'</button></div>';
- if(H.length){
-  const top=H.slice(0,RV.coAll?200:24).sort((a,b)=>RAYONS.findIndex(r=>r[0]===a.ry)-RAYONS.findIndex(r=>r[0]===b.ry)||(b.c-a.c));
-  h+='<div class="co-hab"><div class="co-habh">⭐ Mes habituels <small>un toucher = ajouté</small></div><div class="chips">'+top.map(x=>{const on=inL.has(coKey(x.n));return '<button class="chip'+(on?' on':'')+'" data-act="co-hab" data-k="'+esc(coKey(x.n))+'">'+(on?'✓ ':'')+esc(x.n.charAt(0).toUpperCase()+x.n.slice(1))+'</button>'}).join('')+(H.length>24?'<button class="chip" data-act="co-haball">'+(RV.coAll?'Moins':'Tous ('+H.length+')')+'</button>':'')+'</div></div>';
- }
- if(!pend.length&&!done.length)h+='<p class="empty">La liste est vide. Touche tes habituels, une liste type, ou ajoute un article en haut. Les ingrédients des recettes et du menu peuvent aussi arriver ici.</p>';
+ h+='<div class="co-quick">'+(wide?'':'<button class="chip" data-act="co-mode" data-v="cat">📒 Choisir dans ma liste type</button>')+(S.coLast&&S.coLast.length?'<button class="chip" data-act="co-redo">🔁 Refaire mes dernières courses <small>'+S.coLast.length+'</small></button>':'')+
+  coTpls().map(t=>'<button class="chip" data-act="co-tpl" data-id="'+esc(t.id)+'">📋 '+esc(t.n)+' <small>'+t.it.length+'</small></button>').join('')+'</div>';
+ if(pend.length>=40)h+='<div class="co-big"><b>'+pend.length+' articles à acheter.</b> Si c’est en fait ta liste de tous les produits habituels, range-la dans « 📒 Ma liste type » : la liste à acheter redevient vide, et tu choisis ensuite ce qu’il faut acheter d’un toucher.<button class="btn pri blk" data-act="co-tocat">📒 Tout ranger dans ma liste type</button></div>';
+ if(!pend.length&&!done.length)h+='<p class="empty">Rien à acheter. Ajoute un article en haut, ou touche un produit dans « 📒 Ma liste type »'+(wide?' à droite':'')+'.</p>';
  for(const r of RAYONS){
   const l=pend.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]).sort((a,b)=>a.t.localeCompare(b.t));if(!l.length)continue;
   h+='<section class="tk-g"><div class="tk-gh">'+r[1]+' <small>'+l.length+'</small></div>'+l.map(coRow).join('')+'</section>';
  }
  if(done.length)h+='<details class="tk-g tk-done" open><summary>Dans le chariot <small>'+done.length+'</small></summary>'+done.map(coRow).join('')+'<button class="btn sm blk" data-act="co-clear">Vider le chariot (courses finies)</button></details>';
- h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button>'+(pend.length?'<button class="chip" data-act="co-save">💾 Enregistrer comme liste type</button>':'')+'</div>';
+ h+='<div class="chips" style="margin:.6rem 0"><button class="chip" data-act="sh-co">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="co-print">'+ic('print')+' Imprimer</button>'+(pend.length?'<button class="chip" data-act="co-save">💾 Enregistrer comme paquet</button>':'')+'<button class="chip" data-act="co-tpls">📋 Paquets (apéro, barbecue…)</button>'+(cur!=='courses'&&!si.from?'<button class="chip" data-act="co-del">🗑 Supprimer cette liste</button>':'')+'</div>';
  return h;
+}
+function coCatHTML(cur,H,inL){
+ const tl=tlOf(cur);
+ let h='<p class="co-tip">Touche un article : il est ajouté à <b>🛒 '+esc(tl.n)+'</b> (un second toucher le retire).</p>';
+ h+='<input class="in" id="cat-q" type="search" placeholder="Chercher dans ma liste type…" autocomplete="off" value="'+esc(CV.q)+'" style="margin:.2rem 0 .4rem">';
+ h+='<div class="chips" style="margin:0 0 .4rem"><button class="chip" data-act="co-catadd">＋ Ajouter des articles</button><button class="chip'+(CV.edit?' on':'')+'" data-act="co-catedit">'+(CV.edit?'✓ Terminé':'✏️ Modifier')+'</button></div>';
+ if(!H.length)return h+'<p class="empty">Ta liste type est vide. « ＋ Ajouter des articles » : colle ta liste depuis Notes (un article par ligne). Les articles que tu achètes s’y ajoutent aussi tout seuls.</p>';
+ const A=H.slice().sort((a,b)=>norm(a.n)<norm(b.n)?-1:norm(a.n)>norm(b.n)?1:0);
+ let last='';
+ h+='<div id="cat-list">'+A.map(x=>{const k=coKey(x.n),on=inL.has(k),L1=(norm(x.n).charAt(0)||'#').toUpperCase();let hd='';if(L1!==last){last=L1;hd='<div class="cat-h">'+esc(L1)+'</div>'}
+  const nm=x.n.charAt(0).toUpperCase()+x.n.slice(1);
+  return hd+'<div class="cat-r'+(on?' on':'')+'" data-n="'+esc(norm(x.n))+'"><button class="cat-b" data-act="co-cat" data-k="'+esc(k)+'"><span class="cat-c">'+(on?'✓':'')+'</span><b>'+esc(nm)+'</b></button>'+(CV.edit?'<button class="cat-del" data-act="co-catdel" data-k="'+esc(k)+'" aria-label="Retirer de la liste type">🗑</button>':'')+'</div>'}).join('')+'</div>';
+ return h;
+}
+async function coNewList(){
+ const v={t:''};const pr=ask({title:'🛒 Nouvelle liste de courses',html:'<p style="margin:.2rem 0 .5rem">Par exemple : Leclerc, Marché, Pharmacie, Courses avec Morgane…</p><input class="in" id="col-n" maxlength="30" placeholder="Nom de la liste" style="margin-bottom:.6rem">',btns:[{label:'Créer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};setTimeout(()=>{const i=$('#col-n');if(i)i.focus()},120);
+ const r=await pr;root.oninput=null;if(r!=='ok')return;const n=String(v.t||'').trim().slice(0,30);if(!n)return;
+ const l={id:'co'+uid(),n,i:'🛒',co:1,m:Date.now()};tkLists().push(l);S.coLid=l.id;CV.mode='buy';saveSet();render();
+ if(fam()&&famMembers().some(id=>!S.fam.mb[id].x&&!S.fam.mb[id].self))toast('Liste « '+n+' » créée',6000,{label:'👥 La partager',fn:()=>coShare()});else toast('Liste « '+n+' » créée');
+}
+async function coShare(){
+ const f=fam();if(!f)return;const cur=coCur(),tl=tlOf(cur);
+ const mem=famMembers().filter(id=>!f.mb[id].x&&!f.mb[id].self);if(!mem.length){toast('Personne dans ta famille connectée pour l’instant');return}
+ const on=new Set(mem.filter(id=>famCoShared(famGrant(id),cur)));
+ const pr=ask({title:'👥 Partager « '+tl.n+' »',html:'<p style="margin:.2rem 0 .5rem">Les personnes cochées voient cette liste et peuvent ajouter ou cocher des articles. Les changements arrivent chez tout le monde.</p>'+mem.map(id=>'<div class="tgl-row"><b>👤 '+esc(famName(id))+'</b><label class="tgl"><input type="checkbox" data-cs="'+esc(id)+'"'+(on.has(id)?' checked':'')+'></label></div>').join('')+'<div style="height:.5rem"></div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.onchange=e=>{const id=e.target.dataset&&e.target.dataset.cs;if(id)e.target.checked?on.add(id):on.delete(id)};
+ const r=await pr;root.onchange=null;if(r!=='ok')return;
+ for(const id of mem){const g=famGrant(id);const set=new Set(famCoArr(g));on.has(id)?set.add(cur):set.delete(cur);g.cos=[...set];g.co=g.cos.length?1:0;delete g.removed;f.gr[id]=g}
+ f.grAt=Date.now();saveSet();render();toast(on.size?'« '+tl.n+' » partagée avec '+[...on].map(famName).join(', '):'« '+tl.n+' » n’est plus partagée',4500);
 }
 async function coTplManage(){
  for(let g=0;g<30;g++){
@@ -6413,7 +6545,11 @@ async function coAddLines(title,lines,intro){
  const n=coursesAdd(sel.map(i=>ingParse(lines[i])).filter(Boolean));render();toast(n?n+' article'+(n>1?'s':'')+' ajouté'+(n>1?'s':''):'Déjà dans la liste',3500);
 }
 /* ----- ajout aux courses : regroupe les mêmes articles ----- */
-function coursesList(){let l=tkLists().find(x=>x.id==='courses');if(!l){l={id:'courses',n:'Courses',i:'🛒',m:Date.now()};tkLists().push(l)}return l.id}
+function coursesList0(){let l=tkLists().find(x=>x.id==='courses');if(!l){l={id:'courses',n:'Courses',i:'🛒',m:Date.now()};tkLists().push(l)}return l.id}
+const isCoL=id=>!!id&&(id==='courses'||!!(tkLists().find(x=>x.id===id)||{}).co);
+const coLists=()=>{coursesList0();return tkLists().filter(l=>l.id==='courses'||l.co)};
+function coCur(){return isCoL(S.coLid)?S.coLid:coursesList0()}
+function coursesList(){return coCur()}
 function coursesAdd(items){
  const lid=coursesList();let n=0;
  for(const it of items){
@@ -6436,7 +6572,7 @@ async function pickIngredients(title,items,intro){
  root.removeEventListener('change',h,true);
  if(r!=='y')return;
  const n=coursesAdd(items.filter((_,i)=>!off.has(i)));
- render();toast(n?n+' article'+(n>1?'s':'')+' dans la liste Courses':'Rien à ajouter',4000,n?{label:'Voir',fn:()=>{RV.tab='co';go('repas')}}:null);
+ render();toast(n?n+' article'+(n>1?'s':'')+' dans la liste Courses':'Rien à ajouter',4000,n?{label:'Voir',fn:()=>{CV.mode='buy';go('courses')}}:null);
 }
 function weekIngredients(){
  const ws=rwStart(),acc=[];
@@ -6570,8 +6706,8 @@ function rpPrint(){
  outPrint(rpPrintHTML(),'Menu de la semaine du '+fShort(ws),bl,'menu-agendam.pdf');
 }
 function coPrint(){
- const L=tkAll().filter(k=>k.l==='courses'&&!k.x);if(!L.length){toast('La liste de courses est vide');return}
- const bl=[];let html='<h1>🛒 Courses <small>'+esc(fShort(today()))+'</small></h1>';
+ const L=tkAll().filter(k=>k.l===coCur()&&!k.x);if(!L.length){toast('La liste de courses est vide');return}
+ const bl=[];let html='<h1>🛒 '+esc(tlOf(coCur()).n)+' <small>'+esc(fShort(today()))+'</small></h1>';
  for(const r of RAYONS){const l=L.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]);if(!l.length)continue;bl.push({h:r[1]});html+='<div class="pr-d"><h2>'+r[1]+'</h2>';l.forEach(k=>{bl.push({t:k.t,box:true});html+='<div class="tk-pr"><span class="bx"></span><span>'+esc(k.t)+'</span></div>'});html+='</div>'}
  outPrint(html,'Courses',bl,'courses-agendam.pdf');
 }
@@ -7085,7 +7221,7 @@ function expData(kind,arg){
   return{title:TKV.l?tlOf(TKV.l).n:'Tâches',txt,csv,n:sel.length,file:'taches'};
  }
  if(kind==='co'){
-  const L=tkAll().filter(k=>k.l==='courses'&&!k.x);
+  const L=tkAll().filter(k=>k.l===coCur()&&!k.x);
   const txt=RAYONS.map(r=>{const l=L.filter(k=>(k.ry||rayOf(k.ig?k.ig.n:k.t))===r[0]);return l.length?r[1]+'\n'+l.map(k=>'☐ '+k.t).join('\n'):''}).filter(Boolean).join('\n\n');
   const csv=['Rayon;Article'].concat(L.map(k=>[rayLbl(k.ry||rayOf(k.ig?k.ig.n:k.t)).replace(/^\S+\s/,''),k.t].map(csvC).join(';'))).join('\n');
   return{title:'Liste de courses',txt,csv,n:L.length,file:'courses'};
@@ -7218,10 +7354,12 @@ function famCid(id){
  const p=ppl().find(x=>norm(x.n)===norm(m.n))||ppl().find(x=>norm(pplName(x))===norm(m.n));
  return p?p.id:'';
 }
+function famCoArr(g){return Array.isArray(g.cos)?g.cos.slice():(g.co?['courses']:[])}
+const famCoShared=(g,lid)=>famCoArr(g).includes(lid);
 function famGrant(id){return Object.assign({co:0,tk:0,rp:0,bd:0,vy:0},(S.fam&&S.fam.gr&&S.fam.gr[id])||{})}
 function famGSum(g){
  if(g.self)return 'tout (autre appareil)';
- const L=[];if(g.co)L.push('Courses');if(g.tk===2)L.push('Tâches');else if(g.tk===1)L.push('ses tâches');if(g.rp)L.push('Repas');if(g.bd===2)L.push('Anniversaires');else if(g.bd===1){const n=Array.isArray(g.bds)?g.bds.length:(g.nbd||0);L.push(n+' anniversaire'+(n>1?'s':''))}if(g.vy)L.push('Voyages');
+ const L=[];const ca=Array.isArray(g.cos)?g.cos:(g.co?['courses']:[]);if(ca.length)L.push(ca.length===1&&(ca[0]==='courses'||ca[0]==='Courses')?'Courses':'Courses ('+ca.map(x=>x==='courses'?'Courses':(tkLists().find(l=>l.id===x)||{n:x}).n).join(', ')+')');if(g.tk===2)L.push('Tâches');else if(g.tk===1)L.push('ses tâches');if(g.rp)L.push('Repas');if(g.bd===2)L.push('Anniversaires');else if(g.bd===1){const n=Array.isArray(g.bds)?g.bds.length:(g.nbd||0);L.push(n+' anniversaire'+(n>1?'s':''))}if(g.vy)L.push('Voyages');
  return L.length?L.join(', '):'rien';
 }
 function famChanSelf(id){
@@ -7230,7 +7368,7 @@ function famChanSelf(id){
  const pp=ppl().map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',tel:p.tel||'',mail:p.mail||'',c:p.c}));
  const f=S.fam,gr={};for(const i of Object.keys(f.gr||{}))if(i!==id)gr[i]=Object.assign({},f.gr[i],{cid:(f.mb[i]&&f.mb[i].cid)||''});
  return{app:'agd',v:2,k:'fc',from:meName(),g:{self:1},gr,gra:f.grAt||0,og,rm:{},
-  tk:{k:'tk',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,m:l.m||0})),tk:tkAll().map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),ppl:pp},
+  tk:{k:'tk',tl:tkLists().map(l=>({id:l.id,n:l.n,i:l.i,co:l.co||undefined,m:l.m||0})),tk:tkAll().map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel),ppl:pp},
   rc:{k:'rc',rc:rcAll().map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn:mnAll(),ppl:pp},
   bd:{k:'bd',bd:bdClean().map(b=>{const o=Object.assign({},b);delete o.ph;return o}),del:shTrim(S.bdDel)},
@@ -7242,18 +7380,26 @@ function famChan(id){
  const mySelf=o=>o===me||(f.mb[o]&&f.mb[o].self&&!f.mb[o].x);
  const mine=x=>mySelf(famOrg(x)),his=x=>famOrg(x)===id;
  const take=(arr,ok,key,mt)=>{const out=[];for(const x of arr){if(!x||!x.id)continue;if(his(x.id)||(mine(x.id)&&ok(x))){out.push(x);og[x.id]=famOrg(x.id)}else if(mine(x.id))rm[key].push({id:x.id,m:mt(x)})}return out};
- const tk=g.removed?[]:take(tkAll(),k=>k.l==='courses'?!!g.co:(g.tk===2||(g.tk===1&&!!cid&&k.w===cid)),'tk',k=>k.m||k.ca||0);
+ const cos=new Set(famCoArr(g));
+ // Liste de courses partagée : celui qui l'a créée envoie tout ce qu'elle contient (y compris ce qu'y ajoutent les autres),
+ // et chacun renvoie à son créateur ce qu'il y ajoute.
+ const lOwn=l=>l==='courses'||mySelf(famOrg(l)),lHis=l=>l==='courses'?((f.rg[id]||{}).ci||[]).includes('courses'):famOrg(l)===id;
+ const tk=[];if(!g.removed)for(const k of tkAll()){if(!k||!k.id)continue;
+  const inc=his(k.id)||(isCoL(k.l)?((cos.has(k.l)&&lOwn(k.l))||(lHis(k.l)&&mine(k.id))):(mine(k.id)&&(g.tk===2||(g.tk===1&&!!cid&&k.w===cid))));
+  if(inc){tk.push(k);og[k.id]=famOrg(k.id)}else if(mine(k.id))rm.tk.push({id:k.id,m:k.m||k.ca||0})}
+ else for(const k of tkAll())if(mine(k.id))rm.tk.push({id:k.id,m:k.m||k.ca||0});
  const rc=g.removed?[]:take(rcAll(),()=>!!g.rp,'rc',r=>r.m||0);
  const bds=new Set(Array.isArray(g.bds)?g.bds:[]);
  const bd=g.removed?[]:take(bdClean(),b=>g.bd===2||(g.bd===1&&bds.has(b.id)),'bd',b=>b.mt||0);
  const vy=g.removed?[]:take(vyAll(),()=>!!g.vy,'vy',v=>v.m||0);
- if(g.removed){for(const k of tkAll())if(mine(k.id))rm.tk.push({id:k.id,m:k.m||k.ca||0});for(const r of rcAll())if(mine(r.id))rm.rc.push({id:r.id,m:r.m||0});for(const b of bdClean())if(mine(b.id))rm.bd.push({id:b.id,m:b.mt||0});for(const v of vyAll())if(mine(v.id))rm.vy.push({id:v.id,m:v.m||0})}
+ if(g.removed){for(const r of rcAll())if(mine(r.id))rm.rc.push({id:r.id,m:r.m||0});for(const b of bdClean())if(mine(b.id))rm.bd.push({id:b.id,m:b.mt||0});for(const v of vyAll())if(mine(v.id))rm.vy.push({id:v.id,m:v.m||0})}
+ rm.tl=coLists().filter(l=>l.id!=='courses'&&mySelf(famOrg(l.id))&&(g.removed||!cos.has(l.id))).map(l=>({id:l.id}));
  const mn=g.rp&&!g.removed?mnAll():{};
  const used=new Set();tk.forEach(k=>k.w&&used.add(k.w));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
  const pp=ppl().filter(p=>used.has(p.id)).map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',c:p.c}));
  const delOk=d=>{const o=famOrg(d.id);return mySelf(o)||o===id};
- return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:g.co,tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy},og,rm,
-  tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)).map(l=>({id:l.id,n:l.n,i:l.i,m:l.m||0})),tk:tk.map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
+ return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy},og,rm,
+  tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:k.w||'',r:k.r||null,n:k.n||'',x:!!k.x,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined})),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
   rc:{k:'rc',rc:rc.map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn,ppl:pp},
   bd:{k:'bd',bd:bd.map(b=>{const o=Object.assign({},b);if(o.p){delete o.g;o.note=''}delete o.p;delete o.ph;return o}),del:shTrim(S.bdDel).filter(delOk)},
@@ -7266,7 +7412,7 @@ function famDetail(P){
  for(const k of T){if(!k||!k.id)continue;const loc=tkAll().find(y=>y.id===k.id);const b=byL[k.l]||(byL[k.l]={a:[],x:[],u:0,d:0});
   if(!loc){if(!shTrim(S.tkDel).some(d=>d.id===k.id&&d.m>=(k.m||0)))b.a.push(k.t)}else if((k.m||0)>(loc.m||loc.ca||0)){if(k.x&&!loc.x)b.x.push(k.t);else b.u++}}
  for(const d of (P.tk&&P.tk.del)||[]){const loc=tkAll().find(y=>y.id===d.id);if(loc&&(loc.m||loc.ca||0)<=d.m){const b=byL[loc.l]||(byL[loc.l]={a:[],x:[],u:0,d:0});b.d++}}
- for(const [l,b] of Object.entries(byL)){const L=tkLists().find(x=>x.id===l)||(P.tk.tl||[]).find(x=>x.id===l);add('tk:'+l,l==='courses'?'🛒 Courses':(L?(L.i?L.i+' ':'')+L.n:'☑ Tâches'),l==='courses'?'co':'tk:'+l,b.a,b.x,b.u,b.d)}
+ for(const [l,b] of Object.entries(byL)){const L=tkLists().find(x=>x.id===l)||(P.tk.tl||[]).find(x=>x.id===l);add('tk:'+l,(isCoL(l)||(L&&L.co))?'🛒 '+(L?L.n:'Courses'):(L?(L.i?L.i+' ':'')+L.n:'☑ Tâches'),(isCoL(l)||(L&&L.co))?'co:'+l:'tk:'+l,b.a,b.x,b.u,b.d)}
  const cnt=(arr,getL,mt)=>{let a=[],u=0;for(const x of arr||[]){if(!x||!x.id)continue;const loc=getL(x.id);if(!loc)a.push(x.t||x.n||'');else if(mt(x)>mt(loc))u++}return{a,u}};
  if(P.bd){const r=cnt(P.bd.bd,id=>bdClean().find(b=>b.id===id),x=>x.mt||0);add('bd','🎂 Anniversaires','bd',r.a,[],r.u,0)}
  if(P.rc){const r=cnt(P.rc.rc,id=>rcOf(id),x=>x.m||0);add('rc','🍽 Recettes','rc',r.a,[],r.u,0)}
@@ -7276,7 +7422,7 @@ function famDetail(P){
 const famDetTxt=d=>{const nm=a=>a.slice(0,2).map(x=>'« '+x+' »').join(', ')+(a.length>2?' +'+(a.length-2):'');const p=[];if(d.a.length)p.push('ajouté '+nm(d.a));if(d.x.length)p.push('coché '+nm(d.x));if(d.u)p.push(d.u+' modifié'+(d.u>1?'s':''));if(d.d)p.push(d.d+' retiré'+(d.d>1?'s':''));return d.lbl+' : '+p.join(', ')};
 function famGo(go){
  if(SHEET_OPEN)closeSheet();
- if(go==='co'){TKV.l='courses';TKV.w='';go='tasks'}
+ if(go==='co'||go.indexOf('co:')===0){if(go.length>3)S.coLid=go.slice(3);CV.mode='buy';CV.p='';V.view='courses';render();return}
  else if(go.indexOf('tk:')===0){TKV.l=go.slice(3);TKV.w='';go='tasks'}
  if(go==='tasks'){V.view='tasks';render();return}
  if(go==='bd'){V.view='bdays';render();return}
@@ -7290,7 +7436,7 @@ function famApply(from,P){
  const det=famDetail(P);
  const run=(Q,lbl)=>{if(!Q)return;const s=shMerge(Object.assign({app:'agd',v:1,from:P.from||'',at:Date.now()},Q),true);const x=s.add+s.upd+s.del;if(x){n+=x;cats.add(lbl)}};
  run(P.tk,'Tâches');run(P.rc,'Recettes');if(P.mn&&Object.keys(P.mn.mn||{}).length)run(P.mn,'Menu');run(P.bd,'Anniversaires');run(P.vy,'Voyages');
- for(const [id,o] of Object.entries(P.og||{})){if(o===me)delete f.org[id];else f.org[id]=String(o).slice(0,12)}
+ for(const [id,o] of Object.entries(P.og||{})){if(id==='courses')continue;if(o===me)delete f.org[id];else f.org[id]=String(o).slice(0,12)}
  if(P.g&&P.g.self&&P.gr&&(P.gra||0)>(f.grAt||0)){for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}f.grAt=P.gra}
  const R=P.rm||{};
  // Éléments d'avant la v2 (sans origine connue) : le créateur de la famille les garde, les autres choisissent (famLegacyAsk)
@@ -7300,11 +7446,12 @@ function famApply(from,P){
   else if(!f.org[x.id]&&legacyOk&&lm(loc)<=(x.m||0)){if(!f.lg)f.lg={};if(!f.lg[from])f.lg[from]=[];if(!f.lg[from].some(y=>y.id===x.id))f.lg[from].push({k:key,id:x.id,n:String(loc.t||loc.n||'').slice(0,60)})}}
   if(c){n+=c;cats.add(lbl)}};
  drop(0,'tk',tkAll,a=>S.tk=a,k=>k.m||k.ca||0,'Tâches');
+ for(const x of (R.tl||[])){if(x&&x.id&&x.id!=='courses'&&f.org[x.id]===from&&!tkAll().some(k=>k.l===x.id)){S.tl=tkLists().filter(l=>l.id!==x.id);delete f.org[x.id];if(S.coLid===x.id)S.coLid='courses'}}
  drop(0,'rc',rcAll,a=>S.rc=a,r=>r.m||0,'Recettes');
  drop(0,'bd',bdClean,a=>S.bd=a,b=>b.mt||0,'Anniversaires');
  drop(0,'vy',vyAll,a=>S.vy=a,v=>v.m||0,'Voyages');
  ls.set(K.set,S);
- const newG=P.g&&!P.g.x&&!P.g.self?FAM_G.filter(([k])=>P.g[k]&&!prev[k]).map(([k,l])=>k==='tk'&&P.g.tk===1?'tes tâches':l.replace(/^\S+ /,'')):[];
+ const newG=P.g&&!P.g.x&&!P.g.self?FAM_G.filter(([k])=>P.g[k]&&!prev[k]).map(([k,l])=>k==='tk'&&P.g.tk===1?'tes tâches':k==='co'&&Array.isArray(P.g.cos)&&P.g.cos.length?'🛒 '+P.g.cos.join(', 🛒 '):l.replace(/^\S+ /,'')):[];
  return{n,cats:[...cats],newG,det};
 }
 const famHash=o=>{const s=JSON.stringify(Object.assign({},o,{at:0,from:''}));let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
@@ -7385,9 +7532,9 @@ async function famGrantEdit(id){
  const g=famGrant(id);delete g.removed;let cid=famCid(id);
  const rg=f.rg[id]||{},L=pplSorted();
  const tg=(k,l)=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" id="fg-'+k+'"'+(g[k]?' checked':'')+'></label></div>';
- let self=!!m.self;
+ let self=!!m.self;const cos=new Set(famCoArr(g));
  const html='<div class="tgl-row"><b>📱 C’est un autre appareil à moi</b><label class="tgl"><input type="checkbox" id="fg-self"'+(self?' checked':'')+'></label></div><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">Coche si ce '+esc(m.d||'téléphone')+' est à toi (iPad, ancien téléphone…) : tout se synchronise entre tes appareils, dans les deux sens.</p><p style="margin:.2rem 0 .5rem">Sinon, ce que <b>tu</b> partages avec <b>'+esc(m.n)+'</b>. Il ou elle ne voit que ça. De son côté, '+esc(m.n)+' choisit ce qu’il ou elle te partage.</p>'+
-  tg('co','🛒 Courses')+
+  coLists().filter(l=>{const o=f.org&&f.org[l.id];return !o||o===f.me||(f.mb[o]&&f.mb[o].self)}).map(l=>'<div class="tgl-row"><b>🛒 '+esc(l.n)+'</b><label class="tgl"><input type="checkbox" id="fg-co-'+esc(l.id)+'"'+(cos.has(l.id)?' checked':'')+'></label></div>').join('')+
   '<div class="tgl-row"><b>☑ Tâches</b><select class="in" id="fg-tk" style="width:auto;max-width:62%"><option value="0"'+(g.tk===0?' selected':'')+'>Aucune</option><option value="1"'+(g.tk===1?' selected':'')+'>Les siennes</option><option value="2"'+(g.tk===2?' selected':'')+'>Toutes</option></select></div>'+
   tg('rp','🍽 Repas (menu et recettes)')+
   '<div class="tgl-row"><b>🎂 Anniversaires</b><select class="in" id="fg-bd" style="width:auto;max-width:62%"><option value="0"'+(!g.bd?' selected':'')+'>Aucun</option><option value="1"'+(g.bd===1?' selected':'')+'>Certains ('+(Array.isArray(g.bds)?g.bds.length:0)+')</option><option value="2"'+(g.bd===2?' selected':'')+'>Tous</option></select></div>'+
@@ -7395,12 +7542,12 @@ async function famGrantEdit(id){
   '<label class="lbl" for="fg-cid">Qui est '+esc(m.n)+' dans mes contacts ? (pour « les siennes »)</label><select class="in" id="fg-cid"><option value="">Pas dans mes contacts</option>'+L.map(p=>'<option value="'+esc(p.id)+'"'+(p.id===cid?' selected':'')+'>'+esc(pplName(p))+'</option>').join('')+'</select>'+
   '<p class="mut" style="font-size:.85rem;margin:.5rem 0 .6rem">'+esc(m.n)+' te partage : <b>'+esc(rg.x?'rien':famGSum(rg))+'</b>.</p>';
  const pr=ask({title:'🔒 Partage avec '+m.n,html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg');root.onchange=e=>{const t=e.target;if(!t.id||t.id.indexOf('fg-')!==0)return;const k=t.id.slice(3);if(k==='tk')g.tk=+t.value;else if(k==='bd')g.bd=+t.value;else if(k==='self')self=t.checked;else if(k==='cid')cid=t.value;else g[k]=t.checked?1:0};
+ const root=$('#dlg');root.onchange=e=>{const t=e.target;if(!t.id||t.id.indexOf('fg-')!==0)return;const k=t.id.slice(3);if(k.indexOf('co-')===0){t.checked?cos.add(k.slice(3)):cos.delete(k.slice(3));return}if(k==='tk')g.tk=+t.value;else if(k==='bd')g.bd=+t.value;else if(k==='self')self=t.checked;else if(k==='cid')cid=t.value;else g[k]=t.checked?1:0};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
  if(g.tk===1&&!cid){toast('Choisis '+m.n+' dans tes contacts pour « Seulement les siennes »',5000)}
  if(self){m.self=1;f.sent.m='';saveSet();render();toast('📱 Appareil relié : tout se synchronise',4500);return}
  if(m.self){delete m.self;f.sent.m=''}
- f.gr[id]=g;m.cid=cid;saveSet();render();f.grAt=Date.now();
+ g.cos=[...cos];g.co=g.cos.length?1:0;f.gr[id]=g;m.cid=cid;saveSet();render();f.grAt=Date.now();
  if(g.bd===1)return famBdPick(id);
  toast('Partage avec '+m.n+' : '+famGSum(g),4500);
 }
