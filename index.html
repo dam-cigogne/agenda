@@ -293,6 +293,9 @@ textarea.in{min-height:5rem;resize:vertical}
 .catrow{display:flex;align-items:center;gap:.5rem;margin:.45rem 0}
 .catsh{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin:-.15rem 0 .7rem 3.1rem}.catsh small{color:var(--muted);font-size:.75rem;font-weight:700}.catsh .chip{font-size:.75rem;padding:.2rem .55rem}
 .catrow input[type=color]{width:2.6rem;height:2.6rem;border:0;padding:0;background:none;border-radius:.7rem;flex:none}
+.fg-dis{opacity:.35;pointer-events:none}
+.catcol{width:2.6rem;height:2.6rem;border-radius:.7rem;flex:none;border:2px solid var(--line);padding:0;cursor:pointer}
+.palg{display:grid;grid-template-columns:repeat(6,1fr);gap:.45rem;margin:.3rem 0}.palg button{aspect-ratio:1;border-radius:.6rem;border:2px solid transparent;padding:0}.palg button.on{border-color:var(--text);box-shadow:0 0 0 2px var(--surface) inset}
 .catrow .in{flex:1}
 .mut{color:var(--muted)}
 details{border-top:1px solid var(--line2);padding:.3rem 0}
@@ -801,7 +804,7 @@ html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb
 .sgrid .tgl:has(input:checked):after{left:1.25rem}
 .sgrid .in{min-height:2.2rem;padding:.3rem .6rem;border-radius:.65rem;font-size:.9rem}
 .sgrid .catrow{gap:.4rem;margin:.25rem 0}
-.sgrid .catrow input[type=color]{width:2rem;height:2rem;border-radius:.5rem}
+.sgrid .catrow input[type=color],.sgrid .catcol{width:2rem;height:2rem;border-radius:.5rem}
 .sgrid .chip{padding:.28rem .65rem;font-size:.8rem}
 .sgrid .chip.ico{font-size:1.05rem;min-width:2rem;padding:.12rem .3rem}
 .sgrid .lk-sw{gap:.4rem;margin:.25rem 0 .55rem}
@@ -959,12 +962,18 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.14.1';
+const APP_VERSION='2.14.3';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.14.3',d:'31/10/2026',items:[
+  '🎨 Les couleurs de l’agenda sont toujours celles des catégories (l’option « Calendrier Outlook » est retirée, elle prêtait à confusion).',
+  '🔒 Partage avec une personne : si « C’est un autre appareil à moi » est coché, les choix de partage sont grisés (tout est synchronisé, ils ne servent pas) ; décoche-le pour une autre personne (conjoint, enfant…). Dans Catégories, « Partager avec » montre le groupe de chaque personne.']},
+ {v:'2.14.2',d:'31/10/2026',items:[
+  '🎨 Couleurs des catégories : touche la pastille de couleur pour choisir dans une palette AgenDam (plus fiable que la roue de couleurs de l’iPhone, qui ne prévenait pas toujours l’appli). La couleur change aussitôt partout : agenda, choix de catégorie, rendez-vous.',
+  '🎨 Si « Couleur des événements » est réglé sur « Calendrier Outlook », un message l’indique dans Catégories, avec un bouton pour revenir aux couleurs des catégories.']},
  {v:'2.14.1',d:'31/10/2026',items:[
   '🎨 Couleur des catégories : sur iPhone, la couleur choisie dans Réglages → Catégories n’était pas toujours enregistrée (elle s’affichait dans les réglages, mais pas dans l’agenda ni dans le choix de catégorie). Elle est maintenant enregistrée dès que tu la choisis.',
   '📅 Partager une catégorie en un geste : dans Réglages → Catégories, sous chaque catégorie, touche le prénom d’une personne connectée pour lui partager (ou plus) les rendez-vous de cette catégorie. Le « 🔒 Privé » reste toujours pour toi.']},
@@ -1408,6 +1417,7 @@ const DEF_CATS=[
 const DEF_SET={start:'day',theme:'auto',scale:1,weekStart:1,weekMode:'auto',monthMode:'titles',side:1,colBy:'cat',bd:[],bdRem:[0,1,7],bdOn:true,askPhone:false,rots:[],msAuto:0,olAuto:0,olCals:[],olIgn:[],olPer:'m1',olCat:true,msClientId:'',remind:true,notif:false,defAlarm:null,lastCat:null,acc:'',bgk:'',weCol:'',holi:1,dsty:'normal',mTxt:1,vacOn:0,vacZone:'B',vacCol:'#f59e0b',vacMan:[],adrAide:false,tpls:[],cats:DEF_CATS};
 let S=Object.assign({},DEF_SET,ls.get(K.set,{}));
 if(!Array.isArray(S.cats)||!S.cats.length)S.cats=DEF_CATS.map(c=>Object.assign({},c));
+if(S.colBy==='cal')S.colBy='cat';
 let META=Object.assign({lastBackup:null,dirtySince:null,snooze:0,seen:false,lastRemind:0,ver:''},ls.get(K.meta,{}));
 let EV=[];
 let demo=false;
@@ -5362,7 +5372,7 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Premier jour de la semaine</span>'+seg('weekStart',[[1,'Lundi'],[0,'Dimanche']],S.weekStart)+'</div>'+
   '<div class="set-row"><span class="lbl">Semaine sur téléphone</span>'+seg('weekMode',[['auto','Auto'],['list','Liste'],['grid','Grille']],S.weekMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Panneau de droite (iPad paysage, ordinateur)</span>'+seg('side',[[1,'Afficher'],[0,'Masquer']],S.side===0?0:1)+'</div>'+
-  '<div class="set-row"><span class="lbl">Couleur des événements</span>'+seg('colBy',[['cat','Catégorie'],['cal','Calendrier Outlook']],S.colBy==='cal'?'cal':'cat')+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Calendrier Outlook » : chaque événement prend la couleur de son calendrier Outlook (à connecter dans Réglages).</p>'+
+  ''+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div>'+
   '<div class="set-row"><span class="lbl">Texte des événements dans le mois</span>'+seg('mTxt',[[0.86,'Petit'],[1,'Normal'],[1.15,'Grand']],S.mTxt||1)+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Petit » affiche plus de lettres par ligne. Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</p></div>';
  h+=lookCard(seg);
@@ -5370,7 +5380,7 @@ function settingsView(){
  h+=sec('s-agenda','Mon agenda');
  const AGM=typeof famActive==='function'&&famUrl()?famActive():[];
  const agOn=(id,c)=>{const g=famGrant(id);return g.ag===2||(g.ag===1&&(g.agc||[]).includes(c))};
- h+='<div class="card"><h3>Catégories</h3>'+(AGM.length?'<p class="mut" style="font-size:.85rem;margin:-.2rem 0 .4rem">👥 Sous chaque catégorie, touche un prénom pour partager ses rendez-vous (famille connectée). Les rendez-vous « 🔒 Privé » ne partent jamais.</p>':'')+S.cats.map((c,i)=>'<div class="catrow"><input type="color" value="'+c.color+'" data-cat="'+i+'" data-field="color" aria-label="Couleur"><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>'+(AGM.length?'<div class="catsh"><small>👥 Partagée avec</small>'+AGM.map(id=>'<button type="button" class="chip'+(agOn(id,c.id)?' on':'')+'" data-act="cat-sh" data-c="'+esc(c.id)+'" data-m="'+esc(id)+'">'+(agOn(id,c.id)?'✓ ':'')+esc(famName(id))+'</button>').join('')+'</div>':'')).join('')+
+ h+='<div class="card"><h3>Catégories</h3>'+(AGM.length?'<p class="mut" style="font-size:.85rem;margin:-.2rem 0 .4rem">👥 Sous chaque catégorie, touche un prénom pour partager ses rendez-vous (famille connectée). Les rendez-vous « 🔒 Privé » ne partent jamais.</p>':'')+(S.colBy==='cal'?'<div class="warn" style="margin:0 0 .5rem;font-size:.86rem"><b>Les couleurs de l’agenda viennent d’Outlook</b>Le réglage « Couleur des événements » est sur « Calendrier Outlook » : l’agenda ignore les couleurs ci-dessous.<button class="btn sm blk" data-act="set" data-k="colBy" data-v="cat" style="margin-top:.4rem">Utiliser les couleurs des catégories</button></div>':'')+S.cats.map((c,i)=>'<div class="catrow"><button type="button" class="catcol" data-act="catcol" data-i="'+i+'" style="background:'+esc(c.color)+'" aria-label="Couleur de '+esc(c.name)+'"></button><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>'+(AGM.length?'<div class="catsh"><small>👥 Partager avec</small>'+AGM.map(id=>{const gg=grpOf(id);return '<button type="button" class="chip'+(agOn(id,c.id)?' on':'')+'" data-act="cat-sh" data-c="'+esc(c.id)+'" data-m="'+esc(id)+'">'+(agOn(id,c.id)?'✓ ':'')+esc(famName(id))+(famAll().length>1&&gg?' <small>'+esc(gg.em||'')+' '+esc(gg.nm||'')+'</small>':'')+'</button>'}).join('')+'</div>':'')).join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=famCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
@@ -5878,6 +5888,16 @@ async function act(a,el,e){
    let L=g.ag===2?S.cats.map(x=>x.id):(g.ag===1?(g.agc||[]).slice():[]);const on=L.includes(c);L=on?L.filter(x=>x!==c):L.concat(c);
    g.agc=L;g.ag=L.length?(L.length===S.cats.length&&g.ag===2?2:1):0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();
    toast((on?'📅 « '+catOf(c).name+' » n’est plus partagée avec ':'📅 « '+catOf(c).name+' » partagée avec ')+famName(id),3500);break}
+  case 'catcol':{const i=+ds_.i,c=S.cats[i];if(!c)break;
+   const PAL=['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#b45309','#a3a3a3','#64748b','#fda4af','#fdba74','#86efac','#93c5fd'];
+   const root=$('#dlg');let pick=null;
+   const h=e=>{const b=e.target.closest&&e.target.closest('[data-pc]');if(b){e.stopImmediatePropagation();e.preventDefault();pick=b.dataset.pc;const f=root.querySelector('[data-v="0"]');if(f)f.click()}};
+   root.addEventListener('click',h,true);
+   const r=await ask({title:'🎨 Couleur de « '+c.name+' »',html:'<div class="palg">'+PAL.map(x=>'<button type="button" data-pc="'+x+'" style="background:'+x+'"'+(x.toLowerCase()===String(c.color).toLowerCase()?' class="on"':'')+' aria-label="'+x+'"></button>').join('')+'</div><label class="lbl" style="margin-top:.5rem">Ou une autre couleur</label><input type="color" id="catcol-in" value="'+esc(c.color)+'" style="width:100%;height:2.6rem;border:0;background:none">',btns:[{label:'OK',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+   root.removeEventListener('click',h,true);
+   if(!pick&&r==='ok'){const inp=$('#catcol-in');if(inp&&inp.value)pick=inp.value}
+   if(pick){const old=$('#catcol-in')?null:null;c.color=pick;FEV_C=null;saveSet();render();toast('🎨 « '+c.name+' » : nouvelle couleur',2500)}
+   break}
   case 'shcopy':{const x=CUR&&CUR.sh;if(!x)break;openEditor({date:CUR.date,copy:Object.assign({},x,{title:x._t,cat:S.cats[0].id,hi:0,ocal:'',ocat:''})});break}
   case 'del':deleteCur();break;
   case 'delfromedit':{const id=ED&&ED.id,oc=ED&&ED.occ;if(id){CUR={id,date:oc};deleteCur()}break}
@@ -8173,7 +8193,7 @@ async function famGrantEdit(id){
  const rg=f.rg[id]||{},L=pplSorted();
  const tg=(k,l)=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" id="fg-'+k+'"'+(g[k]?' checked':'')+'></label></div>';
  let self=!!m.self;const cos=new Set(famCoArr(g));
- const html='<div class="tgl-row"><b>📱 C’est un autre appareil à moi</b><label class="tgl"><input type="checkbox" id="fg-self"'+(self?' checked':'')+'></label></div><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">Coche si ce '+esc(m.d||'téléphone')+' est à toi (iPad, ancien téléphone…) : tout se synchronise entre tes appareils, dans les deux sens.</p><p style="margin:.2rem 0 .5rem">Sinon, ce que <b>tu</b> partages avec <b>'+esc(m.n)+'</b>. Il ou elle ne voit que ça. De son côté, '+esc(m.n)+' choisit ce qu’il ou elle te partage.</p>'+
+ const html='<div class="tgl-row"><b>📱 C’est un autre appareil à moi</b><label class="tgl"><input type="checkbox" id="fg-self"'+(self?' checked':'')+'></label></div><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">Coche si ce '+esc(m.d||'téléphone')+' est à toi (iPad, ancien téléphone…) : tout se synchronise entre tes appareils, dans les deux sens.</p><p style="margin:.2rem 0 .5rem">Sinon, ce que <b>tu</b> partages avec <b>'+esc(m.n)+'</b>. Il ou elle ne voit que ça. De son côté, '+esc(m.n)+' choisit ce qu’il ou elle te partage.</p><p class="warn" id="fg-selfw" style="font-size:.85rem;margin:0 0 .5rem'+(self?'':';display:none')+'"><b>C’est coché « autre appareil à moi »</b>Tout est synchronisé avec cet appareil, les choix ci-dessous ne servent pas. Si '+esc(m.n)+' est une autre personne, décoche-le.</p><div id="fg-opts"'+(self?' class="fg-dis"':'')+'>'+
   coLists().filter(l=>famMine(l.id)).map(l=>'<div class="tgl-row"><b>🛒 '+esc(l.n)+'</b><label class="tgl"><input type="checkbox" id="fg-co-'+esc(l.id)+'"'+(cos.has(l.id)?' checked':'')+'></label></div>').join('')+
   '<div class="tgl-row"><b>☑ Tâches</b><select class="in" id="fg-tk" style="width:auto;max-width:62%"><option value="0"'+(g.tk===0?' selected':'')+'>Aucune</option><option value="1"'+(g.tk===1?' selected':'')+'>Les siennes</option><option value="2"'+(g.tk===2?' selected':'')+'>Toutes</option></select></div>'+
   '<div class="tgl-row"><b>📅 Agenda</b><select class="in" id="fg-ag" style="width:auto;max-width:62%"><option value="0"'+(!g.ag?' selected':'')+'>Rien</option><option value="1"'+(g.ag===1?' selected':'')+'>Certaines catégories</option><option value="2"'+(g.ag===2?' selected':'')+'>Tout (sauf « privé »)</option></select></div>'+
@@ -8182,9 +8202,9 @@ async function famGrantEdit(id){
   '<div class="tgl-row"><b>🎂 Anniversaires</b><select class="in" id="fg-bd" style="width:auto;max-width:62%"><option value="0"'+(!g.bd?' selected':'')+'>Aucun</option><option value="1"'+(g.bd===1?' selected':'')+'>Certains ('+(Array.isArray(g.bds)?g.bds.length:0)+')</option><option value="2"'+(g.bd===2?' selected':'')+'>Tous</option></select></div>'+
   tg('vy','🧳 Voyages')+
   '<label class="lbl" for="fg-cid">Qui est '+esc(m.n)+' dans mes contacts ? (pour « les siennes »)</label><select class="in" id="fg-cid"><option value="">Pas dans mes contacts</option>'+L.map(p=>'<option value="'+esc(p.id)+'"'+(p.id===cid?' selected':'')+'>'+esc(pplName(p))+'</option>').join('')+'</select>'+
-  '<p class="mut" style="font-size:.85rem;margin:.5rem 0 .6rem">'+esc(m.n)+' te partage : <b>'+esc(rg.x?'rien':famGSum(rg))+'</b>.</p>';
+  '</div><p class="mut" style="font-size:.85rem;margin:.5rem 0 .6rem">'+esc(m.n)+' te partage : <b>'+esc(rg.x?'rien':famGSum(rg))+'</b>.</p>';
  const pr=ask({title:'🔒 Partage avec '+m.n,html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg');root.onchange=e=>{const t=e.target;if(!t.id||t.id.indexOf('fg-')!==0)return;const k=t.id.slice(3);if(k.indexOf('co-')===0){t.checked?cos.add(k.slice(3)):cos.delete(k.slice(3));return}if(k==='tk')g.tk=+t.value;else if(k==='bd')g.bd=+t.value;else if(k==='ag')g.ag=+t.value;else if(k==='self')self=t.checked;else if(k==='cid')cid=t.value;else g[k]=t.checked?1:0};
+ const root=$('#dlg');root.onchange=e=>{const t=e.target;if(!t.id||t.id.indexOf('fg-')!==0)return;const k=t.id.slice(3);if(k.indexOf('co-')===0){t.checked?cos.add(k.slice(3)):cos.delete(k.slice(3));return}if(k==='tk')g.tk=+t.value;else if(k==='bd')g.bd=+t.value;else if(k==='ag')g.ag=+t.value;else if(k==='self'){self=t.checked;const o=$('#fg-opts'),w=$('#fg-selfw');if(o)o.classList.toggle('fg-dis',self);if(w)w.style.display=self?'':'none'}else if(k==='cid')cid=t.value;else g[k]=t.checked?1:0};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
  if(g.tk===1&&!cid){toast('Choisis '+m.n+' dans tes contacts pour « Seulement les siennes »',5000)}
  if(self){m.self=1;f.sent.m='';saveSet();render();toast('📱 Appareil relié : tout se synchronise',4500);return}
