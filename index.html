@@ -719,12 +719,37 @@ html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb
 .mp-im{width:100%;height:58%;min-height:0;object-fit:cover;border-radius:7px;flex:none}.mp-c.mp-hp{justify-content:flex-start;padding:4px}
 .dclr{display:flex;gap:.3rem;align-items:center}.dclr .in{flex:1;min-width:0}.dclr-x{flex:none;width:2.4rem;height:2.4rem;border-radius:.6rem;background:var(--surface2);font-weight:800}
 .vy-pe{display:flex;flex-direction:column;gap:.25rem;margin:.4rem 0 .2rem}.vy-pei{display:flex;gap:.6rem;align-items:flex-start;text-align:left;padding:.4rem .6rem;border-radius:.6rem;background:var(--surface2);color:var(--text)}.vy-pei>b{flex:none;font-variant-numeric:tabular-nums;color:var(--sec)}.vy-pei small{display:block;color:var(--muted);font-size:.78rem;white-space:pre-line}
-.vy-peadd{margin:.4rem 0 .1rem;font-size:.8rem}
+.vg-seg{margin:.2rem 0 .5rem}.vg-nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.2rem 0 .4rem}.vg-nav b{font-size:.9rem}.vg-tip{font-size:.78rem;margin:0 0 .4rem}
+.vg{--rh:26px;user-select:none;-webkit-user-select:none;margin-bottom:5rem}
+.vg-hd{display:grid;grid-template-columns:2.8rem repeat(var(--n),1fr);gap:4px;position:sticky;top:0;z-index:3;background:var(--bg);padding:.2rem 0}
+.vg-dh{font-size:.85rem;text-align:center;background:var(--surface2);border-radius:.5rem;padding:.3rem .2rem}.vg-dh.td{background:var(--sec);color:#fff}
+.vg-body{display:grid;grid-template-columns:2.8rem repeat(var(--n),1fr);gap:4px}
+.vg-gut>div{height:var(--rh);font-size:.72rem;color:var(--muted);transform:translateY(-.45em);text-align:right;padding-right:.3rem;font-variant-numeric:tabular-nums}
+.vg-gut>div:first-child{transform:none}
+.vg-col{position:relative;border-radius:.5rem;overflow:hidden}
+.vg-c{height:var(--rh);border-top:1px solid var(--line2);cursor:pointer}.vg-c.h2{border-top-style:dotted}
+.vg-c.pm{background:color-mix(in srgb,#f59e0b 7%,var(--surface))}.vg-c.pa{background:color-mix(in srgb,#0ea5e9 7%,var(--surface))}.vg-c.ps{background:color-mix(in srgb,#8b5cf6 8%,var(--surface))}
+.vg-c:active{background:color-mix(in srgb,var(--sec) 25%,var(--surface))}
+.vg-meal{position:absolute;left:2px;right:2px;font-size:.7rem;color:var(--muted);border:1px dashed var(--line);border-radius:.4rem;padding:.1rem .3rem;pointer-events:none;overflow:hidden;white-space:nowrap}
+.vg-b{position:absolute;z-index:2;background:var(--sec);color:#fff;border-radius:.45rem;padding:.2rem .35rem 0;overflow:hidden;cursor:grab;touch-action:none;box-shadow:0 1px 3px rgba(0,0,0,.25);display:flex;flex-direction:column;line-height:1.15}
+.vg-b b{font-size:.8rem}.vg-b small{font-size:.68rem;opacity:.9}.vg-b.sm{flex-direction:row;gap:.3rem;align-items:center}.vg-b.sm small{white-space:nowrap}
+.vg-b.drag{opacity:.85;z-index:5;box-shadow:0 6px 16px rgba(0,0,0,.35);cursor:grabbing}
+.vg-rs{position:absolute;left:0;right:0;bottom:0;height:12px;cursor:ns-resize;touch-action:none}.vg-rs:after{content:"";position:absolute;left:50%;bottom:3px;width:22px;height:3px;margin-left:-11px;border-radius:2px;background:rgba(255,255,255,.75)}
+.vy-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line2)}.vy-sl{background:var(--surface);padding:.45rem .55rem;display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.vy-sl>small{font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--sec)}
+.vy-st{text-align:left;font-weight:700;color:var(--text);padding:0}.vy-sl .vy-pei{padding:.3rem .45rem;gap:.4rem;font-size:.9rem}
+.vy-add1{text-align:left;color:var(--muted);font-weight:700;font-size:.9rem;padding:.1rem 0}
+@media(max-width:560px){.vy-3{grid-template-columns:1fr}}
 .vp{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2933;line-height:1.25}
 .vp-h{display:flex;align-items:center;gap:.6em;background:linear-gradient(90deg,#0f766e,#38a3a5);color:#fff;border-radius:10px;padding:.5em .9em;margin-bottom:.5em;-webkit-print-color-adjust:exact;print-color-adjust:exact}.vp-h>span{font-size:2em}.vp-h b{display:block;font-size:1.6em;font-family:Georgia,serif;font-style:italic}.vp-h small{font-weight:600}
 .vp h2{font-size:1.15em;margin:.6em 0 .25em;border-bottom:1.5px solid #0f766e;color:#0f766e}.vp h2 small{font-size:.75em;color:#555;font-weight:600;margin-left:.4em}
 .vp-t{width:100%;border-collapse:collapse;font-size:.9em;table-layout:fixed}.vp-t th,.vp-t td{border:1px solid #c9d2d9;padding:.2em .35em;vertical-align:top;text-align:left}.vp-t tr:first-child th{background:#e6f2f1;-webkit-print-color-adjust:exact;print-color-adjust:exact}.vp-t th{white-space:nowrap;font-weight:600}.vp-e b{color:#0f766e}.vp-e i{color:#555;font-size:.9em}
-.vp-ls{column-count:3;column-gap:1em}.vp-l{break-inside:avoid;margin:0 0 .5em}.vp-l h3{font-size:1em;margin:0 0 .15em}.vp-l h3 small{color:#666;font-weight:600}.vp-i{display:flex;gap:.35em;font-size:.92em}.vp-i.vp-dn{color:#8a949c;text-decoration:line-through}.vp-i>span{flex:none}
+.vp-ls{column-count:3;column-gap:1em}.pz.land .vp-ls{column-count:4}
+.vpg{font-size:.78em;margin-bottom:.3em}.vpg-hd{display:grid;grid-template-columns:2.6em repeat(var(--n),1fr);gap:2px;font-weight:600}.vpg-hd>div{background:#e6f2f1;padding:.15em .3em;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.vpg-hd>div:first-child{background:none}
+.vpg-body{display:grid;grid-template-columns:2.6em repeat(var(--n),1fr);gap:2px}.vpg-gut>div{height:1.25em;font-size:.85em;color:#666;line-height:1}.vpg-col{position:relative}.vpg-col>div:not(.vpg-b):not(.vpg-meal){height:1.25em;border-top:1px solid #e3e8ec}.vpg-col>.h2{border-top:1px dotted #eef1f3}
+.vpg-col .pm{background:#fffbea}.vpg-col .pa{background:#f0f9ff}.vpg-col .ps{background:#f5f3ff}.vpg-col>div{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.vpg-b{position:absolute;background:#0f766e;color:#fff;border-radius:4px;padding:.1em .25em;overflow:hidden;line-height:1.15;font-size:.95em}.vpg-b small{opacity:.9;font-size:.85em}
+.vpg-meal{position:absolute;left:0;right:0;font-size:.8em;color:#9a6b2f;padding:0 .2em;white-space:nowrap;overflow:hidden}.vp-l{break-inside:avoid;margin:0 0 .5em}.vp-l h3{font-size:1em;margin:0 0 .15em}.vp-l h3 small{color:#666;font-weight:600}.vp-i{display:flex;gap:.35em;font-size:.92em}.vp-i.vp-dn{color:#8a949c;text-decoration:line-through}.vp-i>span{flex:none}
 .vp-in{display:grid;grid-template-columns:1fr 1fr;gap:.3em .9em;font-size:.9em}.vp-in b{display:block}.vp-in span{white-space:pre-line}
 .tw{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2933;display:flex;flex-direction:column;min-height:186mm}
 .tw-h{display:flex;justify-content:space-between;align-items:baseline;background:linear-gradient(90deg,#2563eb,#60a5fa);color:#fff;border-radius:10px;padding:.45em .9em;margin-bottom:.5em;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tw-h b{font-size:1.5em;font-family:Georgia,serif;font-style:italic}
@@ -978,12 +1003,19 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.15.0';
+const APP_VERSION='2.16.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.16.0',d:'31/10/2026',items:[
+  '🧳 Programme du voyage en grille horaire : de 7 h à 23 h, en cases de 30 minutes (matin, après-midi, soir colorés). Touche une case pour ajouter une activité et choisis sa durée (2 h = 4 cases). Fais glisser un bloc pour le déplacer (même sur un autre jour), tire la poignée du bas pour changer la durée, touche-le pour le modifier. Deux activités en même temps se mettent côte à côte. Les repas apparaissent en léger.',
+  '🧳 Plusieurs jours côte à côte sur iPad, un jour à la fois sur iPhone (flèches). Bouton « Grille / Résumé » pour revenir à la vue Matin / Après-midi / Soir. Ce qui était déjà noté passe tout seul dans la grille.',
+  '🎬 Mode démo beaucoup plus complet pour tout montrer : 20 tâches (répétées, à plusieurs, notes, suivi), plusieurs listes de courses avec quantités et paquets, 12 recettes (entrées, plats, desserts, air fryer, Thermomix), menus sur 2 semaines, 10 anniversaires avec idées cadeaux, 3 voyages dont un avec la grille horaire remplie, et un agenda bien garni.',
+  '🖨 Impression du voyage : la grille horaire de tous les jours, avec les listes (☑ pris / ☐ reste) et les infos, sur une page A4 en paysage.']},
+ {v:'2.15.1',d:'31/10/2026',items:[
+  '🧳 Programme du voyage : les étapes avec heure se rangent dans la bonne case (avant 12 h → Matin, 12 h–18 h → Après-midi, après 18 h → Soir). « ＋ Ajouter » dans une case ouvre la même fenêtre complète : heure (facultative), quoi, détails. Plusieurs choses possibles par case.']},
  {v:'2.15.0',d:'31/10/2026',items:[
   '🧳 Voyage : dans le Programme, « ＋ Étape à une heure précise » (09:30 Visite du château, 12:30 Pique-nique…), avec une note. Les étapes s’affichent dans l’ordre des heures, aussi dans l’agenda.',
   '🖨 Voyage : « Imprimer le voyage » met tout sur une seule page A4 : le programme jour par jour (matin, après-midi, soir, étapes avec heures, repas), toutes les listes avec ☑ pris et ☐ reste à prendre, et les infos (adresse, trajet, réservations…).',
@@ -5458,7 +5490,7 @@ function openHelp(hist){
  h+=d('Supprimer les doublons','<ul><li><b>Réglages → Importer un autre calendrier → Chercher les doublons</b>.</li><li>L’appli cherche les événements avec le même titre (emoji, accents et majuscules ignorés), le même jour et la même heure.</li><li>Une liste apparaît : <b>coché = supprimé</b>. L’exemplaire le plus complet (note, lieu, catégorie) est gardé.</li></ul>');
  if(OL_ON)h+=d('Partager avec quelqu’un via Outlook','<ul><li>Réglages → <b>Gérer mes calendriers Outlook</b> → <b>Partager</b> : saisis son adresse mail et choisis « Peut modifier ». Elle reçoit une invitation Outlook à accepter. (Si Outlook refuse, reconnecte-toi à Outlook dans Réglages, ou partage depuis Outlook.)</li><li>Dans l’appli, range tes événements dans ce calendrier (éditeur → « Ranger dans quel calendrier Outlook ? »).</li><li><b>Réglages → Récupérer depuis Outlook</b> : tu récupères ce qu’elle ajoute ou modifie. Si elle supprime un événement, l’appli te propose de le retirer aussi (liste à confirmer).</li><li>Pour ne rien rater : <b>Réglages → À l’ouverture : récupérer Outlook → Me montrer</b>. À chaque ouverture, une fenêtre liste les ajouts, modifications et suppressions (rien si rien de nouveau).</li><li>Les événements récupérés avant la version 1.16.9 sont reconnus après une première récupération.</li><li><b>Trop d’événements proposés ?</b> Dans la liste, décoche ceux qui ne t’intéressent pas puis touche « Ne plus proposer les décochés » : ils ne reviennent plus. « Tout reproposer » (Réglages → Outlook) annule.</li></ul>');
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
- h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : en plus de Matin / Après-midi / Soir, « ＋ Étape à une heure précise » (heure, quoi, détails). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
+ h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>⋯ Options</b> (en haut) : dans Recettes, nouvelle recette, importer avec un lien, coller, recevoir, envoyer ; dans Menu, imprimer le planning de la semaine, envoyer, copier la semaine précédente.</li><li><b>Recettes rangées</b> : 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj, et 🥕 Végé / 🥩 Viande / 🐟 Poisson, plus Thermomix, 🍟 Air fryer, Rapide… L’appli devine ; corrige dans « Modifier » (Type, Régime, étiquettes).</li><li><b>📷 Photo</b> : dans une recette, « Ajouter une photo » (appareil photo ou galerie). À l’import par lien, la photo du site vient toute seule quand le site le permet.</li><li><b>Quantités</b> : « Pour − 4 + personnes » recalcule la liste des ingrédients. Les quantités écrites dans le texte des étapes ne changent pas : fie-toi à la liste (un message te le rappelle).</li><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis ⋯ Options → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
@@ -5516,36 +5548,94 @@ function demoData(){
   e({title:'Coiffeur',icon:'💇',cat:'rdv',start:D(8),end:D(8),startTime:'10:00',endTime:'10:45'}),
   e({title:'Déjeuner d’équipe',icon:'🍽️',cat:'travail',start:today(),end:today(),startTime:'12:30',endTime:'13:45',place:'Restaurant',alarm:30}),
   e({title:'Point projet',icon:'💻',cat:'travail',start:today(),end:today(),startTime:'16:00',endTime:'17:00',place:'Salle A'}),
-  e({title:'Appel aux parents',icon:'📞',cat:'famille',start:today(),end:today(),startTime:'20:00',endTime:'20:30'})
+  e({title:'Appel aux parents',icon:'📞',cat:'famille',start:today(),end:today(),startTime:'20:00',endTime:'20:30'}),
+  e({title:'Pédiatre (Tom)',icon:'🏥',cat:'rdv',start:D(1),end:D(1),startTime:'17:00',endTime:'17:30',place:'Cabinet médical',note:'Apporter le carnet de santé',alarm:120,hi:5}),
+  e({title:'Dentiste',icon:'🦷',cat:'rdv',start:D(9),end:D(9),startTime:'08:30',endTime:'09:00',pv:1}),
+  e({title:'Réunion parents-profs',icon:'🎓',cat:'famille',start:D(3),end:D(3),startTime:'18:00',endTime:'19:30',place:'École Jules-Ferry',hi:2}),
+  e({title:'Foot de Tom',icon:'⚽',cat:'loisirs',start:D(2),end:D(2),startTime:'14:00',endTime:'15:30',place:'Stade municipal',rec:{type:'weekly',interval:1,days:[3]}}),
+  e({title:'Danse de Léa',icon:'💃',cat:'loisirs',start:D(5),end:D(5),startTime:'10:30',endTime:'11:30',rec:{type:'weekly',interval:1,days:[6]}}),
+  e({title:'Séminaire à Paris',icon:'🏢',cat:'travail',allDay:true,start:D(15),end:D(16),place:'Paris',hi:1}),
+  e({title:'Télétravail',icon:'💻',cat:'travail',allDay:true,start:D(4),end:D(4),rec:{type:'weekly',interval:1,days:[5]}}),
+  e({title:'Vétérinaire (rappel vaccin)',icon:'🐶',cat:'rdv',start:D(10),end:D(10),startTime:'18:15',endTime:'18:45',alarm:60}),
+  e({title:'Garage : révision voiture',icon:'🔧',cat:'rdv',start:D(11),end:D(11),startTime:'08:00',endTime:'09:00',place:'Garage du centre'}),
+  e({title:'Soirée cinéma',icon:'🎬',cat:'loisirs',start:D(6),end:D(6),startTime:'20:30',endTime:'23:00',place:'Cinéma Le Rex',hi:4}),
+  e({title:'Brocante du quartier',icon:'🛍️',cat:'famille',start:D(13),end:D(13),startTime:'08:00',endTime:'13:00'}),
+  e({title:'Visio avec Mamie Jeanne',icon:'📱',cat:'famille',start:D(7),end:D(7),startTime:'17:00',endTime:'17:30',rec:{type:'weekly',interval:1,days:[0]}})
  ].filter(Boolean);
 }
 /* Mode démo : des données fictives dans tous les onglets, rien n'est enregistré ni partagé */
 let REAL_S=null;
 function demoSettings(){
  const t=today(),mon=mondayOf(t,1),D=n=>add(mon,n),now=Date.now(),H=h=>now-h*36e5;
- const ppl=[{id:'d-alex',n:'Alex',rel:'conj',c:'#2563eb'},{id:'d-lea',n:'Léa',rel:'enf',c:'#db2777'},{id:'d-tom',n:'Tom',rel:'enf',c:'#16a34a'},{id:'d-cam',n:'Camille',rel:'ami',c:'#ea580c'}];
- const tl=[{id:'maison',n:'Maison',i:'🏠'},{id:'courses',n:'Courses',i:'🛒'},{id:'perso',n:'Perso',i:'📝'},{id:'d-trav',n:'Travail',i:'💼'},{id:'d-marche',n:'Marché',i:'🛒',co:1}];
+ const ppl=[{id:'d-alex',n:'Alex',rel:'conj',c:'#2563eb',tel:'06 00 00 00 01'},{id:'d-lea',n:'Léa',rel:'enf',c:'#db2777'},{id:'d-tom',n:'Tom',rel:'enf',c:'#16a34a'},{id:'d-cam',n:'Camille',rel:'ami',c:'#ea580c',tel:'06 00 00 00 02'},{id:'d-jea',n:'Jeanne',ln:'(Mamie)',rel:'fam',c:'#7c3aed'}];
+ const tl=[{id:'maison',n:'Maison',i:'🏠'},{id:'courses',n:'Courses',i:'🛒'},{id:'perso',n:'Perso',i:'📝'},{id:'d-trav',n:'Travail',i:'💼'},{id:'d-ecole',n:'École',i:'🎒'},{id:'d-marche',n:'Marché',i:'🥕',co:1},{id:'d-pharma',n:'Pharmacie',i:'💊',co:1}];
+ const T=(id,t,l,o)=>Object.assign({id,t,l,m:now},o||{});
  const tk=[
-  {id:'d1',t:'Sortir les poubelles',l:'maison',ws:['d-lea','d-tom'],w:'d-lea',r:{f:'w',i:1},d:add(t,1),h:[{a:H(160),b:'Tom'},{a:H(330),b:'Léa',n:'Et le carton aussi'}],m:now},
-  {id:'d2',t:'Arroser les plantes',l:'maison',ws:['d-alex'],w:'d-alex',d:t,m:now},
-  {id:'d3',t:'Rendre les livres à la bibliothèque',l:'perso',d:add(t,2),m:now},
-  {id:'d4',t:'Appeler le plombier',l:'maison',ws:['d-alex'],w:'d-alex',x:true,xa:H(3),xb:'Alex',xn:'Il passe jeudi à 9 h',m:now},
-  {id:'d5',t:'Préparer le devis client',l:'d-trav',d:add(t,1),m:now},
-  {id:'d6',t:'Réserver la salle de réunion',l:'d-trav',x:true,xa:H(26),xb:'Camille',m:now},
-  {id:'d7',t:'Vider le lave-vaisselle',l:'maison',ws:['d-lea','d-tom'],w:'d-lea',x:true,xa:H(1),xb:'Léa',m:now}];
- const co=[['Pain','bo'],['Lait','cr'],['Œufs','cr'],['Pommes','fl'],['Tomates','fl'],['Pâtes','ep'],['Café','ep'],['Lessive','hy']];
- co.forEach(([n,ry],i)=>tk.push({id:'dc'+i,t:n,l:'courses',ig:{q:null,u:'',n},ry,x:i===7,xa:i===7?H(1):0,m:now}));
- [['Fraises','fl'],['Fromage de chèvre','cr'],['Miel','ep']].forEach(([n,ry],i)=>tk.push({id:'dm'+i,t:n,l:'d-marche',ig:{q:null,u:'',n},ry,m:now}));
- const cat=['Ail','Bananes','Beurre','Biscottes','Café','Carottes','Céréales','Chips','Compote','Confiture','Courgettes','Crème fraîche','Dentifrice','Eau gazeuse','Éponges','Farine','Fromage râpé','Huile d’olive','Jambon','Jus d’orange','Lait','Lessive','Miel','Moutarde','Œufs','Oignons','Pain','Papier toilette','Pâtes','Poivre','Pommes','Poulet','Riz','Salade','Saumon','Sel','Shampoing','Sucre','Thé','Tomates','Yaourts'];
- const coH={};cat.forEach((n,i)=>{coH[coKey(n)]={n,u:'',q:null,ry:rayOf(n),c:(i*7)%11+1,at:now-i*1e6}});
+  T('d1','Sortir les poubelles','maison',{ws:['d-lea','d-tom'],w:'d-lea',r:{f:'w',i:1},d:add(t,1),h:[{a:H(160),b:'Tom'},{a:H(330),b:'Léa',n:'Et le carton aussi'},{a:H(500),b:'Tom'}]}),
+  T('d2','Arroser les plantes','maison',{ws:['d-alex'],w:'d-alex',r:{f:'d',i:3},d:t,h:[{a:H(70),b:'Alex'}]}),
+  T('d3','Rendre les livres à la bibliothèque','perso',{d:add(t,2),n:'3 livres + le DVD'}),
+  T('d4','Appeler le plombier','maison',{ws:['d-alex'],w:'d-alex',x:true,xa:H(3),xb:'Alex',xn:'Il passe jeudi à 9 h'}),
+  T('d5','Préparer le devis client','d-trav',{d:add(t,1),n:'Envoyer avant midi'}),
+  T('d6','Réserver la salle de réunion','d-trav',{x:true,xa:H(26),xb:'Camille'}),
+  T('d7','Vider le lave-vaisselle','maison',{ws:['d-lea','d-tom'],w:'d-lea',x:true,xa:H(1),xb:'Léa'}),
+  T('d8','Passer l’aspirateur','maison',{ws:['d-tom'],w:'d-tom',r:{f:'w',i:1},d:add(t,3)}),
+  T('d9','Changer les draps','maison',{ws:['d-alex','d-lea'],w:'d-alex',r:{f:'w',i:2},d:add(t,5)}),
+  T('d10','Payer la cantine','perso',{d:add(t,-2)}),
+  T('d11','Renouveler la carte d’identité de Tom','perso',{d:add(t,9),ws:['d-alex'],w:'d-alex',n:'Prendre RDV en mairie, photo d’identité'}),
+  T('d12','Signer le cahier de liaison','d-ecole',{ws:['d-lea'],w:'d-lea',d:t}),
+  T('d13','Acheter les fournitures de dessin','d-ecole',{d:add(t,4)}),
+  T('d14','Réviser la poésie','d-ecole',{ws:['d-tom'],w:'d-tom',d:add(t,1),x:true,xa:H(5),xb:'Tom',xn:'Récitée deux fois sans erreur'}),
+  T('d15','Ranger le garage','maison',{}),
+  T('d16','Trier les photos de l’été','perso',{}),
+  T('d17','Relancer la facture n°12','d-trav',{d:add(t,-1)}),
+  T('d18','Faire le plein','perso',{x:true,xa:H(50),xb:'Alex',ar:1}),
+  T('d19','Réparer le vélo de Léa','maison',{x:true,xa:H(120),xb:'Alex',xn:'Chambre à air changée',ar:1}),
+  T('d20','Préparer la réunion de parents','d-ecole',{d:add(t,6)})];
+ const co=[['Pain','bo',2,''],['Lait','cr',2,'l'],['Œufs','cr',12,''],['Pommes','fl',1,'kg'],['Tomates','fl',6,''],['Pâtes','ep',2,''],['Café','ep',1,''],['Lessive','hy',1,''],['Yaourts nature','cr',8,''],['Jambon','vi',4,'tranches'],['Courgettes','fl',3,''],['Riz','ep',1,'kg'],['Papier toilette','hy',1,''],['Jus d’orange','bs',2,'l'],['Saumon','po',2,'pavés'],['Gruyère râpé','cr',200,'g']];
+ co.forEach(([n,ry,q,u],i)=>tk.push({id:'dc'+i,t:(q?q+(u?' '+u:'')+' ':'')+n,l:'courses',ig:{q,u,n},ry,x:[7,12,3].includes(i),xa:[7,12,3].includes(i)?H(1):0,m:now}));
+ [['Fraises','fl'],['Fromage de chèvre','cr'],['Miel','ep'],['Salade','fl'],['Radis','fl']].forEach(([n,ry],i)=>tk.push({id:'dm'+i,t:n,l:'d-marche',ig:{q:null,u:'',n},ry,m:now}));
+ [['Doliprane','au'],['Pansements','au'],['Crème solaire','hy']].forEach(([n,ry],i)=>tk.push({id:'dp'+i,t:n,l:'d-pharma',ig:{q:null,u:'',n},ry,m:now}));
+ const cat=['Ail','Avocats','Bananes','Beurre','Biscottes','Brioche','Café','Carottes','Céréales','Champignons','Chips','Chocolat','Citrons','Compote','Concombre','Confiture','Courgettes','Crème fraîche','Dentifrice','Eau gazeuse','Éponges','Farine','Fromage râpé','Gel douche','Haricots verts','Huile d’olive','Jambon','Jus d’orange','Ketchup','Lait','Lardons','Lentilles','Lessive','Liquide vaisselle','Mayonnaise','Miel','Moutarde','Mozzarella','Œufs','Oignons','Oranges','Pain','Pain de mie','Papier toilette','Pâtes','Petits pois','Poireaux','Poivre','Pommes','Pommes de terre','Poulet','Riz','Sacs poubelle','Salade','Saumon','Sel','Shampoing','Steaks hachés','Sucre','Thé','Thon','Tomates','Vinaigre','Yaourts','Beurre de cacahuète','Crackers','Croissants','Glace vanille','Pizza surgelée','Brocolis surgelés','Coca','Eau plate','Bière','Vin rouge','Sirop de menthe','Mouchoirs','Couches','Croquettes chat','Litière','Piles'];
+ const coH={};cat.forEach((n,i)=>{coH[coKey(n)]={n,u:'',q:null,ry:rayOf(n),c:(i*7)%13+1,at:now-i*1e6}});
+ const coLast=['Pain','Lait','Œufs','Pommes','Café','Yaourts','Jambon','Tomates','Pâtes','Gruyère râpé'];
+ const coT=[{id:'dt1',n:'Apéro',it:['Chips','Olives','Jus de fruits','Saucisson','Tomates cerises','Houmous']},{id:'dt2',n:'Barbecue',it:['Merguez','Chipolatas','Charbon','Pain','Salade','Ketchup','Moutarde']},{id:'dt3',n:'Petit-déjeuner du dimanche',it:['Croissants','Pain au chocolat','Jus d’orange','Confiture','Beurre']}];
+ const I=(q,u,n)=>({q,u,n});
  const rc=[
-  {id:'dr1',t:'Lasagnes maison',ic:'🍝',pp:6,tm:75,tags:['Plat'],ing:[{q:12,u:'',n:'feuilles de lasagne'},{q:500,u:'g',n:'bœuf haché'},{q:800,u:'g',n:'coulis de tomate'},{q:50,u:'cl',n:'béchamel'},{q:150,u:'g',n:'fromage râpé'}],st:['Faire revenir la viande avec un oignon.','Ajouter le coulis, laisser mijoter 20 min.','Alterner pâtes, sauce et béchamel.','Parsemer de fromage, cuire 40 min à 180 °C.'],m:now,fav:true},
-  {id:'dr2',t:'Soupe de légumes au Thermomix',ic:'🥣',pp:4,tm:30,tags:['Thermomix','Soupe','Rapide'],ing:[{q:3,u:'',n:'carottes'},{q:2,u:'',n:'pommes de terre'},{q:1,u:'',n:'poireau'},{q:80,u:'cl',n:'eau'},{q:1,u:'',n:'cube de bouillon'}],st:['Mettre les légumes en morceaux, 5 sec/vitesse 5.','Ajouter l’eau et le bouillon, 25 min/100°C/vitesse 1.','Mixer 1 min/vitesse 10.'],m:now},
-  {id:'dr3',t:'Crêpes',ic:'🥞',pp:4,tm:20,tags:['Dessert','Enfants'],ing:[{q:250,u:'g',n:'farine'},{q:4,u:'',n:'œufs'},{q:50,u:'cl',n:'lait'},{q:1,u:'',n:'pincée de sel'}],st:['Mélanger la farine et les œufs.','Ajouter le lait petit à petit.','Laisser reposer 1 h, puis cuire.'],m:now}];
- const mn={};[['dr1','m'],['dr2','s'],['','m','Poisson et riz'],['dr3','s'],['','m','Salade composée'],['','s','Pizza maison'],['dr1','m']].forEach((x,i)=>{const d=D(i);mn[d]=mn[d]||{};mn[d][x[1]]=x[0]?{r:x[0],t:'',w:'',p:4,mt:now}:{r:'',t:x[2],w:'',p:4,mt:now}});
- const td=pd(t),bd=[{id:'db1',n:'Léa',d:td.getDate(),m:td.getMonth()+1,y:td.getFullYear()-9,mt:now,g:['Livre de dessin','Pull rose']},{id:'db2',n:'Mamie Jeanne',d:14,m:2,y:1948,mt:now},{id:'db3',n:'Camille',d:3,m:6,y:1990,mt:now},{id:'db4',n:'Tom',d:22,m:9,y:2018,mt:now},{id:'db5',n:'Oncle Paul',d:8,m:12,mt:now},{id:'db6',n:'Alex',d:27,m:4,y:1986,mt:now}];
- const a=add(t,20),vy=[{id:'dv1',t:'Vacances en Bretagne',ic:'🌊',a,b:add(a,6),lieu:'Quiberon',m:now,ls:[{id:'dvl1',n:'Valise',i:'🧳',it:['Maillots de bain','Crème solaire','Pulls','Chargeurs','Trousse de toilette'].map((x,i)=>({id:'dvi'+i,t:x,x:i<2}))},{id:'dvl2',n:'Maison avant de partir',i:'🏠',it:['Fermer les volets','Vider le frigo','Arroser les plantes'].map((x,i)=>({id:'dvj'+i,t:x,x:false}))}],pg:{[a]:{ma:'Route et installation',ap:'Plage'},[add(a,1)]:{ma:'Marché du port',ap:'Balade à vélo'}},in:{adr:'Location « Les Mouettes », Quiberon',no:'Clés chez la voisine'}}];
- return{ppl,tl,tk,coH,coT:[{id:'dt1',n:'Apéro',it:['Chips','Olives','Jus de fruits','Saucisson']}],rc,mn,bd,vy,me:'Sam',meOk:1,meId:'',coLid:'courses',fams:[],forg:{}};
+  {id:'dr1',t:'Lasagnes maison',ic:'🍝',pp:6,tm:75,ty:'plat',tags:['Four','Batch'],fav:true,ing:[I(12,'','feuilles de lasagne'),I(500,'g','bœuf haché'),I(800,'g','coulis de tomate'),I(50,'cl','béchamel'),I(150,'g','fromage râpé')],st:['Faire revenir la viande avec l’oignon.','Ajouter le coulis, laisser mijoter 15 min.','Alterner pâtes, sauce, béchamel.','Parsemer de fromage, 40 min à 180 °C.'],m:now},
+  {id:'dr2',t:'Soupe de légumes au Thermomix',ic:'🥣',pp:4,tm:30,ty:'ent',tags:['Thermomix','Soupe','Rapide'],ing:[I(3,'','carottes'),I(2,'','pommes de terre'),I(1,'','poireau'),I(80,'cl','eau'),I(1,'','cube de bouillon')],st:['Mettre les légumes en morceaux dans le bol.','Ajouter l’eau et le bouillon : 25 min / 100 °C / vitesse 1.','Mixer 1 min / vitesse 5 à 10.'],m:now},
+  {id:'dr3',t:'Crêpes',ic:'🥞',pp:4,tm:20,ty:'des',tags:['Enfants','Rapide'],fav:true,ing:[I(250,'g','farine'),I(4,'','œufs'),I(50,'cl','lait'),I(1,'pincée','sel')],st:['Mélanger la farine et les œufs.','Ajouter le lait petit à petit.','Laisser reposer 1 h, puis cuire.'],m:now},
+  {id:'dr4',t:'Frites croustillantes au air fryer',ic:'🍟',pp:4,tm:25,ty:'plat',tags:['Air fryer','Rapide','Enfants'],ing:[I(1,'kg','pommes de terre'),I(1,'c. à s.','huile'),I(1,'pincée','sel')],st:['Couper en bâtonnets, rincer et sécher.','Mélanger avec l’huile.','Air fryer 20 min à 200 °C en secouant à mi-cuisson.'],m:now},
+  {id:'dr5',t:'Ailes de poulet au paprika (air fryer)',ic:'🍗',pp:4,tm:30,ty:'plat',tags:['Air fryer'],ing:[I(1,'kg','ailes de poulet'),I(2,'c. à c.','paprika'),I(1,'c. à s.','miel')],st:['Mélanger les ailes avec les épices et le miel.','Air fryer 25 min à 190 °C.'],m:now},
+  {id:'dr6',t:'Saumon en papillote',ic:'🐟',pp:4,tm:25,ty:'plat',tags:['Four','Rapide'],ing:[I(4,'','pavés de saumon'),I(1,'','citron'),I(2,'','courgettes'),I(1,'c. à s.','huile d’olive')],st:['Déposer le saumon sur les courgettes en rondelles.','Citron, huile, sel, poivre, fermer la papillote.','20 min à 200 °C.'],m:now},
+  {id:'dr7',t:'Houmous maison',ic:'🧆',pp:6,tm:10,ty:'apero',tags:['Rapide','Sans cuisson'],ing:[I(400,'g','pois chiches'),I(2,'c. à s.','tahini'),I(1,'','citron'),I(1,'','gousse d’ail')],st:['Mixer tous les ingrédients avec un peu d’eau.','Servir avec un filet d’huile d’olive.'],m:now},
+  {id:'dr8',t:'Salade de lentilles',ic:'🥗',pp:4,tm:30,ty:'ent',tags:['Batch'],ing:[I(250,'g','lentilles vertes'),I(1,'','échalote'),I(2,'','carottes'),I(3,'c. à s.','vinaigrette')],st:['Cuire les lentilles 25 min.','Ajouter carottes râpées et échalote, assaisonner.'],m:now},
+  {id:'dr9',t:'Gâteau au chocolat fondant',ic:'🍫',pp:8,tm:35,ty:'des',tags:['Four'],fav:true,ing:[I(200,'g','chocolat noir'),I(125,'g','beurre'),I(3,'','œufs'),I(100,'g','sucre'),I(50,'g','farine')],st:['Faire fondre chocolat et beurre.','Ajouter sucre, œufs puis farine.','25 min à 180 °C.'],m:now},
+  {id:'dr10',t:'Pancakes moelleux',ic:'🥞',pp:4,tm:20,ty:'pdj',tags:['Enfants','Rapide'],ing:[I(200,'g','farine'),I(25,'cl','lait'),I(2,'','œufs'),I(1,'sachet','levure')],st:['Mélanger les ingrédients.','Cuire de petites louches à la poêle.'],m:now},
+  {id:'dr11',t:'Curry de légumes au lait de coco',ic:'🍛',pp:4,tm:40,ty:'plat',tags:['Batch'],ing:[I(1,'','chou-fleur'),I(400,'g','pois chiches'),I(40,'cl','lait de coco'),I(2,'c. à s.','curry')],st:['Faire revenir les épices.','Ajouter légumes et lait de coco, 25 min à feu doux.'],m:now},
+  {id:'dr12',t:'Quiche lorraine',ic:'🥧',pp:6,tm:45,ty:'plat',tags:['Four'],ing:[I(1,'','pâte brisée'),I(200,'g','lardons'),I(3,'','œufs'),I(20,'cl','crème fraîche')],st:['Étaler la pâte, répartir les lardons.','Verser œufs + crème, 35 min à 180 °C.'],m:now}];
+ const mn={};const plan=[['dr1','dr2'],['dr6','dr8'],['','m','Poisson et riz'],['dr4','dr3'],['dr11',''],['dr5','dr12'],['dr1','dr9'],['dr8','dr6'],['dr12','dr2'],['dr11','dr4'],['','Pizza maison'],['dr5','dr10'],['dr6','dr3'],['dr1','dr7']];
+ plan.forEach((x,i)=>{const d=D(i);mn[d]={};const put=(k,v)=>{if(!v)return;mn[d][k]=rc.some(r=>r.id===v)?{r:v,t:'',w:i%3?'':'d-alex',p:4,mt:now}:{r:'',t:v,w:'',p:4,mt:now}};if(x[1]==='m'){put('m',x[2])}else{put('m',x[0]);put('s',x[1])}});
+ const td=pd(t),bd=[{id:'db1',n:'Léa',d:td.getDate(),m:td.getMonth()+1,y:td.getFullYear()-9,mt:now,g:['Livre de dessin','Pull rose'],note:'Elle adore les licornes'},{id:'db2',n:'Mamie Jeanne',d:14,m:2,y:1948,mt:now,g:['Orchidée']},{id:'db3',n:'Camille',d:3,m:6,y:1990,mt:now},{id:'db4',n:'Tom',d:22,m:9,y:2018,mt:now,g:['Lego','Ballon de foot']},{id:'db5',n:'Oncle Paul',d:8,m:12,mt:now},{id:'db6',n:'Alex',d:27,m:4,y:1986,mt:now,g:['Montre de sport']}];
+ [[3,'Hugo (copain de Tom)',2017],[9,'Inès',2015],[17,'Marraine Sophie',1979],[25,'Papy Robert',1945]].forEach(([k,n,y],i)=>{const x=pd(add(t,k));bd.push({id:'dbx'+i,n,d:x.getDate(),m:x.getMonth()+1,y,mt:now})});
+ const a=add(t,20),A=n=>add(a,n),it=(arr,done)=>arr.map((x,i)=>({id:'i'+uid(),t:x,x:done.includes(i)}));
+ const pe={[A(0)]:[{id:'p1',h:'08:00',du:300,t:'Route vers Quiberon',n:'Pause à Rennes vers 10 h'},{id:'p2',h:'14:00',du:60,t:'Remise des clés',n:'Location « Les Mouettes »'},{id:'p3',h:'16:00',du:120,t:'Plage'}],
+  [A(1)]:[{id:'p4',h:'09:30',du:120,t:'Cours de surf',n:'École Ty Surf, réservé au nom Martin'},{id:'p5',h:'09:30',du:120,t:'Marché du port',n:'Alex et Léa'},{id:'p6',h:'15:00',du:150,t:'Balade côte sauvage'},{id:'p7',h:'19:00',du:60,t:'Apéro chez les cousins'}],
+  [A(2)]:[{id:'p8',h:'08:30',du:60,t:'Ferry → Belle-Île',n:'Embarquement 30 min avant'},{id:'p9',h:'10:00',du:240,t:'Tour de l’île à vélo'},{id:'p10',h:'18:30',du:60,t:'Ferry retour'}],
+  [A(3)]:[{id:'p11',h:'10:00',du:90,t:'Musée de la conserverie'},{id:'p12',h:'14:30',du:180,t:'Kayak'}],
+  [A(4)]:[{id:'p13',h:'11:00',du:60,t:'Crêperie du port'},{id:'p14',h:'15:00',du:120,t:'Pêche à pied',n:'Marée basse 15 h 40'}],
+  [A(6)]:[{id:'p15',h:'10:00',du:60,t:'Ménage et remise des clés'},{id:'p16',h:'11:30',du:300,t:'Route du retour'}]};
+ [[0,'m','Pique-nique sur la route'],[0,'s','Crêperie'],[1,'m','Moules-frites'],[1,'s','dr6'],[2,'m','Pique-nique'],[3,'s','dr4'],[4,'s','Restaurant du port'],[5,'m','dr8']].forEach(([k,s,v])=>{const d=A(k);mn[d]=mn[d]||{};mn[d][s]=rc.some(r=>r.id===v)?{r:v,t:'',w:'',p:4,mt:now}:{r:'',t:v,w:'',p:4,mt:now}});
+ const vy=[{id:'dv1',t:'Vacances en Bretagne',ic:'🌊',a,b:A(6),lieu:'Quiberon',m:now,pe,pg:{},
+   ls:[{id:'dvl1',n:'Valise',i:'🧳',it:it(['Maillots de bain','Crème solaire','Pulls','K-way','Chargeurs','Trousse de toilette','Pyjamas','Lunettes de soleil','Baskets','Serviettes de plage','Livres','Jeux de cartes'],[0,1,4,6])},
+    {id:'dvl2',n:'Maison avant de partir',i:'🏠',it:it(['Fermer les volets','Vider le frigo','Arroser les plantes','Couper l’eau','Sortir les poubelles','Donner les clés à la voisine'],[4])},
+    {id:'dvl3',n:'Voiture',i:'🚗',w:'d-alex',it:it(['Pression des pneus','Badge péage','Snacks route','Gilet jaune'],[1])},
+    {id:'dvl4',n:'Sac de Léa',i:'🎒',w:'d-lea',it:it(['Doudou','Tablette','Casque','Carnet de coloriage'],[0,2])}],
+   in:{adr:'Location « Les Mouettes », 12 rue des Dunes, Quiberon',tr:'Départ 8 h, environ 5 h de route (pause à Rennes)',re:'Ferry Belle-Île aller 8 h 30, retour 18 h 30 · Surf mardi 9 h 30',tel:'Propriétaire : 06 00 00 00 03 · Ty Surf : 02 00 00 00 00',bu:'Location 750 € · Activités environ 250 €',no:'Clés chez la voisine du rez-de-chaussée'}},
+  {id:'dv2',t:'Week-end ski',ic:'⛷️',a:add(t,45),b:add(t,47),lieu:'Les Saisies',m:now,pg:{},pe:{[add(t,45)]:[{id:'q1',h:'07:00',du:240,t:'Route'},{id:'q2',h:'13:30',du:60,t:'Location des skis'}],[add(t,46)]:[{id:'q3',h:'09:00',du:180,t:'Cours ESF des enfants'},{id:'q4',h:'14:00',du:180,t:'Ski en famille'}]},
+   ls:[{id:'dvk1',n:'Affaires de ski',i:'⛷️',it:it(['Combinaisons','Gants','Bonnets','Masques','Crème solaire','Chaussettes de ski'],[])}],in:{adr:'Chalet « Le Mélèze »'}},
+  {id:'dv3',t:'Week-end à Lyon',ic:'🏙️',a:add(t,-40),b:add(t,-38),lieu:'Lyon',m:now,pg:{},pe:{},ls:[{id:'dvz1',n:'Valise',i:'🧳',it:it(['Vêtements','Chargeurs','Appareil photo'],[0,1,2])}],in:{}}];
+ const tlGrp={};
+ return{ppl,tl,tk,coH,coLast,coT,rc,mn,bd,vy,me:'Sam',meOk:1,meId:'',coLid:'courses',fams:[],forg:{},tlGrp};
 }
 function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;EV=demoData()}
 function demoOff(){if(!demo)return;demo=false;if(REAL_S){S=REAL_S;REAL_S=null}}
@@ -5766,7 +5856,10 @@ async function act(a,el,e){
    for(const d of D){const day=mnAll()[d]||{};for(const k of ['m','s']){const x=day[k],r=x&&rcOf(x.r);if(!r)continue;const f=(x.p||r.pp||4)/(r.pp||4);for(const g of (r.ing||[])){const key=norm(g.n)+'|'+g.u;const e2=acc.find(a=>a.key===key);if(e2){if(e2.q!=null&&g.q!=null)e2.q+=g.q*f;if(!e2.from.includes(r.t))e2.from.push(r.t)}else acc.push({key,q:g.q!=null?g.q*f:null,u:g.u,n:g.n,from:[r.t]})}}}
    pickIngredients('Ingrédients du séjour',acc.map(a=>({q:a.q!=null?Math.round(a.q*100)/100:null,u:a.u,n:a.n,from:a.from.join(', ')})),'Les recettes prévues pendant « '+v.t+' » demandent :');break}
   case 'vy-print':{const v=vyOf(VY.id);if(v)vyPrint(v);break}
-  case 'vy-pe':{const v=vyOf(VY.id);if(v)vyPeEdit(v,ds_.d,ds_.e||'');break}
+  case 'vy-pv':VY.pv=ds_.v;render();break;
+  case 'vg-nav':VY.gd=(VY.gd||0)+(+ds_.n)*Math.max(1,vgCols()-1);render();break;
+  case 'vg-new':{const v=vyOf(VY.id);if(v){const mn=tmin(ds_.h);vyPeEdit(v,ds_.d,'',mn<720?'ma':mn<1080?'ap':'so',ds_.h)}break}
+  case 'vy-pe':{const v=vyOf(VY.id);if(v)vyPeEdit(v,ds_.d,ds_.e||'',ds_.s||'');break}
   case 'sh-vy':shareSend('vy',VY.id);break;
   case 'tk-imp':tkImport();break;
   case 'sh-rcall':shareSend('rc');break;
@@ -6634,7 +6727,7 @@ function shMerge(P,apply){
    if(!v||!v.id||!v.t)continue;const loc=vyOf(v.id);
    const o={id:String(v.id),t:String(v.t).slice(0,60),ic:String(v.ic||'🧳').slice(0,4),a:RX_D.test(v.a||'')?v.a:'',b:RX_D.test(v.b||'')?v.b:'',lieu:String(v.lieu||'').slice(0,60),m:+v.m||now,
     ls:(Array.isArray(v.ls)?v.ls:[]).slice(0,40).map(l=>({id:String(l.id||uid()),n:String(l.n||'Liste').slice(0,40),i:String(l.i||'').slice(0,4),w:map[l.w]||'',it:(Array.isArray(l.it)?l.it:[]).slice(0,300).map(i=>({id:String(i.id||uid()),t:String(i.t||'').slice(0,120),x:!!i.x})).filter(i=>i.t)})),
-    pg:v.pg&&typeof v.pg==='object'?v.pg:{},pe:v.pe&&typeof v.pe==='object'?Object.fromEntries(Object.entries(v.pe).filter(([d,a])=>RX_D.test(d)&&Array.isArray(a)).map(([d,a])=>[d,a.slice(0,40).filter(e=>e&&e.t).map(e=>({id:String(e.id||uid()).slice(0,20),h:RX_T.test(e.h||'')?e.h:'',t:String(e.t).slice(0,120),n:String(e.n||'').slice(0,500)}))])):{},in:v.in&&typeof v.in==='object'?Object.fromEntries(Object.entries(v.in).map(([k,x])=>[k,String(x).slice(0,1000)])):{}};
+    pg:v.pg&&typeof v.pg==='object'?v.pg:{},pe:v.pe&&typeof v.pe==='object'?Object.fromEntries(Object.entries(v.pe).filter(([d,a])=>RX_D.test(d)&&Array.isArray(a)).map(([d,a])=>[d,a.slice(0,40).filter(e=>e&&e.t).map(e=>({id:String(e.id||uid()).slice(0,20),h:RX_T.test(e.h||'')?e.h:'',s:['ma','ap','so'].includes(e.s)?e.s:'',du:Math.max(0,Math.min(720,+e.du||0)),t:String(e.t).slice(0,120),n:String(e.n||'').slice(0,500)}))])):{},in:v.in&&typeof v.in==='object'?Object.fromEntries(Object.entries(v.in).map(([k,x])=>[k,String(x).slice(0,1000)])):{}};
    if(!loc){if(shTrim(S.vyDel).some(d=>d.id===v.id&&d.m>=(v.m||0)))continue;st.add++;if(apply)vyAll().push(o)}
    else if((v.m||0)>(loc.m||0)){st.upd++;if(apply)Object.assign(loc,o)}
   }
@@ -7448,7 +7541,7 @@ function wishMark(){const b=bdClean().find(x=>x.id===WS.id);if(b){b.ws={y:new Da
 
 /* ========= Voyages : listes à cocher (modèles, import Notes), programme, repas du séjour, infos =========
    S.vy voyages, S.vyT modèles de listes. Repas du séjour = menu de l'onglet Repas (S.mn) aux dates du voyage. */
-const VY={id:null,tab:'li'};
+const VY={id:null,tab:'li',pv:'grid',gd:0};
 const VY_DEF_T=[
  {id:'t-valise',n:'Valise',i:'🧳',it:['Tee-shirts','Pantalons / shorts','Pull ou gilet','Sous-vêtements','Chaussettes','Pyjama','Chaussures','Veste de pluie','Maillot de bain','Trousse de toilette','Brosse à dents, dentifrice','Médicaments','Chargeur de téléphone','Lunettes de soleil']},
  {id:'t-enfant',n:'Valise enfant',i:'🧸',it:['Doudou','Tenues de rechange','Pyjama','Chaussures','Casquette','Crème solaire','Jeux et livres','Gourde','Goûters pour la route','Carnet de santé']},
@@ -7482,7 +7575,7 @@ function vyDetailHTML(v){
  let h='<div class="rp-wrap"><button class="vy-back" data-act="vy-back">'+ic('left')+' Tous les voyages</button>'+
   '<div class="vy-hd"><span class="vy-i">'+esc(v.ic||'🧳')+'</span><div><b>'+esc(v.t)+'</b><small>'+(v.a?esc(fLongY(v.a))+(v.b&&v.b!==v.a?' → '+esc(fLongY(v.b)):''):'Dates à choisir')+(v.lieu?' · '+esc(v.lieu):'')+'</small></div><button class="ib" data-act="vy-edit" aria-label="Modifier le voyage">'+ic('edit')+'</button></div>'+
   '<div class="seg rp-seg">'+sg('li','Listes'+(n?' '+x+'/'+n:''))+sg('pg','Programme')+sg('rp','Repas')+sg('in','Infos')+'</div>';
- if(VY.tab==='pg')h+=vyProgHTML(v);else if(VY.tab==='rp')h+=vyMealsHTML(v);else if(VY.tab==='in')h+=vyInfoHTML(v);else h+=vyListsHTML(v);
+ if(VY.tab==='pg')h+=(VY.pv==='sum'?vyPvSeg()+vyProgHTML(v):vyGridHTML(v));else if(VY.tab==='rp')h+=vyMealsHTML(v);else if(VY.tab==='in')h+=vyInfoHTML(v);else h+=vyListsHTML(v);
  h+='<div class="chips" style="margin:.8rem 0"><button class="chip" data-act="sh-vy">📤 Envoyer le voyage</button><button class="chip" data-act="vy-print">'+ic('print')+' Imprimer le voyage</button><button class="chip" data-act="vy-del">'+ic('trash')+' Supprimer</button></div></div>';
  return h;
 }
@@ -7498,28 +7591,75 @@ function vyListsHTML(v){
  h+='<div class="rp-top" style="margin-top:.6rem"><button class="btn grow" data-act="vy-ltpl">📋 Depuis un modèle</button><button class="btn grow" data-act="vy-lpaste">📝 Coller depuis Notes</button></div><button class="btn blk sm" data-act="vy-lnew">'+ic('plus')+' Liste vide</button>';
  return h;
 }
+const vySlotOf=e=>{if(e.h){const m=tmin(e.h);return m<720?'ma':m<1080?'ap':'so'}return ['ma','ap','so'].includes(e.s)?e.s:'ma'};
 function vyProgHTML(v){
  const D=vyDays(v);if(!D.length)return '<p class="empty">Choisis les dates du voyage (bouton crayon en haut) pour faire le programme.</p>';
  const P=v.pg||{};
- return D.map((d,k)=>{const x=P[d]||{};const sl=(s,l)=>'<button class="rp-sl'+(x[s]?'':' empty')+'" data-act="vy-pg" data-d="'+d+'" data-s="'+s+'"><small>'+l+'</small><b>'+(x[s]?esc(x[s]):'+ Ajouter')+'</b></button>';
-  const E=vyPe(v,d);
-  return '<section class="rp-day'+(d===today()?' today':'')+'"><div class="rp-dh">Jour '+(k+1)+' · '+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="rp-3">'+sl('ma','Matin')+sl('ap','Après-midi')+sl('so','Soir')+'</div>'+
-   (E.length?'<div class="vy-pe">'+E.map(e=>'<button class="vy-pei" data-act="vy-pe" data-d="'+d+'" data-e="'+esc(e.id)+'"><b>'+esc(e.h||'--:--')+'</b><span>'+esc(e.t)+(e.n?'<small>'+esc(e.n)+'</small>':'')+'</span></button>').join('')+'</div>':'')+
-   '<button class="chip vy-peadd" data-act="vy-pe" data-d="'+d+'">＋ Étape à une heure précise</button></section>'}).join('');
+ return D.map((d,k)=>{const x=P[d]||{},E=vyPe(v,d);const sl=(s,l)=>{const es=E.filter(e=>vySlotOf(e)===s);
+   return '<div class="vy-sl"><small>'+l+'</small>'+(x[s]?'<button class="vy-st" data-act="vy-pg" data-d="'+d+'" data-s="'+s+'">'+esc(x[s])+'</button>':'')+es.map(e=>'<button class="vy-pei" data-act="vy-pe" data-d="'+d+'" data-e="'+esc(e.id)+'">'+(e.h?'<b>'+esc(e.h)+(e.du?'–'+hm(tmin(e.h)+e.du):'')+'</b>':'')+'<span>'+esc(e.t)+(e.n?'<small>'+esc(e.n)+'</small>':'')+'</span></button>').join('')+'<button class="vy-add1" data-act="vy-pe" data-d="'+d+'" data-s="'+s+'">＋ Ajouter</button></div>'};
+  return '<section class="rp-day'+(d===today()?' today':'')+'"><div class="rp-dh">Jour '+(k+1)+' · '+cap(DL[dow(d)])+' <small>'+esc(fShort(d))+'</small></div><div class="vy-3">'+sl('ma','Matin')+sl('ap','Après-midi')+sl('so','Soir')+'</div></section>'}).join('');
 }
 const vyPe=(v,d)=>((v.pe||{})[d]||[]).slice().sort((a,b)=>String(a.h||'99').localeCompare(String(b.h||'99')));
-async function vyPeEdit(v,d,eid){
+const VG0=420,VG1=1380,VG_SL={ma:'09:00',ap:'14:00',so:'19:00'};
+function vyPvSeg(){return '<div class="seg vg-seg"><button data-act="vy-pv" data-v="grid" class="'+(VY.pv!=='sum'?'on':'')+'">🗓 Grille horaire</button><button data-act="vy-pv" data-v="sum" class="'+(VY.pv==='sum'?'on':'')+'">📋 Résumé</button></div>'}
+/* ce qui était noté en texte (Matin / Après-midi / Soir) ou sans heure devient un bloc d'une heure */
+function vyGridMig(v){let ch=false;const P=v.pg||{};if(!v.pe)v.pe={};
+ for(const d of vyDays(v)){const x=P[d];if(x)for(const k of ['ma','ap','so'])if(x[k]){(v.pe[d]=v.pe[d]||[]).push({id:'e'+uid(),h:VG_SL[k],s:k,t:String(x[k]).slice(0,120),n:'',du:60});delete x[k];ch=true}
+  for(const e of (v.pe[d]||[])){if(!e.h){e.h=VG_SL[e.s]||'09:00';ch=true}if(!e.du){e.du=60;ch=true}}}
+ if(ch){v.m=Date.now();if(!demo)ls.set(K.set,S);if(typeof famSchedule==='function')famSchedule()}
+}
+function vgCols(){const w=Math.min(window.innerWidth,document.documentElement.clientWidth||9999)-(window.innerWidth>=800?110:24);return Math.max(1,Math.min(7,Math.floor(w/200)))}
+function vgLanes(E){const L=E.map(e=>({e,s:tmin(e.h),t:Math.min(VG1,tmin(e.h)+(e.du||60))})).filter(x=>x.s<VG1&&x.t>VG0).sort((a,b)=>a.s-b.s||b.t-a.t);
+ let grp=[],end=-1;const out=[];const flush=()=>{const lanes=[];for(const x of grp){let i=lanes.findIndex(t=>t<=x.s);if(i<0){i=lanes.length;lanes.push(0)}lanes[i]=x.t;x.l=i}grp.forEach(x=>{x.n=lanes.length;out.push(x)});grp=[]};
+ for(const x of L){if(x.s>=end&&grp.length)flush();grp.push(x);end=Math.max(end,x.t)}if(grp.length)flush();return out}
+function vyGridHTML(v){
+ vyGridMig(v);const D=vyDays(v);if(!D.length)return vyPvSeg()+'<p class="empty">Choisis les dates du voyage (bouton crayon en haut) pour faire le programme.</p>';
+ const n=Math.min(vgCols(),D.length);VY.gd=Math.max(0,Math.min(VY.gd||0,D.length-n));const V=D.slice(VY.gd,VY.gd+n),t=today();
+ let h=vyPvSeg();
+ if(D.length>n)h+='<div class="vg-nav"><button class="ib" data-act="vg-nav" data-n="-1"'+(VY.gd?'':' disabled')+' aria-label="Jours précédents">'+ic('left')+'</button><b>'+(n>1?'Jours '+(VY.gd+1)+' à '+(VY.gd+n):'Jour '+(VY.gd+1))+' sur '+D.length+'</b><button class="ib" data-act="vg-nav" data-n="1"'+(VY.gd+n<D.length?'':' disabled')+' aria-label="Jours suivants">'+ic('right')+'</button></div>';
+ h+='<p class="mut vg-tip">Touche une case pour ajouter · fais glisser un bloc pour le déplacer · tire la poignée du bas pour la durée</p>';
+ h+='<div class="vg" style="--n:'+n+'"><div class="vg-hd"><div></div>'+V.map(d=>'<div class="vg-dh'+(d===t?' td':'')+'"><b>J'+(D.indexOf(d)+1)+' · '+esc(cap(DS[dow(d)]))+'</b> '+pd(d).getDate()+'</div>').join('')+'</div><div class="vg-body"><div class="vg-gut">'+[...Array((VG1-VG0)/30)].map((_,i)=>'<div>'+(i%2?'':esc(hm(VG0+i*30).replace(':00',' h')))+'</div>').join('')+'</div>';
+ for(const d of V){
+  const m=mnAll()[d]||{};const meal=(x,s,l)=>mealTxt(x)?'<div class="vg-meal" style="top:calc('+(s-VG0)/30+' * var(--rh));height:calc(2 * var(--rh))">🍽 '+l+' · '+esc(mealTxt(x))+'</div>':'';
+  h+='<div class="vg-col" data-d="'+d+'">'+[...Array((VG1-VG0)/30)].map((_,i)=>{const mn=VG0+i*30;return '<div class="vg-c '+(mn<720?'pm':mn<1080?'pa':'ps')+(i%2?' h2':'')+'" data-act="vg-new" data-d="'+d+'" data-h="'+hm(mn)+'"></div>'}).join('')+meal(m.m,720,'Midi')+meal(m.s,1170,'Soir');
+  for(const x of vgLanes(vyPe(v,d))){const e=x.e,du=x.t-x.s;
+   h+='<div class="vg-b'+(du<=30?' sm':'')+'" data-e="'+esc(e.id)+'" data-d="'+d+'" style="top:calc('+(x.s-VG0)/30+' * var(--rh));height:calc('+du/30+' * var(--rh) - 2px);left:calc('+x.l+' * 100% / '+x.n+');width:calc(100% / '+x.n+' - 3px)"><b>'+esc(e.t)+'</b><small>'+esc(e.h)+'–'+esc(hm(x.t))+(e.n?' · '+esc(e.n):'')+'</small><i class="vg-rs" aria-label="Changer la durée"></i></div>'}
+  h+='</div>';
+ }
+ return h+'</div></div>';
+}
+/* glisser un bloc (déplacer, autre jour) ou tirer sa poignée (durée) */
+(function(){
+ let G=null;const RH=()=>{const b=document.querySelector('.vg');return b?parseFloat(getComputedStyle(b).getPropertyValue('--rh'))||28:28};
+ document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.vg-b');if(!b||V.view!=='voyages')return;const v=vyOf(VY.id);if(!v)return;
+  const ev=((v.pe||{})[b.dataset.d]||[]).find(x=>x.id===b.dataset.e);if(!ev)return;
+  G={b,v,ev,d0:b.dataset.d,d:b.dataset.d,mode:e.target.classList.contains('vg-rs')?'size':'move',x0:e.clientX,y0:e.clientY,s0:tmin(ev.h),du0:ev.du||60,s:tmin(ev.h),du:ev.du||60,moved:false,rh:RH()};
+  try{b.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()},{passive:false});
+ document.addEventListener('pointermove',e=>{if(!G)return;const dx=e.clientX-G.x0,dy=e.clientY-G.y0;if(!G.moved&&Math.hypot(dx,dy)<6)return;G.moved=true;G.b.classList.add('drag');
+  const st=Math.round(dy/G.rh)*30;
+  if(G.mode==='size'){G.du=Math.max(30,Math.min(VG1-G.s0,G.du0+st));G.b.style.height='calc('+G.du/30+' * var(--rh) - 2px)'}
+  else{G.s=Math.max(VG0,Math.min(VG1-30,Math.round((G.s0+st)/30)*30));G.b.style.top='calc('+(G.s-VG0)/30+' * var(--rh))';G.b.style.left='0';G.b.style.width='calc(100% - 3px)';
+   const col=[...document.querySelectorAll('.vg-col')].find(c=>{const r=c.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<r.right});if(col&&col.dataset.d!==G.d){G.d=col.dataset.d;col.appendChild(G.b)}}
+  const sm=G.b.querySelector('small');if(sm)sm.textContent=hm(G.mode==='size'?G.s0:G.s)+'–'+hm((G.mode==='size'?G.s0:G.s)+G.du);e.preventDefault()},{passive:false});
+ const end=e=>{if(!G)return;const g=G;G=null;
+  if(!g.moved){vyPeEdit(g.v,g.d0,g.ev.id,'');return}
+  const v=g.v;if(g.mode==='size')g.ev.du=g.du;else{g.ev.h=hm(g.s);if(g.d!==g.d0){v.pe[g.d0]=(v.pe[g.d0]||[]).filter(x=>x.id!==g.ev.id);(v.pe[g.d]=v.pe[g.d]||[]).push(g.ev)}}
+  delete g.ev.s;vyTouch(v);render();toast((g.mode==='size'?'⏱ ':'↕ ')+g.ev.t+' : '+(g.d!==g.d0?cap(DS[dow(g.d)])+' '+pd(g.d).getDate()+', ':'')+g.ev.h+'–'+hm(tmin(g.ev.h)+g.ev.du),2500)};
+ document.addEventListener('pointerup',end);document.addEventListener('pointercancel',e=>{if(G){G=null;render()}});
+})();
+async function vyPeEdit(v,d,eid,slot,preH){
  if(!v.pe)v.pe={};const L=v.pe[d]||(v.pe[d]=[]);const e0=eid?L.find(x=>x.id===eid):null;
- const vals={h:e0?e0.h:'',t:e0?e0.t:'',n:e0?e0.n||'':''};
+ const vals={h:e0?e0.h:(preH||''),t:e0?e0.t:'',n:e0?e0.n||'':'',du:String(e0?e0.du||60:60)};
  const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(e0)btns.push({label:'Supprimer cette étape',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
- const pr=ask({title:(e0?'Modifier':'Nouvelle')+' étape · '+cap(DL[dow(d)])+' '+fShort(d),html:'<div class="tk-2"><div><label class="lbl" for="pe-h">Heure</label><input class="in" type="time" id="pe-h" value="'+esc(vals.h)+'"></div><div></div></div><label class="lbl" for="pe-t">Quoi</label><input class="in" id="pe-t" maxlength="120" value="'+esc(vals.t)+'" placeholder="Visite du château, départ du ferry…"><label class="lbl" for="pe-n">Détails (facultatif)</label><textarea class="in" id="pe-n" rows="3" maxlength="500" placeholder="Adresse, numéro de réservation, à prévoir…" style="margin-bottom:.6rem">'+esc(vals.n)+'</textarea>',btns});
- const root=$('#dlg');root.oninput=root.onchange=e=>{const k={'pe-h':'h','pe-t':'t','pe-n':'n'}[e.target.id];if(k)vals[k]=e.target.value};
+ const SL={ma:'Matin',ap:'Après-midi',so:'Soir'};const sl0=e0?vySlotOf(e0):(slot||'ma');
+ const pr=ask({title:(e0?'Modifier':SL[sl0])+' · '+cap(DL[dow(d)])+' '+fShort(d),html:'<div class="tk-2"><div><label class="lbl" for="pe-h">Début</label><input class="in" type="time" id="pe-h" step="1800" value="'+esc(vals.h)+'"></div><div><label class="lbl" for="pe-du">Durée</label><select class="in" id="pe-du">'+[30,60,90,120,150,180,240,300,360,480,600].map(m=>'<option value="'+m+'"'+(String(m)===vals.du?' selected':'')+'>'+(m<60?m+' min':Math.floor(m/60)+' h'+(m%60?' 30':''))+'</option>').join('')+'</select></div></div><label class="lbl" for="pe-t">Quoi</label><input class="in" id="pe-t" maxlength="120" value="'+esc(vals.t)+'" placeholder="Visite du château, départ du ferry…"><label class="lbl" for="pe-n">Détails (facultatif)</label><textarea class="in" id="pe-n" rows="3" maxlength="500" placeholder="Adresse, numéro de réservation, à prévoir…" style="margin-bottom:.6rem">'+esc(vals.n)+'</textarea>',btns});
+ const root=$('#dlg');root.oninput=root.onchange=e=>{const k={'pe-h':'h','pe-t':'t','pe-n':'n','pe-du':'du'}[e.target.id];if(k)vals[k]=e.target.value};
  setTimeout(()=>{const i=$('#pe-'+(e0?'t':'h'));if(i&&!e0)i.focus()},80);
  const r=await pr;root.oninput=root.onchange=null;
  if(r==='del'&&e0){v.pe[d]=L.filter(x=>x.id!==e0.id);vyTouch(v);render();return}
  if(r!=='ok')return;
  const t=String(vals.t||'').trim().slice(0,120);if(!t){toast('Écris ce qui est prévu');return}
- const o={id:e0?e0.id:'e'+uid(),h:RX_T.test(vals.h||'')?vals.h:'',t,n:String(vals.n||'').trim().slice(0,500)};
+ const o={id:e0?e0.id:'e'+uid(),h:RX_T.test(vals.h||'')?vals.h:(VY.pv!=='sum'?VG_SL[sl0]:''),s:sl0,t,n:String(vals.n||'').trim().slice(0,500),du:Math.max(30,Math.min(720,+vals.du||60))};
  if(e0)Object.assign(e0,o);else L.push(o);vyTouch(v);render();
 }
 function vyMealsHTML(v){
@@ -7622,11 +7762,12 @@ function vyDayHTML(day){
  return L.map(v=>{const k=diff(day,v.a)+1,n=vyDays(v).length,p=(v.pg||{})[day]||{};const pg=[p.ma,p.ap,p.so].filter(Boolean).concat(vyPe(v,day).map(e=>(e.h?e.h+' ':'')+e.t)).join(' · ');
   return '<button class="vy-today" data-act="vy-open" data-id="'+esc(v.id)+'">'+esc(v.ic||'🧳')+' <b>'+esc(v.t)+'</b> · jour '+k+'/'+n+(pg?'<br><small>'+esc(pg)+'</small>':'')+'</button>'}).join('');
 }
-function vyPrintHTML(v){
+function vyPrintHTML(v,grid){
  const D=vyDays(v),P=v.pg||{},I=v.in||{};
- const slot=(d,s,lo,hi)=>{const p=P[d]||{};const E=vyPe(v,d).filter(e=>{const m=e.h?tmin(e.h):(s==='ma'?0:-1);return m>=lo&&m<hi});return (p[s]?'<div>'+esc(p[s])+'</div>':'')+E.map(e=>'<div class="vp-e"><b>'+esc(e.h||'')+'</b> '+esc(e.t)+(e.n?' <i>'+esc(e.n)+'</i>':'')+'</div>').join('')};
+ const slot=(d,s)=>{const p=P[d]||{};const E=vyPe(v,d).filter(e=>vySlotOf(e)===s);return (p[s]?'<div>'+esc(p[s])+'</div>':'')+E.map(e=>'<div class="vp-e"><b>'+esc(e.h||'')+'</b> '+esc(e.t)+(e.n?' <i>'+esc(e.n)+'</i>':'')+'</div>').join('')};
  let h='<div class="vp"><div class="vp-h"><span>'+esc(v.ic||'🧳')+'</span><div><b>'+esc(v.t)+'</b><small>'+(v.a?esc(fLongY(v.a))+(v.b&&v.b!==v.a?' → '+esc(fLongY(v.b)):''):'')+(v.lieu?' · '+esc(v.lieu):'')+'</small></div></div>';
- if(D.length){
+ if(grid){h+=vyPrintGrid(v)}
+ else if(D.length){
   const hasRp=D.some(d=>{const m=mnAll()[d]||{};return mealTxt(m.m)||mealTxt(m.s)});
   h+='<h2>📅 Programme</h2><table class="vp-t"><colgroup><col style="width:'+(hasRp?'11':'13')+'%"><col><col><col>'+(hasRp?'<col style="width:18%">':'')+'</colgroup><tr><th>Jour</th><th>Matin</th><th>Après-midi</th><th>Soir</th>'+(hasRp?'<th>Repas</th>':'')+'</tr>'+D.map((d,k)=>{const m=mnAll()[d]||{};const rp=[mealTxt(m.m)?'<div><b>Midi</b> '+esc(mealTxt(m.m))+'</div>':'',mealTxt(m.s)?'<div><b>Soir</b> '+esc(mealTxt(m.s))+'</div>':''].join('');
    return '<tr><th><b>J'+(k+1)+'</b> '+esc(cap(DS[dow(d)]))+' '+pd(d).getDate()+'</th><td>'+slot(d,'ma',0,720)+'</td><td>'+slot(d,'ap',720,1080)+'</td><td>'+slot(d,'so',1080,1440)+'</td>'+(hasRp?'<td>'+rp+'</td>':'')+'</tr>'}).join('')+'</table>';
@@ -7655,9 +7796,20 @@ function printPage(html,land,name){
  st.textContent='@page{size:A4 '+(land?'landscape':'portrait')+';margin:8mm}';
  setTimeout(()=>{try{window.print()}catch(e){toast('Impression impossible ici')}},150);
 }
+function vyPrintGrid(v){
+ vyGridMig(v);const D=vyDays(v);if(!D.length)return '';
+ const rows=(VG1-VG0)/30;
+ let h='<h2>📅 Programme</h2><div class="vpg" style="--n:'+D.length+'"><div class="vpg-hd"><div></div>'+D.map((d,k)=>'<div><b>J'+(k+1)+'</b> '+esc(cap(DS[dow(d)]))+' '+pd(d).getDate()+'</div>').join('')+'</div><div class="vpg-body"><div class="vpg-gut">'+[...Array(rows)].map((_,i)=>'<div>'+(i%2?'':hm(VG0+i*30).replace(':00',' h'))+'</div>').join('')+'</div>';
+ for(const d of D){const m=mnAll()[d]||{};
+  h+='<div class="vpg-col">'+[...Array(rows)].map((_,i)=>{const mn=VG0+i*30;return '<div class="'+(mn<720?'pm':mn<1080?'pa':'ps')+(i%2?' h2':'')+'"></div>'}).join('')+
+   (mealTxt(m.m)?'<div class="vpg-meal" style="top:'+(720-VG0)/30*1.25+'em">🍽 '+esc(mealTxt(m.m))+'</div>':'')+(mealTxt(m.s)?'<div class="vpg-meal" style="top:'+(1170-VG0)/30*1.25+'em">🍽 '+esc(mealTxt(m.s))+'</div>':'')+
+   vgLanes(vyPe(v,d)).map(x=>'<div class="vpg-b" style="top:'+(x.s-VG0)/30*1.25+'em;height:calc('+(x.t-x.s)/30*1.25+'em - 1px);left:'+(x.l*100/x.n)+'%;width:calc('+(100/x.n)+'% - 2px)"><b>'+esc(x.e.t)+'</b> <small>'+esc(x.e.h)+'–'+hm(x.t)+(x.e.n?' · '+esc(x.e.n):'')+'</small></div>').join('')+'</div>'}
+ return h+'</div></div>';
+}
 function vyPrint(v){
  if(!(v.ls||[]).some(l=>(l.it||[]).length)&&!vyDays(v).length){toast('Rien à imprimer pour ce voyage');return}
- printPage(printFit(vyPrintHTML(v),false),false,'voyage-agendam.pdf');
+ const grid=vyDays(v).length&&Object.values(v.pe||{}).some(a=>a&&a.length)||Object.values(v.pg||{}).some(x=>x&&(x.ma||x.ap||x.so));
+ printPage(printFit(vyPrintHTML(v,grid),grid),grid,'voyage-agendam.pdf');
 }
 
 /* ========= Importer des anniversaires depuis n'importe quoi : Word, Excel, CSV, texte, calendrier, contacts ========= */
