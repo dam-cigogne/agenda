@@ -962,6 +962,51 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 .mn.today,.mn.today.out{color:var(--on-accent);opacity:1;font-weight:900}
 .mc.today.out{opacity:1}
 
+
+/* ---- styles des rendez-vous (Réglages → Affichage) ---- */
+.ml{-webkit-hyphens:manual;hyphens:manual;overflow-wrap:anywhere;word-break:normal}
+.mband.wn{hyphens:manual;-webkit-hyphens:manual}
+.hio{outline:1.5px solid color-mix(in srgb,var(--text) 70%,transparent);outline-offset:-1.5px}
+body.evs-vif .ml{background:var(--c);color:var(--ink);border-left:0;border-radius:.32rem;padding:.02rem .22rem;font-weight:700;box-shadow:0 1px 1px rgba(0,0,0,.12)}
+body.evs-vif .ml em{color:inherit;opacity:.8}
+body.evs-vif .mband{box-shadow:0 1px 1px rgba(0,0,0,.12)}
+body.evs-vif .ev{background:var(--c);color:var(--ink);border-left:0;box-shadow:0 2px 6px color-mix(in srgb,var(--c) 35%,transparent)}
+body.evs-vif .ev small,body.evs-vif .ev.sm .tt{color:inherit;opacity:.85}
+body.evs-vif .mcol{gap:2px}
+body.evs-net .ml{background:none;border-left:0;padding-left:.75em;position:relative;font-weight:600}
+body.evs-net .ml:before{content:"";position:absolute;left:.12em;top:.42em;width:.45em;height:.45em;border-radius:50%;background:var(--c)}
+body.evs-net .ev{background:var(--surface);border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-left:4px solid var(--c)}
+html[data-theme=dark] body.evs-vif .ml,html[data-theme=dark] body.evs-vif .ev{box-shadow:none}
+body.evs-cont .ml{background:var(--surface);border:1.5px solid var(--c);border-radius:.32rem;padding:0 .2rem;color:var(--text);font-weight:700}
+body.evs-cont .ev{background:var(--surface);border:2px solid var(--c);border-left-width:5px;color:var(--text)}
+body.evs-cont .mband{background:var(--surface);color:var(--text);box-shadow:inset 0 0 0 1.5px var(--c)}
+/* écriture et taille des rendez-vous */
+.ev{font-size:calc(.88rem*var(--evs,1))}.wk .ev{font-size:calc(.78rem*var(--evs,1))}
+.rx b{font-size:calc(1.05rem*var(--evl,1))}
+.ml,.mband,.ev,.rx b,.evp{font-family:var(--evff,inherit)}
+html.ff-all body{font-family:var(--evff)}
+html.ff-cond .ml,html.ff-cond .mband,html.ff-cond .ev,html.ff-cond .rx b{font-stretch:condensed;letter-spacing:-.01em}
+html.evw-fin .ml,html.evw-fin .mband,html.evw-fin .ev b,html.evw-fin .rx b{font-weight:500!important}
+html.evw-gras .ml,html.evw-gras .mband,html.evw-gras .ev b,html.evw-gras .rx b{font-weight:850!important}
+html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-spacing:.02em}
+/* aperçu dans les réglages */
+.evp{border:1px solid var(--line);border-radius:1rem;background:var(--bg);padding:.55rem;margin:.2rem 0 .7rem}
+.evp-m{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line2);border-radius:.6rem;overflow:hidden;background:var(--surface)}
+.evp-d{min-width:0;padding:.15rem .12rem .25rem;border-left:1px solid var(--line2);min-height:5.2rem}.evp-d:first-child{border-left:0}
+.evp-d>small{display:block;font-size:.7rem;font-weight:800;color:var(--muted);padding:0 .15rem .15rem}
+.evp-d .mcol{display:flex;flex-direction:column;gap:2px}
+.evp-d .mband{margin:0 0 2px}
+.evp-w{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin-top:.45rem}
+.evp-w .ev{position:relative;min-height:0;display:block}
+.evp-l{margin-top:.45rem;background:var(--surface);border:1px solid var(--line);border-radius:.8rem;overflow:hidden}
+.evp-l .row{padding:.45rem .7rem}
+.evp-cap{font-size:.72rem;color:var(--muted);font-weight:700;margin:.35rem 0 .15rem}
+.thm{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.2rem,1fr));gap:.4rem;margin:.2rem 0 .6rem}
+.thm button{border:1.5px solid var(--line);border-radius:.8rem;padding:.45rem .5rem;text-align:left;background:var(--tb,var(--surface));color:var(--tt,var(--text));font-weight:750;font-size:.86rem;line-height:1.15}
+.thm button small{display:block;font-weight:600;font-size:.7rem;opacity:.75;margin-top:.1rem}
+.thm button i{display:flex;gap:3px;margin-top:.3rem}.thm button i b{flex:1;height:.42rem;border-radius:.2rem;background:var(--c)}
+.thm button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.fnt .seg button,.fnt button{font-family:var(--f)}
 </style>
 </head>
 <body>
@@ -1008,12 +1053,17 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.17.0';
+const APP_VERSION='2.18.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.18.0',d:'31/10/2026',items:[
+  '✨ Nouvelle carte « Style des rendez-vous » (Réglages → Affichage et couleurs) avec un aperçu en direct : 8 thèmes tout prêts (Classique, Compact, Pastel, Carnet, Élégant, Très lisible, Affiche, Machine), puis tout se règle à la main.',
+  '🎨 4 styles : « Vif » (couleur pleine, ça saute aux yeux), « Doux » (fond pâle), « Épuré » (point de couleur) et « Contour » (cadre de couleur). 6 écritures : Standard, Arrondie, Étroite, Élégante, Manuscrite, Machine à écrire, pour les rendez-vous seulement ou toute l’appli.',
+  '🔎 Taille du texte des rendez-vous de « Mini » à « Grand » (mois, semaine, jour et listes), épaisseur Fin / Normal / Gras, et majuscules en option.',
+  '🔤 Mois plus lisible : texte un peu plus fin, les mots ne sont plus coupés au milieu (« Rendez -vous »), cadre des rendez-vous importants plus léger, numéros des jours plus nets.']},
  {v:'2.17.0',d:'31/10/2026',items:[
   '📅 Catégories communes : quand tu partages une catégorie (Réglages → Catégories), elle apparaît chez l’autre avec son nom et sa couleur (« 📥 de Damien »), ses rendez-vous s’affichent comme les siens, et il ou elle peut en ajouter, modifier ou supprimer : tout revient chez toi. Vous partagez ainsi un vrai agenda à deux, dans les deux sens.',
   '👁 Dans Réglages → Catégories, pour chaque personne : « voit les détails » ou « seulement occupé ». En mode « occupé », l’autre ne voit que les créneaux (« Damien · occupé ») sans pouvoir modifier.',
@@ -1922,7 +1972,7 @@ function gridHTML(days,hh,opts){
    const o=it.o,ev=o.ev,dur=it.e-it.s,sm=dur<=50||(cols>1&&dur<=60);
    const top=it.s/1440*100,ht=Math.max(dur,20)/1440*100,w=100/it.cols,l=it.col*w;
    const tt=hm(it.s)+'–'+hm2(it.e);
-   h+='<button class="ev'+(sm?' sm':'')+hiCls(ev)+'" style="--c:'+evCol(ev)+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
+   h+='<button class="ev'+(sm?' sm':'')+hiCls(ev)+'" style="--c:'+evCol(ev)+';--ink:'+inkOn(evCol(ev))+';top:'+top+'%;height:'+ht+'%;left:calc('+l+'% + 2px);width:calc('+w+'% - 4px)" data-act="open" data-o="'+reg(o)+'"><b>'+evT(ev)+'</b>'+
     (sm?(cols===1?'<span class="tt">'+tt+'</span>':''):'<small>'+tt+'</small>'+(ev.place&&cols===1?'<small>'+esc(ev.place)+'</small>':''))+'</button>';
   }
   if(d===t)h+='<div class="nowline" style="top:'+(nowMin()/1440*100)+'%"></div>';
@@ -2083,7 +2133,7 @@ function monthViewTitles(fort,pr){
    const shown=Math.min(arr.length,Math.max(0,Math.floor(L/ln)));
    hid[c]+=arr.length-shown;
    if(!shown)return;
-   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml'+hiCls(o.ev)+'" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.hi&4?'★\u00a0':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(hyText(o.ev.title))+'</i>').join('')+'</div>';
+   fg+='<div class="mcol'+(ln===1&&!tab&&!fort&&!pr?' l1':'')+'" style="grid-row:'+(2+vis)+';grid-column:'+(c+2)+';--ln:'+ln+';font-size:'+tFs+'rem">'+arr.slice(0,shown).map(o=>'<i class="ml'+hiCls(o.ev)+'" data-date="'+o.date+'" style="--c:'+evCol(o.ev)+';--ink:'+inkOn(evCol(o.ev))+'">'+((tab||pr)?'<em>'+hm(o.s)+'</em> ':'')+(o.ev.hi&4?'★\u00a0':'')+(o.ev.icon?'<span class="ei">'+esc(o.ev.icon)+' </span>':'')+esc(hyText(o.ev.title))+'</i>').join('')+'</div>';
   });
   hid.forEach((n,c)=>{if(n>0)fg+='<span class="mhid" style="grid-row:1;grid-column:'+(c+2)+'">+'+n+'</span>'});
   let bg='<span class="wn">'+wk+'</span>';
@@ -2193,6 +2243,7 @@ function render(){
  document.documentElement.style.setProperty('--sec','var('+(SEC[V.view]||'--k-ag')+')');
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
+ evsApply();
  document.body.classList.toggle('cansend',['tasks','courses','bdays','repas','voyages'].includes(V.view));
  {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};const om=V.view==='courses'||V.view==='repas';sb.dataset.act=V.view==='repas'?'rp-menu':om?'co-menu':'send-cur';sb.classList.toggle('opt',om);sb.setAttribute('aria-label',om?'Options':'Envoyer à la famille');sb.querySelector('i').textContent=om?'⋯':'📤';sb.querySelector('span').textContent=om?'Options':window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
@@ -3999,6 +4050,51 @@ const lkHex=r=>'#'+r.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16)
 const lkMix=(a,b,t)=>{const x=lkRgb(a),y=lkRgb(b);return lkHex(x.map((v,i)=>v*(1-t)+y[i]*t))};
 const lkLum=h=>{const [r,g,b]=lkRgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
 const lkA=(h,a)=>'rgba('+lkRgb(h).join(',')+','+a+')';
+const EV_FONTS=[['','Standard',''],['round','Arrondie','ui-rounded,"SF Pro Rounded","Nunito","Varela Round","Arial Rounded MT Bold",system-ui,sans-serif'],['cond','Étroite','"Avenir Next Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif-condensed,system-ui,sans-serif'],['serif','Élégante','"New York",ui-serif,"Iowan Old Style",Georgia,serif'],['hand','Manuscrite','"Bradley Hand","Noteworthy","Segoe Print","Comic Sans MS",cursive'],['mono','Machine à écrire','"American Typewriter","Courier New",ui-monospace,monospace']];
+const EV_STY=[['vif','🎨 Vif'],['doux','🌸 Doux'],['net','✏️ Épuré'],['cont','🔲 Contour']];
+const EV_THEMES=[
+ ['classique','🎨 Classique','Couleurs pleines',{evStyle:'vif',evFont:'',evFontAll:0,mTxt:1,evW:'',evUp:0,acc:'',bgk:''},'#ffffff','#1f2933'],
+ ['compact','🗞️ Compact','Petit, tout se lit',{evStyle:'vif',evFont:'cond',evFontAll:0,mTxt:0.72,evW:'gras',evUp:0,acc:'#475569',bgk:'ardoise'},'#eceff3','#1f2933'],
+ ['pastel','🌸 Pastel','Doux et arrondi',{evStyle:'doux',evFont:'round',evFontAll:1,mTxt:1,evW:'',evUp:0,acc:'#db2777',bgk:'rose'},'#fbeff3','#4a1d33'],
+ ['carnet','📒 Carnet','Écrit à la main',{evStyle:'net',evFont:'hand',evFontAll:1,mTxt:1,evW:'',evUp:0,acc:'#2f6fb3',bgk:'creme'},'#faf6ee','#2a241c'],
+ ['elegant','🖋️ Élégant','Contour et serif',{evStyle:'cont',evFont:'serif',evFontAll:1,mTxt:0.86,evW:'',evUp:0,acc:'#7c3aed',bgk:'lavande'},'#f3effb','#2b1d4a'],
+ ['lisible','🔍 Très lisible','Gros et contrasté',{evStyle:'cont',evFont:'',evFontAll:0,mTxt:1.15,evW:'gras',evUp:0,acc:'#2f5bea',bgk:''},'#ffffff','#000000'],
+ ['affiche','📣 Affiche','Majuscules, étroit',{evStyle:'vif',evFont:'cond',evFontAll:0,mTxt:0.86,evW:'gras',evUp:1,acc:'#dc2626',bgk:''},'#ffffff','#7f1d1d'],
+ ['machine','⌨️ Machine','Style tapé',{evStyle:'net',evFont:'mono',evFontAll:1,mTxt:0.86,evW:'',evUp:0,acc:'#475569',bgk:'creme'},'#faf6ee','#2a241c']];
+function evThemeOn(t){const nz=v=>(v==null||v===''||v===0||v==='0')?'':String(v);return Object.keys(t[3]).every(k=>nz(S[k])===nz(t[3][k]))}
+function evsApply(){
+ const b=document.body,cl=document.documentElement.classList,st=document.documentElement.style;const sty=S.evStyle||'vif';
+ if(b){b.classList.toggle('evs-vif',sty==='vif');b.classList.toggle('evs-net',sty==='net');b.classList.toggle('evs-cont',sty==='cont')}
+ const f=EV_FONTS.find(x=>x[0]===(S.evFont||''));if(f&&f[2])st.setProperty('--evff',f[2]);else st.removeProperty('--evff');
+ cl.toggle('ff-all',!!(f&&f[2]&&+S.evFontAll));cl.toggle('ff-cond',S.evFont==='cond');
+ const m=+S.mTxt||1;st.setProperty('--evs',m);st.setProperty('--evl',Math.max(.86,m));
+ cl.toggle('evw-fin',S.evW==='fin');cl.toggle('evw-gras',S.evW==='gras');cl.toggle('evup',!!+S.evUp);
+}
+function evPrevHTML(){
+ const cs=(S.cats||[]).map(c=>c.color).filter(Boolean);const C=i=>cs[i%Math.max(1,cs.length)]||['#2f5bea','#16a34a','#db2777','#ea580c'][i%4];
+ const mx=+S.mTxt||1,tFs=(isTablet()?0.74:0.62)*mx;
+ const ml=(t,i)=>'<i class="ml" style="--c:'+C(i)+';--ink:'+inkOn(C(i))+'">'+esc(t)+'</i>';
+ const day=(n,arr)=>'<div class="evp-d"><small>'+n+'</small><div class="mcol" style="--ln:2;font-size:'+tFs+'rem">'+arr.join('')+'</div></div>';
+ const band='<i class="mband" style="--c:'+C(3)+';--ink:'+inkOn(C(3))+';font-size:'+(0.68*mx)+'rem">🏖️ Vacances</i>';
+ const ev=(t,h,i)=>'<div class="ev" style="--c:'+C(i)+';--ink:'+inkOn(C(i))+'"><b>'+esc(t)+'</b><small>'+h+'</small></div>';
+ return '<div class="evp"><div class="evp-cap">Mois</div><div class="evp-m">'+day('Lun 12',[ml('Dentiste Léa',0),ml('Réunion parents',1)])+day('Mar 13',[band,ml('Foot Tom',2)])+day('Mer 14',[band,ml('Anniversaire Mamie',3),ml('Piscine',0)])+day('Jeu 15',[ml('Courses',1)])+'</div>'+
+  '<div class="evp-cap">Semaine et jour</div><div class="evp-w wk">'+ev('Dentiste Léa','10:00 – 11:00',0)+ev('Réunion budget','14:00 – 15:30',1)+'</div>'+
+  '<div class="evp-cap">Liste</div><div class="evp-l"><div class="row"><div class="rt"><b>18:30</b><small>19:30</small></div><span class="bar" style="--c:'+C(2)+'"></span><div class="rx"><b>Foot Tom</b><small>Stade municipal</small></div></div></div></div>';
+}
+function evStyleCard(seg){
+ const th='<div class="thm">'+EV_THEMES.map(t=>'<button type="button" data-act="ev-theme" data-v="'+t[0]+'" class="'+(evThemeOn(t)?'on':'')+'" style="--tb:'+t[4]+';--tt:'+t[5]+'">'+t[1]+'<small>'+t[2]+'</small><i><b style="--c:'+(t[3].acc||'#2f6fb3')+'"></b><b style="--c:#16a34a"></b><b style="--c:#ea580c"></b></i></button>').join('')+'</div>';
+ const fnt='<div class="chips fnt">'+EV_FONTS.map(f=>'<button type="button" class="chip'+((S.evFont||'')===f[0]?' on':'')+'" data-act="set" data-k="evFont" data-v="'+f[0]+'" style="--f:'+(f[2]||'inherit').replace(/"/g,'&quot;')+'">'+f[1]+'</button>').join('')+'</div>';
+ return '<div class="card" id="evs-card"><h3>✨ Style des rendez-vous</h3><p class="mut" style="margin-top:0">Choisis un thème tout prêt, puis ajuste comme tu veux. L’aperçu change tout de suite.</p>'+evPrevHTML()+
+  '<span class="lbl">Thèmes tout prêts</span>'+th+
+  '<div class="set-row"><span class="lbl">Style</span>'+seg('evStyle',EV_STY,S.evStyle||'vif')+'</div>'+
+  '<span class="lbl">Écriture</span>'+fnt+
+  (S.evFont?'<div class="set-row"><span class="lbl">Écriture pour</span>'+seg('evFontAll',[[0,'Les rendez-vous'],[1,'Toute l’appli']],+S.evFontAll?1:0)+'</div>':'')+
+  '<div class="set-row"><span class="lbl">Taille du texte des rendez-vous</span>'+seg('mTxt',[[0.72,'Mini'],[0.86,'Petit'],[1,'Normal'],[1.15,'Grand']],S.mTxt||1)+'</div>'+
+  '<div class="set-row"><span class="lbl">Épaisseur</span>'+seg('evW',[['fin','Fin'],['','Normal'],['gras','Gras']],S.evW||'')+'</div>'+
+  '<div class="set-row"><span class="lbl">Majuscules</span>'+seg('evUp',[[0,'Non'],[1,'Oui']],+S.evUp?1:0)+'</div>'+
+  '<p class="mut" style="font-size:.8rem;margin:.1rem 0 .4rem">« Mini » ou « Petit » + « Étroite » affichent le plus de lettres dans le mois. Les écritures utilisent les polices de ton appareil : sur Android ou ordinateur, « Manuscrite » et « Machine » peuvent être un peu différentes.</p>'+
+  '<button class="btn blk sm" data-act="ev-theme" data-v="classique">Revenir au style d’origine</button></div>';
+}
 function applyLook(dark){
  const st=document.documentElement.style,cl=document.documentElement.classList;
  const P=['--accent','--on-accent','--accent-soft','--todaybg','--todayc','--bg','--surface','--surface2','--line','--line2','--wec','--holc','--vacc'];
@@ -4016,7 +4112,7 @@ function applyLook(dark){
  if(S.weCol)st.setProperty('--wec',lkA(S.weCol,dark?.24:.18));
  st.setProperty('--holc',lkA(dark?'#ff6b5f':'#d92d20',dark?.16:.09));
  st.setProperty('--vacc',/^#[0-9a-f]{6}$/i.test(S.vacCol||'')?(dark?lkMix(S.vacCol,'#ffffff',.15):S.vacCol):'#f59e0b');
- cl.toggle('dst-big',S.dsty==='big');cl.toggle('dst-circle',S.dsty==='circle');
+ evsApply();cl.toggle('dst-big',S.dsty==='big');cl.toggle('dst-circle',S.dsty==='circle');
  const m=$('meta[name=theme-color]');if(m)m.content=dark?(S.bgk&&bg?bg[3]:'#161b22'):(S.acc||'#2f6fb3');
 }
 /* jours fériés français (fixes + Pâques, Ascension, Pentecôte) */
@@ -5441,7 +5537,8 @@ function settingsView(){
   '<div class="set-row"><span class="lbl">Panneau de droite (iPad paysage, ordinateur)</span>'+seg('side',[[1,'Afficher'],[0,'Masquer']],S.side===0?0:1)+'</div>'+
   ''+
   '<div class="set-row"><span class="lbl">Vue mois</span>'+seg('monthMode',[['titles','Titres'],['dots','Points + liste']],S.monthMode)+'</div>'+
-  '<div class="set-row"><span class="lbl">Texte des événements dans le mois</span>'+seg('mTxt',[[0.86,'Petit'],[1,'Normal'],[1.15,'Grand']],S.mTxt||1)+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">« Petit » affiche plus de lettres par ligne. Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</p></div>';
+  '<p class="mut" style="font-size:.82rem;margin:.3rem 0 .2rem">Style, écriture et taille des rendez-vous : carte « ✨ Style des rendez-vous » juste en dessous.</p></div>';
+ h+=evStyleCard(seg);
  h+=lookCard(seg);
  h+=vacCard();
  h+=sec('s-agenda','Mon agenda');
@@ -5511,6 +5608,7 @@ function openHelp(hist){
  h+=d('☑ Tâches','<ul><li><b>🖨 Imprimer</b> : « La semaine en agenda » donne une page A4 paysage avec les 7 jours et leurs tâches (même celles qui reviennent), les tâches en retard et sans date ; ou « La liste à cocher ». Le filtre (liste, personne) choisi en haut s’applique.</li><li><b>Retirer une date</b> : dans la tâche, bouton « ✕ » à côté de la date.</li><li><b>Plusieurs personnes</b> : dans une tâche, « Qui s’en occupe » accepte plusieurs prénoms. La première qui la fait la coche.</li><li><b>Suivi</b> : en cochant, ton prénom et l’heure sont notés. Touche « 📝 Ajouter une note » si besoin. L’onglet <b>📜 Suivi</b> montre tout ce qui a été fait, par qui et quand : filtre par groupe (Famille, Travail…), par liste et par personne, export Excel. ⚙ dans le Suivi range chaque liste dans un groupe. Pratique pour une liste de travail partagée avec des collègues.</li><li><b>🗄 Archiver</b> les tâches faites : elles quittent les listes et restent dans le Suivi.</li><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
  h+=d('Lisibilité du mois','<ul><li>Les mots longs sont coupés par syllabes, avec un tiret.</li><li><b>Réglages → Affichage → Texte des événements dans le mois</b> : Petit (plus de lettres par ligne), Normal ou Grand.</li><li>Pour lire un titre en entier : semaine en mode Liste, ou téléphone en paysage.</li></ul>');
+ h+=d('Style des rendez-vous (thèmes, écriture, taille)','<ul><li><b>Réglages → ✨ Style des rendez-vous</b> : touche un <b>thème tout prêt</b> (Compact, Pastel, Carnet…), il règle tout d’un coup. L’aperçu en haut montre le mois, la semaine et la liste.</li><li><b>Style</b> : Vif (couleur pleine), Doux (fond pâle), Épuré (point de couleur), Contour (cadre).</li><li><b>Écriture</b> : la forme des lettres, pour les rendez-vous seulement ou toute l’appli. Elle utilise les polices de ton appareil : sur iPhone « Manuscrite » et « Machine à écrire » sont les plus marquées.</li><li><b>Taille</b> : « Mini » + « Étroite » montrent le plus de lettres dans le mois. Fonctionne aussi en semaine, jour et listes.</li><li>« Revenir au style d’origine » en bas de la carte.</li></ul>');
  h+=d('Apparence (couleurs)','<ul><li><b>Réglages → Apparence</b> : couleur de l’appli, teinte du fond, couleur des week-ends, jours fériés en rouge et style des numéros de date.</li><li>L’aperçu en haut de la carte change immédiatement.</li><li>Le bouton du bas remet tout par défaut.</li></ul>');
  h+=d('Aide à l’adresse','<ul><li>Dans « Lieu », après 4 lettres, des adresses de France sont proposées : touche la bonne.</li><li>Facultatif et désactivé par défaut : à l’activation, ce que tu tapes dans « Lieu » est envoyé au service public Base Adresse Nationale. Rien d’autre ne sort de ton téléphone.</li><li>Adresse fausse, étrangère ou hors connexion : ton texte est gardé tel quel.</li></ul>');
  h+=d('Modèles et garde alternée','<ul><li><b>Modèle</b> : dans la fiche d’un événement, touche « Enregistrer comme modèle ». Ensuite, dans « Nouvel événement », touche le modèle : tout est rempli, tu changes seulement la date.</li><li><b>Garde alternée</b> : touche « Garde alternée… » (dans Nouvel événement ou Réglages → Modèles), choisis le rythme, les jours et heures de début et de fin, à partir de quand et jusqu’à quand. Les gardes sont créées d’un coup.</li><li><b>Vacances</b> : ajoute une période (du… au…) avec « Pas de garde », « Garde toute la période », « 1re moitié » ou « 2e moitié » : les gardes normales de la période sont remplacées.</li><li>Pour changer une seule garde, ouvre-la et choisis « Cette occurrence seulement ».</li><li>Gérer ou supprimer un modèle : Réglages → Modèles et garde alternée.</li></ul>');
@@ -5819,7 +5917,7 @@ function tick(){
 /* ---------- Actions ---------- */
 function setSetting(k,v){
  S[k]=v;saveSet();
- if(['theme','scale','acc','bgk','weCol','dsty','holi','vacCol'].includes(k))setTheme();
+ if(['theme','scale','acc','bgk','weCol','dsty','holi','vacCol','evStyle','evFont','evFontAll','mTxt','evW','evUp'].includes(k))setTheme();
  if(k.indexOf('vac')===0){vacReset();if(k==='vacZone'&&S.vacOn&&S.vacNet)vacFetch(true)}
  render();
 }
@@ -6056,6 +6154,7 @@ async function act(a,el,e){
   case 'vac-add':vacAddMan();break;
   case 'vac-edit':vacAddMan(+ds_.i);break;
   case 'vac-del':{const x=(S.vacMan||[])[+ds_.i];if(!x)break;const r=await ask({title:'Supprimer cette période ?',text:x.n+' : du '+fLongY(x.a)+' au '+fLongY(x.b),btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){S.vacMan=S.vacMan.filter((_,k)=>k!==+ds_.i);saveSet();vacReset();render()}break}
+  case 'ev-theme':{const t=EV_THEMES.find(x=>x[0]===ds_.v);if(t){Object.assign(S,t[3]);saveSet();setTheme();render();toast('Thème « '+t[1].replace(/^\S+ /,'')+' »')}break}
   case 'set':{const v=ds_.v;setSetting(ds_.k,v==='null'?null:(v!==''&&!isNaN(+v)?+v:v));break}
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
