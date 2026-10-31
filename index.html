@@ -291,6 +291,7 @@ textarea.in{min-height:5rem;resize:vertical}
 .warn b{display:block;margin-bottom:.25rem}
 .warn ol{margin:.4rem 0 0;padding-left:1.2rem}
 .catrow{display:flex;align-items:center;gap:.5rem;margin:.45rem 0}
+.agv{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.2rem 0 .5rem;font-size:.85rem}.agv .seg{flex:1;min-width:14rem}.agv .seg button{font-size:.78rem;padding:.35rem .3rem}
 .catsh{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin:-.15rem 0 .7rem 3.1rem}.catsh small{color:var(--muted);font-size:.75rem;font-weight:700}.catsh .chip{font-size:.75rem;padding:.2rem .55rem}
 .catrow input[type=color]{width:2.6rem;height:2.6rem;border:0;padding:0;background:none;border-radius:.7rem;flex:none}
 .fg-dis{opacity:.35;pointer-events:none}
@@ -433,14 +434,18 @@ details.dev[open] summary{margin-bottom:.5rem}
   .btn:hover{filter:brightness(.97)}
   .selrow:hover,.rowx:hover{background:var(--surface2)}
 }
-/* réglages sur 2 colonnes quand il y a la place */
-@media(min-width:1000px){
-  .sgrid{columns:2 22rem;column-gap:1.2rem;padding:0 .8rem}
-  .sgrid .card{break-inside:avoid}
-  .sgrid .sect,.sgrid .jump{column-span:all}
-  .sgrid details.opt-wrap{column-span:all;break-inside:avoid}
-  .sgrid details.opt-wrap[open]{display:grid;grid-template-columns:1fr 1fr;gap:0 1.2rem;align-items:start}
-  .sgrid details.opt-wrap>summary{grid-column:1/-1}
+/* réglages : une seule colonne centrée sur grand écran (les colonnes CSS dédoublaient des cartes sur iPad) */
+@media(min-width:900px){
+  .sgrid{max-width:46rem;margin:0 auto;padding:0 .8rem}
+}
+/* intercalaires des listes à l'horizontale sur iPad et ordinateur : le nom se lit en entier */
+@media(min-width:900px){
+  body .co-tabs{width:9.5rem}
+  body .co-tab{writing-mode:horizontal-tb;flex-direction:column;align-items:flex-start;gap:.15rem;min-height:0;max-height:none;width:100%;padding:.5rem .6rem;white-space:normal;text-align:left;border-radius:0 .7rem .7rem 0;position:relative}
+  body .co-tab.on{width:100%}
+  body .co-tn{white-space:normal;overflow-wrap:anywhere;line-height:1.2;padding-right:1.6rem}.co-tw{white-space:normal;line-height:1.2}
+  body .co-tc{position:absolute;top:.45rem;right:.4rem}
+  body .co-tadd{align-items:center;min-height:2.2rem}
 }
 /* petits écrans en paysage : on gagne de la hauteur */
 @media(max-height:480px) and (orientation:landscape){
@@ -1003,12 +1008,19 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.16.0';
+const APP_VERSION='2.17.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.17.0',d:'31/10/2026',items:[
+  '📅 Catégories communes : quand tu partages une catégorie (Réglages → Catégories), elle apparaît chez l’autre avec son nom et sa couleur (« 📥 de Damien »), ses rendez-vous s’affichent comme les siens, et il ou elle peut en ajouter, modifier ou supprimer : tout revient chez toi. Vous partagez ainsi un vrai agenda à deux, dans les deux sens.',
+  '👁 Dans Réglages → Catégories, pour chaque personne : « voit les détails » ou « seulement occupé ». En mode « occupé », l’autre ne voit que les créneaux (« Damien · occupé ») sans pouvoir modifier.',
+  '🔒 Les rendez-vous « Privé », les notes et les rappels restent toujours sur ton téléphone.']},
+ {v:'2.16.1',d:'31/10/2026',items:[
+  '📱 iPad : les Réglages s’affichent sur une seule colonne bien rangée (avant, sur iPad, des cartes apparaissaient en double ou coupées).',
+  '📑 iPad et ordinateur : les intercalaires des listes (Tâches et Courses) sont plus larges et écrits à l’horizontale : on lit le nom de chaque liste, qui la partage et le nombre d’éléments.']},
  {v:'2.16.0',d:'31/10/2026',items:[
   '🧳 Programme du voyage en grille horaire : de 7 h à 23 h, en cases de 30 minutes (matin, après-midi, soir colorés). Touche une case pour ajouter une activité et choisis sa durée (2 h = 4 cases). Fais glisser un bloc pour le déplacer (même sur un autre jour), tire la poignée du bas pour changer la durée, touche-le pour le modifier. Deux activités en même temps se mettent côte à côte. Les repas apparaissent en léger.',
   '🧳 Plusieurs jours côte à côte sur iPad, un jour à la fois sur iPhone (flèches). Bouton « Grille / Résumé » pour revenir à la vue Matin / Après-midi / Soir. Ce qui était déjà noté passe tout seul dans la grille.',
@@ -1505,7 +1517,7 @@ function cleanEvent(x){
  if(!x||typeof x!=='object')return null;
  const ev={id:String(x.id||uid()),title:String(x.title||'Sans titre').slice(0,200),allDay:!!x.allDay,start:x.start,end:x.end||x.start,
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
-  cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),hi:((+x.hi)||0)&7,pv:x.pv?1:0,rec:null,ex:[],alarm:null};
+  cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),hi:((+x.hi)||0)&7,pv:x.pv?1:0,mt:+x.mt||0,rec:null,ex:[],alarm:null};
  if(Array.isArray(x.mids)&&x.mids.length>1)ev.mids=x.mids.map(String).slice(0,400);
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
@@ -5435,7 +5447,7 @@ function settingsView(){
  h+=sec('s-agenda','Mon agenda');
  const AGM=typeof famActive==='function'&&famUrl()?famActive():[];
  const agOn=(id,c)=>{const g=famGrant(id);return g.ag===2||(g.ag===1&&(g.agc||[]).includes(c))};
- h+='<div class="card"><h3>Catégories</h3>'+(AGM.length?'<p class="mut" style="font-size:.85rem;margin:-.2rem 0 .4rem">👥 Sous chaque catégorie, touche un prénom pour partager ses rendez-vous (famille connectée). Les rendez-vous « 🔒 Privé » ne partent jamais.</p>':'')+(S.colBy==='cal'?'<div class="warn" style="margin:0 0 .5rem;font-size:.86rem"><b>Les couleurs de l’agenda viennent d’Outlook</b>Le réglage « Couleur des événements » est sur « Calendrier Outlook » : l’agenda ignore les couleurs ci-dessous.<button class="btn sm blk" data-act="set" data-k="colBy" data-v="cat" style="margin-top:.4rem">Utiliser les couleurs des catégories</button></div>':'')+S.cats.map((c,i)=>'<div class="catrow"><button type="button" class="catcol" data-act="catcol" data-i="'+i+'" style="background:'+esc(c.color)+'" aria-label="Couleur de '+esc(c.name)+'"></button><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button><button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button></div>'+(AGM.length?'<div class="catsh"><small>👥 Partager avec</small>'+AGM.map(id=>{const gg=grpOf(id);return '<button type="button" class="chip'+(agOn(id,c.id)?' on':'')+'" data-act="cat-sh" data-c="'+esc(c.id)+'" data-m="'+esc(id)+'">'+(agOn(id,c.id)?'✓ ':'')+esc(famName(id))+(famAll().length>1&&gg?' <small>'+esc(gg.em||'')+' '+esc(gg.nm||'')+'</small>':'')+'</button>'}).join('')+'</div>':'')).join('')+
+ h+='<div class="card"><h3>Catégories</h3>'+(AGM.length?'<p class="mut" style="font-size:.85rem;margin:-.2rem 0 .4rem">👥 Sous chaque catégorie, touche un prénom pour partager ses rendez-vous (famille connectée). Les rendez-vous « 🔒 Privé » ne partent jamais. La catégorie devient commune : l’autre la voit et peut y ajouter des rendez-vous.</p>'+AGM.map(id=>{const g=famGrant(id);return '<div class="agv"><span>👁 <b>'+esc(famName(id))+'</b> voit</span><div class="seg"><button data-act="ag-busy" data-m="'+esc(id)+'" data-v="0" class="'+(g.agb?'':'on')+'">les détails</button><button data-act="ag-busy" data-m="'+esc(id)+'" data-v="1" class="'+(g.agb?'on':'')+'">seulement « occupé »</button></div></div>'}).join(''):'')+(S.colBy==='cal'?'<div class="warn" style="margin:0 0 .5rem;font-size:.86rem"><b>Les couleurs de l’agenda viennent d’Outlook</b>Le réglage « Couleur des événements » est sur « Calendrier Outlook » : l’agenda ignore les couleurs ci-dessous.<button class="btn sm blk" data-act="set" data-k="colBy" data-v="cat" style="margin-top:.4rem">Utiliser les couleurs des catégories</button></div>':'')+S.cats.map((c,i)=>'<div class="catrow"><button type="button" class="catcol" data-act="catcol" data-i="'+i+'" style="background:'+esc(c.color)+'" aria-label="Couleur de '+esc(c.name)+'"></button><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button>'+(c.sh?'':'<button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button>')+'</div>'+(c.sh?'<div class="catsh"><small>📥 Catégorie commune de <b>'+esc(famName(c.sh))+'</b> : vous la remplissez à deux</small></div>':AGM.length?'<div class="catsh"><small>👥 Partager avec</small>'+AGM.map(id=>{const gg=grpOf(id);return '<button type="button" class="chip'+(agOn(id,c.id)?' on':'')+'" data-act="cat-sh" data-c="'+esc(c.id)+'" data-m="'+esc(id)+'">'+(agOn(id,c.id)?'✓ ':'')+esc(famName(id))+(famAll().length>1&&gg?' <small>'+esc(gg.em||'')+' '+esc(gg.nm||'')+'</small>':'')+'</button>'}).join('')+'</div>':'')).join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
  h+=famCard();
  h+=sec('s-cal','Calendrier du téléphone et autres calendriers')+phoneCard();
@@ -5494,7 +5506,7 @@ function openHelp(hist){
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>⋯ Options</b> (en haut) : dans Recettes, nouvelle recette, importer avec un lien, coller, recevoir, envoyer ; dans Menu, imprimer le planning de la semaine, envoyer, copier la semaine précédente.</li><li><b>Recettes rangées</b> : 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj, et 🥕 Végé / 🥩 Viande / 🐟 Poisson, plus Thermomix, 🍟 Air fryer, Rapide… L’appli devine ; corrige dans « Modifier » (Type, Régime, étiquettes).</li><li><b>📷 Photo</b> : dans une recette, « Ajouter une photo » (appareil photo ou galerie). À l’import par lien, la photo du site vient toute seule quand le site le permet.</li><li><b>Quantités</b> : « Pour − 4 + personnes » recalcule la liste des ingrédients. Les quantités écrites dans le texte des étapes ne changent pas : fie-toi à la liste (un message te le rappelle).</li><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis ⋯ Options → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
- h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>📅 Agenda partagé</b> : le plus simple, Réglages → <b>Catégories</b> : sous chaque catégorie, touche le prénom d’une personne connectée pour lui partager ces rendez-vous (✓ = partagé). Ou dans le partage avec une personne (touche son nom), « 📅 Agenda » : Rien, Certaines catégories, ou Tout. « Seulement occupé » ne montre que les créneaux, sans titre ni lieu. Ses rendez-vous s’affichent dans ton agenda à sa couleur, avec son prénom, <b>en lecture seule</b> et sans rappel chez toi ; « Copier dans mon agenda » pour en faire le tien. Les notes ne partent jamais, et un rendez-vous coché <b>🔒 Privé</b> n’est jamais partagé. Pour masquer les agendas des autres : Réglages → Famille → « Voir les agendas partagés ».</li><li><b>Consommation</b> : l’appli vérifie les nouveautés toutes les 2 min 30 quand elle est ouverte (et à chaque ouverture) et regroupe ses envois.</li><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
+ h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>📅 Catégories communes</b> : Réglages → <b>Catégories</b>, sous une catégorie, touche le prénom d’une personne connectée (✓ = partagée). Chez elle, la catégorie apparaît avec son nom, sa couleur et « (ton prénom) » ; elle voit les rendez-vous comme les siens et peut en <b>ajouter, modifier ou supprimer</b> : tout revient chez toi. En haut des Catégories, « 👁 voit les détails / seulement occupé » : en mode occupé, elle ne voit que les créneaux, sans pouvoir modifier. Les rendez-vous <b>🔒 Privé</b>, les notes et les rappels ne partent jamais. Pour qu’elle te partage aussi ses catégories, elle fait pareil de son côté.</li><li><b>Consommation</b> : l’appli vérifie les nouveautés toutes les 2 min 30 quand elle est ouverte (et à chaque ouverture) et regroupe ses envois.</li><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li><b>🖨 Imprimer</b> : « La semaine en agenda » donne une page A4 paysage avec les 7 jours et leurs tâches (même celles qui reviennent), les tâches en retard et sans date ; ou « La liste à cocher ». Le filtre (liste, personne) choisi en haut s’applique.</li><li><b>Retirer une date</b> : dans la tâche, bouton « ✕ » à côté de la date.</li><li><b>Plusieurs personnes</b> : dans une tâche, « Qui s’en occupe » accepte plusieurs prénoms. La première qui la fait la coche.</li><li><b>Suivi</b> : en cochant, ton prénom et l’heure sont notés. Touche « 📝 Ajouter une note » si besoin. L’onglet <b>📜 Suivi</b> montre tout ce qui a été fait, par qui et quand : filtre par groupe (Famille, Travail…), par liste et par personne, export Excel. ⚙ dans le Suivi range chaque liste dans un groupe. Pratique pour une liste de travail partagée avec des collègues.</li><li><b>🗄 Archiver</b> les tâches faites : elles quittent les listes et restent dans le Suivi.</li><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -6002,6 +6014,7 @@ async function act(a,el,e){
   case 'edit':{const ev=findEv(CUR.id);if(ev)openEditor({ev,occDate:CUR.date});break}
   case 'dup':{const ev=findEv(CUR.id);if(ev)dupMulti(ev,CUR.date);break}
   case 'fev-tg':S.fevHide=S.fevHide?0:1;FEV_C=null;saveSet();render();break;
+  case 'ag-busy':{const id=ds_.m,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;g.agb=ds_.v==='1'?1:0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();toast(g.agb?'👁 '+famName(id)+' ne verra que « occupé »':'👁 '+famName(id)+' voit les détails et peut ajouter des rendez-vous dans les catégories partagées',4500);break}
   case 'cat-sh':{const id=ds_.m,c=ds_.c,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;
    let L=g.ag===2?S.cats.map(x=>x.id):(g.ag===1?(g.agc||[]).slice():[]);const on=L.includes(c);L=on?L.filter(x=>x!==c):L.concat(c);
    g.agc=L;g.ag=L.length?(L.length===S.cats.length&&g.ag===2?2:1):0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();
@@ -6058,7 +6071,7 @@ async function act(a,el,e){
   case 'addcat':S.cats.push({id:'c'+uid(),name:'Nouvelle catégorie',color:'#0ea5e9'});saveSet();render();break;
   case 'delcat':{
    if(S.cats.length<=1){toast('Garde au moins une catégorie');break}
-   const c=S.cats[+ds_.i];
+   const c=S.cats[+ds_.i];if(c&&c.sh){toast('Catégorie commune de '+famName(c.sh)+' : c’est lui ou elle qui peut arrêter de la partager',4500);break}
    const r=await ask({title:'Supprimer la catégorie ?',text:'« '+c.name+' » sera supprimée. Ses événements passeront dans la dernière catégorie de la liste.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
    if(r==='y'){S.cats.splice(+ds_.i,1);saveSet();render()}
    break}
@@ -8243,14 +8256,38 @@ function famCid(id){
 function famCoArr(g){return Array.isArray(g.cos)?g.cos.slice():(g.co?['courses']:[])}
 const famCoShared=(g,lid)=>famCoArr(g).includes(lid);
 function famGrant(id){const g=grpOf(id);return Object.assign({co:0,tk:0,rp:0,bd:0,vy:0,ag:0},(g&&g.gr&&g.gr[id])||{})}
-function famAgOn(){return famAll().some(f=>Object.values(f.gr||{}).some(g=>g&&g.ag&&!g.removed))}
-/* rendez-vous envoyés à une personne : pas les privés, pas les notes ; de -30 jours à +400 jours */
-function famAgEv(g){
- if(!g||!g.ag||g.removed)return null;
- const from=add(today(),-30),to=add(today(),400),cats=new Set(Array.isArray(g.agc)?g.agc:[]);
- const L=EV.filter(e=>!e.pv&&(g.ag===2||cats.has(e.cat))&&(e.rec?(e.start<=to&&(!e.rec.until||e.rec.until>=from)):(e.end>=from&&e.start<=to))).slice(0,1500);
- return{k:'ag',busy:g.agb?1:0,ev:L.map(e=>{const o={id:e.id,title:g.agb?'':e.title,allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:g.agb?'':e.place,icon:g.agb?'':e.icon,cat:'-',hi:e.hi||0};if(e.rec)o.rec=e.rec;if(e.ex&&e.ex.length)o.ex=e.ex;if(!g.agb)o.cn=catOf(e.cat).name;return o})};
+function famAgOn(){return S.cats.some(c=>c.sh)||famAll().some(f=>Object.values(f.gr||{}).some(g=>g&&g.ag&&!g.removed))}
+/* --- catégories communes (agenda dans les deux sens) ---
+   Chez celui qui partage : catégorie « cid ». Chez l'autre : catégorie « x-<id du partageur>-cid » marquée sh.
+   Chaque événement partagé porte mt (dernière modification) ; les suppressions partent en « pierres tombales » (S.evDel). */
+const AGF=['title','allDay','start','end','startTime','endTime','place','icon','rec','ex','hi'];
+const agCore=e=>famHash({c:e.cat,f:AGF.map(k=>e[k])});
+const agTrim=a=>(Array.isArray(a)?a:[]).filter(d=>d&&d.id&&Date.now()-(d.m||0)<120*864e5).slice(-600);
+function agOwnShared(g){if(!g||!g.ag||g.removed||g.agb)return new Set();return new Set(S.cats.filter(c=>!c.sh&&(g.ag===2||(g.agc||[]).includes(c.id))).map(c=>c.id))}
+function agWin(e){const from=add(today(),-30),to=add(today(),400);return e.rec?(e.start<=to&&(!e.rec.until||e.rec.until>=from)):(e.end>=from&&e.start<=to)}
+/* avant chaque envoi : date de modification et suppressions détectées toutes seules */
+function agPrep(){
+ const U=new Set();
+ for(const f of famAll())for(const id of famMembers(f)){const m=f.mb[id];if(!m||m.x||m.self)continue;const own=agOwnShared(famGrant(id)),px='x-'+id+'-';
+  for(const e of EV)if(!e.pv&&(own.has(e.cat)||String(e.cat).indexOf(px)===0))U.add(e.id)}
+ const H=S.evH&&typeof S.evH==='object'?S.evH:(S.evH={});let ch=false;const now=Date.now();
+ for(const e of EV){if(!U.has(e.id))continue;const h=agCore(e);if(H[e.id]!==h){H[e.id]=h;e.mt=now;ch=true}}
+ for(const id of Object.keys(H))if(!U.has(id)){delete H[id];S.evDel=agTrim(S.evDel).filter(d=>d.id!==id).concat([{id,m:now}]);ch=true}
+ if(ch&&!demo){ls.set(K.data,{v:1,events:EV});ls.set(K.set,S)}
 }
+/* rendez-vous envoyés à une personne : pas les privés, pas les notes ni les rappels ; de -30 jours à +400 jours */
+function famAgEv(g,id){
+ const from=add(today(),-30),to=add(today(),400);
+ if(g&&g.ag&&!g.removed&&g.agb){const cats=new Set(Array.isArray(g.agc)?g.agc:[]);
+  const L=EV.filter(e=>!e.pv&&!String(e.cat).startsWith('x-')&&(g.ag===2||cats.has(e.cat))&&agWin(e)).slice(0,1500);
+  return{k:'ag',busy:1,ev:L.map(e=>{const o={id:e.id,title:'',allDay:e.allDay,start:e.start,end:e.end,startTime:e.startTime,endTime:e.endTime,place:'',icon:'',cat:'-',hi:e.hi||0};if(e.rec)o.rec=e.rec;if(e.ex&&e.ex.length)o.ex=e.ex;return o})}}
+ const own=agOwnShared(g),px='x-'+id+'-';
+ const cats=S.cats.filter(c=>own.has(c.id)).map(c=>({id:c.id,n:c.name,c:c.color,i:c.icon||''}));
+ const L=EV.filter(e=>!e.pv&&agWin(e)&&(own.has(e.cat)||String(e.cat).indexOf(px)===0)).slice(0,1500);
+ if(!cats.length&&!L.length)return null;
+ return{k:'ag',v:2,cats,del:agTrim(S.evDel),ev:L.map(e=>{const yours=String(e.cat).indexOf(px)===0;const o={id:e.id,mt:e.mt||0,ow:yours?'you':'me',cat:yours?String(e.cat).slice(px.length):e.cat};AGF.forEach(k=>{if(e[k]!=null&&e[k]!=='')o[k]=e[k]});if(!o.ex||!o.ex.length)delete o.ex;return o})};
+}
+
 function famGSum(g){
  if(g.self)return 'tout (autre appareil)';
  const L=[];if(g.ag)L.push('Agenda'+(g.ag===1?' (certaines catégories)':'')+(g.agb?' en « occupé »':''));const ca=Array.isArray(g.cos)?g.cos:(g.co?['courses']:[]);if(ca.length)L.push(ca.length===1&&(ca[0]==='courses'||ca[0]==='Courses')?'Courses':'Courses ('+ca.map(x=>x==='courses'?'Courses':(tkLists().find(l=>l.id===x)||{n:x}).n).join(', ')+')');if(g.tk===2)L.push('Tâches');else if(g.tk===1)L.push('ses tâches');if(g.rp)L.push('Repas');if(g.bd===2)L.push('Anniversaires');else if(g.bd===1){const n=Array.isArray(g.bds)?g.bds.length:(g.nbd||0);L.push(n+' anniversaire'+(n>1?'s':''))}if(g.vy)L.push('Voyages');
@@ -8292,7 +8329,7 @@ function famChan(id){
  const used=new Set();tk.forEach(k=>tkWho(k).forEach(x=>used.add(x)));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
  const pp=ppl().filter(p=>used.has(p.id)).map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',c:p.c}));
  const delOk=d=>{const o=famOrg(d.id);return mySelf(o)||o===id};
- return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:famAgEv(g),
+ return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:famAgEv(g.removed?null:g,id),
   tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>tkPack(k)),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
   rc:{k:'rc',rc:rc.map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn,ppl:pp},
@@ -8324,13 +8361,39 @@ function famGo(go){
  if(go==='mn'){RV.tab='menu';V.view='repas';render();return}
  if(go==='vy'){V.view='voyages';render();return}
 }
+function agMerge(from,A){
+ const px='x-'+from+'-',H=S.evH&&typeof S.evH==='object'?S.evH:(S.evH={});let n=0,chE=false;
+ const own=agOwnShared(famGrant(from));
+ // catégories reçues
+ const keep=new Set();
+ for(const c of (A.cats||[])){if(!c||!c.id)continue;const id=px+String(c.id).slice(0,40);keep.add(id);const loc=S.cats.find(x=>x.id===id);const o={id,name:(String(c.n||'Catégorie').slice(0,24)+' ('+String(famName(from)||'').split(' ')[0].slice(0,12)+')'),color:/^#[0-9a-f]{6}$/i.test(c.c)?c.c:'#64748b',sh:from};if(c.i)o.icon=iconClean(c.i);
+  if(!loc){S.cats.push(o);n++}else if(loc.name!==o.name||loc.color!==o.color||(loc.icon||'')!==(o.icon||'')){Object.assign(loc,o);if(!o.icon)delete loc.icon}}
+ const gone=S.cats.filter(c=>c.sh===from&&!keep.has(c.id)).map(c=>c.id);
+ if(gone.length){S.cats=S.cats.filter(c=>!gone.includes(c.id));const b=EV.length;EV=EV.filter(e=>!gone.includes(e.cat));if(EV.length!==b){chE=true;n++}}
+ const tomb=agTrim(S.evDel);
+ for(const x of (A.ev||[])){if(!x||!x.id)continue;
+  const cat=x.ow==='you'?String(x.cat):px+String(x.cat);
+  if(x.ow==='you'?!own.has(cat):!keep.has(cat))continue;
+  if(tomb.some(d=>d.id===x.id&&d.m>=(x.mt||0)))continue;
+  const loc=EV.find(e=>e.id===x.id);
+  if(!loc){const ev=cleanEvent(Object.assign({},x,{cat,alarm:null,note:''}));if(!ev)continue;ev.mt=x.mt||0;EV.push(ev);H[ev.id]=agCore(ev);n++;chE=true}
+  else if((x.mt||0)>(loc.mt||0)){const ev=cleanEvent(Object.assign({},loc,x,{cat,id:loc.id,note:loc.note,alarm:loc.alarm}));if(!ev)continue;AGF.concat(['cat']).forEach(k=>{loc[k]=ev[k]});if(!x.ex)loc.ex=[];if(!x.rec)loc.rec=null;loc.mt=x.mt;H[loc.id]=agCore(loc);n++;chE=true}
+ }
+ for(const d of (A.del||[])){const loc=EV.find(e=>e.id===d.id);if(!loc||(loc.mt||0)>d.m)continue;if(!(own.has(loc.cat)||String(loc.cat).indexOf(px)===0))continue;EV=EV.filter(e=>e.id!==d.id);delete H[d.id];n++;chE=true}
+ if(chE&&!demo)ls.set(K.data,{v:1,events:EV});
+ return n;
+}
 function famApply(from,P){
  const f=FG,me=f.me,om=S.forg,cats=new Set();let n=0;
  const prev=f.rg[from]||{};f.rg[from]=P.g||{};
  const det=famDetail(P);
  const run=(Q,lbl)=>{if(!Q)return;const s=shMerge(Object.assign({app:'agd',v:1,from:P.from||'',at:Date.now()},Q),true);const x=s.add+s.upd+s.del;if(x){n+=x;cats.add(lbl)}};
  {const F=S.fev||(S.fev={});const was=F[from];
-   if(P.ag&&Array.isArray(P.ag.ev)){const ev=P.ag.ev.slice(0,1500).filter(x=>x&&x.id);const old=new Set(((was&&was.ev)||[]).map(x=>x.id));const nw=ev.filter(x=>!old.has(x.id)).length;
+   if(P.ag&&P.ag.v===2){if(was){delete F[from];FEV_C=null}const k=agMerge(from,P.ag);if(k){n+=k;cats.add('Agenda')}}
+   else if(!P.ag&&S.cats.some(c=>c.sh===from)){const k=agMerge(from,{cats:[],ev:[],del:[]});if(k){n+=k;cats.add('Agenda')}}
+   if(P.ag&&P.ag.v!==2&&S.cats.some(c=>c.sh===from))agMerge(from,{cats:[],ev:[],del:[]});
+   if(P.ag&&P.ag.v===2){}
+   else if(P.ag&&Array.isArray(P.ag.ev)){const ev=P.ag.ev.slice(0,1500).filter(x=>x&&x.id);const old=new Set(((was&&was.ev)||[]).map(x=>x.id));const nw=ev.filter(x=>!old.has(x.id)).length;
     const sig=JSON.stringify(ev)+(P.ag.busy?1:0);if(!was||was.sig!==famHash({s:sig})){F[from]={n:String(P.from||'').slice(0,30),at:Date.now(),busy:P.ag.busy?1:0,ev,sig:famHash({s:sig})};FEV_C=null;if(was){n+=Math.max(1,nw);cats.add('Agenda')}else{n+=ev.length||1;cats.add('Agenda')}}}
    else if(was){delete F[from];FEV_C=null;n++;cats.add('Agenda')}}
  run(P.tk,'Tâches');run(P.rc,'Recettes');if(P.mn&&Object.keys(P.mn.mn||{}).length)run(P.mn,'Menu');run(P.bd,'Anniversaires');run(P.vy,'Voyages');
@@ -8356,7 +8419,7 @@ const famHash=o=>{const s=JSON.stringify(Object.assign({},o,{at:0,from:''}));let
 function famSchedule(){if(!fam()||!famUrl()||demo)return;clearTimeout(FAM_T);FAM_T=setTimeout(()=>famPush(),6000)}
 async function famPush(){
  if(!famUrl()||FAM_BUSY||demo||!famAll().length)return;
- FAM_BUSY=true;
+ FAM_BUSY=true;try{agPrep()}catch(e){}
  try{for(const g of famAll())await famPushG(g);FAM_ERR=''}
  catch(e){FAM_ERR=e.message||'hors connexion'}
  finally{FAM_BUSY=false}
