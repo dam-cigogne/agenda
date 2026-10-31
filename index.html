@@ -1053,12 +1053,15 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.19.0';
+const APP_VERSION='2.19.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.19.1',d:'31/10/2026',items:[
+  '🔧 Partage avec la famille plus sûr quand tu as deux appareils : chaque choix de partage garde sa date, et un vieux réglage de ton iPad (« rien ») ne peut plus effacer ce que ton iPhone partage. Ton iPad reprend les choix de ton iPhone.',
+  '🔧 Pendant la mise à jour des deux appareils, l’agenda partagé ne s’arrête plus d’être envoyé.']},
  {v:'2.19.0',d:'31/10/2026',items:[
   '📱 L’agenda se synchronise maintenant entre tes propres appareils (iPhone, iPad…) reliés par « C’est un autre appareil à moi » : tous tes rendez-vous dans les deux sens, y compris les privés, les notes, les rappels et les catégories communes reçues (celles de Nora…). Ajouter, modifier ou supprimer sur l’un se retrouve sur l’autre.',
   '👥 Les personnes avec qui tu partages ne voient pas tes rendez-vous en double : un seul de tes appareils leur envoie l’agenda, ce que tu fais sur l’autre passe par lui.',
@@ -6124,10 +6127,10 @@ async function act(a,el,e){
   case 'edit':{const ev=findEv(CUR.id);if(ev)openEditor({ev,occDate:CUR.date});break}
   case 'dup':{const ev=findEv(CUR.id);if(ev)dupMulti(ev,CUR.date);break}
   case 'fev-tg':S.fevHide=S.fevHide?0:1;FEV_C=null;saveSet();render();break;
-  case 'ag-busy':{const id=ds_.m,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;g.agb=ds_.v==='1'?1:0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();toast(g.agb?'👁 '+famName(id)+' ne verra que « occupé »':'👁 '+famName(id)+' voit les détails et peut ajouter des rendez-vous dans les catégories partagées',4500);break}
+  case 'ag-busy':{const id=ds_.m,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;g.agb=ds_.v==='1'?1:0;f.gr[id]=g;g.t=Date.now();f.grAt=Date.now();saveSet();render();toast(g.agb?'👁 '+famName(id)+' ne verra que « occupé »':'👁 '+famName(id)+' voit les détails et peut ajouter des rendez-vous dans les catégories partagées',4500);break}
   case 'cat-sh':{const id=ds_.m,c=ds_.c,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;
    let L=g.ag===2?S.cats.map(x=>x.id):(g.ag===1?(g.agc||[]).slice():[]);const on=L.includes(c);L=on?L.filter(x=>x!==c):L.concat(c);
-   g.agc=L;g.ag=L.length?(L.length===S.cats.length&&g.ag===2?2:1):0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();
+   g.agc=L;g.ag=L.length?(L.length===S.cats.length&&g.ag===2?2:1):0;f.gr[id]=g;g.t=Date.now();f.grAt=Date.now();saveSet();render();
    toast((on?'📅 « '+catOf(c).name+' » n’est plus partagée avec ':'📅 « '+catOf(c).name+' » partagée avec ')+famName(id),3500);break}
   case 'catcol':{const i=+ds_.i,c=S.cats[i];if(!c)break;
    const PAL=['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#b45309','#a3a3a3','#64748b','#fda4af','#fdba74','#86efac','#93c5fd'];
@@ -7275,7 +7278,7 @@ async function coShare(){
  const pr=ask({title:'👥 Partager « '+tl.n+' »',html:'<p style="margin:.2rem 0 .5rem">Les personnes cochées voient cette liste et peuvent ajouter ou cocher des articles. Les changements arrivent chez tout le monde.</p>'+mem.map(id=>'<div class="tgl-row"><b>👤 '+esc(famWho(id))+'</b><label class="tgl"><input type="checkbox" data-cs="'+esc(id)+'"'+(on.has(id)?' checked':'')+'></label></div>').join('')+'<div style="height:.5rem"></div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.onchange=e=>{const id=e.target.dataset&&e.target.dataset.cs;if(id)e.target.checked?on.add(id):on.delete(id)};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
- for(const id of mem){const f=grpOf(id);const g=famGrant(id);const set=new Set(famCoArr(g));on.has(id)?set.add(cur):set.delete(cur);g.cos=[...set];g.co=g.cos.length?1:0;delete g.removed;f.gr[id]=g;f.grAt=Date.now()}
+ for(const id of mem){const f=grpOf(id);const g=famGrant(id);const set=new Set(famCoArr(g));on.has(id)?set.add(cur):set.delete(cur);g.cos=[...set];g.co=g.cos.length?1:0;delete g.removed;f.gr[id]=g;g.t=Date.now();f.grAt=Date.now()}
 saveSet();render();toast(on.size?'« '+tl.n+' » partagée avec '+[...on].map(famName).join(', '):'« '+tl.n+' » n’est plus partagée',4500);
 }
 async function coTplManage(){
@@ -8379,7 +8382,7 @@ const selfOn=()=>famAll().some(f=>Object.keys(f.mb||{}).some(id=>f.mb[id].self&&
 const agFull=e=>{const o={};Object.keys(e).sort().forEach(k=>{if(k!=='mt')o[k]=e[k]});return famHash({e:o})};
 const agH=e=>selfOn()?agFull(e):agCore(e);
 /* un seul de mes appareils envoie l'agenda aux autres personnes (le plus ancien dans le groupe), sinon catégories en double chez elles */
-function agRelay(f){const mj=+f.jt||0;for(const id of Object.keys(f.mb||{})){const m=f.mb[id];if(!m.self||m.x)continue;const j=+m.jt||0;if(j<mj||(j===mj&&id<f.me))return false}return true}
+function agRelay(f){const mj=+f.jt||0;for(const id of Object.keys(f.mb||{})){const m=f.mb[id];if(!m.self||m.x)continue;if(m.jt==null)continue;const j=+m.jt||0;if(j<mj||(j===mj&&id<f.me))return false}return true}
 function famSelfAg(){
  const now=Date.now();
  let L=EV.filter(e=>agWin(e)||(e.mt&&now-e.mt<45*864e5));
@@ -8547,7 +8550,7 @@ function famApply(from,P){
    else if(was){delete F[from];FEV_C=null;n++;cats.add('Agenda')}}
  run(P.tk,'Tâches');run(P.rc,'Recettes');if(P.mn&&Object.keys(P.mn.mn||{}).length)run(P.mn,'Menu');run(P.bd,'Anniversaires');run(P.vy,'Voyages');
  for(const [id,o] of Object.entries(P.og||{})){if(id==='courses')continue;if(o===me)delete om[id];else om[id]=String(o).slice(0,12)}
- if(P.g&&P.g.self&&P.gr){const newer=(P.gra||0)>(f.grAt||0);for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;if(!newer&&f.gr[i])continue;const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}if(newer)f.grAt=P.gra}
+ if(P.g&&P.g.self&&P.gr){const newer=(P.gra||0)>(f.grAt||0);const sj=f.mb[from]&&f.mb[from].jt,older=sj!=null&&+sj<(+f.jt||0);for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;if(f.gr[i]){const rt=+g.t||0,lt=+f.gr[i].t||0;if(rt<lt||(rt===lt&&!older))continue} /* chaque choix de partage a sa date : le plus récent gagne, personne par personne */const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}if(newer)f.grAt=P.gra}
  const R=P.rm||{};
  // Éléments d'avant la v2 (sans origine connue) : le créateur de la famille les garde, les autres choisissent (famLegacyAsk)
  const legacyOk=!f.own&&!f.icAt&&!(f.lgDone&&f.lgDone[from]);
@@ -8627,7 +8630,7 @@ async function famPullG(f,out,J){
   let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
   const was=f.mb[M.id];
-  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||(+was.jt||0)!==(+M.jt||0)){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:+M.jt||0,pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
+  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||String(was.jt)!==String(M.jt==null?null:+M.jt)){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:M.jt==null?null:+M.jt,pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
   if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
  }
  for(const d of docs){
@@ -8686,7 +8689,7 @@ async function famGrantEdit(id){
  if(g.tk===1&&!cid){toast('Choisis '+m.n+' dans tes contacts pour « Seulement les siennes »',5000)}
  if(self){m.self=1;f.sent.m='';saveSet();render();toast('📱 Appareil relié : tout se synchronise',4500);return}
  if(m.self){delete m.self;f.sent.m=''}
- g.cos=[...cos];g.co=g.cos.length?1:0;f.gr[id]=g;m.cid=cid;saveSet();render();f.grAt=Date.now();
+ g.cos=[...cos];g.co=g.cos.length?1:0;f.gr[id]=g;g.t=Date.now();m.cid=cid;saveSet();render();f.grAt=Date.now();
  if(g.ag===1){await famAgPick(id);if(g.bd!==1)return}
  if(g.bd===1)return famBdPick(id);
  toast('Partage avec '+m.n+' : '+famGSum(g),4500);
@@ -8698,7 +8701,7 @@ async function famAgPick(id){
  const pr=ask({title:'📅 Agenda pour '+m.n,html:'<p style="margin:.2rem 0 .4rem">Coche les catégories que '+esc(m.n)+' verra. Les rendez-vous « 🔒 privé » ne partent jamais.</p><div style="max-height:46vh;overflow:auto;margin:0 0 .6rem">'+S.cats.map(c=>'<label style="display:flex;gap:.55rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--line2)"><input type="checkbox" data-ac="'+esc(c.id)+'"'+(sel.has(c.id)?' checked':'')+'> <i class="cdot" style="--c:'+c.color+';background:'+c.color+';width:.7rem;height:.7rem;border-radius:50%;display:inline-block"></i><span>'+esc(c.name)+' <small class="mut">'+cnt(c.id)+'</small></span></label>').join('')+'</div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.onchange=e=>{const b=e.target.dataset&&e.target.dataset.ac;if(b)e.target.checked?sel.add(b):sel.delete(b)};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
- g.agc=[...sel];if(!g.agc.length)g.ag=0;f.gr[id]=g;f.grAt=Date.now();saveSet();render();
+ g.agc=[...sel];if(!g.agc.length)g.ag=0;f.gr[id]=g;g.t=Date.now();f.grAt=Date.now();saveSet();render();
  toast(g.agc.length?'📅 '+m.n+' verra : '+S.cats.filter(c=>sel.has(c.id)).map(c=>c.name).join(', '):'Aucune catégorie : agenda non partagé',5000);
 }
 async function famBdPick(id){
@@ -8708,7 +8711,7 @@ async function famBdPick(id){
  const pr=ask({title:'🎂 Anniversaires pour '+m.n,html:'<p style="margin:.2rem 0 .4rem">Coche ceux que '+esc(m.n)+' recevra (ses copains, la famille…).</p><div style="max-height:46vh;overflow:auto;margin:0 0 .6rem">'+L.map(b=>'<label style="display:flex;gap:.55rem;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--line2)"><input type="checkbox" data-bp="'+esc(b.id)+'"'+(sel.has(b.id)?' checked':'')+'> <span>'+esc(bdHide(b)?'Anniversaire protégé':b.n)+' <small class="mut">'+b.d+' '+ML[b.m-1]+'</small></span></label>').join('')+'</div>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.onchange=e=>{const b=e.target.dataset&&e.target.dataset.bp;if(b)e.target.checked?sel.add(b):sel.delete(b)};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
- g.bd=sel.size?1:0;g.bds=[...sel];f.gr[id]=g;saveSet();f.grAt=Date.now();render();toast('Partage avec '+m.n+' : '+famGSum(g),4500);
+ g.bd=sel.size?1:0;g.bds=[...sel];f.gr[id]=g;g.t=Date.now();saveSet();f.grAt=Date.now();render();toast('Partage avec '+m.n+' : '+famGSum(g),4500);
 }
 async function famBdShareTo(ids){
  const L=famActive();if(!L.length){toast('Personne de connecté pour l’instant');return}
@@ -8716,18 +8719,18 @@ async function famBdShareTo(ids){
  if(!r)return;
  const f=grpOf(r);const g=famGrant(r);
  if(g.bd===2){toast(famName(r)+' reçoit déjà tous tes anniversaires');return}
- const set=new Set(Array.isArray(g.bds)?g.bds:[]);ids.forEach(i=>set.add(i));g.bd=1;g.bds=[...set];delete g.removed;f.gr[r]=g;f.grAt=Date.now();
+ const set=new Set(Array.isArray(g.bds)?g.bds:[]);ids.forEach(i=>set.add(i));g.bd=1;g.bds=[...set];delete g.removed;f.gr[r]=g;g.t=Date.now();f.grAt=Date.now();
  BD_SEL=null;saveSet();render();toast('Partagé avec '+famName(r)+' : '+famGSum(g),5000);
 }
 async function famRemove(id){
  const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;
  const r=await ask({title:'Retirer '+m.n+' ?',html:'<p style="margin:.2rem 0 .5rem">'+esc(m.n)+' ne recevra plus rien de toi, et ce que tu lui avais partagé sera retiré de son téléphone dès qu’il ou elle ouvrira AgenDam. Tu ne recevras plus ses mises à jour.</p><p class="mut" style="font-size:.85rem;margin:0 0 .6rem">Ton code d’invitation est aussi changé. Tu pourras le ou la réintégrer plus tard.</p>',btns:[{label:'Retirer '+m.n,value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
- f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1};f.grAt=Date.now();m.x=1;delete m.self;f.sent.m='';f.ic=null;saveSet();render();toast(m.n+' est retiré(e)',4000);
+ f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1,t:Date.now()};f.grAt=Date.now();m.x=1;delete m.self;f.sent.m='';f.ic=null;saveSet();render();toast(m.n+' est retiré(e)',4000);
 }
-function famForget(id){const f=grpOf(id);const m=f&&f.mb[id];if(!m)return;ask({title:'Supprimer '+m.n+' ?',text:'Il ou elle disparaît de ta liste pour de bon. S’il ou elle veut revenir, il faudra un nouveau code d’invitation.',btns:[{label:'Supprimer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]}).then(r=>{if(r!=='y')return;m.gone=1;m.x=1;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1};saveSet();render();toast(m.n+' est supprimé(e)')})}
+function famForget(id){const f=grpOf(id);const m=f&&f.mb[id];if(!m)return;ask({title:'Supprimer '+m.n+' ?',text:'Il ou elle disparaît de ta liste pour de bon. S’il ou elle veut revenir, il faudra un nouveau code d’invitation.',btns:[{label:'Supprimer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]}).then(r=>{if(r!=='y')return;m.gone=1;m.x=1;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1,t:Date.now()};saveSet();render();toast(m.n+' est supprimé(e)')})}
 const famWho=id=>{const g=grpOf(id),m=g&&g.mb[id];return famName(id)+(m&&m.d?' · '+m.d:'')+(famAll().length>1&&g?' ('+(g.nm||'groupe')+')':'')};
-function famReadd(id){const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;delete m.x;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0};f.grAt=Date.now();if(f.seen)Object.keys(f.seen).forEach(k=>{if(k.indexOf('c-'+id+'-')===0)delete f.seen[k]});f.last=0;saveSet();render();famGrantEdit(id)}
+function famReadd(id){const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;delete m.x;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,t:Date.now()};f.grAt=Date.now();if(f.seen)Object.keys(f.seen).forEach(k=>{if(k.indexOf('c-'+id+'-')===0)delete f.seen[k]});f.last=0;saveSet();render();famGrantEdit(id)}
 function famNew(k,nm,em){return famInit({k,on:1,last:0,v2:1,jt:Date.now(),nm:nm||'Famille',em:em||'👪'})}
 function famAdd(g){famMig();if(!S.fams)S.fams=[];S.fams.push(g);return g}
 async function famCreate(){
