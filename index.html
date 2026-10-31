@@ -1053,12 +1053,16 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.18.1';
+const APP_VERSION='2.19.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.19.0',d:'31/10/2026',items:[
+  '📱 L’agenda se synchronise maintenant entre tes propres appareils (iPhone, iPad…) reliés par « C’est un autre appareil à moi » : tous tes rendez-vous dans les deux sens, y compris les privés, les notes, les rappels et les catégories communes reçues (celles de Nora…). Ajouter, modifier ou supprimer sur l’un se retrouve sur l’autre.',
+  '👥 Les personnes avec qui tu partages ne voient pas tes rendez-vous en double : un seul de tes appareils leur envoie l’agenda, ce que tu fais sur l’autre passe par lui.',
+  '🔧 Ton autre appareil reprend bien tes choix de partage, même après avoir retiré quelqu’un depuis cet appareil.']},
  {v:'2.18.1',d:'31/10/2026',items:[
   '📱 Nouvel appareil (iPad…) rempli avec une sauvegarde : l’appli demande maintenant si c’est un nouvel appareil et ne copie pas les groupes connectés, pour pouvoir le rejoindre avec un code comme « autre appareil à moi ». Le message « Tu es déjà dans le groupe » explique quoi faire.']},
  {v:'2.18.0',d:'31/10/2026',items:[
@@ -5605,7 +5609,7 @@ function openHelp(hist){
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>⋯ Options</b> (en haut) : dans Recettes, nouvelle recette, importer avec un lien, coller, recevoir, envoyer ; dans Menu, imprimer le planning de la semaine, envoyer, copier la semaine précédente.</li><li><b>Recettes rangées</b> : 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj, et 🥕 Végé / 🥩 Viande / 🐟 Poisson, plus Thermomix, 🍟 Air fryer, Rapide… L’appli devine ; corrige dans « Modifier » (Type, Régime, étiquettes).</li><li><b>📷 Photo</b> : dans une recette, « Ajouter une photo » (appareil photo ou galerie). À l’import par lien, la photo du site vient toute seule quand le site le permet.</li><li><b>Quantités</b> : « Pour − 4 + personnes » recalcule la liste des ingrédients. Les quantités écrites dans le texte des étapes ne changent pas : fie-toi à la liste (un message te le rappelle).</li><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis ⋯ Options → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
- h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>📅 Catégories communes</b> : Réglages → <b>Catégories</b>, sous une catégorie, touche le prénom d’une personne connectée (✓ = partagée). Chez elle, la catégorie apparaît avec son nom, sa couleur et « (ton prénom) » ; elle voit les rendez-vous comme les siens et peut en <b>ajouter, modifier ou supprimer</b> : tout revient chez toi. En haut des Catégories, « 👁 voit les détails / seulement occupé » : en mode occupé, elle ne voit que les créneaux, sans pouvoir modifier. Les rendez-vous <b>🔒 Privé</b>, les notes et les rappels ne partent jamais. Pour qu’elle te partage aussi ses catégories, elle fait pareil de son côté.</li><li><b>Consommation</b> : l’appli vérifie les nouveautés toutes les 2 min 30 quand elle est ouverte (et à chaque ouverture) et regroupe ses envois.</li><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : si tu as rempli le nouvel appareil avec une <b>sauvegarde</b>, choisis « Nouvel appareil » à la restauration (ou, s’il dit « Tu es déjà dans le groupe », touche <b>Quitter</b> sur ce groupe puis recommence). Ensuite, sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
+ h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>📅 Catégories communes</b> : Réglages → <b>Catégories</b>, sous une catégorie, touche le prénom d’une personne connectée (✓ = partagée). Chez elle, la catégorie apparaît avec son nom, sa couleur et « (ton prénom) » ; elle voit les rendez-vous comme les siens et peut en <b>ajouter, modifier ou supprimer</b> : tout revient chez toi. En haut des Catégories, « 👁 voit les détails / seulement occupé » : en mode occupé, elle ne voit que les créneaux, sans pouvoir modifier. Les rendez-vous <b>🔒 Privé</b>, les notes et les rappels ne partent jamais. Pour qu’elle te partage aussi ses catégories, elle fait pareil de son côté.</li><li><b>Consommation</b> : l’appli vérifie les nouveautés toutes les 2 min 30 quand elle est ouverte (et à chaque ouverture) et regroupe ses envois.</li><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : si tu as rempli le nouvel appareil avec une <b>sauvegarde</b>, choisis « Nouvel appareil » à la restauration (ou, s’il dit « Tu es déjà dans le groupe », touche <b>Quitter</b> sur ce groupe puis recommence). Ensuite, sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage. <b>L’agenda aussi</b> se synchronise entre tes appareils (rendez-vous privés, notes et rappels compris). Pas besoin de régler les partages avec la famille sur ton autre appareil : ton premier appareil s’en charge.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
  h+=d('📤 Partager avec la famille','<ul><li><b>Pour commencer</b> : Réglages → Famille et contacts → <b>Inviter ma famille</b>. Tes proches reçoivent par SMS le lien et les étapes pour installer l’appli.</li><li>Ajoute tes proches dans <b>Réglages → Famille et contacts</b> (avec leur téléphone ou mail).</li><li>Dans <b>Tâches</b>, choisis ce que tu veux envoyer (une liste, une personne, ou tout), puis <b>📤 Partager</b> : SMS, mail ou une autre appli (WhatsApp…). Pareil pour les anniversaires (Réglages → Anniversaires).</li><li>La personne touche le lien : son AgenDam lui montre ce qui change et se met à jour, sans doublon. Ce que tu as coché ou supprimé l’est aussi chez elle.</li><li><b>iPhone avec l’appli sur l’écran d’accueil</b> : le lien s’ouvre dans Safari. Touche « copier », ouvre AgenDam, puis Tâches → <b>📥 Recevoir</b>.</li><li>Ce n’est pas automatique : renvoie le lien après tes changements. Les idées cadeaux des personnes protégées ne sont jamais envoyées.</li><li>Le lien contient les données : ne l’envoie qu’aux personnes concernées.</li></ul>');
  h+=d('☑ Tâches','<ul><li><b>🖨 Imprimer</b> : « La semaine en agenda » donne une page A4 paysage avec les 7 jours et leurs tâches (même celles qui reviennent), les tâches en retard et sans date ; ou « La liste à cocher ». Le filtre (liste, personne) choisi en haut s’applique.</li><li><b>Retirer une date</b> : dans la tâche, bouton « ✕ » à côté de la date.</li><li><b>Plusieurs personnes</b> : dans une tâche, « Qui s’en occupe » accepte plusieurs prénoms. La première qui la fait la coche.</li><li><b>Suivi</b> : en cochant, ton prénom et l’heure sont notés. Touche « 📝 Ajouter une note » si besoin. L’onglet <b>📜 Suivi</b> montre tout ce qui a été fait, par qui et quand : filtre par groupe (Famille, Travail…), par liste et par personne, export Excel. ⚙ dans le Suivi range chaque liste dans un groupe. Pratique pour une liste de travail partagée avec des collègues.</li><li><b>🗄 Archiver</b> les tâches faites : elles quittent les listes et restent dans le Suivi.</li><li>Onglet <b>Tâches</b> en bas. Touche <b>+</b> pour en ajouter une : le texte, la liste, qui s’en occupe, une date (facultatif) et si elle revient.</li><li>Touche la case pour cocher. Une tâche qui revient passe toute seule à la date suivante. « Annuler » apparaît quelques secondes si tu t’es trompé.</li><li>En haut : choisis une liste ou une personne pour ne voir qu’elles. <b>⚙ Listes</b> pour créer tes listes (Valise, Jardin…), <b>👪 Famille</b> pour ajouter les prénoms.</li><li><b>Imprimer</b> : la liste affichée sur une feuille A4, avec des cases et 3 lignes vides par liste.</li><li>Une tâche datée apparaît aussi dans l’agenda ce jour-là (☑).</li></ul>');
  h+=d('🏖 Vacances scolaires','<ul><li><b>Réglages → Vacances scolaires</b> : active le liseré, choisis ta zone (A, B ou C) et sa couleur.</li><li><b>Calendrier officiel</b> : l’appli télécharge les dates sur data.education.gouv.fr (ministère de l’Éducation nationale). Seule la zone est envoyée. Mise à jour automatique une fois par mois, ou bouton « Mettre à jour ».</li><li><b>À la main</b> : « Ajouter une période » (nom, premier et dernier jour). Utile hors connexion, pour une autre zone ou un pont.</li><li>Le liseré apparaît en bas des jours de vacances (mois, 2 semaines, semaine, mini-calendrier) ; le nom des vacances s’affiche sur la journée.</li><li>Si tu avais déjà des événements « Vacances scolaires » (import Excel ou Outlook), tu peux les supprimer : le liseré les remplace.</li></ul>');
@@ -8297,6 +8301,7 @@ function famMig(){
  if(S.fam&&!S.fams){S.fams=[S.fam];if(!S.fam.nm)S.fam.nm='Famille';if(!S.fam.em)S.fam.em='👪'}
  if(S.fam){if(S.fam.org){S.forg=Object.assign({},S.fam.org,S.forg||{});delete S.fam.org}delete S.fam}
  if(!S.forg)S.forg={};
+ for(const f of (S.fams||[]))if(f&&f.jt==null)f.jt=Object.values(f.gr||{}).some(g=>g&&g.ag&&!g.removed)?1:Date.now();
 }
 const famAll=()=>{famMig();return (S.fams||[]).filter(g=>g&&g.k&&g.on)};
 const fam=()=>famAll()[0]||null;
@@ -8369,16 +8374,53 @@ function famAgOn(){return S.cats.some(c=>c.sh)||famAll().some(f=>Object.values(f
    Chaque événement partagé porte mt (dernière modification) ; les suppressions partent en « pierres tombales » (S.evDel). */
 const AGF=['title','allDay','start','end','startTime','endTime','place','icon','rec','ex','hi'];
 const agCore=e=>famHash({c:e.cat,f:AGF.map(k=>e[k])});
+/* agenda entre mes propres appareils (iPhone, iPad…) */
+const selfOn=()=>famAll().some(f=>Object.keys(f.mb||{}).some(id=>f.mb[id].self&&!f.mb[id].x));
+const agFull=e=>{const o={};Object.keys(e).sort().forEach(k=>{if(k!=='mt')o[k]=e[k]});return famHash({e:o})};
+const agH=e=>selfOn()?agFull(e):agCore(e);
+/* un seul de mes appareils envoie l'agenda aux autres personnes (le plus ancien dans le groupe), sinon catégories en double chez elles */
+function agRelay(f){const mj=+f.jt||0;for(const id of Object.keys(f.mb||{})){const m=f.mb[id];if(!m.self||m.x)continue;const j=+m.jt||0;if(j<mj||(j===mj&&id<f.me))return false}return true}
+function famSelfAg(){
+ const now=Date.now();
+ let L=EV.filter(e=>agWin(e)||(e.mt&&now-e.mt<45*864e5));
+ const pack=e=>{const o={};for(const k of Object.keys(e)){const v=e[k];if(v===''||v==null||v===false||v===0&&k!=='mt'||(Array.isArray(v)&&!v.length))continue;o[k]=v}return o};
+ let ev=L.map(pack);
+ while(JSON.stringify(ev).length>240000&&ev.length>50){ev=ev.filter(e=>!e.note||e.note.length<400||e.mt&&now-e.mt<7*864e5).slice(-Math.floor(ev.length*0.8))}
+ return{app:'agd',v:2,k:'sa',from:meName(),cats:S.cats.map(c=>Object.assign({},c)),shc:S.cats.filter(c=>c.sh).map(c=>c.id),del:agTrim(S.evDel),ev};
+}
+function agSelfMerge(A){
+ if(!A||!Array.isArray(A.ev))return 0;
+ const H=S.evH&&typeof S.evH==='object'?S.evH:(S.evH={});let n=0,chE=false,chC=false;
+ for(const c of (A.cats||[])){if(!c||!c.id)continue;const loc=S.cats.find(x=>x.id===c.id);
+  if(!loc){const o={id:String(c.id).slice(0,80),name:String(c.name||'Catégorie').slice(0,40),color:/^#[0-9a-f]{6}$/i.test(c.color)?c.color:'#64748b'};if(c.icon)o.icon=iconClean(c.icon);if(c.sh){o.sh=String(c.sh).slice(0,16);o.vs=1}S.cats.push(o);chC=true;n++}
+  else if(!loc.sh&&(loc.name!==c.name||loc.color!==c.color||(loc.icon||'')!==(c.icon||''))){loc.name=String(c.name||loc.name).slice(0,40);if(/^#[0-9a-f]{6}$/i.test(c.color))loc.color=c.color;if(c.icon)loc.icon=iconClean(c.icon);else delete loc.icon;chC=true}}
+ const shc=new Set(Array.isArray(A.shc)?A.shc:[]);
+ const gone=S.cats.filter(c=>c.vs&&!shc.has(c.id)).map(c=>c.id);
+ if(gone.length){S.cats=S.cats.filter(c=>!gone.includes(c.id));const b=EV.length;EV=EV.filter(e=>!gone.includes(e.cat));if(EV.length!==b)chE=true;chC=true}
+ const tomb=agTrim(S.evDel);
+ for(const x of A.ev){if(!x||!x.id)continue;
+  if(tomb.some(d=>d.id===x.id&&d.m>=(x.mt||0)))continue;
+  const i=EV.findIndex(e=>e.id===x.id);
+  if(i<0){const ev=cleanEvent(x);if(!ev)continue;EV.push(ev);H[ev.id]=agFull(ev);n++;chE=true}
+  else if((x.mt||0)>(EV[i].mt||0)){const ev=cleanEvent(x);if(!ev)continue;EV[i]=ev;H[ev.id]=agFull(ev);n++;chE=true}}
+ let T=agTrim(S.evDel);
+ for(const d of (A.del||[])){if(!d||!d.id)continue;if(!T.some(t=>t.id===d.id))T.push({id:d.id,m:d.m||0});const loc=EV.find(e=>e.id===d.id);if(!loc||(loc.mt||0)>(d.m||0))continue;EV=EV.filter(e=>e.id!==d.id);delete H[d.id];n++;chE=true}
+ S.evDel=agTrim(T);
+ if(chE){FEV_C=null;if(!demo)ls.set(K.data,{v:1,events:EV})}
+ return n;
+}
 const agTrim=a=>(Array.isArray(a)?a:[]).filter(d=>d&&d.id&&Date.now()-(d.m||0)<120*864e5).slice(-600);
 function agOwnShared(g){if(!g||!g.ag||g.removed||g.agb)return new Set();return new Set(S.cats.filter(c=>!c.sh&&(g.ag===2||(g.agc||[]).includes(c.id))).map(c=>c.id))}
 function agWin(e){const from=add(today(),-30),to=add(today(),400);return e.rec?(e.start<=to&&(!e.rec.until||e.rec.until>=from)):(e.end>=from&&e.start<=to)}
 /* avant chaque envoi : date de modification et suppressions détectées toutes seules */
 function agPrep(){
  const U=new Set();
+ if(selfOn())for(const e of EV)U.add(e.id);
  for(const f of famAll())for(const id of famMembers(f)){const m=f.mb[id];if(!m||m.x||m.self)continue;const own=agOwnShared(famGrant(id)),px='x-'+id+'-';
   for(const e of EV)if(!e.pv&&(own.has(e.cat)||String(e.cat).indexOf(px)===0))U.add(e.id)}
  const H=S.evH&&typeof S.evH==='object'?S.evH:(S.evH={});let ch=false;const now=Date.now();
- for(const e of EV){if(!U.has(e.id))continue;const h=agCore(e);if(H[e.id]!==h){H[e.id]=h;e.mt=now;ch=true}}
+ const mode=selfOn()?'f':'c';if(S.evHm!==mode){for(const e of EV)if(U.has(e.id))H[e.id]=agH(e);S.evHm=mode;ch=true}
+ for(const e of EV){if(!U.has(e.id))continue;const h=agH(e);if(H[e.id]!==h){H[e.id]=h;e.mt=now;ch=true}}
  for(const id of Object.keys(H))if(!U.has(id)){delete H[id];S.evDel=agTrim(S.evDel).filter(d=>d.id!==id).concat([{id,m:now}]);ch=true}
  if(ch&&!demo){ls.set(K.data,{v:1,events:EV});ls.set(K.set,S)}
 }
@@ -8436,7 +8478,7 @@ function famChan(id){
  const used=new Set();tk.forEach(k=>tkWho(k).forEach(x=>used.add(x)));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
  const pp=ppl().filter(p=>used.has(p.id)).map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',c:p.c}));
  const delOk=d=>{const o=famOrg(d.id);return mySelf(o)||o===id};
- return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:famAgEv(g.removed?null:g,id),
+ return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:(g.removed||agRelay(f))?famAgEv(g.removed?null:g,id):null,
   tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>tkPack(k)),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
   rc:{k:'rc',rc:rc.map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn,ppl:pp},
@@ -8473,9 +8515,9 @@ function agMerge(from,A){
  const own=agOwnShared(famGrant(from));
  // catégories reçues
  const keep=new Set();
- for(const c of (A.cats||[])){if(!c||!c.id)continue;const id=px+String(c.id).slice(0,40);keep.add(id);const loc=S.cats.find(x=>x.id===id);const o={id,name:(String(c.n||'Catégorie').slice(0,24)+' ('+String(famName(from)||'').split(' ')[0].slice(0,12)+')'),color:/^#[0-9a-f]{6}$/i.test(c.c)?c.c:'#64748b',sh:from};if(c.i)o.icon=iconClean(c.i);
+ for(const c of (A.cats||[])){if(!c||!c.id)continue;const id=px+String(c.id).slice(0,40);keep.add(id);const loc=S.cats.find(x=>x.id===id);if(loc)delete loc.vs;const o={id,name:(String(c.n||'Catégorie').slice(0,24)+' ('+String(famName(from)||'').split(' ')[0].slice(0,12)+')'),color:/^#[0-9a-f]{6}$/i.test(c.c)?c.c:'#64748b',sh:from};if(c.i)o.icon=iconClean(c.i);
   if(!loc){S.cats.push(o);n++}else if(loc.name!==o.name||loc.color!==o.color||(loc.icon||'')!==(o.icon||'')){Object.assign(loc,o);if(!o.icon)delete loc.icon}}
- const gone=S.cats.filter(c=>c.sh===from&&!keep.has(c.id)).map(c=>c.id);
+ const gone=S.cats.filter(c=>c.sh===from&&!c.vs&&!keep.has(c.id)).map(c=>c.id);
  if(gone.length){S.cats=S.cats.filter(c=>!gone.includes(c.id));const b=EV.length;EV=EV.filter(e=>!gone.includes(e.cat));if(EV.length!==b){chE=true;n++}}
  const tomb=agTrim(S.evDel);
  for(const x of (A.ev||[])){if(!x||!x.id)continue;
@@ -8483,8 +8525,8 @@ function agMerge(from,A){
   if(x.ow==='you'?!own.has(cat):!keep.has(cat))continue;
   if(tomb.some(d=>d.id===x.id&&d.m>=(x.mt||0)))continue;
   const loc=EV.find(e=>e.id===x.id);
-  if(!loc){const ev=cleanEvent(Object.assign({},x,{cat,alarm:null,note:''}));if(!ev)continue;ev.mt=x.mt||0;EV.push(ev);H[ev.id]=agCore(ev);n++;chE=true}
-  else if((x.mt||0)>(loc.mt||0)){const ev=cleanEvent(Object.assign({},loc,x,{cat,id:loc.id,note:loc.note,alarm:loc.alarm}));if(!ev)continue;AGF.concat(['cat']).forEach(k=>{loc[k]=ev[k]});if(!x.ex)loc.ex=[];if(!x.rec)loc.rec=null;loc.mt=x.mt;H[loc.id]=agCore(loc);n++;chE=true}
+  if(!loc){const ev=cleanEvent(Object.assign({},x,{cat,alarm:null,note:''}));if(!ev)continue;ev.mt=x.mt||0;EV.push(ev);H[ev.id]=agH(ev);n++;chE=true}
+  else if((x.mt||0)>(loc.mt||0)){const ev=cleanEvent(Object.assign({},loc,x,{cat,id:loc.id,note:loc.note,alarm:loc.alarm}));if(!ev)continue;AGF.concat(['cat']).forEach(k=>{loc[k]=ev[k]});if(!x.ex)loc.ex=[];if(!x.rec)loc.rec=null;loc.mt=x.mt;H[loc.id]=agH(loc);n++;chE=true}
  }
  for(const d of (A.del||[])){const loc=EV.find(e=>e.id===d.id);if(!loc||(loc.mt||0)>d.m)continue;if(!(own.has(loc.cat)||String(loc.cat).indexOf(px)===0))continue;EV=EV.filter(e=>e.id!==d.id);delete H[d.id];n++;chE=true}
  if(chE&&!demo)ls.set(K.data,{v:1,events:EV});
@@ -8497,15 +8539,15 @@ function famApply(from,P){
  const run=(Q,lbl)=>{if(!Q)return;const s=shMerge(Object.assign({app:'agd',v:1,from:P.from||'',at:Date.now()},Q),true);const x=s.add+s.upd+s.del;if(x){n+=x;cats.add(lbl)}};
  {const F=S.fev||(S.fev={});const was=F[from];
    if(P.ag&&P.ag.v===2){if(was){delete F[from];FEV_C=null}const k=agMerge(from,P.ag);if(k){n+=k;cats.add('Agenda')}}
-   else if(!P.ag&&S.cats.some(c=>c.sh===from)){const k=agMerge(from,{cats:[],ev:[],del:[]});if(k){n+=k;cats.add('Agenda')}}
-   if(P.ag&&P.ag.v!==2&&S.cats.some(c=>c.sh===from))agMerge(from,{cats:[],ev:[],del:[]});
+   else if(!P.ag&&S.cats.some(c=>c.sh===from&&!c.vs)){const k=agMerge(from,{cats:[],ev:[],del:[]});if(k){n+=k;cats.add('Agenda')}}
+   if(P.ag&&P.ag.v!==2&&S.cats.some(c=>c.sh===from&&!c.vs))agMerge(from,{cats:[],ev:[],del:[]});
    if(P.ag&&P.ag.v===2){}
    else if(P.ag&&Array.isArray(P.ag.ev)){const ev=P.ag.ev.slice(0,1500).filter(x=>x&&x.id);const old=new Set(((was&&was.ev)||[]).map(x=>x.id));const nw=ev.filter(x=>!old.has(x.id)).length;
     const sig=JSON.stringify(ev)+(P.ag.busy?1:0);if(!was||was.sig!==famHash({s:sig})){F[from]={n:String(P.from||'').slice(0,30),at:Date.now(),busy:P.ag.busy?1:0,ev,sig:famHash({s:sig})};FEV_C=null;if(was){n+=Math.max(1,nw);cats.add('Agenda')}else{n+=ev.length||1;cats.add('Agenda')}}}
    else if(was){delete F[from];FEV_C=null;n++;cats.add('Agenda')}}
  run(P.tk,'Tâches');run(P.rc,'Recettes');if(P.mn&&Object.keys(P.mn.mn||{}).length)run(P.mn,'Menu');run(P.bd,'Anniversaires');run(P.vy,'Voyages');
  for(const [id,o] of Object.entries(P.og||{})){if(id==='courses')continue;if(o===me)delete om[id];else om[id]=String(o).slice(0,12)}
- if(P.g&&P.g.self&&P.gr&&(P.gra||0)>(f.grAt||0)){for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}f.grAt=P.gra}
+ if(P.g&&P.g.self&&P.gr){const newer=(P.gra||0)>(f.grAt||0);for(const [i,g] of Object.entries(P.gr)){if(i===me)continue;if(!newer&&f.gr[i])continue;const c=g.cid;const gg=Object.assign({},g);delete gg.cid;f.gr[i]=gg;if(f.mb[i]){if(c)f.mb[i].cid=c;if(gg.removed){f.mb[i].x=1;delete f.mb[i].self}else delete f.mb[i].x}}if(newer)f.grAt=P.gra}
  const R=P.rm||{};
  // Éléments d'avant la v2 (sans origine connue) : le créateur de la famille les garde, les autres choisissent (famLegacyAsk)
  const legacyOk=!f.own&&!f.icAt&&!(f.lgDone&&f.lgDone[from]);
@@ -8534,7 +8576,7 @@ async function famPush(){
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
  const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
- const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
+ const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),jt:+f.jt||0,pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
  for(const id of famMembers(f)){
@@ -8543,11 +8585,17 @@ async function famPushG(f){
   FG=f;const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
   await put('c-'+f.me+'-'+id,P,key);f.sent['c'+id]=f.mb[id].gone?'gone':h;
  }
+ for(const id of famMembers(f)){const m=f.mb[id];if(!m||!m.self||m.x)continue;
+  const key=await famPair(f,id);if(!key)continue;
+  const A=famSelfAg(),h=famHash(A);if(f.sent['a'+id]===h)continue;
+  await put('a-'+f.me+'-'+id,A,key);f.sent['a'+id]=h;
+ }
  f.pushAt=Date.now();ls.set(K.set,S);
 }
 async function famPull(manual){
  if(!famUrl()||demo||!famAll().length)return;
  const out={got:[],joined:[],granted:[],selfNew:[],chg:false};
+ try{agPrep()}catch(e){} /* suppressions faites ici notées avant de recevoir, sinon elles reviendraient */
  try{
   let J=null;
   if(famAll().length>1&&S.famMulti!==0){const ks=[];for(const g of famAll()){await famMe(g);const FK=await famKeys(g);ks.push(FK.space+'.'+Math.max(0,Math.floor(g.last||0)))}
@@ -8579,7 +8627,7 @@ async function famPullG(f,out,J){
   let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
   const was=f.mb[M.id];
-  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
+  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||(+was.jt||0)!==(+M.jt||0)){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:+M.jt||0,pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
   if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
  }
  for(const d of docs){
@@ -8591,6 +8639,15 @@ async function famPullG(f,out,J){
   FG=f;const res=famApply(m[1],P);if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
   if(res.n)out.got.push({by:P.from||famName(m[1]),c:res.cats,n:res.n,det:res.det});
   if(res.newG.length)out.granted.push({id:m[1],by:P.from||famName(m[1]),l:res.newG});
+ }
+ for(const d of docs){
+  const m=d.doc.match(/^a-([a-z0-9]{6,16})-([a-z0-9]{6,16})$/);if(!m||m[2]!==f.me)continue;
+  if(f.seen&&f.seen[d.doc]===d.at)continue;
+  const mb=f.mb[m[1]];if(!mb||!mb.self||mb.x)continue;
+  const key=await famPair(f,m[1]);if(!key){hold=true;continue}
+  let A;try{A=await famDecK(JSON.parse(d.data),key)}catch(e){continue}
+  const k=agSelfMerge(A);if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
+  if(k)out.got.push({by:famName(m[1]),c:['Agenda'],n:k,det:[]});
  }
  if(!hold)f.last=Math.max(f.last||0,(j.now||Date.now())-90000);
  f.pullAt=Date.now();ls.set(K.set,S);
@@ -8671,7 +8728,7 @@ async function famRemove(id){
 function famForget(id){const f=grpOf(id);const m=f&&f.mb[id];if(!m)return;ask({title:'Supprimer '+m.n+' ?',text:'Il ou elle disparaît de ta liste pour de bon. S’il ou elle veut revenir, il faudra un nouveau code d’invitation.',btns:[{label:'Supprimer définitivement',value:'y',cls:'dng'},{label:'Annuler',value:null}]}).then(r=>{if(r!=='y')return;m.gone=1;m.x=1;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0,removed:1};saveSet();render();toast(m.n+' est supprimé(e)')})}
 const famWho=id=>{const g=grpOf(id),m=g&&g.mb[id];return famName(id)+(m&&m.d?' · '+m.d:'')+(famAll().length>1&&g?' ('+(g.nm||'groupe')+')':'')};
 function famReadd(id){const f=grpOf(id);const m=f&&f.mb&&f.mb[id];if(!m)return;delete m.x;f.gr[id]={co:0,tk:0,rp:0,bd:0,vy:0};f.grAt=Date.now();if(f.seen)Object.keys(f.seen).forEach(k=>{if(k.indexOf('c-'+id+'-')===0)delete f.seen[k]});f.last=0;saveSet();render();famGrantEdit(id)}
-function famNew(k,nm,em){return famInit({k,on:1,last:0,v2:1,nm:nm||'Famille',em:em||'👪'})}
+function famNew(k,nm,em){return famInit({k,on:1,last:0,v2:1,jt:Date.now(),nm:nm||'Famille',em:em||'👪'})}
 function famAdd(g){famMig();if(!S.fams)S.fams=[];S.fams.push(g);return g}
 async function famCreate(){
  const first=!famAll().length;const v={nm:first?'Famille':'Amis',ic:first?'👪':'🎉'};
