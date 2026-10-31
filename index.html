@@ -1053,12 +1053,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.19.1';
+const APP_VERSION='2.19.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.19.2',d:'31/10/2026',items:[
+  '🔧 Tes rendez-vous repartent chez la famille quand tu as deux appareils : c’est l’appareil qui échange déjà avec la personne (celui qui reçoit ses partages) qui lui envoie ton agenda, l’iPad ne lui « coupe » plus.']},
  {v:'2.19.1',d:'31/10/2026',items:[
   '🔧 Partage avec la famille plus sûr quand tu as deux appareils : chaque choix de partage garde sa date, et un vieux réglage de ton iPad (« rien ») ne peut plus effacer ce que ton iPhone partage. Ton iPad reprend les choix de ton iPhone.',
   '🔧 Pendant la mise à jour des deux appareils, l’agenda partagé ne s’arrête plus d’être envoyé.']},
@@ -8382,7 +8384,15 @@ const selfOn=()=>famAll().some(f=>Object.keys(f.mb||{}).some(id=>f.mb[id].self&&
 const agFull=e=>{const o={};Object.keys(e).sort().forEach(k=>{if(k!=='mt')o[k]=e[k]});return famHash({e:o})};
 const agH=e=>selfOn()?agFull(e):agCore(e);
 /* un seul de mes appareils envoie l'agenda aux autres personnes (le plus ancien dans le groupe), sinon catégories en double chez elles */
-function agRelay(f){const mj=+f.jt||0;for(const id of Object.keys(f.mb||{})){const m=f.mb[id];if(!m.self||m.x)continue;if(m.jt==null)continue;const j=+m.jt||0;if(j<mj||(j===mj&&id<f.me))return false}return true}
+/* « relation directe » avec une personne : elle me partage quelque chose, ou ses catégories communes arrivent sur cet appareil */
+const rgAny=g=>!!g&&!g.x&&Object.keys(g).some(k=>k!=='x'&&k!=='self'&&(Array.isArray(g[k])?g[k].length:!!g[k]));
+function famDirect(f){return famMembers(f).filter(X=>{const m=f.mb[X];return m&&!m.self&&!m.x&&(rgAny(f.rg&&f.rg[X])||S.cats.some(c=>c.sh===X&&!c.vs))})}
+function agRelay(f,X){
+ const sd=Object.keys(f.mb||{}).filter(id=>f.mb[id].self&&!f.mb[id].x);if(!sd.length)return true;
+ const L=[{id:f.me,jt:+f.jt||0,dr:famDirect(f).includes(X)}].concat(sd.map(id=>({id,jt:f.mb[id].jt==null?Infinity:+f.mb[id].jt,dr:Array.isArray(f.mb[id].dr)&&f.mb[id].dr.includes(X)})));
+ const C=L.some(x=>x.dr)?L.filter(x=>x.dr):L;
+ C.sort((a,b)=>a.jt-b.jt||(a.id<b.id?-1:1));return C[0].id===f.me;
+}
 function famSelfAg(){
  const now=Date.now();
  let L=EV.filter(e=>agWin(e)||(e.mt&&now-e.mt<45*864e5));
@@ -8481,7 +8491,7 @@ function famChan(id){
  const used=new Set();tk.forEach(k=>tkWho(k).forEach(x=>used.add(x)));vy.forEach(v=>(v.ls||[]).forEach(l=>l.w&&used.add(l.w)));Object.values(mn).forEach(d=>d&&['m','s'].forEach(k=>d[k]&&d[k].w&&used.add(d[k].w)));
  const pp=ppl().filter(p=>used.has(p.id)).map(p=>({id:p.id,n:p.n,ln:p.ln||'',rel:p.rel||'aut',c:p.c}));
  const delOk=d=>{const o=famOrg(d.id);return mySelf(o)||o===id};
- return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:(g.removed||agRelay(f))?famAgEv(g.removed?null:g,id):null,
+ return{app:'agd',v:2,k:'fc',from:meName(),g:g.removed?{x:1}:{co:cos.size?1:0,cos:[...cos].map(i=>tlOf(i).n),ci:[...cos],tk:g.tk,rp:g.rp,bd:g.bd,nbd:g.bd===1?bds.size:0,vy:g.vy,ag:g.ag||0,agb:g.agb?1:0},og,rm,ag:(g.removed||agRelay(f,id))?famAgEv(g.removed?null:g,id):null,
   tk:{k:'tk',tl:tkLists().filter(l=>tk.some(k=>k.l===l.id)||(!g.removed&&cos.has(l.id)&&lOwn(l.id))).map(l=>(l.id!=='courses'&&(og[l.id]=famOrg(l.id)),{id:l.id,n:l.n,i:l.i,co:isCoL(l.id)?1:undefined,m:l.m||0})),tk:tk.map(k=>tkPack(k)),del:shTrim(S.tkDel).filter(delOk),ppl:pp},
   rc:{k:'rc',rc:rc.map(r=>({id:r.id,t:r.t,ic:r.ic,pp:r.pp,tm:r.tm,tags:r.tags||[],ing:r.ing||[],st:r.st||[],src:r.src||'',m:r.m||0})),ppl:pp},
   mn:{k:'mn',mn,ppl:pp},
@@ -8579,7 +8589,7 @@ async function famPush(){
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
  const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
- const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),jt:+f.jt||0,pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
+ const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
  for(const id of famMembers(f)){
@@ -8630,7 +8640,7 @@ async function famPullG(f,out,J){
   let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
   const was=f.mb[M.id];
-  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||String(was.jt)!==String(M.jt==null?null:+M.jt)){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:M.jt==null?null:+M.jt,pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
+  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||String(was.jt)!==String(M.jt==null?null:+M.jt)||JSON.stringify(was.dr||[])!==JSON.stringify(Array.isArray(M.dr)?M.dr.slice(0,50):[])){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:M.jt==null?null:+M.jt,dr:Array.isArray(M.dr)?M.dr.slice(0,50).map(String):[],pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
   if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
  }
  for(const d of docs){
