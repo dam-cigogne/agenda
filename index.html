@@ -1077,12 +1077,15 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.22.2';
+const APP_VERSION='2.22.3';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.22.3',d:'01/11/2026',items:[
+  'Courses : la liste principale peut maintenant être renommée et masquée (⋯ Options → « Masquer la liste… »). Son onglet disparaît mais ses articles sont gardés, et tu peux la réafficher dans ⋯ Options. Il faut avoir au moins une autre liste.',
+  'Ajouter des ingrédients aux courses depuis une recette ou le menu : quand tu as plusieurs listes, un choix « Dans quelle liste ? » apparaît (la liste ouverte est proposée d’office), par exemple pour viser la liste commune.']},
  {v:'2.22.2',d:'01/11/2026',items:[
   'Courses → Ma liste type : même rangée « Normal / Compact / Aperçu global » que dans les autres listes, pour voir tous tes produits d’un coup.',
   'Ma liste type : le bouton « 🧹 Supprimer les doublons » est toujours visible (avant, il n’apparaissait que s’il y avait des doublons). Il propose, pour chaque groupe de produits qui se ressemblent, de garder le plus acheté, et supprime les autres en un toucher.']},
@@ -5681,6 +5684,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
  h+=d('🔍 Aperçu global des listes','<ul><li>Dans <b>Courses</b> (À acheter et Ma liste type) et dans <b>Voyages → Listes</b>, la rangée « Normal / Compact / Aperçu global » change la taille d’affichage.</li><li>« Aperçu global » : tout est petit et les rayons (ou les listes) se mettent côte à côte. Tu peux toujours cocher et toucher un article pour le modifier.</li><li>Ton choix est gardé séparément pour Courses et pour Voyages.</li></ul>');
  h+=d('🛒 Dessins dans les courses','<ul><li>Chaque article a un petit dessin choisi d’après son nom (🍅 tomates, 🥛 lait…). C’est automatique.</li><li><b>Changer un dessin</b> : touche-le, choisis un autre emoji (recherche par mot). Il est retenu pour ce produit. Pour revenir à l’automatique : touche-le puis « Aucun emoji (retirer) ».</li><li><b>Doublons</b> : dans « Ma liste type », « 🧹 Supprimer les doublons » repère les produits qui se ressemblent (« Tomate », « Tomates »). Le plus acheté est gardé d’office : touche « Supprimer les doublons » pour valider, ou choisis un autre à garder.</li><li>Pas envie ? Réglages → Affichage → « Courses : un dessin devant chaque article ».</li></ul>');
  h+=d('📥 Envoyer et recevoir des anniversaires','<ul><li><b>Envoyer</b> : touche longuement un anniversaire (ou « Sélectionner »), coche ceux voulus, puis « Envoyer ». Seuls les anniversaires cochés partent.</li><li><b>Carte d’anniversaire</b> : sous la carte, « ＋ Zoomer / － Dézoomer » règlent la photo ; « ✋ Déplacer à la main » permet de la glisser et de la pincer directement sur la carte (rond, cœur, carré).</li><li><b>Recevoir</b> : « ⚙ Options » → « 📥 Recevoir des anniversaires », puis colle le lien reçu.</li></ul>');
@@ -6174,6 +6178,8 @@ async function act(a,el,e){
   case 'co-tocat':{const cur=coCur();const L=tkAll().filter(t=>t.l===cur&&!t.x);const r=await ask({title:'📒 Ranger dans ma liste type',html:'<p style="margin:.2rem 0 .6rem">Les '+L.length+' articles vont dans « Ma liste type » (A → Z). La liste « À acheter » sera vide : ensuite, touche simplement ce qu’il faut acheter.</p>',btns:[{label:'Ranger les '+L.length+' articles',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')break;
    for(const t of L){const g=t.ig||ingParse(t.t);if(!g||!g.n)continue;const k=coKey(g.n);if(k&&!coHist()[k])coHist()[k]={n:g.n,u:g.u||'',q:null,ry:t.ry||rayOf(g.n),c:1,at:Date.now()}}
    const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);CV.mode='cat';saveSet();render();window.scrollTo(0,0);toast(L.length+' articles rangés dans ta liste type',4000);break}
+  case 'co-hidemain':{if(coLists().length<2){toast('Crée d’abord une autre liste (＋ Nouvelle liste)');break}const r=await ask({title:'🙈 Masquer la liste « '+tlOf('courses').n+' » ?',text:'Son onglet disparaît. Ses articles sont gardés et tu peux la réafficher dans ⋯ Options. Les ajouts depuis les recettes et le menu iront dans la liste que tu choisis.',btns:[{label:'Masquer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')break;S.coHideMain=true;S.coLid=coLists()[0].id;saveSet();render();toast('Liste masquée');break}
+  case 'co-showmain':{S.coHideMain=false;saveSet();render();toast('Liste réaffichée');break}
   case 'co-ren':{const tl=tlOf(coCur());const v={t:tl.n};const pr=ask({title:'✏️ Renommer la liste',html:'<input class="in" id="col-n" maxlength="30" value="'+esc(tl.n)+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')break;const n=String(v.t||'').trim().slice(0,30);if(n){tl.n=n;tl.m=Date.now();saveSet();render()}break}
   case 'co-del':{const cur=coCur();if(cur==='courses')break;const tl=tlOf(cur);const L=tkAll().filter(t=>t.l===cur);const r=await ask({title:'Supprimer « '+tl.n+' » ?',text:L.length?'Ses '+L.length+' articles seront supprimés aussi.':'La liste est vide.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;
    const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);S.tl=tkLists().filter(l=>l.id!==cur);S.coLid='courses';for(const fg of famAll())for(const id of Object.keys(fg.gr||{})){const g=fg.gr[id];if(Array.isArray(g.cos))g.cos=g.cos.filter(x=>x!==cur)}saveSet();render();toast('Liste supprimée');break}
@@ -7388,6 +7394,8 @@ async function coMenu(){
  if(pend.length)b('💾 Enregistrer comme paquet','co-save');
  b('＋ Nouvelle liste','co-new');
  if(cur!=='courses'&&!si.from){b('✏️ Renommer « '+tl.n+' »','co-ren');b('🗑 Supprimer « '+tl.n+' »','co-del','dng')}
+ if(cur==='courses'){b('✏️ Renommer « '+tl.n+' »','co-ren');if(coLists().length>1)b('🙈 Masquer la liste « '+tl.n+' »','co-hidemain')}
+ if(S.coHideMain)b('👁 Réafficher la liste « '+((tkLists().find(l=>l.id==='courses')||{}).n||'Courses')+' »','co-showmain')
  b('Fermer',null);
  const r=await ask({title:'⋯ Courses',html:'<div style="height:.1rem"></div>',btns:B});
  if(r)act(r,document.body,null);
@@ -7440,11 +7448,11 @@ async function coAddLines(title,lines,intro){
 /* ----- ajout aux courses : regroupe les mêmes articles ----- */
 function coursesList0(){let l=tkLists().find(x=>x.id==='courses');if(!l){l={id:'courses',n:'Courses',i:'🛒',m:Date.now()};tkLists().push(l)}return l.id}
 const isCoL=id=>!!id&&(id==='courses'||!!(tkLists().find(x=>x.id===id)||{}).co);
-const coLists=()=>{coursesList0();return tkLists().filter(l=>l.id==='courses'||l.co)};
-function coCur(){return isCoL(S.coLid)?S.coLid:coursesList0()}
+const coLists=()=>{coursesList0();const all=tkLists().filter(l=>l.id==='courses'||l.co);return (S.coHideMain&&all.length>1)?all.filter(l=>l.id!=='courses'):all};
+function coCur(){const L=coLists();if(S.coLid&&L.some(l=>l.id===S.coLid))return S.coLid;return L[0]?L[0].id:coursesList0()}
 function coursesList(){return coCur()}
-function coursesAdd(items){
- const lid=coursesList();let n=0;
+function coursesAdd(items,lidArg){
+ const lid=(lidArg&&isCoL(lidArg))?lidArg:coursesList();let n=0;
  for(const it of items){
   coRemember(it);
   const key=norm(it.n).replace(/s$/,'')+'|'+(it.u||'');
@@ -7458,14 +7466,18 @@ function coursesAdd(items){
 async function pickIngredients(title,items,intro){
  if(!items.length){toast('Aucun ingrédient');return}
  const off=new Set();
- const html='<p style="margin:.2rem 0 .5rem">'+intro+' <b>Décoche ce que tu as déjà.</b></p><div class="olbox">'+items.map((it,i)=>'<label class="olrow"><input type="checkbox" checked data-ig="'+i+'"><span>'+esc(ingTxt(it))+(it.from?' <small class="mut">· '+esc(it.from)+'</small>':'')+'</span></label>').join('')+'</div>';
- const root=$('#dlg');const h=e=>{const c=e.target.closest&&e.target.closest('[data-ig]');if(c){c.checked?off.delete(+c.dataset.ig):off.add(+c.dataset.ig)}};
+ const LL=coLists();
+ const pickL=LL.length>1?'<label class="lbl" for="pi-l" style="display:block;margin:.1rem 0 .2rem">Dans quelle liste ?</label><select class="in" id="pi-l" style="margin-bottom:.5rem">'+LL.map(l=>'<option value="'+esc(l.id)+'"'+(l.id===coCur()?' selected':'')+'>'+esc((l.i?l.i+' ':'')+l.n)+'</option>').join('')+'</select>':'';
+ const html=pickL+'<p style="margin:.2rem 0 .5rem">'+intro+' <b>Décoche ce que tu as déjà.</b></p><div class="olbox">'+items.map((it,i)=>'<label class="olrow"><input type="checkbox" checked data-ig="'+i+'"><span>'+esc(ingTxt(it))+(it.from?' <small class="mut">· '+esc(it.from)+'</small>':'')+'</span></label>').join('')+'</div>';
+ let lid=coCur();
+ const root=$('#dlg');const h=e=>{if(e.target&&e.target.id==='pi-l'){lid=e.target.value;return}const c=e.target.closest&&e.target.closest('[data-ig]');if(c){c.checked?off.delete(+c.dataset.ig):off.add(+c.dataset.ig)}};
  root.addEventListener('change',h,true);
  const r=await ask({title,html,btns:[{label:'🛒 Ajouter aux courses',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
  root.removeEventListener('change',h,true);
  if(r!=='y')return;
- const n=coursesAdd(items.filter((_,i)=>!off.has(i)));
- render();toast(n?n+' article'+(n>1?'s':'')+' dans la liste Courses':'Rien à ajouter',4000,n?{label:'Voir',fn:()=>{CV.mode='buy';go('courses')}}:null);
+ const n=coursesAdd(items.filter((_,i)=>!off.has(i)),lid);
+ if(n&&lid!==coCur()){S.coLid=lid;saveSet()}
+ render();toast(n?n+' article'+(n>1?'s':'')+' dans la liste « '+tlOf(lid).n+' »':'Rien à ajouter',4000,n?{label:'Voir',fn:()=>{S.coLid=lid;saveSet();CV.mode='buy';go('courses')}}:null);
 }
 function weekIngredients(){
  const ws=rwStart(),acc=[];
