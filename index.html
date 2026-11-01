@@ -1079,12 +1079,16 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.23.2';
+const APP_VERSION='2.23.4';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.23.4',d:'01/11/2026',items:[
+  'AgenDam reconnaît aussi <b>Gestion Locative Facile</b> : les visites de candidats locataires envoyées par cette appli (lien ou code collé, préfixe <b>GLF:</b> accepté) arrivent avec leur 🏠, le lieu et la note complète, en catégorie « Location » si elle existe. Les messages indiquent le bon nom d’appli.']},
+ {v:'2.23.3',d:'01/11/2026',items:[
+  'Réglages → Fichier calendrier : <b>📋 Reçus de CV en poche</b> liste tout ce qui a été ajouté depuis CV en poche. Tu coches les rendez-vous à retirer et tu les supprimes d’un coup.']},
  {v:'2.23.2',d:'01/11/2026',items:[
   'Réglages → Fichier calendrier : nouveau bouton <b>📥 Coller depuis CV en poche</b>. Dans CV en poche, copie le code (ou le lien), reviens ici et touche le bouton : tes entretiens sont proposés à l’ajout, sans doublons.']},
  {v:'2.23.1',d:'01/11/2026',items:[
@@ -5643,7 +5647,7 @@ function settingsView(){
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
-  pair(pbtn('ics-export',ic('down')+' Exporter','Tout en .ics','alt'),pbtn('ics-import',ic('up')+' Importer','Un fichier .ics','alt'))+mrow('cv-paste','📥 Coller depuis CV en poche','Entretiens et rendez-vous de candidature')+'</div>';
+  pair(pbtn('ics-export',ic('down')+' Exporter','Tout en .ics','alt'),pbtn('ics-import',ic('up')+' Importer','Un fichier .ics','alt'))+mrow('cv-paste','📥 Coller depuis CV en poche ou Gestion Locative','Entretiens, visites de logement')+mrow('cv-list','📋 Reçus de CV en poche / Gestion Locative',(n=>n?n+' dans l’agenda · en retirer en cochant':'Rien reçu pour l’instant')(EV.filter(e=>e.src==='cv'||e.src==='glf').length))+'</div>';
  h+='\u0001rap\u0001';
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
@@ -5696,6 +5700,8 @@ function openHelp(hist){
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
+ h+=d('🏠 Gestion Locative Facile','<ul><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
+ h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
  h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
  h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
@@ -6338,6 +6344,7 @@ async function act(a,el,e){
   case 'sel-send':selSend();break;
   case 'ics-add':if(demo){toast('Quitte d’abord le mode démo');break}exportICS(false,EV.slice());break;
   case 'cv-paste':cvPaste();break;
+  case 'cv-list':cvList();break;
   case 'ics-import':$('#fi-ics').value='';$('#fi-ics').click();break;
   case 'gobackup':V.view='settings';V.sset='sauv';render();setTimeout(()=>{const c=$('#data-card');c&&c.scrollIntoView({block:'start'})},60);break;
   case 'snooze':META.snooze=Date.now()+864e5;saveMeta();render();break;
@@ -7069,15 +7076,16 @@ function shareCheckHash(){
 /* Réception depuis « CV en poche » : lien …/agenda/#cv=<JSON en base64url> avec {app:'cv',v:1,ev:[…]}. Sens unique CV → AgenDam. */
 function cvDecode(code){
  try{
-  let t=String(code||'').trim();const i=t.indexOf('#cv=');if(i>=0)t=t.slice(i+4);t=t.replace(/^CVPOCHE:\s*/i,'').split(/[&\s]/)[0];
+  let t=String(code||'').trim();const i=t.indexOf('#cv=');if(i>=0)t=t.slice(i+4);t=t.replace(/^(?:CVPOCHE|GLF):\s*/i,'').split(/[&\s]/)[0];
   t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';
   const bin=atob(t),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
   const o=JSON.parse(new TextDecoder().decode(u));
   if(!o||o.app!=='cv'||!Array.isArray(o.ev))return null;
-  return o.ev.slice(0,200);
+  const a=o.ev.slice(0,200);a.src=o.src==='glf'?'glf':'cv';return a;
  }catch(e){return null}
 }
-function cvNorm(x){
+const cvName=s=>s==='glf'?'Gestion Locative Facile':'CV en poche';
+function cvNorm(x,src){
  if(!x||typeof x!=='object')return null;
  const pick=(...k)=>{for(const n of k)if(x[n]!=null&&x[n]!=='')return x[n]};
  let st=String(pick('start','date','debut','d')||''),stT=pick('startTime','heure','time','h');
@@ -7085,23 +7093,41 @@ function cvNorm(x){
  let en=String(pick('end','fin')||''),enT=pick('endTime','heureFin');
  const m2=en.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);if(m2){en=m2[1];if(!enT)enT=m2[2]}
  const allDay=x.allDay!=null?!!x.allDay:!stT;
- return cleanEvent({title:pick('title','titre','summary','t'),start:st,end:en||st,allDay,startTime:stT,endTime:enT,place:pick('place','lieu','location'),note:pick('note','desc','description'),cat:pick('cat'),icon:pick('icon')});
+ return cleanEvent({title:pick('title','titre','summary','t'),start:st,end:en||st,allDay,startTime:stT,endTime:enT,place:pick('place','lieu','location'),note:pick('note','desc','description'),cat:pick('cat')||(src==='glf'?((S.cats.find(c=>norm(c.name).trim()==='location')||{}).id):undefined),icon:pick('icon')});
 }
 const cvKey=e=>[String(e.title).trim().toLowerCase(),e.start,e.allDay?'':e.startTime].join('|');
 async function cvReceive(list){
  if(demo){toast('Quitte d’abord le mode démo pour recevoir ces événements',4000);return}
- const evs=(list||[]).map(cvNorm).filter(Boolean);
+ const src=list&&list.src==='glf'?'glf':'cv',nm=cvName(src);
+ const evs=(list||[]).map(x=>cvNorm(x,src)).filter(Boolean);
  if(!evs.length){toast('Aucun événement valide dans ce lien',4000);return}
  const have=new Set(EV.map(cvKey)),seen=new Set(),fresh=[];
- for(const e of evs){const k=cvKey(e);if(have.has(k)||seen.has(k))continue;seen.add(k);e.id='cv-'+hash32(k);e.src='cv';fresh.push(e)}
+ for(const e of evs){const k=cvKey(e);if(have.has(k)||seen.has(k))continue;seen.add(k);e.id=src+'-'+hash32(k);e.src=src;fresh.push(e)}
  if(!fresh.length){toast('Ces '+evs.length+' événement'+(evs.length>1?'s sont':' est')+' déjà dans ton agenda',4500);return}
  const dup=evs.length-fresh.length;
- const r=await ask({title:'📥 Reçu de CV en poche',
-  html:'<p style="margin:.2rem 0 .4rem"><b>'+fresh.length+' événement'+(fresh.length>1?'s reçus':' reçu')+'</b> de CV en poche, les ajouter ?'+(dup?' <span class="mut">('+dup+' déjà présent'+(dup>1?'s':'')+', ignoré'+(dup>1?'s':'')+')</span>':'')+'</p><div class="mut" style="font-size:.88rem;margin:.3rem 0 .6rem">'+fresh.slice(0,8).map(e=>'• '+esc(e.title)+' · '+esc(fShort(e.start))+(e.allDay?'':' '+esc(e.startTime))).join('<br>')+(fresh.length>8?'<br>… et '+(fresh.length-8)+' autres':'')+'</div>',
+ const r=await ask({title:'📥 Reçu de '+nm,
+  html:'<p style="margin:.2rem 0 .4rem"><b>'+fresh.length+' événement'+(fresh.length>1?'s reçus':' reçu')+'</b> de '+esc(nm)+', les ajouter ?'+(dup?' <span class="mut">('+dup+' déjà présent'+(dup>1?'s':'')+', ignoré'+(dup>1?'s':'')+')</span>':'')+'</p><div class="mut" style="font-size:.88rem;margin:.3rem 0 .6rem">'+fresh.slice(0,8).map(e=>'• '+esc(e.title)+' · '+esc(fShort(e.start))+(e.allDay?'':' '+esc(e.startTime))).join('<br>')+(fresh.length>8?'<br>… et '+(fresh.length-8)+' autres':'')+'</div>',
   btns:[{label:'Ajouter ('+fresh.length+')',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  if(r!=='ok')return;
  EV.push(...fresh);touch();V.date=fresh.map(e=>e.start).sort()[0];render();
  toast(fresh.length+' événement'+(fresh.length>1?'s ajoutés':' ajouté')+' à l’agenda',4000);
+}
+async function cvList(){
+ if(demo){toast('Quitte d’abord le mode démo',3500);return}
+ const L=EV.filter(e=>e.src==='cv'||e.src==='glf').sort((a,b)=>(a.start+a.startTime).localeCompare(b.start+b.startTime));
+ if(!L.length){toast('Rien n’a encore été ajouté depuis CV en poche ou Gestion Locative Facile',4500);return}
+ const on=new Set();
+ const html='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Coche les rendez-vous à retirer de l’agenda.</p><div id="cvl">'+L.map((e,i)=>'<label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--line,#0001)"><input type="checkbox" data-cvi="'+i+'" style="width:1.3rem;height:1.3rem;flex:none;margin-top:.15rem"><span><b>'+esc(e.title)+'</b><br><small class="mut">'+(e.src==='glf'?'Gestion Locative · ':'CV en poche · ')+esc(fShort(e.start))+(e.allDay?'':' · '+esc(e.startTime))+(e.place?' · '+esc(e.place):'')+'</small></span></label>').join('')+'</div>';
+ const root=$('#dlg');
+ const h=e=>{const t=e.target;if(!t.dataset||t.dataset.cvi==null)return;const i=+t.dataset.cvi;t.checked?on.add(i):on.delete(i)};
+ root.addEventListener('change',h,true);
+ const r=await ask({title:'📋 Reçus des applis liées ('+L.length+')',html,btns:[{label:'Retirer les rendez-vous cochés',value:'y',cls:'dng'},{label:'Fermer',value:null}]});
+ root.removeEventListener('change',h,true);
+ if(r!=='y')return;
+ if(!on.size){toast('Aucun rendez-vous coché',3000);return}
+ const ids=new Set([...on].map(i=>L[i].id));
+ EV=EV.filter(e=>!ids.has(e.id));touch();render();
+ toast(ids.size+' rendez-vous retiré'+(ids.size>1?'s':''),4000);
 }
 async function cvPaste(){
  if(demo){toast('Quitte d’abord le mode démo',3500);return}
@@ -7110,12 +7136,12 @@ async function cvPaste(){
  let ev=t?cvDecode(t):null;
  if(!ev){
   const v={t:''};
-  const pr=ask({title:'📥 Coller depuis CV en poche',html:'<p style="margin:.2rem 0 .5rem">Dans CV en poche, copie le code (ou le lien) des entretiens, puis colle-le ici (appui long → Coller).</p>'+(t?'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Le presse-papiers ne contenait pas de code CV en poche.</p>':'')+'<textarea class="in" id="cv-in" rows="4" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  const pr=ask({title:'📥 Coller depuis une appli liée',html:'<p style="margin:.2rem 0 .5rem">Dans CV en poche (ou Gestion Locative Facile), copie le code ou le lien, puis colle-le ici (appui long → Coller).</p>'+(t?'<p class="mut" style="font-size:.85rem;margin:0 0 .4rem">Le presse-papiers ne contenait pas de code reconnu.</p>':'')+'<textarea class="in" id="cv-in" rows="4" style="margin-bottom:.6rem"></textarea>',btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
   const root=$('#dlg');root.oninput=e=>{if(e.target.id==='cv-in')v.t=e.target.value};
   setTimeout(()=>{const i=$('#cv-in');if(i)i.focus()},100);
   const r=await pr;root.oninput=null;if(r!=='ok')return;
   ev=cvDecode(v.t);
-  if(!ev){toast('Ce n’est pas un code CV en poche valide',4000);return}
+  if(!ev){toast('Ce n’est pas un code valide (CV en poche ou Gestion Locative Facile)',4500);return}
  }
  cvReceive(ev);
 }
@@ -7124,7 +7150,7 @@ function cvCheckHash(){
  const code=h.slice(4).split(/[&\s]/)[0];
  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
  const ev=cvDecode(code);
- if(!ev){toast('Ce lien CV en poche n’est pas valide',4000);return true}
+ if(!ev){toast('Ce lien n’est pas valide (CV en poche ou Gestion Locative Facile)',4500);return true}
  setTimeout(()=>cvReceive(ev),450);return true;
 }
 async function ensureMe(){if(S.meOk&&meName())return true;return await meSet()}
