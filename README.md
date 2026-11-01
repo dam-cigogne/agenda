@@ -6,7 +6,7 @@
 - Démo (données fictives dans tous les onglets) : https://dam-cigogne.github.io/agenda/?demo=1
 - Fiche de présentation et installation : https://dam-cigogne.github.io/agenda/presentation.html
 
-## Ce qu’il y a dedans (v2.12)
+## Ce qu’il y a dedans (v2.20)
 
 - Apparence « carnet » : un intercalaire de couleur par onglet. Onglets en bas (ou sur le côté sur tablette / ordinateur) : 📅 Agenda · ☑ Tâches · 🛒 Courses · 🍽 Repas · 🎂 Anniversaires · 🧳 Voyages (onglets visibles au choix)
 - Listes de Tâches et de Courses en intercalaires sur le côté ou en boutons en haut (réglage)
@@ -34,6 +34,7 @@
 - Rappels « à venir aujourd'hui » à l'ouverture, notifications selon la plateforme
 - Sauvegarde / restauration `agenda-sauvegarde.json` (nom fixe), import / export `.ics`, bouton « Ajouter à mon agenda » (Apple, Outlook, Google : envoi unique, pas de synchronisation)
 - Apparence à ta couleur : couleur de l’appli, fond teinté, couleur des week-ends, jours fériés en rouge, dates plus lisibles
+- Nouveautés 2.20 : anniversaires (retirer la photo, cadrage pour ne pas couper les têtes, âge masquable, « qui c’est », nom sur la carte, total et options en haut), recettes notées en étoiles avec commentaire (appui long) et tri, sauvegarde de l’agenda seul, « Copier le texte » d’un événement, impression du voyage en colonnes, aide à l’adresse dans les voyages
 - Vacances scolaires (zones A, B, C) : liseré coloré (couleur au choix) sur les jours de vacances ; calendrier officiel facultatif (data.education.gouv.fr, seule la zone est envoyée, cache `agd-vac`) et/ou périodes saisies à la main
 - Mois : mots longs coupés par syllabes, taille du texte des événements au choix (Petit, Normal, Grand)
 - Réglages simples : sauvegarde en haut (partage direct vers « Fichiers » sur iPhone/Android), boutons compacts, options rares dans « Options complémentaires » (repliable)

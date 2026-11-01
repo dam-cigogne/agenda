@@ -754,7 +754,7 @@ html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb
 .vpg-body{display:grid;grid-template-columns:2.6em repeat(var(--n),1fr);gap:2px}.vpg-gut>div{height:1.25em;font-size:.85em;color:#666;line-height:1}.vpg-col{position:relative}.vpg-col>div:not(.vpg-b):not(.vpg-meal){height:1.25em;border-top:1px solid #e3e8ec}.vpg-col>.h2{border-top:1px dotted #eef1f3}
 .vpg-col .pm{background:#fffbea}.vpg-col .pa{background:#f0f9ff}.vpg-col .ps{background:#f5f3ff}.vpg-col>div{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .vpg-b{position:absolute;background:#0f766e;color:#fff;border-radius:4px;padding:.1em .25em;overflow:hidden;line-height:1.15;font-size:.95em}.vpg-b small{opacity:.9;font-size:.85em}
-.vpg-meal{position:absolute;left:0;right:0;font-size:.8em;color:#9a6b2f;padding:0 .2em;white-space:nowrap;overflow:hidden}.vp-l{break-inside:avoid;margin:0 0 .5em}.vp-l h3{font-size:1em;margin:0 0 .15em}.vp-l h3 small{color:#666;font-weight:600}.vp-i{display:flex;gap:.35em;font-size:.92em}.vp-i.vp-dn{color:#8a949c;text-decoration:line-through}.vp-i>span{flex:none}
+.vpg-meal{position:absolute;left:0;right:0;font-size:.8em;color:#9a6b2f;padding:0 .2em;white-space:nowrap;overflow:hidden}.vp-l{break-inside:avoid;margin:0 0 .5em}.vp-l.vp-lg{break-inside:auto}.vp-l h3{break-after:avoid}.vp-i{break-inside:avoid}.vp-l h3{font-size:1em;margin:0 0 .15em}.vp-l h3 small{color:#666;font-weight:600}.vp-i{display:flex;gap:.35em;font-size:.92em}.vp-i.vp-dn{color:#8a949c;text-decoration:line-through}.vp-i>span{flex:none}
 .vp-in{display:grid;grid-template-columns:1fr 1fr;gap:.3em .9em;font-size:.9em}.vp-in b{display:block}.vp-in span{white-space:pre-line}
 .tw{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2933;display:flex;flex-direction:column;min-height:186mm}
 .tw-h{display:flex;justify-content:space-between;align-items:baseline;background:linear-gradient(90deg,#2563eb,#60a5fa);color:#fff;border-radius:10px;padding:.45em .9em;margin-bottom:.5em;-webkit-print-color-adjust:exact;print-color-adjust:exact}.tw-h b{font-size:1.5em;font-family:Georgia,serif;font-style:italic}
@@ -1007,6 +1007,16 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 .thm button i{display:flex;gap:3px;margin-top:.3rem}.thm button i b{flex:1;height:.42rem;border-radius:.2rem;background:var(--c)}
 .thm button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .fnt .seg button,.fnt button{font-family:var(--f)}
+
+/* 2.20.0 : anniversaires, recettes notées */
+.bd-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.55rem 0 .1rem}.bd-top b{font-size:1.05rem}
+.bd-optbox{margin:.4rem 0 .6rem;padding:.7rem .8rem;border:1px solid var(--line,#8884);border-radius:.9rem;background:var(--card,rgba(127,127,127,.06))}
+.bdnn{display:block;font-size:.82rem;color:var(--mut,#777);font-style:italic}
+.rc-cx small.rc-sr,.rc-sr{display:block;color:#d98a00;letter-spacing:.05em;font-size:.82rem}.rc-sort .mut{white-space:nowrap;flex:none}
+.rc-sort{align-items:center}.rc-card{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.rc-stars{display:flex;gap:.2rem;justify-content:center;margin:.3rem 0}.rc-star{font-size:2.2rem;line-height:1;background:none;border:0;color:#d98a00;padding:.1rem .25rem;cursor:pointer}
+.rc-rate{display:flex;align-items:center;gap:.6rem;width:100%;margin:.4rem 0;padding:.5rem .7rem;border:1px dashed var(--line,#8886);border-radius:.8rem;background:none;color:inherit;font:inherit;text-align:left}.rc-sr2{font-size:1.3rem;color:#d98a00;letter-spacing:.05em}
+.rc-cm{margin:.2rem 0 .6rem;padding:.5rem .7rem;border-left:3px solid #d98a00;background:rgba(217,138,0,.08);border-radius:.4rem;white-space:pre-line}
 </style>
 </head>
 <body>
@@ -1053,12 +1063,19 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.19.2';
+const APP_VERSION='2.20.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.20.0',d:'01/11/2026',items:[
+  '🎂 Anniversaires : tu peux retirer la photo d’une fiche (dans la fiche, ou dans « Souhaiter »). Le cadrage de la photo se règle (haut, centre, bas ; remplir, un peu dézoomé ou photo entière), pour que le cœur ne coupe plus les têtes.',
+  '🎂 Anniversaires : option « Ne pas écrire son âge sur la carte » (par personne, et un bouton direct dans « Souhaiter »). Nouveaux champs « Qui c’est ? » (surnom, lien, rappel : affiché sous le nom) et « Nom écrit sur la carte » (sans le nom de famille).',
+  '🎂 Anniversaires : le nombre total est affiché en haut, avec un bouton « ⚙ Options » (import, impression, rappels, code…) : plus besoin de descendre tout en bas.',
+  '⭐ Recettes : note de 1 à 5 étoiles et commentaire (appui long sur la recette, ou dans la fiche), tri « Meilleures notes ».',
+  '📅 Agenda : « Agenda seul » sauvegarde seulement tes événements (Réglages → Sauvegarde) et « Restaurer l’agenda » les remet. Dans un événement, « 📋 Copier le texte » le copie pour le coller dans une autre appli (Dupliquer reste là pour en refaire un dans l’agenda).',
+  '🧳 Voyage : l’impression met les listes sur plusieurs colonnes, donc le texte est plus gros. L’aide à l’adresse (service public, optionnelle) marche aussi pour « Où » et « Adresse du logement ».']},
  {v:'2.19.2',d:'31/10/2026',items:[
   '🔧 Tes rendez-vous repartent chez la famille quand tu as deux appareils : c’est l’appareil qui échange déjà avec la personne (celui qui reçoit ses partages) qui lui envoie ton agenda, l’iPad ne lui « coupe » plus.']},
  {v:'2.19.1',d:'31/10/2026',items:[
@@ -4271,11 +4288,14 @@ function lookCard(seg){
 }
 
 /* ---------- Aide à l'adresse (optionnelle) : Base Adresse Nationale, service de l'État ---------- */
-let ADR_T=null,ADR_AC=null,ADR_L=[];
-function adrBox(){let b=$('#f-adr');if(!b){const i=$('#f-place');if(!i)return null;b=document.createElement('div');b.id='f-adr';b.className='adr';i.parentNode.appendChild(b)}return b}
+let ADR_T=null,ADR_AC=null,ADR_L=[],ADR_IN=null,ADR_SKIP=false;
+const adrEl=()=>ADR_IN&&document.contains(ADR_IN)?ADR_IN:$('#f-place');
+function adrBox(){let b=$('#f-adr');if(!b){const i=adrEl();if(!i)return null;b=document.createElement('div');b.id='f-adr';b.className='adr';i.parentNode.appendChild(b)}return b}
 function adrHint(){const b=adrBox();if(!b)return;if(S.adrAide){b.innerHTML='';return}b.innerHTML='<button type="button" class="adr-on" data-act="adr-on">'+ic('pin')+' Activer l’aide à l’adresse (France)</button>'}
 function adrClose(){ADR_L=[];const b=$('#f-adr');if(b)b.innerHTML=S.adrAide?'':b.innerHTML}
 function adrInput(t){
+ if(ADR_SKIP)return;
+ if(t&&t!==ADR_IN){ADR_IN=t;const o=$('#f-adr');if(o&&o.parentNode!==t.parentNode)o.remove()}
  clearTimeout(ADR_T);if(ADR_AC){try{ADR_AC.abort()}catch(e){}}
  if(!S.adrAide)return;
  const q=t.value.trim(),b=adrBox();if(!b)return;
@@ -4285,16 +4305,16 @@ function adrInput(t){
   try{
    const r=await fetch('https://api-adresse.data.gouv.fr/search/?limit=5&autocomplete=1&q='+encodeURIComponent(q.slice(0,200)),ADR_AC?{signal:ADR_AC.signal}:{});
    if(!r.ok)throw 0;const j=await r.json();
-   if(!$('#f-place')||$('#f-place').value.trim()!==q)return;
+   if(!adrEl()||adrEl().value.trim()!==q)return;
    ADR_L=(j.features||[]).map(f=>f.properties.label).filter(Boolean);
    b.innerHTML=ADR_L.length?'<div class="adr-l" role="listbox">'+ADR_L.map((l,i)=>'<button type="button" role="option" data-act="adr-pick" data-i="'+i+'">'+ic('pin')+'<span>'+esc(l)+'</span></button>').join('')+'<small class="mut">Source : Base Adresse Nationale (France). Tu peux aussi garder ton texte tel quel.</small></div>':'<small class="mut">Aucune adresse trouvée : ton texte est gardé tel quel.</small>';
   }catch(e){if(e&&e.name==='AbortError')return;b.innerHTML='<small class="mut">Aide indisponible (hors connexion ?) : écris l’adresse à la main.</small>'}
  },450);
 }
-function adrPick(i){const l=ADR_L[i];const inp=$('#f-place');if(!l||!inp)return;inp.value=l;ADR_L=[];const b=$('#f-adr');if(b)b.innerHTML='';inp.focus()}
+function adrPick(i){const l=ADR_L[i];const inp=adrEl();if(!l||!inp)return;ADR_SKIP=true;inp.value=l;try{inp.dispatchEvent(new Event('input',{bubbles:true}))}catch(e){}ADR_SKIP=false;ADR_L=[];const b=$('#f-adr');if(b)b.innerHTML='';inp.focus()}
 async function adrEnable(){
  const r=await ask({title:'Aide à l’adresse',html:'<p style="margin:.3rem 0">Quand tu écris un lieu, l’appli propose des adresses en France.</p><p style="margin:.3rem 0"><b>Ce que tu tapes dans « Lieu » est alors envoyé au service public api-adresse.data.gouv.fr</b> (Base Adresse Nationale : gratuit, sans publicité, sans compte). Rien n’est envoyé ailleurs. Tu peux désactiver quand tu veux dans Réglages.</p>',btns:[{label:'Activer',value:'on',cls:'pri'},{label:'Non merci',value:null}]});
- if(r==='on'){S.adrAide=true;saveSet();adrHint();toast('Aide à l’adresse activée');const i=$('#f-place');if(i&&i.value.trim().length>=4)adrInput(i)}
+ if(r==='on'){S.adrAide=true;saveSet();adrHint();toast('Aide à l’adresse activée');const i=adrEl();if(i&&i.value.trim().length>=4)adrInput(i)}
 }
 
 /* ---------- Modèles d'événements + assistant « Garde alternée » ---------- */
@@ -4876,7 +4896,7 @@ async function bdSetPin(){
 function bdMark(date){const l=bdOn(date);return (l.length?'<em class="bd" title="'+esc('Anniversaire : '+l.map(b=>bdHide(b)?'protégé':b.n).join(', '))+'">🎂</em>':'')+tkMark(date)}
 function bdDayHTML(date){
  const l=bdOn(date);if(!l.length)return '';
- return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>'+(date===today()?l.filter(b=>!bdHide(b)).map(b=>'<button class="bdb wishb" data-act="wish-open" data-id="'+esc(b.id)+'">🎉 Souhaiter à '+esc(b.n.split(' ')[0])+(b.ws&&b.ws.y===new Date().getFullYear()?' ✓':'')+'</button>').join(''):'');
+ return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(b.nn?' <small>('+esc(b.nn)+')</small>':'')+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>'+(date===today()?l.filter(b=>!bdHide(b)).map(b=>'<button class="bdb wishb" data-act="wish-open" data-id="'+esc(b.id)+'">🎉 Souhaiter à '+esc(wishFirst(b))+(b.ws&&b.ws.y===new Date().getFullYear()?' ✓':'')+'</button>').join(''):'');
 }
 function bdIn(days){return days===0?'aujourd’hui':days===1?'demain':'dans '+days+' jours'}
 function bdLines(){
@@ -4898,7 +4918,7 @@ function bdRowsHTML(){
 function bdOpen(){go('bdays')}
 function bdShow(){if(V.view==='bdays'&&!SHEET_OPEN){render();return}openSheet(bdHTML(false))}
 function bdaysView(){return{html:'<div class="bd-page">'+bdHTML(true)+'</div>',fixed:false}}
-let BD_SEL=null;
+let BD_SEL=null,BD_OPT=false;
 function bdSelBar(){return '<div class="bdselbar"><b id="bd-seln">'+BD_SEL.size+' sélectionné'+(BD_SEL.size>1?'s':'')+'</b><div class="chips"><button class="chip" data-act="bd-selall">Tout</button><button class="chip" data-act="bd-selnone">Aucun</button><button class="chip" data-act="bd-selsend">📤 Envoyer</button>'+(famActive().length?'<button class="chip" data-act="bd-selfam">🔄 Partager avec…</button>':'')+'<button class="chip" data-act="bd-selend">Terminer</button></div></div>'}
 function bdHTML(inMain){
  const t=today(),mode=['next','az','month'].includes(S.bdSort)?S.bdSort:'next';
@@ -4911,6 +4931,8 @@ function bdHTML(inMain){
  let h=inMain?'':'<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">🎂 Anniversaires</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  if(BD_SEL)h+=bdSelBar();
  else h+='<div style="display:flex;gap:.5rem"><button class="btn pri" data-act="bd-add" style="margin-top:0;flex:1">'+ic('plus')+' Ajouter un anniversaire</button>'+(bdClean().length?'<button class="btn" data-act="bd-selon" style="margin-top:0">☑ Sélectionner</button>':'')+'</div>';
+ if(!BD_SEL)h+='<div class="bd-top"><b>🎂 '+bdClean().length+' anniversaire'+(bdClean().length>1?'s':'')+'</b><button class="chip'+(BD_OPT?' on':'')+'" data-act="bd-optt" aria-expanded="'+(BD_OPT?'true':'false')+'">⚙ Options '+(BD_OPT?'▴':'▾')+'</button></div>';
+ const hHead_=h;h='';
  if(list.length>1)h+='<div class="seg" style="margin-top:.5rem">'+sg('next','Prochains')+sg('az','A → Z')+sg('month','Par mois')+'</div><input id="bd-q" type="search" placeholder="Chercher un prénom…" autocomplete="off" style="width:100%;margin-top:.4rem;font:inherit;padding:.5rem .7rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box">';
  if(list.length){
   let lastH='';
@@ -4918,8 +4940,9 @@ function bdHTML(inMain){
    let hd='';
    if(mode==='month'&&lastH!==x.b.m){lastH=x.b.m;hd='<div class="bdh">'+cap(ML[x.b.m-1])+'</div>'}
    else if(mode==='az'){const L=hid?'🔒':(norm(x.b.n).charAt(0)||'#').toUpperCase();if(lastH!==L){lastH=L;hd='<div class="bdh">'+esc(L)+'</div>'}}
-   return hd+'<div class="bdrw" data-n="'+(hid?'':esc(norm(x.b.n)))+'"><button class="bdrow'+(BD_SEL&&BD_SEL.has(x.b.id)?' sel':'')+'" data-n="'+(hid?'':esc(norm(x.b.n)))+'" data-act="'+(BD_SEL?'bd-sel':'bd-edit')+'" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(BD_SEL?(BD_SEL.has(x.b.id)?'✅':'⬜'):x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b><small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'+(BD_SEL?'':'<button class="bdwish'+(dd===0?' now':'')+'" data-act="wish-open" data-id="'+esc(x.b.id)+'" aria-label="Souhaiter l’anniversaire">🎉</button>')+'</div>'}).join('')+'</div>';
+   return hd+'<div class="bdrw" data-n="'+(hid?'':esc(norm(x.b.n+' '+(x.b.nn||''))))+'"><button class="bdrow'+(BD_SEL&&BD_SEL.has(x.b.id)?' sel':'')+'" data-n="'+(hid?'':esc(norm(x.b.n+' '+(x.b.nn||''))))+'" data-act="'+(BD_SEL?'bd-sel':'bd-edit')+'" data-id="'+esc(x.b.id)+'"><span class="bdi">'+(BD_SEL?(BD_SEL.has(x.b.id)?'✅':'⬜'):x.b.p?'🔒':'🎂')+'</span><div class="rt"><b>'+(hid?'Anniversaire protégé':esc(x.b.n))+'</b>'+(!hid&&x.b.nn?'<small class="bdnn">'+esc(x.b.nn)+'</small>':'')+'<small>'+x.b.d+' '+ML[x.b.m-1]+(!hid&&a!=null&&a>=0?' · aura '+a+' an'+(a>1?'s':''):'')+'</small>'+(g?'<small class="bdg2">'+esc(g)+'</small>':'')+'</div><span class="bdd">'+(dd===0?'Aujourd’hui !':dd===1?'Demain':'J-'+dd)+'</span></button>'+(BD_SEL?'':'<button class="bdwish'+(dd===0?' now':'')+'" data-act="wish-open" data-id="'+esc(x.b.id)+'" aria-label="Souhaiter l’anniversaire">🎉</button>')+'</div>'}).join('')+'</div>';
  }else h+='<p class="mut" style="margin:.6rem 0 .7rem"><b>Aucun anniversaire pour le moment.</b> Ajoutes-en un, ou importe-les depuis tes contacts ou tes événements existants.</p>';
+ const hList_=h;h='';
  h+='<div style="height:.4rem"></div><div class="bd-acts">';
  if(nconv)h+='<button class="btn blk" data-act="bd-conv">Retirer de l’agenda mes '+nconv+' événement'+(nconv>1?'s':'')+' « anniversaire » et les mettre ici…</button>';
  h+='<button class="btn blk" data-act="bdimp-open">📥 Importer des anniversaires (Word, Excel, contacts, texte collé…)</button>';
@@ -4932,26 +4955,28 @@ function bdHTML(inMain){
  h+='<button class="btn blk" data-act="bd-pin">'+(S.bdPin?'Code activé : changer ou retirer':'Créer mon code…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-bio">'+(S.bdBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button>';
  if(S.bdPin)h+='<button class="btn blk" data-act="bd-lock">Verrouiller maintenant</button>';
- if(!inMain)h+='<button class="btn blk" data-act="close">Fermer</button>';
- else h=h.replace('id="bd-list" style="margin:.4rem -1rem 0"','id="bd-list" style="margin:.4rem 0 0"');
- if(inMain)h=h.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Envoyer les anniversaires (SMS, mail, Notes, Excel…)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel');
- return h;
+ let hl_=hList_,ho_=h;
+ if(inMain){hl_=hl_.replace('id="bd-list" style="margin:.4rem -1rem 0"','id="bd-list" style="margin:.4rem 0 0"');ho_=ho_.replace('<b style="display:block;margin:.8rem 0 .2rem">Rappel','<button class="btn blk" data-act="sh-bd"'+(bdClean().length?'':' disabled')+'>📤 Envoyer les anniversaires (SMS, mail, Notes, Excel…)</button><b style="display:block;margin:.8rem 0 .2rem">Rappel')}
+ return hHead_+((BD_OPT&&!BD_SEL)?'<div class="bd-optbox">'+ho_+'</div>':'')+hl_+(inMain?'':'<button class="btn blk" data-act="close">Fermer</button>');
 }
 
 /* ---------- Ajouter / modifier ---------- */
-let BD_PH=null;
+let BD_PH=null,BD_PHDEL=false;
 async function bdEdit(id){
  const cur=id?bdClean().find(b=>b.id===id):null;
  const inp='style="width:100%;font:inherit;padding:.55rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box"';
  const grow=(t,x)=>'<div class="bdgr"><input type="checkbox" class="bdgc" aria-label="Acheté"'+(x?' checked':'')+'><input type="text" class="bdgt" maxlength="60" placeholder="idée cadeau" value="'+esc(t||'')+'" '+inp+'><button type="button" class="bdgx" aria-label="Retirer">✕</button></div>';
  const gifts=cur?bdGifts(cur):[];
  const html='<label style="display:block;margin:.3rem 0 .1rem;font-weight:650">Prénom ou nom</label><input id="bd-n" '+inp+' value="'+esc(cur?cur.n:'')+'" maxlength="60" autocomplete="off">'+
+  '<label style="display:block;margin:.5rem 0 .1rem;font-weight:650">📝 Qui c’est ? <span class="mut" style="font-weight:400">(facultatif : surnom, lien, rappel)</span></label><input id="bd-nn" '+inp+' value="'+esc(cur&&cur.nn?cur.nn:'')+'" maxlength="60" autocomplete="off" placeholder="Ex. : cousine de Paul, voisin du 2e, Mamie Jo">'+
+  '<label style="display:block;margin:.5rem 0 .1rem;font-weight:650">🎉 Nom écrit sur la carte <span class="mut" style="font-weight:400">(facultatif)</span></label><input id="bd-cn" '+inp+' value="'+esc(cur&&cur.cn?cur.cn:'')+'" maxlength="30" autocomplete="off" placeholder="Par défaut : le premier mot du nom">'+
   '<div style="display:flex;gap:.5rem;margin-top:.5rem"><div style="flex:1"><label style="font-weight:650">Jour</label><input id="bd-d" type="number" min="1" max="31" inputmode="numeric" '+inp+' value="'+(cur?cur.d:'')+'"></div>'+
   '<div style="flex:2"><label style="font-weight:650">Mois</label><select id="bd-m" '+inp+'>'+ML.map((m,i)=>'<option value="'+(i+1)+'"'+(cur&&cur.m===i+1?' selected':'')+'>'+cap(m)+'</option>').join('')+'</select></div>'+
   '<div style="flex:1.3"><label style="font-weight:650">Année</label><input id="bd-y" type="number" min="1900" max="2100" inputmode="numeric" placeholder="facultatif" '+inp+' value="'+(cur&&cur.y?cur.y:'')+'"></div></div>'+
   '<p class="mut" style="font-size:.82rem;margin:.2rem 0 .4rem">Avec l’année de naissance, l’âge est calculé tout seul.</p>'+
+  '<label style="display:flex;gap:.5rem;align-items:center;margin:.1rem 0 .5rem;font-weight:650"><input type="checkbox" id="bd-na" style="width:1.4rem;height:1.4rem"'+(cur&&cur.na?' checked':'')+'> 🙈 Ne pas écrire son âge sur la carte <span class="mut" style="font-weight:400;font-size:.85rem">(ni dans le message)</span></label>'+
   '<label style="display:block;margin:.3rem 0 .1rem;font-weight:650">👪 Contact relié <span class="mut" style="font-weight:400">(pour lui écrire)</span></label><select id="bd-ct" '+inp+'><option value="">—</option>'+pplSorted().map(p=>'<option value="'+esc(p.id)+'"'+(cur&&cur.ct===p.id?' selected':'')+'>'+esc(pplName(p))+(p.tel?' · '+esc(p.tel):'')+'</option>').join('')+'</select>'+
-  '<label style="display:block;margin:.5rem 0 .2rem;font-weight:650">📷 Photo <span class="mut" style="font-weight:400">(pour la carte d’anniversaire)</span></label><div class="bd-phw"><img id="bd-phi" alt="" hidden><label class="chip" style="position:relative;overflow:hidden">Choisir une photo<input type="file" accept="image/*" id="bd-phf" style="position:absolute;inset:0;opacity:0"></label></div>'+
+  '<label style="display:block;margin:.5rem 0 .2rem;font-weight:650">📷 Photo <span class="mut" style="font-weight:400">(pour la carte d’anniversaire)</span></label><div class="bd-phw"><img id="bd-phi" alt="" hidden><label class="chip" style="position:relative;overflow:hidden">Choisir une photo<input type="file" accept="image/*" id="bd-phf" style="position:absolute;inset:0;opacity:0"></label><button type="button" class="chip" id="bd-phx" hidden>🗑 Retirer la photo</button></div>'+
   '<label style="display:block;margin:.3rem 0 .2rem;font-weight:650">🎁 Idées cadeaux <span class="mut" style="font-weight:400">(coche quand c’est acheté)</span></label><div id="bd-g">'+gifts.map(g=>grow(g.t,g.x)).join('')+'</div>'+
   '<button type="button" id="bd-gadd" class="btn blk sm" style="margin:.3rem 0 .5rem">+ Ajouter une idée</button>'+
   '<label style="display:flex;gap:.5rem;align-items:center;margin:.2rem 0 .6rem;font-weight:650"><input type="checkbox" id="bd-pr" style="width:1.4rem;height:1.4rem"'+(cur&&cur.p?' checked':'')+'> 🔒 Protéger les idées cadeaux <span class="mut" style="font-weight:400;font-size:.85rem">(cachées sans le code ; le nom reste visible)</span></label>';
@@ -4964,9 +4989,10 @@ async function bdEdit(id){
   const mx=[31,29,31,30,31,30,31,31,30,31,30,31][m-1];
   if(!n||!(d>=1&&d<=mx)){e.stopPropagation();e.preventDefault();toast('Indique un nom et un jour valide');return}
   const g=$$('#bd-g .bdgr').map(r=>({t:r.querySelector('.bdgt').value.trim(),x:r.querySelector('.bdgc').checked?1:0})).filter(x=>x.t);
-  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:cur?cur.note||'':'',g,p:$('#bd-pr').checked?1:0,ct:($('#bd-ct')||{}).value||'',ph:cur&&cur.ph?1:0,ws:cur?cur.ws:undefined};
+  got={n,d,m,y:(y>=1900&&y<=2100)?y:0,note:cur?cur.note||'':'',nn:($('#bd-nn').value||'').trim().slice(0,60),cn:($('#bd-cn').value||'').trim().slice(0,30),na:$('#bd-na').checked?1:0,g,p:$('#bd-pr').checked?1:0,ct:($('#bd-ct')||{}).value||'',ph:cur&&cur.ph&&!BD_PHDEL?1:0,ws:cur?cur.ws:undefined};
  };
  const gh=e=>{
+  if(e.target.closest('#bd-phx')){e.stopPropagation();BD_PH=null;BD_PHDEL=true;const i=$('#bd-phi');if(i){i.hidden=true;i.removeAttribute('src')}const x=$('#bd-phx');if(x)x.hidden=true;toast('Photo retirée : enregistre pour valider');return}
   if(e.target.closest('#bd-gadd')){e.stopPropagation();const w=$('#bd-g');w.insertAdjacentHTML('beforeend',grow('',0));const i=w.querySelectorAll('.bdgt');i[i.length-1].focus();return}
   const x=e.target.closest('.bdgx');if(x){e.stopPropagation();x.closest('.bdgr').remove()}
  };
@@ -4974,13 +5000,14 @@ async function bdEdit(id){
  root.addEventListener('click',h,true);root.addEventListener('click',gh);root.addEventListener('keydown',kh);
  const btns=[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}];
  if(cur)btns.splice(1,0,{label:'Supprimer',value:'del'});
- BD_PH=null;const pr_=ask({title:cur?'Modifier l’anniversaire':'Nouvel anniversaire',html,btns});
- if(cur&&cur.ph)PH.get(cur.id).then(d=>{const i=$('#bd-phi');if(d&&i){i.src=d;i.hidden=false}});
+ BD_PH=null;BD_PHDEL=false;const pr_=ask({title:cur?'Modifier l’anniversaire':'Nouvel anniversaire',html,btns});
+ if(cur&&cur.ph)PH.get(cur.id).then(d=>{const i=$('#bd-phi');if(d&&i&&!BD_PHDEL){i.src=d;i.hidden=false;const x=$('#bd-phx');if(x)x.hidden=false}});
  const r=await pr_;
  root.removeEventListener('click',h,true);root.removeEventListener('click',gh);root.removeEventListener('keydown',kh);
  if(r==='del'&&cur){S.bd=bdClean().filter(b=>b.id!==cur.id);S.bdDel=shTrim(S.bdDel).concat([{id:cur.id,m:Date.now()}]);saveSet();toast('Anniversaire supprimé')}
  else if(r==='ok'&&got){
   const o=Object.assign({id:cur?cur.id:'b'+uid()},got,{mt:Date.now()});
+  if(BD_PHDEL&&!BD_PH){try{await PH.del(o.id)}catch(e){}o.ph=0}BD_PHDEL=false;
   if(BD_PH){try{await PH.put(o.id,BD_PH);o.ph=1}catch(e){toast('Photo non enregistrée (mémoire pleine ?)')}BD_PH=null}
   if(o.p&&!S.bdPin){toast('Crée d’abord un code pour protéger ses idées cadeaux',4000);await bdSetPin();if(!S.bdPin){o.p=0;toast('Pas de code : ses idées cadeaux ne sont pas protégées',5000)}}
   S.bd=bdClean().filter(b=>b.id!==o.id).concat([o]);saveSet();toast('🎂 Enregistré')
@@ -5239,6 +5266,7 @@ async function bdAct(a,el){
   case 'bd-exp':bdExport();break;
   case 'bd-on':S.bdOn=dd.v==='1';saveSet();bdShow();break;
   case 'bd-sort':S.bdSort=dd.v;saveSet();bdShow();break;
+  case 'bd-optt':BD_OPT=!BD_OPT;bdShow();break;
   case 'bd-print':bdPrint();break;
   case 'bd-bio':{
    if(S.bdBio){S.bdBio='';saveSet();toast('Face ID / empreinte retiré : le code reste actif')}
@@ -5335,7 +5363,7 @@ function openDetail(o){
   h+='<p class="mut" style="font-size:.85rem;margin:.4rem 0 .6rem">Partagé par '+esc(famName(ev._sh))+' (famille connectée), en lecture seule : seul(e) '+esc(famName(ev._sh))+' peut le modifier. Pas de rappel chez toi.</p>';
   if(!F.busy)h+='<div class="btns"><button class="btn grow" data-act="shcopy">'+ic('copy')+' Copier dans mon agenda</button></div>';
   openSheet(h);return}
- CUR={id:o.ev.id,date:o.date};
+ CUR={id:o.ev.id,date:o.date,wt:whenText(o)};
  const ev=o.ev,c=catOf(ev.cat);
  const hOid=ev.ocal||ev.oc||'',hCal=hOid&&(MSA.cals||[]).find(k=>k.id===hOid),hTxt=hCal&&ev.ocal?(c.id==='-'?hCal.name:c.name+' · '+hCal.name):c.name;
  let h='<div class="sh-h" style="--c:'+evCol(ev)+'"><i class="cdot"></i><span>'+esc(hTxt)+'</span><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+evT(ev)+'</h2>';
@@ -5346,7 +5374,7 @@ function openDetail(o){
   if(oc||ev.ocat)h+='<div class="info"><span aria-hidden="true" style="font-size:1.2rem;line-height:1">📅</span><div>'+(oc?'<b>'+esc(oc.name)+'</b><small class="mut" style="display:block">Calendrier Outlook</small>':'')+(ev.ocat?'<small class="mut" style="display:block">Étiquette Outlook : '+esc(ev.ocat)+'</small>':'')+'</div></div>'}
  if(ev.note)h+='<div class="info">'+ic('note')+'<div>'+esc(ev.note)+'</div></div>';
  if(ev.alarm!=null)h+='<div class="info">'+ic('bell')+'<div>'+esc(alarmLabel(ev.alarm,ev.allDay))+'</div></div>';
- h+='<div class="btns"><button class="btn pri grow" data-act="edit">'+ic('edit')+' Modifier</button><button class="btn" data-act="dup">'+ic('copy')+' Dupliquer</button><button class="btn" data-act="share1">'+ic('share')+' Au calendrier</button><button class="btn dng" data-act="del">'+ic('trash')+' Supprimer</button></div>';
+ h+='<div class="btns"><button class="btn pri grow" data-act="edit">'+ic('edit')+' Modifier</button><button class="btn" data-act="dup">'+ic('copy')+' Dupliquer</button><button class="btn" data-act="ctxt">📋 Copier le texte</button><button class="btn" data-act="share1">'+ic('share')+' Au calendrier</button><button class="btn dng" data-act="del">'+ic('trash')+' Supprimer</button></div>';
  openSheet(h);
 }
 async function deleteCur(){
@@ -5534,6 +5562,8 @@ function settingsView(){
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3>'+
   '<p class="mut" style="margin:.1rem 0 .2rem">'+(META.lastBackup?'Dernière sauvegarde : <b>'+fmtDate(META.lastBackup)+'</b>':'<b>Aucune sauvegarde pour le moment.</b>')+'</p>'+
   pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+
+  '<p class="mut" style="margin:.5rem 0 .1rem;font-size:.85rem"><b>Seulement l’agenda</b> (tes événements, sans les tâches, courses, recettes…)</p>'+
+  pair(pbtn('bk-ev-save',ic('down')+' Agenda seul','Fichier des événements'),pbtn('bk-ev-restore',ic('up')+' Restaurer l’agenda','Depuis ce fichier','alt'))+
   '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
  h+=sec('s-aff','Affichage et couleurs');
  h+='<div class="card"><h3>Affichage</h3>'+
@@ -5612,6 +5642,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🆕 Nouveautés 2.20','<ul><li><b>Anniversaires</b> : en haut, le nombre total et « ⚙ Options ». Dans la fiche : « Qui c’est ? », « Nom écrit sur la carte », « Ne pas écrire son âge », et « 🗑 Retirer la photo ». Dans « Souhaiter » : cadrage de la photo (haut / centre / bas, remplir / dézoomé / photo entière) pour ne pas couper les têtes.</li><li><b>Recettes</b> : appui long sur une recette (ou bouton dans la fiche) pour mettre 1 à 5 ★ et un commentaire. Trier : Favoris, Meilleures notes, A → Z.</li><li><b>Agenda seul</b> : Réglages → Sauvegarde → « Agenda seul » / « Restaurer l’agenda ». <b>Copier le texte</b> d’un événement : bouton dans sa fiche (à côté de Dupliquer).</li><li><b>Voyage</b> : l’impression met les listes en colonnes ; l’aide à l’adresse (à activer, optionnelle) marche pour « Où » et « Adresse du logement ». Elle envoie ce que tu tapes à api-adresse.data.gouv.fr (service public, sans compte ni publicité).</li></ul>');
  h+=d('🛒 Courses','<ul><li>Où ? L’onglet <b>🛒 Courses</b> en bas de l’écran.</li><li><b>🛒 À acheter</b> : la liste actuelle, rangée par rayon. Coche en magasin, puis « Vider le chariot ».</li><li><b>📒 Ma liste type</b> : tous tes produits habituels, de A à Z. Touche un produit pour l’ajouter à la liste choisie (un second toucher le retire). « ＋ Ajouter des articles » pour coller ta liste depuis Notes, « ✏️ Modifier » pour en retirer, « 🧹 Doublons » pour repérer les produits écrits deux fois (Tomate / Tomates…) et choisir lequel garder. Les produits que tu achètes s’y ajoutent tout seuls.</li><li><b>Plusieurs listes</b> : ce sont les intercalaires sur le côté droit, comme dans un carnet (ou des boutons en haut : Réglages → Affichage → « Listes (Tâches et Courses) »). Touche-en un pour ouvrir la liste. Sous le nom : avec qui elle est partagée (👥) ou de qui elle vient (📥). « ＋ » en bas des intercalaires pour une nouvelle liste (Leclerc, Marché, Pharmacie…).</li><li><b>Retrouver un produit vite</b> : dans Ma liste type, touche une lettre sur le côté (A, B, C…), ou range par rayon, ou « ⭐ Les plus achetés », ou cherche avec 🔍.</li><li><b>👥 Partager</b> une liste avec quelqu’un de ta famille connectée : il ou elle peut ajouter et cocher, tout le monde voit les changements.</li><li><b>⋯ Options</b> (en haut à droite) : envoyer la liste, <b>envoyer ma liste type</b> (la personne reçoit tous tes produits habituels dans sa liste type, sans doublon et sans rien ajouter à ses courses), recevoir, imprimer, partager, paquets, renommer ou supprimer la liste.</li><li><b>📋 Paquets</b> (apéro, barbecue…) et <b>🔁 Refaire mes dernières courses</b> ajoutent plusieurs articles d’un coup (dans ⋯ Options, ou en haut quand la liste est vide).</li></ul>');
  h+=d('🍽 Repas','<ul><li><b>⋯ Options</b> (en haut) : dans Recettes, nouvelle recette, importer avec un lien, coller, recevoir, envoyer ; dans Menu, imprimer le planning de la semaine, envoyer, copier la semaine précédente.</li><li><b>Recettes rangées</b> : 🥗 Entrées, 🍲 Plats, 🍰 Desserts, 🥂 Apéro, 🥐 Petit-déj, et 🥕 Végé / 🥩 Viande / 🐟 Poisson, plus Thermomix, 🍟 Air fryer, Rapide… L’appli devine ; corrige dans « Modifier » (Type, Régime, étiquettes).</li><li><b>📷 Photo</b> : dans une recette, « Ajouter une photo » (appareil photo ou galerie). À l’import par lien, la photo du site vient toute seule quand le site le permet.</li><li><b>Quantités</b> : « Pour − 4 + personnes » recalcule la liste des ingrédients. Les quantités écrites dans le texte des étapes ne changent pas : fie-toi à la liste (un message te le rappelle).</li><li><b>Importer une recette d’un site</b> (Marmiton, 750g…) : dans Safari, Partager ⬆️ → Copier ; puis ⋯ Options → <b>🔗 Importer avec un lien</b> → <b>📋 Coller le lien</b>. AgenDam lit la recette tout seul. Cookidoo : copie le texte de la recette et « 📋 Coller une recette ».</li><li>Sur ordinateur, tu peux aussi ajouter le bouton « 📥 AgenDam » à tes favoris (une seule fois). Ensuite, sur la page d’une recette, touche ce favori.</li><li><b>Mode cuisine</b> : dans une recette, « 👩‍🍳 Mode cuisine » affiche en plein écran les ingrédients puis une étape à la fois, en gros. Les réglages Thermomix sont surlignés.</li><li><b>Menu de la semaine</b> : touche Midi ou Soir d’un jour, choisis une recette du carnet ou écris le repas (« restes », « pizza »). Indique qui cuisine et combien vous êtes. 🎲 propose une idée parmi tes favoris.</li><li><b>Recettes</b> : « Nouvelle recette », ou « Coller une recette » copiée depuis Notes, un site ou un message. Une ligne par ingrédient (« 200 g de farine »), une ligne par étape.</li><li>Dans une recette : change le nombre de personnes, les quantités suivent. <b>🛒 Mettre les ingrédients manquants en courses</b> : décoche ce que tu as déjà.</li><li><b>Courses</b> : la liste est rangée par rayon. Ajoute un article en haut, coche en magasin, puis « Vider le chariot ». C’est la même liste que « Courses » dans Tâches.</li><li>📤 Partage une recette, le menu ou la liste de courses par SMS ou WhatsApp.</li></ul>');
  h+=d('🔄 Groupes connectés (famille, amis…)','<ul><li><b>📅 Catégories communes</b> : Réglages → <b>Catégories</b>, sous une catégorie, touche le prénom d’une personne connectée (✓ = partagée). Chez elle, la catégorie apparaît avec son nom, sa couleur et « (ton prénom) » ; elle voit les rendez-vous comme les siens et peut en <b>ajouter, modifier ou supprimer</b> : tout revient chez toi. En haut des Catégories, « 👁 voit les détails / seulement occupé » : en mode occupé, elle ne voit que les créneaux, sans pouvoir modifier. Les rendez-vous <b>🔒 Privé</b>, les notes et les rappels ne partent jamais. Pour qu’elle te partage aussi ses catégories, elle fait pareil de son côté.</li><li><b>Consommation</b> : l’appli vérifie les nouveautés toutes les 2 min 30 quand elle est ouverte (et à chaque ouverture) et regroupe ses envois.</li><li><b>Créer</b> : Réglages → Famille, amis et contacts → <b>Créer un groupe</b> (Famille, Amis, Coloc…). Tu peux en avoir plusieurs en parallèle : « ＋ Nouveau groupe ».</li><li><b>Inviter</b> : <b>🔢 Code d’invitation</b> → « Juste le code par SMS » (facile à copier). Chez l’autre, dans l’appli de l’écran d’accueil : Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>. On peut aussi coller tout le message : l’appli trouve le code.</li><li><b>Choisir ce que tu partages</b> : au départ, rien n’est partagé. Dans la carte Famille connectée, chaque personne a un bouton <b>Choisir</b> : courses, tâches (aucune, seulement les siennes, ou toutes), repas, anniversaires, voyages. Chacun choisit de son côté ce qu’il te partage.</li><li>Quand quelqu’un coche une tâche ou un article que tu lui as partagé, tu le vois chez toi.</li><li><b>Anniversaires au choix</b> : onglet Anniv. → <b>☑ Sélectionner</b>, touche ceux que tu veux, puis <b>🔄 Partager avec…</b> (ou <b>📤 Envoyer</b> par SMS). Ou dans « Choisir » : Anniversaires → Certains.</li><li><b>Plusieurs appareils</b> (iPhone, iPad, Android, ordinateur, tout marche) : si tu as rempli le nouvel appareil avec une <b>sauvegarde</b>, choisis « Nouvel appareil » à la restauration (ou, s’il dit « Tu es déjà dans le groupe », touche <b>Quitter</b> sur ce groupe puis recommence). Ensuite, sur ton autre appareil, « 🔢 Rejoindre avec un code ». Puis, sur l’un des deux, « Choisir » → <b>📱 C’est un autre appareil à moi</b> : tout se synchronise entre tes appareils, et chacun voit aussi ce que la famille te partage. <b>L’agenda aussi</b> se synchronise entre tes appareils (rendez-vous privés, notes et rappels compris). Pas besoin de régler les partages avec la famille sur ton autre appareil : ton premier appareil s’en charge.</li><li><b>Retirer</b> une personne : elle ne reçoit plus rien, et ce que tu lui avais partagé disparaît de son téléphone à sa prochaine ouverture. <b>Réintégrer</b> plus tard si besoin, ou 🗑 pour la supprimer définitivement.</li><li>Ce que tu reçois d’un groupe (les courses d’un ami…) n’est jamais renvoyé à un autre groupe.</li><li>Les mises à jour arrivent à l’ouverture de l’appli et toutes les minutes quand elle est ouverte (pas de notification appli fermée). <b>🔄 Mettre à jour maintenant</b> force l’envoi et la réception.</li><li><b>Chiffré de bout en bout</b> : ce que tu partages avec une personne n’est lisible que par elle. L’agenda reste sur chaque téléphone.</li><li>Sur iPhone, utilise toujours l’appli de l’écran d’accueil (Safari a ses propres données, séparées).</li></ul>');
@@ -5785,12 +5816,26 @@ async function doBackup(share){
  await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+BACKUP_FILE+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
  if(V.view==='settings')render();
 }
+const BACKUP_EV_FILE='agenda-evenements.json';
+async function doBackupAgenda(){
+ if(demo){toast('Quitte d’abord le mode démo');return}
+ const text=JSON.stringify({app:'agd-agenda',format:1,only:'events',appVersion:APP_VERSION,exportedAt:new Date().toISOString(),events:EV},null,1);
+ let share=canShareFiles(),done=false;
+ if(!share&&window.showSaveFilePicker){
+  try{const h=await window.showSaveFilePicker({suggestedName:BACKUP_EV_FILE,id:'agd-agenda-seul',startIn:'documents',types:[{description:'Agenda AgenDam',accept:{'application/json':['.json']}}]});
+   const w=await h.createWritable();await w.write(text);await w.close();done=true}
+  catch(e){if(e&&e.name==='AbortError')return}}
+ if(done){}
+ else if(share){const r=await shareFile(BACKUP_EV_FILE,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(BACKUP_EV_FILE,'application/json',text)}}
+ else downloadFile(BACKUP_EV_FILE,'application/json',text);
+ await ask({title:'Agenda sauvegardé ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+BACKUP_EV_FILE+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><p class="hint">Il ne contient que l’agenda. Pour le remettre : Réglages → Sauvegarde → <b>Restaurer l’agenda</b>, puis « Fusionner » (ajoute ce qui manque) ou « Remplacer ».</p>',btns:[{label:'Compris',value:1,cls:'pri'}]});
+}
 async function restoreFile(file){
  let text;try{text=await file.text()}catch(e){toast('Lecture du fichier impossible');return}
  const b=parseBackup(text);
  if(!b){toast('Ce fichier n’est pas une sauvegarde valide');return}
  let photos=null;try{const o=JSON.parse(text);if(o&&o.photos&&typeof o.photos==='object')photos=o.photos}catch(e){}
- const r=await ask({title:'Restaurer la sauvegarde',html:'<p style="margin:.3rem 0">'+b.events.length+' événement'+(b.events.length>1?'s':'')+(b.exportedAt?' · créée le '+fmtDate(Date.parse(b.exportedAt)):'')+'.</p><p class="hint">« Remplacer » efface l’agenda actuel de cet appareil. « Fusionner » ajoute ce qui manque.</p>',
+ const r=await ask({title:'Restaurer la sauvegarde',html:'<p style="margin:.3rem 0">'+b.events.length+' événement'+(b.events.length>1?'s':'')+(b.exportedAt?' · créée le '+fmtDate(Date.parse(b.exportedAt)):'')+'.</p><p class="hint">'+(b.settings?'':'Ce fichier ne contient que l’agenda : tes réglages, tâches, courses et recettes ne sont pas touchés. ')+'« Remplacer » efface l’agenda actuel de cet appareil. « Fusionner » ajoute ce qui manque.</p>',
   btns:[{label:'Remplacer mon agenda',value:'replace',cls:'pri'},{label:'Fusionner',value:'merge'},{label:'Annuler',value:null}]});
  if(!r)return;
  if(demo)demoOff();
@@ -5978,7 +6023,7 @@ async function act(a,el,e){
   case 'vy-idel':{const v=vyOf(VY.id),l=v&&v.ls.find(x=>x.id===ds_.l);if(l){l.it=l.it.filter(x=>x.id!==ds_.i);vyTouch(v);render()}break}
   case 'vy-iadd':{const v=vyOf(VY.id),l=v&&v.ls.find(x=>x.id===ds_.l),inp=$('[data-vyadd="'+ds_.l+'"]');if(!l||!inp)break;const L=vyLines(inp.value);if(!L.length)break;L.forEach(t=>l.it.push({id:uid(),t,x:false}));vyTouch(v);render();setTimeout(()=>{const j=$('[data-vyadd="'+ds_.l+'"]');if(j)j.focus()},50);break}
   case 'vy-pg':{const v=vyOf(VY.id);if(!v)break;if(!v.pg)v.pg={};const cur=(v.pg[ds_.d]||{})[ds_.s]||'';const lb={ma:'Matin',ap:'Après-midi',so:'Soir'}[ds_.s];const t=await vyField(v,lb+' · '+fShort(ds_.d),cur,false);if(t==null)break;if(!v.pg[ds_.d])v.pg[ds_.d]={};v.pg[ds_.d][ds_.s]=t.slice(0,120);vyTouch(v);render();break}
-  case 'vy-info':{const v=vyOf(VY.id);if(!v)break;if(!v.in)v.in={};const k=ds_.k,lb=(VY_INFO.find(x=>x[0]===k)||['',''])[1];const t=await vyField(v,lb,v.in[k]||'',true);if(t==null)break;v.in[k]=t.slice(0,1000);vyTouch(v);render();break}
+  case 'vy-info':{const v=vyOf(VY.id);if(!v)break;if(!v.in)v.in={};const k=ds_.k,lb=(VY_INFO.find(x=>x[0]===k)||['',''])[1];const t=await vyField(v,lb,v.in[k]||'',true,k==='adr');if(t==null)break;v.in[k]=t.slice(0,1000);vyTouch(v);render();break}
   case 'vy-shop':{const v=vyOf(VY.id);if(!v)break;const sv=RV.ws,D=vyDays(v),acc=[];const wsSet=[...new Set(D.map(d=>mondayOf(d,S.weekStart)))];
    for(const d of D){const day=mnAll()[d]||{};for(const k of ['m','s']){const x=day[k],r=x&&rcOf(x.r);if(!r)continue;const f=(x.p||r.pp||4)/(r.pp||4);for(const g of (r.ing||[])){const key=norm(g.n)+'|'+g.u;const e2=acc.find(a=>a.key===key);if(e2){if(e2.q!=null&&g.q!=null)e2.q+=g.q*f;if(!e2.from.includes(r.t))e2.from.push(r.t)}else acc.push({key,q:g.q!=null?g.q*f:null,u:g.u,n:g.n,from:[r.t]})}}}
    pickIngredients('Ingrédients du séjour',acc.map(a=>({q:a.q!=null?Math.round(a.q*100)/100:null,u:a.u,n:a.n,from:a.from.join(', ')})),'Les recettes prévues pendant « '+v.t+' » demandent :');break}
@@ -6013,6 +6058,10 @@ async function act(a,el,e){
   case 'ws-fx':if(WS){WS.fx=ds_.v;$$('[data-act="ws-fx"]').forEach(b=>b.classList.toggle('on',b.dataset.v===ds_.v));wishDraw()}break;
   case 'ws-sig':{if(!WS)break;let v=ds_.v;if(v==='txt'){const t=await vyField(null,'Signature de la carte',S.wsSigTxt||'',false);if(t==null)break;S.wsSigTxt=t.slice(0,40)}WS.sig=v;S.wsSig=v;saveSet();$$('[data-act="ws-sig"]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));wishDraw();break}
   case 'ws-useph':if(WS){WS.usePh=!WS.usePh;bdWish(WS.id)}break;
+  case 'ws-phdel':if(WS){const b=bdClean().find(x=>x.id===WS.id);if(b){try{await PH.del(b.id)}catch(e){}b.ph=0;b.mt=Date.now();saveSet();WS.usePh=false;toast('Photo retirée');bdWish(WS.id)}}break;
+  case 'ws-age':if(WS){const b=bdClean().find(x=>x.id===WS.id);if(b){b.na=b.na?0:1;b.mt=Date.now();saveSet();WS.txt=null;bdWish(WS.id)}}break;
+  case 'ws-zm':if(WS){WS.zm=ds_.v==='fit'?'fit':+ds_.v;$$('[data-act="ws-zm"]').forEach(b=>b.classList.toggle('on',String(b.dataset.v)===String(WS.zm)));wishDraw()}break;
+  case 'ws-oy':if(WS){WS.oy=+ds_.v;$$('[data-act="ws-oy"]').forEach(b=>b.classList.toggle('on',+b.dataset.v===WS.oy));wishDraw()}break;
   case 'ws-copy':if(WS){try{await navigator.clipboard.writeText(WS.txt);toast('Message copié')}catch(e){const t=$('#ws-txt');if(t){t.focus();t.select()}toast('Sélectionne le texte puis Copier')}}break;
   case 'ws-sms':{if(!WS)break;const b=bdClean().find(x=>x.id===WS.id),p=b&&pplOf(b.ct);if(!p||!p.tel)break;const a=document.createElement('a');a.href='sms:'+telN(p.tel)+(isIOS()?'&':'?')+'body='+encodeURIComponent(WS.txt);document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800);wishMark();break}
   case 'ws-send':{if(!WS)break;const b=bdClean().find(x=>x.id===WS.id);if(!b)break;
@@ -6035,6 +6084,8 @@ async function act(a,el,e){
   case 'rc-imp':rcImport();break;
   case 'rc-tag':RV.tag=ds_.v;render();break;
   case 'rc-ty':RV.ty=ds_.v;render();break;
+  case 'rc-sort':RV.sort=ds_.v;render();break;
+  case 'rc-rate':rcRate(ds_.id,true);break;
   case 'rc-rg':RV.rg=ds_.v;render();break;
   case 'rc-photo':rcPhPick(ds_.id);break;
   case 'rc-phdel':{await rcPhSet(ds_.id,null);render();rcOpen(ds_.id);break}
@@ -6128,6 +6179,11 @@ async function act(a,el,e){
   case 'close':closeSheet();break;
   case 'edit':{const ev=findEv(CUR.id);if(ev)openEditor({ev,occDate:CUR.date});break}
   case 'dup':{const ev=findEv(CUR.id);if(ev)dupMulti(ev,CUR.date);break}
+  case 'ctxt':{const ev=findEv(CUR.id);if(!ev)break;const t=[(ev.icon?ev.icon+' ':'')+ev.title,(CUR.wt||''),ev.place?'📍 '+ev.place:'',ev.note||''].filter(Boolean).join('\n');
+   let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){}
+   if(ok)toast('📋 Copié : colle-le dans une autre appli (appui long → Coller)',4500);
+   else await ask({title:'Copie ce texte',html:'<textarea class="in" rows="6" id="ct-t" readonly onfocus="this.select()">'+esc(t)+'</textarea><p class="hint">Touche le texte, « Tout sélectionner » puis « Copier ».</p>',btns:[{label:'Fermer',value:1,cls:'pri'}]});
+   break}
   case 'fev-tg':S.fevHide=S.fevHide?0:1;FEV_C=null;saveSet();render();break;
   case 'ag-busy':{const id=ds_.m,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;g.agb=ds_.v==='1'?1:0;f.gr[id]=g;g.t=Date.now();f.grAt=Date.now();saveSet();render();toast(g.agb?'👁 '+famName(id)+' ne verra que « occupé »':'👁 '+famName(id)+' voit les détails et peut ajouter des rendez-vous dans les catégories partagées',4500);break}
   case 'cat-sh':{const id=ds_.m,c=ds_.c,f=grpOf(id);if(!f)break;const g=famGrant(id);delete g.removed;
@@ -6193,7 +6249,8 @@ async function act(a,el,e){
    break}
   case 'bk-save':doBackup(false);break;
   case 'bk-share':doBackup(true);break;
-  case 'bk-restore':$('#fi-json').value='';$('#fi-json').click();break;
+  case 'bk-restore':case 'bk-ev-restore':$('#fi-json').value='';$('#fi-json').click();break;
+  case 'bk-ev-save':doBackupAgenda();break;
   case 'ics-export':exportICS(false);break;
   case 'ics-share':exportICS(true);break;
   case 'rot-new':rotNew();break;
@@ -6289,7 +6346,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.look){setSetting(t.dataset.look,t.value);return}
  if(t.dataset.cat!=null&&t.dataset.field==='color'){S.cats[+t.dataset.cat].color=t.value;saveSet();render();return}
  if(t.id==='ws-ph'&&t.files[0]&&WS){const id=WS.id,f=t.files[0];photoShrink(f,720).then(async d=>{await PH.put(id,d);const b=bdClean().find(x=>x.id===id);if(b){b.ph=1;b.mt=Date.now();saveSet()}WS.usePh=true;bdWish(id);toast('Photo ajoutée')}).catch(e=>toast(e.message||'Photo illisible'));return}
- if(t.id==='bd-phf'&&t.files[0]){photoShrink(t.files[0],720).then(d=>{BD_PH=d;const i=$('#bd-phi');if(i){i.src=d;i.hidden=false}}).catch(e=>toast(e.message||'Photo illisible'));return}
+ if(t.id==='bd-phf'&&t.files[0]){photoShrink(t.files[0],720).then(d=>{BD_PH=d;BD_PHDEL=false;const i=$('#bd-phi');if(i){i.src=d;i.hidden=false}const x=$('#bd-phx');if(x)x.hidden=false}).catch(e=>toast(e.message||'Photo illisible'));return}
  if(t.id==='jumpd'){if(RX_D.test(t.value)){V.date=t.value;if(V.view==='fort')V.fs=null;render()}return}
  if(t.id==='fi-json'&&t.files[0]){restoreFile(t.files[0]);return}
  if(t.id==='fi-ics'&&t.files[0]){importICS(t.files[0]);return}
@@ -6300,7 +6357,7 @@ document.addEventListener('input',e=>{
  const t=e.target;
  if(t.id==='sel-q'){SEL.q=t.value;selRefilter();return}
  if(t.dataset&&t.dataset.cat!=null&&t.dataset.field==='color'&&S.cats[+t.dataset.cat]){S.cats[+t.dataset.cat].color=t.value;saveSet();return}
- if(t.id==='f-place'){adrInput(t);return}
+ if(t.id==='f-place'||(t.dataset&&t.dataset.adr)){adrInput(t);return}
  if(t.id==='ws-txt'&&WS){WS.txt=t.value;WS.edited=true;return}
  if(t.id==='rc-q'){RV.q=t.value;const l=$('#rc-list');if(l){const tmp=document.createElement('div');tmp.innerHTML=rcListHTML();const n=tmp.querySelector('#rc-list');if(n)l.innerHTML=n.innerHTML}return}
  if(t.id==='q'){SQ=t.value;const r=$('#sres');if(r)r.innerHTML=searchResults(SQ);return}
@@ -6846,6 +6903,7 @@ function shMerge(P,apply){
    const o={id:String(r.id),t:String(r.t).slice(0,80),ic:String(r.ic||'🍽️').slice(0,4),pp:Math.max(1,Math.min(30,+r.pp||4)),tm:Math.max(0,Math.min(600,+r.tm||0)),tags:(Array.isArray(r.tags)?r.tags:[]).map(String).slice(0,8),
     ing:(Array.isArray(r.ing)?r.ing:[]).filter(g=>g&&g.n).map(g=>({q:g.q==null?null:+g.q,u:String(g.u||'').slice(0,20),n:String(g.n).slice(0,60)})).slice(0,80),st:(Array.isArray(r.st)?r.st:[]).map(x=>String(x).slice(0,500)).slice(0,60),src:/^https?:\/\//.test(r.src||'')?String(r.src).slice(0,300):'',m:+r.m||now};
    if(RC_TY.some(x=>x[0]===r.ty))o.ty=r.ty;if(RC_RG.some(x=>x[0]===r.rg))o.rg=r.rg;
+   if(r.sr>0&&r.sr<=5)o.sr=Math.round(r.sr);if(r.cm)o.cm=String(r.cm).slice(0,500);
    if(!loc){if(P.k==='rc')st.add++;if(apply)rcAll().push(Object.assign(o,{fav:false}))}
    else if((r.m||0)>(loc.m||0)){if(P.k==='rc')st.upd++;if(apply)Object.assign(loc,o)}
   }
@@ -6970,7 +7028,7 @@ function contactsCard(){
 
 /* ========= Repas : recettes, menu de la semaine, courses (dans la liste « Courses » des Tâches) =========
    S.rc recettes, S.mn menu {date:{m:{r,t,w,p,mt},s:{…}}}. Tout est dans la sauvegarde et partageable par lien. */
-const RV={tab:'menu',ws:null,q:'',tag:''};
+const RV={tab:'menu',ws:null,q:'',tag:'',sort:''};
 const RC_TAGS=['Thermomix','Air fryer','Rapide','Four','Cookeo','Enfants','Soupe','Batch','Sans cuisson'];
 const RC_TY=[['ent','🥗','Entrées','Entrée','#4caf7a'],['plat','🍲','Plats','Plat','#e0823d'],['des','🍰','Desserts','Dessert','#e46aa0'],['apero','🥂','Apéro','Apéro','#9b6ad6'],['pdj','🥐','Petit-déj','Petit-déj / goûter','#d9a521']];
 const RC_RG=[['vege','🥕','Végé','Végétarien'],['viande','🥩','Viande','Viande'],['poisson','🐟','Poisson','Poisson']];
@@ -7089,7 +7147,7 @@ function rcListHTML(){
  const q=norm(RV.q||'').trim();
  const base=rcAll().filter(r=>!q||norm(r.t+' '+(r.ing||[]).map(i=>i.n).join(' ')+' '+(r.tags||[]).join(' ')+' '+rcTyOf(rcTy(r))[3]+' '+rcRgOf(rcRg(r))[3]).includes(q));
  const okTy=r=>!RV.ty||rcTy(r)===RV.ty,okRg=r=>!RV.rg||rcRg(r)===RV.rg,okTag=r=>!RV.tag||(r.tags||[]).includes(RV.tag);
- const L=base.filter(r=>okTy(r)&&okRg(r)&&okTag(r)).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t));
+ const L=base.filter(r=>okTy(r)&&okRg(r)&&okTag(r)).sort(RV.sort==='note'?((a,b)=>(b.sr||0)-(a.sr||0)||(b.fav?1:0)-(a.fav?1:0)||a.t.localeCompare(b.t)):RV.sort==='az'?((a,b)=>a.t.localeCompare(b.t)):((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(b.sr||0)-(a.sr||0)||a.t.localeCompare(b.t)));
  const chip=(act,v,on,lbl,n)=>'<button class="chip'+(on?' on':'')+'" data-act="'+act+'" data-v="'+esc(v)+'">'+lbl+(n!=null?' <small>'+n+'</small>':'')+'</button>';
  let h='<input class="in" id="rc-q" type="search" placeholder="🔍 Chercher : nom, ingrédient, « air fryer »…" value="'+esc(RV.q)+'" autocomplete="off">';
  if(rcAll().length){
@@ -7097,9 +7155,10 @@ function rcListHTML(){
   h+='<div class="rc-fl">'+chip('rc-ty','',!RV.ty,'Tout')+RC_TY.filter(x=>['ent','plat','des'].includes(x[0])||nTy(x[0])).map(x=>chip('rc-ty',x[0],RV.ty===x[0],x[1]+' '+x[2],nTy(x[0]))).join('')+'</div>';
   const used=[...new Set(rcAll().flatMap(r=>r.tags||[]))].filter(t=>!/^(végé|vege|plat|dessert|apéro|petit-déj)$/i.test(t)).sort((a,b)=>RC_TAGS.indexOf(a)-RC_TAGS.indexOf(b));
   h+='<div class="rc-fl">'+chip('rc-rg','',!RV.rg,'Tous')+RC_RG.map(x=>chip('rc-rg',x[0],RV.rg===x[0],x[1]+' '+x[2],nRg(x[0]))).join('')+used.map(t=>chip('rc-tag',RV.tag===t?'':t,RV.tag===t,(t==='Air fryer'?'🍟 ':t==='Thermomix'?'🥣 ':t==='Rapide'?'⚡ ':'')+esc(t))).join('')+'</div>';
+  h+='<div class="rc-fl rc-sort"><span class="mut">Trier :</span>'+chip('rc-sort','',!RV.sort,'⭐ Favoris')+chip('rc-sort','note',RV.sort==='note','★ Meilleures notes')+chip('rc-sort','az',RV.sort==='az','A → Z')+'</div><p class="mut" style="font-size:.8rem;margin:.1rem 0 .4rem">Astuce : appui long sur une recette pour la noter (★) et écrire un commentaire.</p>';
  }
  const card=r=>{const ty=rcTyOf(rcTy(r)),rg=rcRgOf(rcRg(r));
-  return '<button class="rc-card" data-act="rc-open" data-id="'+esc(r.id)+'" style="--rc:'+ty[4]+'"><span class="rc-ph" data-rph="'+(r.ph?esc(r.id):'')+'"><i>'+esc(r.ic&&r.ic!=='🍽️'?r.ic:ty[1])+'</i>'+(r.fav?'<s>⭐</s>':'')+'<u>'+ty[1]+' '+esc(ty[3].replace(/ \/.*/,''))+'</u></span><span class="rc-cx"><b>'+esc(r.t)+'</b><small>'+[r.tm?'⏱ '+r.tm+' min':'',r.pp?'👤 '+r.pp:'',rg[1]].filter(Boolean).join(' · ')+((r.tags||[]).includes('Air fryer')?' · 🍟':'')+((r.tags||[]).includes('Thermomix')?' · 🥣':'')+'</small></span></button>'};
+  return '<button class="rc-card" data-act="rc-open" data-id="'+esc(r.id)+'" style="--rc:'+ty[4]+'"><span class="rc-ph" data-rph="'+(r.ph?esc(r.id):'')+'"><i>'+esc(r.ic&&r.ic!=='🍽️'?r.ic:ty[1])+'</i>'+(r.fav?'<s>⭐</s>':'')+'<u>'+ty[1]+' '+esc(ty[3].replace(/ \/.*/,''))+'</u></span><span class="rc-cx"><b>'+esc(r.t)+'</b><small>'+[r.tm?'⏱ '+r.tm+' min':'',r.pp?'👤 '+r.pp:'',rg[1]].filter(Boolean).join(' · ')+((r.tags||[]).includes('Air fryer')?' · 🍟':'')+((r.tags||[]).includes('Thermomix')?' · 🥣':'')+'</small>'+(r.sr?'<small class="rc-sr">'+'★'.repeat(r.sr)+'☆'.repeat(5-r.sr)+(r.cm?' 💬':'')+'</small>':(r.cm?'<small class="rc-sr">💬</small>':''))+'</span></button>'};
  h+='<div id="rc-list">'+(L.length?'<div class="rc-grid">'+L.map(card).join('')+'</div>':'<p class="empty">'+(rcAll().length?'Aucune recette ne correspond.':'Ton carnet de recettes est vide.')+'</p>'+(rcAll().length?'':'<div class="btns"><button class="btn pri grow" data-act="rc-link">🔗 Importer avec un lien</button><button class="btn grow" data-act="rc-imp">📋 Coller une recette</button></div><p class="mut" style="text-align:center;font-size:.85rem">Et plus d’options dans « ⋯ Options » en haut.</p>'))+'</div>';
  setTimeout(rcPhFill,0);
  return h;
@@ -7348,6 +7407,27 @@ function weekIngredients(){
  return acc.map(a=>({q:a.q!=null?Math.round(a.q*100)/100:null,u:a.u,n:a.n,from:a.from.join(', ')})).sort((a,b)=>RAYONS.findIndex(r=>r[0]===rayOf(a.n))-RAYONS.findIndex(r=>r[0]===rayOf(b.n))||a.n.localeCompare(b.n));
 }
 /* ----- fiche recette ----- */
+async function rcRate(id,reopen){
+ const r=rcOf(id);if(!r)return;let sr=r.sr||0,cm=r.cm||'';
+ const stars=()=>[1,2,3,4,5].map(i=>'<button type="button" class="rc-star'+(i<=sr?' on':'')+'" data-star="'+i+'" aria-label="'+i+' étoile'+(i>1?'s':'')+'">'+(i<=sr?'★':'☆')+'</button>').join('');
+ const root=$('#dlg');
+ const hs=e=>{const b=e.target.closest&&e.target.closest('[data-star]');if(b){e.stopPropagation();const n=+b.dataset.star;sr=sr===n?0:n;const w=$('#rc-stars');if(w)w.innerHTML=stars()}};
+ const hc=e=>{const b=e.target.closest&&e.target.closest('[data-v]');if(b&&b.dataset.v==='0'){const t=$('#rc-cm');if(t)cm=t.value}};
+ root.addEventListener('click',hs);root.addEventListener('click',hc,true);
+ const res=await ask({title:'⭐ '+r.t,html:'<div id="rc-stars" class="rc-stars">'+stars()+'</div><p class="mut" style="margin:.1rem 0 .4rem;font-size:.82rem">Retouche la même étoile pour l’enlever.</p><label class="lbl" for="rc-cm">Mon commentaire</label><textarea class="in" id="rc-cm" rows="4" maxlength="500" placeholder="Ex. : un peu moins de sel, cuire 5 min de plus, les enfants adorent…">'+esc(r.cm||'')+'</textarea>',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.removeEventListener('click',hs);root.removeEventListener('click',hc,true);
+ if(res!=='ok')return;
+ r.sr=sr;r.cm=String(cm||'').trim().slice(0,500);if(!r.sr)delete r.sr;if(!r.cm)delete r.cm;r.m=Date.now();saveSet();render();
+ if(reopen)rcOpen(id);else toast(r.sr?'★ Noté '+r.sr+'/5':'Commentaire enregistré');
+}
+/* appui long sur une recette : noter / commenter */
+(function(){let t=null,sx=0,sy=0,fired=false;
+ document.addEventListener('pointerdown',e=>{const c=e.target.closest&&e.target.closest('.rc-card');if(!c)return;fired=false;sx=e.clientX;sy=e.clientY;clearTimeout(t);t=setTimeout(()=>{fired=true;try{if(navigator.vibrate)navigator.vibrate(15)}catch(_){}rcRate(c.dataset.id)},550)},true);
+ ['pointerup','pointercancel'].forEach(n=>document.addEventListener(n,()=>clearTimeout(t),true));
+ document.addEventListener('pointermove',e=>{if(t&&(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10))clearTimeout(t)},true);
+ document.addEventListener('click',e=>{if(fired&&e.target.closest&&e.target.closest('.rc-card')){e.stopImmediatePropagation();e.preventDefault();fired=false}},true);
+ document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.rc-card'))e.preventDefault()},true);
+})();
 let RC_PP=null;
 function rcOpen(id){
  const r=rcOf(id);if(!r)return;
@@ -7357,6 +7437,7 @@ function rcOpen(id){
  let h='<div class="sh-h"><b style="font-size:1.25rem;font-family:var(--serif);font-style:italic">'+esc(r.t)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
  h+='<div class="rc-hero" style="--rc:'+ty[4]+'" data-rph="'+(r.ph?esc(r.id):'')+'"><i>'+esc(r.ic&&r.ic!=='🍽️'?r.ic:ty[1])+'</i><span class="rc-phb">'+(r.ph?'<button class="chip" data-act="rc-photo" data-id="'+esc(id)+'">📷 Changer</button><button class="chip" data-act="rc-phdel" data-id="'+esc(id)+'">Retirer</button>':'<button class="chip" data-act="rc-photo" data-id="'+esc(id)+'">📷 Ajouter une photo</button>')+'</span></div>';
  h+='<div class="rc-badges"><span style="--c:'+ty[4]+'">'+ty[1]+' '+esc(ty[3])+'</span><span>'+rg[1]+' '+esc(rg[3])+'</span>'+(r.tm?'<span>⏱ '+r.tm+' min</span>':'')+(r.tags||[]).filter(t=>!/^(dessert|plat|apéro|petit-déj|végé|entrée)$/i.test(t)).map(t=>'<span>'+esc(t)+'</span>').join('')+(r.src?'<a href="'+esc(r.src)+'" target="_blank" rel="noopener">🔗 source</a>':'')+'</div>';
+ h+='<button class="rc-rate" data-act="rc-rate" data-id="'+esc(id)+'"><span class="rc-sr2">'+(r.sr?'★'.repeat(r.sr)+'☆'.repeat(5-r.sr):'☆☆☆☆☆')+'</span><small>'+(r.sr||r.cm?'Modifier ma note et mon commentaire':'Noter cette recette / ajouter un commentaire')+'</small></button>'+(r.cm?'<p class="rc-cm">💬 '+esc(r.cm)+'</p>':'');
  h+='<div class="rc-pp"><span>Pour</span><button class="ib" data-act="rc-pp" data-n="-1" aria-label="Moins">−</button><b>'+RC_PP.pp+'</b><button class="ib" data-act="rc-pp" data-n="1" aria-label="Plus">+</button><span>personne'+(RC_PP.pp>1?'s':'')+'</span></div>';
  h+='<h3 class="rc-h">Ingrédients</h3>'+((r.ing||[]).length?'<ul class="rc-ing">'+r.ing.map(g=>'<li>'+esc(ingTxt(g,f))+'</li>').join('')+'</ul>':'<p class="mut">Aucun ingrédient noté.</p>');
  h+='<button class="btn pri blk" data-act="ck-open" data-id="'+esc(id)+'">👩‍🍳 Mode cuisine (plein écran)</button><button class="btn blk" data-act="rc-shop" data-id="'+esc(id)+'"'+((r.ing||[]).length?'':' disabled')+'>🛒 Mettre les ingrédients manquants en courses</button>';
@@ -7546,13 +7627,14 @@ const WISH_TITLES=[['ja','Joyeux anniversaire'],['ba','Bon anniversaire'],['hb',
 const WISH_LAYS=[['rond','⚪ Rond'],['coeur','❤️ Cœur'],['carre','◻️ Carré'],['polaroid','🖼 Polaroïd'],['plein','🌄 Plein écran']];
 const WISH_FX=[['normal','Normal'],['vif','Vif'],['chaud','Chaud'],['nb','Noir et blanc'],['sepia','Sépia']];
 let WS=null; /* état de la fenêtre « Souhaiter » */
-function wishAgeTxt(b){const a=bdAge(b,bdNext(b,today()));return a&&a>0?a+' ans':''}
-function wishFill(tpl,b){const age=wishAgeTxt(b);return tpl.replace(/\{p\}/g,b.n.split(' ')[0]).replace('{A}',age?age.replace(' ans',' ans, ')+'ça se fête ! ':'').replace(/\s+\n/g,'\n').replace(/ {2,}/g,' ').trim()}
+const wishFirst=b=>(b.cn||String(b.n).split(' ')[0]);
+function wishAgeTxt(b){if(b.na)return '';const a=bdAge(b,bdNext(b,today()));return a&&a>0?a+' ans':''}
+function wishFill(tpl,b){const age=wishAgeTxt(b);return tpl.replace(/\{p\}/g,wishFirst(b)).replace('{A}',age?age.replace(' ans',' ans, ')+'ça se fête ! ':'').replace(/\s+\n/g,'\n').replace(/ {2,}/g,' ').trim()}
 async function bdWish(id){
  const b=bdClean().find(x=>x.id===id);if(!b)return;
  const ct=pplOf(b.ct);
  const tone=WS&&WS.id===id?WS.tone:(ct&&ct.rel==='enf'?'enfant':ct&&ct.rel==='par'?'ainé':'tendre');
- WS={lay:WS&&WS.id===id?WS.lay:(S.wsLay||'rond'),fx:WS&&WS.id===id?WS.fx:'normal',ti:WS&&WS.id===id?WS.ti:0,id,tone,sig:WS&&WS.id===id&&WS.sig!=null?WS.sig:(S.wsSig!=null?S.wsSig:'me'),i:WS&&WS.id===id?WS.i:0,theme:WS&&WS.id===id?WS.theme:'ballons',usePh:WS&&WS.id===id?WS.usePh:!!b.ph,txt:WS&&WS.id===id&&WS.edited?WS.txt:null,edited:WS&&WS.id===id?WS.edited:false};
+ WS={lay:WS&&WS.id===id?WS.lay:(S.wsLay||'rond'),fx:WS&&WS.id===id?WS.fx:'normal',ti:WS&&WS.id===id?WS.ti:0,id,tone,sig:WS&&WS.id===id&&WS.sig!=null?WS.sig:(S.wsSig!=null?S.wsSig:'me'),i:WS&&WS.id===id?WS.i:0,theme:WS&&WS.id===id?WS.theme:'ballons',usePh:WS&&WS.id===id?WS.usePh:!!b.ph,zm:WS&&WS.id===id?WS.zm:1,oy:WS&&WS.id===id?WS.oy:null,txt:WS&&WS.id===id&&WS.edited?WS.txt:null,edited:WS&&WS.id===id?WS.edited:false};
  const L=WISH[WS.tone];if(WS.txt==null)WS.txt=wishFill(L[WS.i%L.length],b);
  const sent=b.ws&&b.ws.y===new Date().getFullYear();
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎉 Souhaiter à '+esc(b.n)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
@@ -7563,10 +7645,11 @@ async function bdWish(id){
  h+='<div class="chips tk-chips" style="margin:0 0 .4rem">'+WISH_TITLES.map((t,i)=>'<button class="chip'+((WS.ti||0)===i?' on':'')+'" data-act="ws-ti" data-v="'+i+'">'+t[1]+'</button>').join('')+'</div>';
  const me=meName(),conj=ppl().find(p=>p.rel==='conj'&&p.id!==S.meId),fam=(pplOf(S.meId)||{}).ln||((ppl().find(p=>p.ln)||{}).ln)||'';
  const SIG=[['me',me||'Moi'],conj&&me?['duo',me+' et '+conj.n]:null,['papa','Papa'],['maman','Maman'],['papi','Papi'],['mamie','Mamie'],['fam','Toute la famille'],fam?['famn','La famille '+fam]:null,['none','Sans signature'],['txt','✏️ Autre…']].filter(Boolean);
+ if(b.y)h+='<div class="chips tk-chips" style="margin:0 0 .4rem"><button class="chip'+(b.na?'':' on')+'" data-act="ws-age">'+(b.na?'🙈 Âge caché sur la carte : l’afficher':'🎂 Âge sur la carte : le cacher')+'</button></div>';
  h+='<b class="rc-h" style="display:block;margin-top:.2rem">Signé</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+SIG.map(x=>'<button class="chip'+(WS.sig===x[0]?' on':'')+'" data-act="ws-sig" data-v="'+x[0]+'">'+esc(x[1])+'</button>').join('')+'</div>';
  h+='<div class="wish-card"><canvas id="ws-cv" width="1080" height="1350"></canvas></div>';
- h+='<div class="chips" style="margin:.5rem 0 .4rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(b.ph?'Changer la photo':'Ajouter une photo')+'<input type="file" accept="image/*" id="ws-ph" style="position:absolute;inset:0;opacity:0"></label>'+(b.ph?'<button class="chip'+(WS.usePh?' on':'')+'" data-act="ws-useph">'+(WS.usePh?'✓ Photo sur la carte':'Photo sur la carte')+'</button>':'')+'</div>';
- if(b.ph&&WS.usePh){h+='<b class="rc-h" style="display:block">La photo</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem">'+WISH_LAYS.map(t=>'<button class="chip'+((WS.lay||'rond')===t[0]?' on':'')+'" data-act="ws-lay" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="chips tk-chips" style="margin:0 0 .7rem">'+WISH_FX.map(t=>'<button class="chip'+((WS.fx||'normal')===t[0]?' on':'')+'" data-act="ws-fx" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'}
+ h+='<div class="chips" style="margin:.5rem 0 .4rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(b.ph?'Changer la photo':'Ajouter une photo')+'<input type="file" accept="image/*" id="ws-ph" style="position:absolute;inset:0;opacity:0"></label>'+(b.ph?'<button class="chip'+(WS.usePh?' on':'')+'" data-act="ws-useph">'+(WS.usePh?'✓ Photo sur la carte':'Photo sur la carte')+'</button>':'')+(b.ph?'<button class="chip" data-act="ws-phdel">🗑 Retirer la photo</button>':'')+'</div>';
+ if(b.ph&&WS.usePh){h+='<b class="rc-h" style="display:block">La photo</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem">'+WISH_LAYS.map(t=>'<button class="chip'+((WS.lay||'rond')===t[0]?' on':'')+'" data-act="ws-lay" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="chips tk-chips" style="margin:0 0 .4rem">'+WISH_FX.map(t=>'<button class="chip'+((WS.fx||'normal')===t[0]?' on':'')+'" data-act="ws-fx" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'+(['rond','coeur','carre'].includes(WS.lay||'rond')?'<b class="rc-h" style="display:block">Cadrage (pour ne pas couper les têtes)</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem">'+[[1,'Remplir'],[0.85,'Un peu dézoomé'],['fit','Photo entière']].map(t=>'<button class="chip'+(String(WS.zm||1)===String(t[0])?' on':'')+'" data-act="ws-zm" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="chips tk-chips" style="margin:0 0 .7rem">'+[[-1,'⬆ Haut de la photo'],[0,'Centre'],[1,'⬇ Bas']].map(t=>'<button class="chip'+(Math.abs(wishOy()-t[0])<.4?' on':'')+'" data-act="ws-oy" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>':'')}
  h+='<button class="btn pri blk" data-act="ws-send">📤 Envoyer la carte et le message</button>';
  if(ct&&ct.tel)h+='<button class="btn blk" data-act="ws-sms">💬 SMS à '+esc(pplName(ct))+' (message seul)</button>';
  h+='<button class="btn blk" data-act="ws-copy">Copier le message</button>';
@@ -7599,7 +7682,7 @@ async function wishDraw(){
  }
  g.restore();
  const fit=(txt,font,max,start,min)=>{let f=start;g.font=font.replace('{s}',f);while(g.measureText(txt).width>max&&f>min){f-=6;g.font=font.replace('{s}',f)}return f};
- const nm=b.n.split(' ')[0],age=wishAgeTxt(b),nAge=age?age.split(' ')[0]:'';
+ const nm=wishFirst(b),age=wishAgeTxt(b),nAge=age?age.split(' ')[0]:'';
  const SERIF='italic 700 {s}px "New York",Georgia,serif',SANS='800 {s}px -apple-system,"Segoe UI",Roboto,sans-serif';
  const badge=(x,y,r)=>{if(!nAge)return;g.save();g.shadowColor='rgba(0,0,0,.25)';g.shadowBlur=18;g.fillStyle=acc;g.beginPath();g.arc(x,y,r,0,7);g.fill();g.restore();g.fillStyle=dark&&WS.theme==='chic'?'#14141a':'#fff';g.textAlign='center';g.font='800 '+Math.round(r*.8)+'px -apple-system,sans-serif';g.fillText(nAge,x,y+r*.17);g.font='700 '+Math.round(r*.33)+'px -apple-system,sans-serif';g.fillText('ans',x,y+r*.58)};
  const two=t=>{const w=t.split(' ');return w.length>1?[w[0],w.slice(1).join(' ')]:[t,'']};
@@ -7622,7 +7705,7 @@ async function wishDraw(){
   const cx=W/2,cy=560,R=270;g.save();
   if(lay==='coeur'){wishHeart(g,cx,cy,R*1.15);}else if(lay==='carre'){wishRR(g,cx-R,cy-R,2*R,2*R,46);}else{g.beginPath();g.arc(cx,cy,R,0,7);g.closePath()}
   g.save();g.shadowColor='rgba(0,0,0,.25)';g.shadowBlur=30;g.fillStyle='#fff';g.fill();g.restore();
-  g.clip();const k=Math.max(2*R*1.15/im.width,2*R*1.15/im.height);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2,im.width*k,im.height*k);g.restore();
+  g.clip();{const D=2*R*1.15,kf=Math.max(D/im.width,D/im.height),k=WS.zm==='fit'?Math.min(D/im.width,D/im.height):kf*(+WS.zm||1),sh=Math.max(0,(im.height*k-D)/2);g.drawImage(im,cx-im.width*k/2,cy-im.height*k/2-wishOy()*sh,im.width*k,im.height*k)}g.restore();
   g.save();g.lineWidth=16;g.strokeStyle=dark?TH[1]:'#fff';if(lay==='coeur')wishHeart(g,cx,cy,R*1.15);else if(lay==='carre')wishRR(g,cx-R,cy-R,2*R,2*R,46);else{g.beginPath();g.arc(cx,cy,R,0,7)}g.stroke();g.restore();
   badge(cx+R*.82,cy-R*.78,92);
   const [l1,l2]=two(title);g.fillStyle=acc;fit(l1+' '+l2,SERIF,W-120,92,56);
@@ -7636,6 +7719,7 @@ async function wishDraw(){
  }
  const sg=wishSig();if(sg){g.fillStyle=lay==='plein'?'#fff':ink;g.globalAlpha=.9;fit('— '+sg,'italic 500 {s}px "New York",Georgia,serif',W-140,50,28);g.fillText('— '+sg,W/2,H-82);g.globalAlpha=1}
 }
+function wishOy(){return WS&&WS.oy!=null?+WS.oy:(WS&&WS.lay==='coeur'?-0.7:0)}
 function wishRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function wishHeart(g,cx,cy,s){const w=s*2,h=s*1.9,x=cx-s,y=cy-h*.45;g.beginPath();g.moveTo(cx,y+h*.28);g.bezierCurveTo(cx,y,x,y,x,y+h*.33);g.bezierCurveTo(x,y+h*.62,cx,y+h*.78,cx,y+h);g.bezierCurveTo(cx,y+h*.78,x+w,y+h*.62,x+w,y+h*.33);g.bezierCurveTo(x+w,y,cx,y,cx,y+h*.28);g.closePath()}
 function wishFx(im,fx){
@@ -7809,15 +7893,15 @@ async function vyEdit(id){
  const v={t:v0?v0.t:'',ic:v0?v0.ic||'🧳':'🧳',a:v0?v0.a||'':'',b:v0?v0.b||'':'',lieu:v0?v0.lieu||'':''};
  const html='<div style="display:flex;gap:.4rem"><input class="in" id="vy-ic" maxlength="4" value="'+esc(v.ic)+'" style="width:3.6rem;text-align:center" aria-label="Emoji"><input class="in" id="vy-t" maxlength="60" value="'+esc(v.t)+'" placeholder="Ex. Vacances en Bretagne"></div>'+
   '<div class="tk-2"><div><label class="lbl" for="vy-a">Départ</label><input class="in" type="date" id="vy-a" value="'+esc(v.a)+'"></div><div><label class="lbl" for="vy-b">Retour</label><input class="in" type="date" id="vy-b" value="'+esc(v.b)+'"></div></div>'+
-  '<label class="lbl" for="vy-l">Où</label><input class="in" id="vy-l" maxlength="60" value="'+esc(v.lieu)+'" placeholder="Ville, région…" style="margin-bottom:.6rem">';
+  '<label class="lbl" for="vy-l">Où</label><input class="in" id="vy-l" data-adr="1" maxlength="120" value="'+esc(v.lieu)+'" placeholder="Ville, région…" autocomplete="off"><div id="f-adr" class="adr" style="margin-bottom:.6rem"></div>';
  const pr=ask({title:v0?'Modifier le voyage':'Nouveau voyage',html,btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg'),map={'vy-ic':'ic','vy-t':'t','vy-a':'a','vy-b':'b','vy-l':'lieu'};
+ const root=$('#dlg'),map={'vy-ic':'ic','vy-t':'t','vy-a':'a','vy-b':'b','vy-l':'lieu'};ADR_IN=$('#vy-l');setTimeout(adrHint,30);
  root.oninput=root.onchange=e=>{const k=map[e.target.id];if(k)v[k]=e.target.value};
  const r=await pr;root.oninput=root.onchange=null;if(r!=='ok')return;
  const t=String(v.t||'').trim().slice(0,60);if(!t){toast('Donne un nom au voyage');return vyEdit(id)}
  let a=RX_D.test(v.a)?v.a:'',b=RX_D.test(v.b)?v.b:a;if(a&&b<a)b=a;if(a&&diff(b,a)>59){toast('60 jours maximum');return vyEdit(id)}
  const o=v0||{id:'v'+uid(),ls:[],pg:{},in:{}};
- Object.assign(o,{t,ic:String(v.ic||'').trim().slice(0,4)||'🧳',a,b,lieu:String(v.lieu||'').trim().slice(0,60),m:Date.now()});
+ Object.assign(o,{t,ic:String(v.ic||'').trim().slice(0,4)||'🧳',a,b,lieu:String(v.lieu||'').trim().slice(0,120),m:Date.now()});
  if(!v0)vyAll().push(o);saveSet();VY.id=o.id;if(!v0)VY.tab='li';go('voyages');
 }
 async function vyNewList(v,items,name,icon){
@@ -7880,10 +7964,10 @@ async function vyTplManage(){
   break;
  }
 }
-async function vyField(v,title,cur,multi){
+async function vyField(v,title,cur,multi,adr){
  const vals={t:cur||''};
- const pr=ask({title,html:(multi?'<textarea class="in" id="vf-t" rows="5" style="margin-bottom:.6rem">'+esc(vals.t)+'</textarea>':'<input class="in" id="vf-t" maxlength="120" value="'+esc(vals.t)+'" style="margin-bottom:.6rem">'),btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg');root.oninput=e=>{if(e.target.id==='vf-t')vals.t=e.target.value};
+ const pr=ask({title,html:(multi?'<textarea class="in" id="vf-t" rows="5"'+(adr?' data-adr="1" autocomplete="off"':'')+' style="margin-bottom:.2rem">'+esc(vals.t)+'</textarea>'+(adr?'<div id="f-adr" class="adr" style="margin-bottom:.6rem"></div>':''):'<input class="in" id="vf-t" maxlength="120" value="'+esc(vals.t)+'" style="margin-bottom:.6rem">'),btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='vf-t')vals.t=e.target.value};if(adr){ADR_IN=$('#vf-t');setTimeout(adrHint,30)}
  const r=await pr;root.oninput=null;return r==='ok'?String(vals.t||'').trim():null;
 }
 function vyDayHTML(day){
@@ -7891,6 +7975,7 @@ function vyDayHTML(day){
  return L.map(v=>{const k=diff(day,v.a)+1,n=vyDays(v).length,p=(v.pg||{})[day]||{};const pg=[p.ma,p.ap,p.so].filter(Boolean).concat(vyPe(v,day).map(e=>(e.h?e.h+' ':'')+e.t)).join(' · ');
   return '<button class="vy-today" data-act="vy-open" data-id="'+esc(v.id)+'">'+esc(v.ic||'🧳')+' <b>'+esc(v.t)+'</b> · jour '+k+'/'+n+(pg?'<br><small>'+esc(pg)+'</small>':'')+'</button>'}).join('');
 }
+function vpCols(LS,land){const n=LS.reduce((a,l)=>a+l.it.length+2,0);return land?(n>=40?5:n>=20?4:3):(n>=45?4:n>=18?3:2)}
 function vyPrintHTML(v,grid){
  const D=vyDays(v),P=v.pg||{},I=v.in||{};
  const slot=(d,s)=>{const p=P[d]||{};const E=vyPe(v,d).filter(e=>vySlotOf(e)===s);return (p[s]?'<div>'+esc(p[s])+'</div>':'')+E.map(e=>'<div class="vp-e"><b>'+esc(e.h||'')+'</b> '+esc(e.t)+(e.n?' <i>'+esc(e.n)+'</i>':'')+'</div>').join('')};
@@ -7903,18 +7988,19 @@ function vyPrintHTML(v,grid){
  }
  const LS=(v.ls||[]).filter(l=>(l.it||[]).length);
  if(LS.length){const tot=LS.reduce((a,l)=>a+l.it.length,0),rest=LS.reduce((a,l)=>a+l.it.filter(i=>!i.x).length,0);
-  h+='<h2>🧳 Listes <small>'+(rest?rest+' reste'+(rest>1?'nt':'')+' à faire / à prendre sur '+tot:'tout est prêt ✓')+'</small></h2><div class="vp-ls">'+LS.map(l=>{const p=pplOf(l.w),it=l.it.slice().sort((a,b)=>(a.x?1:0)-(b.x?1:0)),dn=l.it.filter(i=>i.x).length;
-   return '<div class="vp-l"><h3>'+esc((l.i?l.i+' ':'')+l.n)+(p?' · '+esc(p.n):'')+' <small>'+dn+'/'+l.it.length+' pris</small></h3>'+it.map(i=>'<div class="vp-i'+(i.x?' vp-dn':'')+'"><span>'+(i.x?'☑':'☐')+'</span>'+esc(i.t)+'</div>').join('')+'</div>'}).join('')+'</div>';
+  h+='<h2>🧳 Listes <small>'+(rest?rest+' reste'+(rest>1?'nt':'')+' à faire / à prendre sur '+tot:'tout est prêt ✓')+'</small></h2><div class="vp-ls" style="column-count:'+vpCols(LS,grid)+';column-gap:1.2em">'+LS.map(l=>{const p=pplOf(l.w),it=l.it.slice().sort((a,b)=>(a.x?1:0)-(b.x?1:0)),dn=l.it.filter(i=>i.x).length;
+   return '<div class="vp-l'+(l.it.length>10?' vp-lg':'')+'"><h3>'+esc((l.i?l.i+' ':'')+l.n)+(p?' · '+esc(p.n):'')+' <small>'+dn+'/'+l.it.length+' pris</small></h3>'+it.map(i=>'<div class="vp-i'+(i.x?' vp-dn':'')+'"><span>'+(i.x?'☑':'☐')+'</span>'+esc(i.t)+'</div>').join('')+'</div>'}).join('')+'</div>';
  }
  const inf=VY_INFO.filter(([k])=>I[k]);
  if(inf.length)h+='<h2>ℹ️ Infos</h2><div class="vp-in">'+inf.map(([k,l])=>'<div><b>'+esc(l)+'</b><span>'+esc(I[k])+'</span></div>').join('')+'</div>';
  return h+'<div class="mp-f">AgenDam · imprimé le '+esc(fShort(today()))+'</div></div>';
 }
 /* tient sur une page : on réduit la taille du texte jusqu'à ce que tout rentre */
-function printFit(html,land){
+function printFit(html,land,grow){
  const box=document.createElement('div');box.className='pz pzshot '+(land?'land':'port');box.style.left='-30000px';box.innerHTML=html;document.body.appendChild(box);
  const inner=box.firstElementChild;let fs=11;
- if(inner){inner.style.fontSize=fs+'pt';while(fs>5.5&&box.scrollHeight>box.clientHeight+2){fs-=0.5;inner.style.fontSize=fs+'pt'}}
+ if(inner){inner.style.fontSize=fs+'pt';while(fs>5.5&&box.scrollHeight>box.clientHeight+2){fs-=0.5;inner.style.fontSize=fs+'pt'}
+  if(grow&&fs>=11)while(fs<20){fs+=0.5;inner.style.fontSize=fs+'pt';if(box.scrollHeight>box.clientHeight+2){fs-=0.5;inner.style.fontSize=fs+'pt';break}}}
  const out=box.innerHTML;box.remove();return out;
 }
 function printPage(html,land,name){
@@ -7938,7 +8024,7 @@ function vyPrintGrid(v){
 function vyPrint(v){
  if(!(v.ls||[]).some(l=>(l.it||[]).length)&&!vyDays(v).length){toast('Rien à imprimer pour ce voyage');return}
  const grid=vyDays(v).length&&Object.values(v.pe||{}).some(a=>a&&a.length)||Object.values(v.pg||{}).some(x=>x&&(x.ma||x.ap||x.so));
- printPage(printFit(vyPrintHTML(v,grid),grid),grid,'voyage-agendam.pdf');
+ printPage(printFit(vyPrintHTML(v,grid),grid,true),grid,'voyage-agendam.pdf');
 }
 
 /* ========= Importer des anniversaires depuis n'importe quoi : Word, Excel, CSV, texte, calendrier, contacts ========= */
