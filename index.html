@@ -1079,12 +1079,16 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.22.4';
+const APP_VERSION='2.23.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.23.1',d:'01/11/2026',items:[
+  'Réception depuis <b>CV en poche</b> : un lien AgenDam qui contient #cv=… ajoute tes entretiens et rendez-vous de candidature à l’agenda, après confirmation. Les événements déjà présents (même titre, même date, même heure) sont ignorés.']},
+ {v:'2.23.0',d:'01/11/2026',items:[
+  'Tâches : tu peux maintenant mettre une <b>heure</b> (facultative) à une tâche qui a une date. Elle s’affiche à côté de la date (ex. « Aujourd’hui 14:30 »), dans la liste comme dans l’agenda, et les tâches du jour sont classées par heure. Elle est conservée quand la tâche revient, et partagée avec la famille.']},
  {v:'2.22.4',d:'01/11/2026',items:[
   'Tâches : la note d’une tâche s’affiche maintenant sous son titre (2 lignes, le reste dans la fiche), au lieu d’une simple icône 📝. À couper dans Réglages → Affichage (« Tâches : afficher la note sous chaque tâche »).']},
  {v:'2.22.3',d:'01/11/2026',items:[
@@ -5689,6 +5693,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
  h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
  h+=d('🔍 Aperçu global des listes','<ul><li>Dans <b>Courses</b> (À acheter et Ma liste type) et dans <b>Voyages → Listes</b>, la rangée « Normal / Compact / Aperçu global » change la taille d’affichage.</li><li>« Aperçu global » : tout est petit et les rayons (ou les listes) se mettent côte à côte. Tu peux toujours cocher et toucher un article pour le modifier.</li><li>Ton choix est gardé séparément pour Courses et pour Voyages.</li></ul>');
@@ -6490,10 +6495,10 @@ function tkMark(d){return tkOn(d).length?'<em class="tkm" title="Tâches">☑</e
    Tâches qui reviennent : chaque fois est gardée dans k.h. Archiver (k.ar) les retire de la liste, elles restent dans « Suivi ». */
 const tkWho=k=>Array.isArray(k.ws)&&k.ws.length?k.ws:(k.w?[k.w]:[]);
 const tkFor=(k,w)=>!w||tkWho(k).includes(w);
-const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
+const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',tm:k.tm||undefined,w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
 function tkMeta(k,showList){
  const P=tkWho(k).map(pplOf).filter(Boolean),t=today(),m=[];
- if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+'</span>');
+ if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+(k.tm?' '+esc(k.tm):'')+'</span>');
  if(k.r)m.push('🔁 '+esc(tkRepTxt(k.r)));
  P.forEach(p=>m.push('<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>'));
  if(k.x&&(k.xb||k.xa))m.push('<span class="tk-by">✓ '+(k.xb?'par '+esc(k.xb)+' ':'')+(k.xa?esc(tkWhen(k.xa)):'')+'</span>');
@@ -6576,6 +6581,7 @@ function tkDayHTML(day,compact){
  let L=tkOn(day);
  if(day===t)L=tkAll().filter(k=>!k.x&&k.d&&k.d<t).concat(L);
  if(!L.length)return '';
+ L=L.slice().sort((a,b)=>(a.d<day&&b.d>=day?-1:b.d<day&&a.d>=day?1:0)||(a.tm||'99').localeCompare(b.tm||'99'));
  const more=compact&&L.length>3?L.length-3:0;
  return '<div class="tk-day"><div class="tk-dh">☑ Tâches</div>'+L.slice(0,more?3:L.length).map(k=>tkRow(k,true)).join('')+(more?'<button class="tk-more" data-act="view" data-v="tasks">+ '+more+' autre'+(more>1?'s':'')+'</button>':'')+'</div>';
 }
@@ -6591,7 +6597,7 @@ function tasksView(){
 
   L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+chip('tk-f','l','__done','📜 Suivi',TKV.l==='__done')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
   '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+(side?'<button class="chip" data-act="tk-more">⋯ Plus</button></div></div>':'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>');
- const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
+ const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:(a.tm||'99')<(b.tm||'99')?-1:(a.tm||'99')>(b.tm||'99')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  if(isCoL(TKV.l)){S.coLid=TKV.l;TKV.l='';setTimeout(()=>go('courses'),0)}
  const showList=!TKV.l;
@@ -6620,7 +6626,7 @@ function tasksView(){
 async function tkEdit(id,pre){
  const k0=id?tkAll().find(k=>k.id===id):null;
  if(id&&!k0)return;
- const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||''}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
+ const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:'',tm:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||'',tm:k0.tm||''}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
  const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
  const html='<label class="lbl" for="tk-t">Tâche</label><input class="in" id="tk-t" maxlength="120" value="'+esc(v.t)+'" placeholder="Ex. Acheter du pain, rendre les livres…" autocomplete="off">'+
   '<div class="tk-2"><div><label class="lbl" for="tk-l">Liste</label><select class="in" id="tk-l">'+opt(tkLists().map(l=>[l.id,(l.i?l.i+' ':'')+l.n]),v.l)+'</select></div>'+
@@ -6630,13 +6636,15 @@ async function tkEdit(id,pre){
   '<div class="tk-2" style="display:none"><div></div></div>'+
   '<div class="tk-2"><div><label class="lbl" for="tk-d">Date (facultatif)</label><div class="dclr"><input class="in" type="date" id="tk-d" value="'+esc(v.d)+'"><button type="button" class="dclr-x" data-tdclr="1" aria-label="Retirer la date">✕</button></div></div>'+
   '<div><label class="lbl" for="tk-r">Revient</label><select class="in" id="tk-r">'+opt(TK_REP,v.r)+'</select></div></div>'+
+  '<div class="tk-2"><div><label class="lbl" for="tk-tm">Heure (facultatif)</label><div class="dclr"><input class="in" type="time" id="tk-tm" value="'+esc(v.tm||'')+'"><button type="button" class="dclr-x" data-tmclr="1" aria-label="Retirer l’heure">✕</button></div></div><div></div></div>'+
   '<label class="lbl" for="tk-n">Note</label><textarea class="in" id="tk-n" rows="2" maxlength="500">'+esc(v.n)+'</textarea>'+
   (ppl().length?'':'<p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Astuce : ajoute les prénoms de la famille avec « 👪 Famille » pour répartir les tâches.</p>');
  const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(k0)btns.push({label:'Supprimer',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
  const p=ask({title:k0?'Modifier la tâche':'Nouvelle tâche',html,btns});
- const root=$('#dlg');const map={'tk-t':'t','tk-l':'l','tk-d':'d','tk-w':'w','tk-r':'r','tk-n':'n'};
+ const root=$('#dlg');const map={'tk-t':'t','tk-l':'l','tk-d':'d','tk-w':'w','tk-r':'r','tk-n':'n','tk-tm':'tm'};
  root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
- const tw=e=>{const cl=e.target.closest&&e.target.closest('[data-tdclr]');if(cl){e.preventDefault();e.stopImmediatePropagation();v.d='';v.r='';const i=$('#tk-d');if(i)i.value='';const rs=$('#tk-r');if(rs)rs.value='';toast('Date retirée (et la répétition aussi)',2500);return}
+ const tw=e=>{const tc=e.target.closest&&e.target.closest('[data-tmclr]');if(tc){e.preventDefault();e.stopImmediatePropagation();v.tm='';const i=$('#tk-tm');if(i)i.value='';return}
+  const cl=e.target.closest&&e.target.closest('[data-tdclr]');if(cl){e.preventDefault();e.stopImmediatePropagation();v.d='';v.r='';v.tm='';const ti=$('#tk-tm');if(ti)ti.value='';const i=$('#tk-d');if(i)i.value='';const rs=$('#tk-r');if(rs)rs.value='';toast('Date retirée (et l’heure et la répétition aussi)',2500);return}
   const b=e.target.closest&&e.target.closest('[data-tw]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const id=b.dataset.tw;const i=v.ws.indexOf(id);if(i>=0)v.ws.splice(i,1);else v.ws.push(id);b.classList.toggle('on',i<0)};root.addEventListener('click',tw,true);
  setTimeout(()=>{const i=$('#tk-t');if(i&&!k0)i.focus()},60);
  const r=await p;root.oninput=root.onchange=null;root.removeEventListener('click',tw,true);
@@ -6650,7 +6658,7 @@ async function tkEdit(id,pre){
  const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
  const k=k0||{id:uid(),ca:Date.now()};
  const ws=v.ws.filter(x=>pplOf(x));
- Object.assign(k,{t,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
  if(rr)k.x=false;
  if(!k0)tkAll().push(k);
  saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
@@ -6714,7 +6722,7 @@ async function tkManage(kind){
 /* impression A4 : cases à cocher, groupées par liste, avec quelques lignes vides pour écrire à la main */
 function tkPrintGroups(){
  const sel=tkAll().filter(k=>!k.x&&(!TKV.l||k.l===TKV.l)&&tkFor(k,TKV.w));
- const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:a.t.localeCompare(b.t);
+ const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:(a.tm||'99')<(b.tm||'99')?-1:(a.tm||'99')>(b.tm||'99')?1:a.t.localeCompare(b.t);
  return tkLists().filter(l=>!TKV.l||l.id===TKV.l).map(l=>({l,items:sel.filter(k=>k.l===l.id).sort(by)})).filter(g=>g.items.length||TKV.l);
 }
 const tkPlain=s=>String(s||'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu,'').replace(/\s+/g,' ').trim();
@@ -6948,7 +6956,7 @@ function shMerge(P,apply){
    map[p.id]=loc?loc.id:'';
   }
   for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),co:l.co?1:undefined,m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
-  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
+  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',tm:RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?k.tm:undefined,w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
   for(const k of (P.tk||[])){
    if(!k||!k.id||!k.t)continue;
    const loc=tkAll().find(x=>x.id===k.id);
@@ -7053,6 +7061,50 @@ function shareCheckHash(){
  const code=shCode(h);
  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
  if(code)setTimeout(()=>shReceive(code,true),350);
+}
+/* Réception depuis « CV en poche » : lien …/agenda/#cv=<JSON en base64url> avec {app:'cv',v:1,ev:[…]}. Sens unique CV → AgenDam. */
+function cvDecode(code){
+ try{
+  let t=String(code||'').replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';
+  const bin=atob(t),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+  const o=JSON.parse(new TextDecoder().decode(u));
+  if(!o||o.app!=='cv'||!Array.isArray(o.ev))return null;
+  return o.ev.slice(0,200);
+ }catch(e){return null}
+}
+function cvNorm(x){
+ if(!x||typeof x!=='object')return null;
+ const pick=(...k)=>{for(const n of k)if(x[n]!=null&&x[n]!=='')return x[n]};
+ let st=String(pick('start','date','debut','d')||''),stT=pick('startTime','heure','time','h');
+ const m=st.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);if(m){st=m[1];if(!stT)stT=m[2]}
+ let en=String(pick('end','fin')||''),enT=pick('endTime','heureFin');
+ const m2=en.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);if(m2){en=m2[1];if(!enT)enT=m2[2]}
+ const allDay=x.allDay!=null?!!x.allDay:!stT;
+ return cleanEvent({title:pick('title','titre','summary','t'),start:st,end:en||st,allDay,startTime:stT,endTime:enT,place:pick('place','lieu','location'),note:pick('note','desc','description'),cat:pick('cat'),icon:pick('icon')});
+}
+const cvKey=e=>[String(e.title).trim().toLowerCase(),e.start,e.allDay?'':e.startTime].join('|');
+async function cvReceive(list){
+ if(demo){toast('Quitte d’abord le mode démo pour recevoir ces événements',4000);return}
+ const evs=(list||[]).map(cvNorm).filter(Boolean);
+ if(!evs.length){toast('Aucun événement valide dans ce lien',4000);return}
+ const have=new Set(EV.map(cvKey)),seen=new Set(),fresh=[];
+ for(const e of evs){const k=cvKey(e);if(have.has(k)||seen.has(k))continue;seen.add(k);e.id='cv-'+hash32(k);e.src='cv';fresh.push(e)}
+ if(!fresh.length){toast('Ces '+evs.length+' événement'+(evs.length>1?'s sont':' est')+' déjà dans ton agenda',4500);return}
+ const dup=evs.length-fresh.length;
+ const r=await ask({title:'📥 Reçu de CV en poche',
+  html:'<p style="margin:.2rem 0 .4rem"><b>'+fresh.length+' événement'+(fresh.length>1?'s reçus':' reçu')+'</b> de CV en poche, les ajouter ?'+(dup?' <span class="mut">('+dup+' déjà présent'+(dup>1?'s':'')+', ignoré'+(dup>1?'s':'')+')</span>':'')+'</p><div class="mut" style="font-size:.88rem;margin:.3rem 0 .6rem">'+fresh.slice(0,8).map(e=>'• '+esc(e.title)+' · '+esc(fShort(e.start))+(e.allDay?'':' '+esc(e.startTime))).join('<br>')+(fresh.length>8?'<br>… et '+(fresh.length-8)+' autres':'')+'</div>',
+  btns:[{label:'Ajouter ('+fresh.length+')',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='ok')return;
+ EV.push(...fresh);touch();V.date=fresh.map(e=>e.start).sort()[0];render();
+ toast(fresh.length+' événement'+(fresh.length>1?'s ajoutés':' ajouté')+' à l’agenda',4000);
+}
+function cvCheckHash(){
+ const h=location.hash||'';if(h.indexOf('#cv=')!==0)return false;
+ const code=h.slice(4).split(/[&\s]/)[0];
+ try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+ const ev=cvDecode(code);
+ if(!ev){toast('Ce lien CV en poche n’est pas valide',4000);return true}
+ setTimeout(()=>cvReceive(ev),450);return true;
 }
 async function ensureMe(){if(S.meOk&&meName())return true;return await meSet()}
 function meName(){const p=pplOf(S.meId);return p?p.n:(S.me||'')}
@@ -9095,8 +9147,8 @@ async function init(){
  if(q.get('demo')==='1')demoOn();
  render();
  registerSW();
- if(!famHash2())shareCheckHash();
- window.addEventListener('hashchange',()=>{if(!famHash2())shareCheckHash()});
+ if(!cvCheckHash()&&!famHash2())shareCheckHash();
+ window.addEventListener('hashchange',()=>{if(!cvCheckHash()&&!famHash2())shareCheckHash()});
  setTimeout(()=>famPull(false),1800);
  setInterval(()=>{if(document.visibilityState==='visible')famPull(false)},150000);
  setInterval(tick,30000);tick();
