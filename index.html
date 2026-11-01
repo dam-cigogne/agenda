@@ -533,6 +533,8 @@ html.dst-circle .mc .n:not(.today){background:var(--surface2);border-radius:999p
 .tk-t{flex:1;min-width:0;text-align:left;background:none;border:0;padding:.5rem .7rem .5rem .4rem;display:flex;flex-direction:column;gap:.1rem;color:inherit;cursor:pointer;font:inherit}
 .tk-t b{font-size:1.02rem;font-weight:700;overflow-wrap:break-word}
 .tk-t small{color:var(--muted);font-size:.82rem;font-weight:600}
+.tk-note{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);font-size:.84rem;font-weight:500;line-height:1.3;margin-top:.1rem;white-space:normal;overflow-wrap:anywhere}
+.tk-day .tk-note{-webkit-line-clamp:1}
 .tk-r.dn .tk-t b{text-decoration:line-through;color:var(--muted);font-weight:600}
 .tk-late{color:var(--danger);font-weight:800}
 .tk-p{color:var(--c);font-weight:800}
@@ -1077,12 +1079,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.22.3';
+const APP_VERSION='2.22.4';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.22.4',d:'01/11/2026',items:[
+  'Tâches : la note d’une tâche s’affiche maintenant sous son titre (2 lignes, le reste dans la fiche), au lieu d’une simple icône 📝. À couper dans Réglages → Affichage (« Tâches : afficher la note sous chaque tâche »).']},
  {v:'2.22.3',d:'01/11/2026',items:[
   'Courses : la liste principale peut maintenant être renommée et masquée (⋯ Options → « Masquer la liste… »). Son onglet disparaît mais ses articles sont gardés, et tu peux la réafficher dans ⋯ Options. Il faut avoir au moins une autre liste.',
   'Ajouter des ingrédients aux courses depuis une recette ou le menu : quand tu as plusieurs listes, un choix « Dans quelle liste ? » apparaît (la liste ouverte est proposée d’office), par exemple pour viser la liste commune.']},
@@ -5604,6 +5608,7 @@ function settingsView(){
   '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
  h+='\u0001aff\u0001';
  h+='<div class="card"><h3>Affichage</h3>'+
+  '<div class="tgl-row"><b>Tâches : afficher la note sous chaque tâche 📝</b><label class="tgl"><input type="checkbox" data-chg="tkNote"'+(S.tkNote===false?'':' checked')+'></label></div>'+
   '<div class="tgl-row"><b>Courses : un dessin devant chaque article 🍅</b><label class="tgl"><input type="checkbox" data-chg="coIc"'+(S.coIc===false?'':' checked')+'></label></div>'+
   '<div class="tgl-row"><b>Fenêtre « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<span class="lbl" style="display:block;margin-top:.5rem">Onglets en bas</span>'+[['tasks','☑ Tâches'],['courses','🛒 Courses'],['repas','🍽 Repas'],['bdays','🎂 Anniversaires'],['voyages','🧳 Voyages']].map(([v,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="'+v+'"'+((S.tabsHide||[]).includes(v)?'':' checked')+'></label></div>').join('')+
@@ -5684,6 +5689,7 @@ function openHelp(hist){
  if(OL_ON)h+=d('Catégorie Outlook','<ul><li>Connecté à Outlook, l’éditeur propose <b>Catégorie Outlook</b> : l’événement est rangé dans cette catégorie quand il est envoyé.</li><li><b>Calendrier Outlook</b> : choisis dans quel calendrier Outlook l’événement est envoyé. <b>Réglages → Outlook → Voir mes catégories et calendriers</b> : liste ce qu’Outlook renvoie et te laisse cacher ce que tu n’utilises pas.</li><li><b>Aucune</b> : pas de catégorie dans Outlook (la catégorie de l’appli reste).</li><li>Des doublons dans Outlook ? <b>Réglages → Outlook → Nettoyer les doublons dans Outlook</b> supprime les exemplaires en trop du calendrier « Agenda (appli) ».</li><li>Liste incomplète ? Déconnecte puis reconnecte Outlook une fois pour autoriser la lecture de tes catégories.</li></ul>');
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
+ h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
  h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
  h+=d('🔍 Aperçu global des listes','<ul><li>Dans <b>Courses</b> (À acheter et Ma liste type) et dans <b>Voyages → Listes</b>, la rangée « Normal / Compact / Aperçu global » change la taille d’affichage.</li><li>« Aperçu global » : tout est petit et les rayons (ou les listes) se mettent côte à côte. Tu peux toujours cocher et toucher un article pour le modifier.</li><li>Ton choix est gardé séparément pour Courses et pour Voyages.</li></ul>');
  h+=d('🛒 Dessins dans les courses','<ul><li>Chaque article a un petit dessin choisi d’après son nom (🍅 tomates, 🥛 lait…). C’est automatique.</li><li><b>Changer un dessin</b> : touche-le, choisis un autre emoji (recherche par mot). Il est retenu pour ce produit. Pour revenir à l’automatique : touche-le puis « Aucun emoji (retirer) ».</li><li><b>Doublons</b> : dans « Ma liste type », « 🧹 Supprimer les doublons » repère les produits qui se ressemblent (« Tomate », « Tomates »). Le plus acheté est gardé d’office : touche « Supprimer les doublons » pour valider, ou choisis un autre à garder.</li><li>Pas envie ? Réglages → Affichage → « Courses : un dessin devant chaque article ».</li></ul>');
@@ -6392,6 +6398,7 @@ document.addEventListener('change',e=>{
  if(t.id&&/^rs-(type|all)-/.test(t.id)){rotRead();rotDraw();return}
  if(t.id==='sel-per'){SEL.per=t.value;selRefilter();return}
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
+ if(t.dataset.chg==='tkNote'){S.tkNote=t.checked;saveSet();return}
  if(t.dataset.chg==='coIc'){S.coIc=t.checked;saveSet();if(V.view==='courses')render();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
  if(t.dataset.chg==='tabshow'){const H=new Set(S.tabsHide||[]);t.checked?H.delete(t.dataset.v):H.add(t.dataset.v);S.tabsHide=[...H];saveSet();tabsApply();return}
@@ -6493,7 +6500,7 @@ function tkMeta(k,showList){
  if(k.x&&k.xn)m.push('💬 '+esc(k.xn.slice(0,60)));
  if(!k.x&&Array.isArray(k.h)&&k.h.length){const z=k.h[k.h.length-1];m.push('<span class="tk-by">dernière fois : '+esc(z.b||'')+' '+esc(tkWhen(z.a))+'</span>')}
  if(showList){const l=tlOf(k.l);if(l)m.push(esc((l.i?l.i+' ':'')+l.n))}
- if(k.n)m.push('📝');
+ if(k.n&&S.tkNote===false)m.push('📝');
  return m.join(' · ');
 }
 /* Suivi par groupe (Famille, Travail…) : une liste peut être rangée dans un groupe (S.tlGrp) ; sinon on devine :
@@ -6562,7 +6569,7 @@ async function tkSuiviExport(){
 }
 const tkWhen=ts=>{const d=new Date(ts);return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
 function tkRow(k,showList){
- return '<div class="tk-r'+(k.x?' dn':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(tkMeta(k,showList)?'<small>'+tkMeta(k,showList)+'</small>':'')+'</button></div>';
+ return '<div class="tk-r'+(k.x?' dn':'')+'"><button class="tk-c" data-act="tk-chk" data-id="'+esc(k.id)+'" aria-label="'+(k.x?'Décocher':'Cocher')+'">'+(k.x?'✓':'')+'</button><button class="tk-t" data-act="tk-edit" data-id="'+esc(k.id)+'"><b>'+esc(k.t)+'</b>'+(tkMeta(k,showList)?'<small>'+tkMeta(k,showList)+'</small>':'')+(k.n&&S.tkNote!==false?'<span class="tk-note">'+esc(String(k.n).replace(/\s*\n+\s*/g,' · '))+'</span>':'')+'</button></div>';
 }
 function tkDayHTML(day,compact){
  const t=today();
