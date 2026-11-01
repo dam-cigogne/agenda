@@ -327,7 +327,7 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .mp-h{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#c0682e,#e3a14f);color:#fff;border-radius:12px;padding:10px 18px;margin-bottom:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .mp-h b{display:block;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:24pt;line-height:1.1}.mp-h span{font-size:11.5pt;font-weight:600;opacity:.95}.mp-h i{font-style:normal;font-size:30pt}
 .mp-g{flex:1;min-height:0;display:grid;grid-template-columns:64px repeat(7,1fr);grid-template-rows:auto 1fr 1fr;gap:6px}
-.mp-k{display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-weight:800;font-size:12pt;color:#8a5a2b;background:#fbf1e4;border-radius:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mp-k{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;text-align:center;font-weight:800;font-size:11pt;color:#8a5a2b;background:#fbf1e4;border-radius:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .mp-g>.mp-k:first-child{background:none}
 .mp-d{text-align:center;padding:6px 2px;border-radius:10px;background:#f4ece0;-webkit-print-color-adjust:exact;print-color-adjust:exact}.mp-d b{display:block;font-size:12pt}.mp-d span{font-size:9.5pt;color:#6b5f4f}
 .mp-d.we,.mp-w.we .mp-c{background:#eef4fb}.mp-d.td{background:#c0682e;color:#fff}.mp-d.td span{color:#fff}
@@ -1072,12 +1072,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.21.1';
+const APP_VERSION='2.21.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.21.2',d:'01/11/2026',items:[
+  'Impression du menu de la semaine : « Midi » et « Soir » ne sont plus à l’envers sur iPhone (texte droit, avec le soleil ou la lune au-dessus).']},
  {v:'2.21.1',d:'01/11/2026',items:[
   'Correction : quand tu sélectionnes quelques anniversaires et que tu touches « Envoyer », le message (texte lisible, fichier Excel, copie) ne contient plus que ceux que tu as choisis, et non toute la liste.',
   'Carte d’anniversaire : quand tu touches un réglage (ton, âge, photo…), l’écran ne remonte plus tout en haut.',
@@ -7549,7 +7551,7 @@ function rpPrintHTML(){
  let h='<div class="mp"><div class="mp-h"><div><b>Menu de la semaine</b><span>du '+esc(per)+'</span></div><i>🍽️</i></div><div class="mp-g"><div class="mp-k"></div>';
  const D=[...Array(7)].map((_,i)=>add(ws,i));
  D.forEach(d=>{const w=[0,6].includes(dow(d));h+='<div class="mp-d'+(d===td?' td':w?' we':'')+'"><b>'+esc(cap(DL[dow(d)]))+'</b><span>'+pd(d).getDate()+' '+['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'][pd(d).getMonth()]+'</span></div>'});
- [['m','☀️ Midi'],['s','🌙 Soir']].forEach(([k,l])=>{h+='<div class="mp-k">'+l+'</div>';D.forEach(d=>{const w=[0,6].includes(dow(d));h+='<div class="mp-w'+(d===td?' td':w?' we':'')+'">'+cell((mnAll()[d]||{})[k])+'</div>'})});
+ [['m','☀️ Midi'],['s','🌙 Soir']].forEach(([k,l])=>{h+='<div class="mp-k"><span style="font-size:18pt;line-height:1">'+l.split(' ')[0]+'</span><span>'+l.split(' ')[1]+'</span></div>';D.forEach(d=>{const w=[0,6].includes(dow(d));h+='<div class="mp-w'+(d===td?' td':w?' we':'')+'">'+cell((mnAll()[d]||{})[k])+'</div>'})});
  return h+'</div><div class="mp-f">AgenDam · imprimé le '+esc(fShort(td))+'</div></div>';
 }
 function plainPDF(title,blocks){
