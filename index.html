@@ -1079,12 +1079,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.23.4';
+const APP_VERSION='2.24.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.24.0',d:'01/11/2026',items:[
+  'Visites de <b>Gestion Locative Facile</b> : un <b>statut</b> dans la fiche (✅ Bien passée, 🔁 2ᵉ visite, 🤔 À réfléchir, 🎉 Retenu, ❌ Pas retenu). Même chose pour les <b>entretiens de CV en poche</b> (✅ Bien passé, 🔁 2ᵉ entretien, 🤔 À réfléchir, 🎉 Retenu, ❌ Refusé). Le dessin du statut s’affiche devant le titre dans l’agenda, et la liste « Reçus de CV en poche / Gestion Locative » peut être filtrée par statut. Modifier un événement reçu de CV en poche ou Gestion Locative ne le fait plus sortir de cette liste.']},
  {v:'2.23.4',d:'01/11/2026',items:[
   'AgenDam reconnaît aussi <b>Gestion Locative Facile</b> : les visites de candidats locataires envoyées par cette appli (lien ou code collé, préfixe <b>GLF:</b> accepté) arrivent avec leur 🏠, le lieu et la note complète, en catégorie « Location » si elle existe. Les messages indiquent le bon nom d’appli.']},
  {v:'2.23.3',d:'01/11/2026',items:[
@@ -1546,7 +1548,10 @@ const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
-const evT=ev=>(ev.hi&4?'★ ':'')+(ev.icon?esc(ev.icon)+' ':'')+esc(ev.title);
+const VIS=[['ok','✅','Bien passé','Bien passée'],['v2','🔁','2ᵉ entretien','2ᵉ visite'],['th','🤔','À réfléchir','À réfléchir'],['yes','🎉','Retenu','Retenu'],['no','❌','Refusé','Pas retenu']];
+const visL=(x,src)=>src==='glf'?x[3]:x[2];
+const visE=k=>{const v=VIS.find(x=>x[0]===k);return v?v[1]+' ':''};
+const evT=ev=>(ev.hi&4?'★ ':'')+visE(ev.vs)+(ev.icon?esc(ev.icon)+' ':'')+esc(ev.title);
 /* coupure des mots longs par syllabes (tiret conditionnel \u00ad) : « Anni-versaire », « Gyné-cologue » */
 const HY_V='aàâäeéèêëiîïoôöuùûüyÿœæ',HY_KEEP=['bl','br','ch','cl','cr','dr','fl','fr','gl','gn','gr','ph','pl','pr','th','tr','vr'];
 function hyWord(w){
@@ -1564,7 +1569,7 @@ function hyWord(w){
  let o='',a=0;for(const p of cut){o+=w.slice(a,p)+'\u00ad';a=p}return o+w.slice(a);
 }
 const hyText=s=>String(s==null?'':s).replace(/[A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]{7,}/g,hyWord);
-const evTh=ev=>(ev.hi&4?'★ ':'')+(ev.icon?esc(ev.icon)+' ':'')+esc(hyText(ev.title));
+const evTh=ev=>(ev.hi&4?'★ ':'')+visE(ev.vs)+(ev.icon?esc(ev.icon)+' ':'')+esc(hyText(ev.title));
 const hiCls=ev=>(ev.hi&1?' hio':'')+(ev.hi&2?' hib':'');
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
@@ -1647,6 +1652,7 @@ function cleanEvent(x){
  const ev={id:String(x.id||uid()),title:String(x.title||'Sans titre').slice(0,200),allDay:!!x.allDay,start:x.start,end:x.end||x.start,
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
   cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),hi:((+x.hi)||0)&7,pv:x.pv?1:0,mt:+x.mt||0,rec:null,ex:[],alarm:null};
+ if(VIS.some(v=>v[0]===x.vs))ev.vs=x.vs;
  if(Array.isArray(x.mids)&&x.mids.length>1)ev.mids=x.mids.map(String).slice(0,400);
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
@@ -5460,7 +5466,7 @@ function openEditor(opt){
  if(ev){
   const sd=opt.occDate||ev.start,dur=Math.max(0,diff(ev.end,ev.start));
   f={title:ev.title,allDay:ev.allDay,sd,st:ev.startTime,ed:add(sd,dur),et:ev.endTime,place:ev.place,note:ev.note,cat:ev.cat,icon:ev.icon||'',
-   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',hi:ev.hi||0,pv:ev.pv||0};
+   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',hi:ev.hi||0,pv:ev.pv||0,vs:ev.vs||'',gl:ev.src==='glf'?'glf':ev.src==='cv'?'cv':''};
  }else{
   const sd=opt.date||V.date;let st='09:00';
   if(opt.startMin!=null)st=hm(Math.min(1380,opt.startMin));
@@ -5479,6 +5485,7 @@ function openEditor(opt){
  h+='<div class="fld"><label class="lbl" for="f-title">Titre</label><input class="in big" id="f-title" value="'+esc(f.title)+'" placeholder="Ex. Réunion, Rendez-vous…" autocomplete="off" maxlength="200"></div>';
  h+='<div class="fld"><label class="lbl" for="f-icon">Emoji (facultatif)</label><div class="icorow"><input class="in icoin" id="f-icon" value="'+esc(f.icon||'')+'" placeholder="🙂" autocomplete="off" maxlength="30" inputmode="text"><div class="chips icos">'+EMOJIS.map(e=>'<button type="button" class="chip ico" data-act="pickicon" data-i="'+e+'">'+e+'</button>').join('')+'<button type="button" class="chip ico" data-act="emopick" aria-label="Plus d’emojis">＋ Plus…</button></div></div></div>';
  if(typeof famAll==='function'&&famAll().length)h+='<div class="tgl-row" style="margin:.2rem 0 .5rem"><b>🔒 Privé <small class="mut" style="font-weight:600">· jamais partagé avec la famille connectée</small></b><label class="tgl"><input type="checkbox" id="f-pv"'+(f.pv?' checked':'')+'></label></div>';
+ if(f.gl)h+='<div class="fld"><span class="lbl">'+(f.gl==='glf'?'Suite de la visite':'Suite de l’entretien')+'</span><div class="chips" id="f-vs">'+VIS.map(x=>'<button type="button" class="chip'+(f.vs===x[0]?' on':'')+'" data-act="pickvs" data-v="'+x[0]+'">'+x[1]+' '+visL(x,f.gl)+'</button>').join('')+'</div></div>';
  h+='<div class="fld"><span class="lbl">Mettre en valeur (événement important)</span><div class="chips" id="f-hi">'+[[1,'Contour'],[2,'Gras'],[4,'★ Étoile']].map(x=>'<button type="button" class="chip'+((f.hi||0)&x[0]?' on':'')+'" data-act="pickhi" data-b="'+x[0]+'">'+x[1]+'</button>').join('')+'</div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'<button type="button" class="chip cat'+(f.cat==='-'?' on':'')+'" style="--c:#94a3b8" data-act="pickcat" data-id="-">Sans catégorie</button></div></div>';
  if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">📅 Ranger dans quel calendrier Outlook ?</span><div class="chips" id="f-ocal">'+ocalChips(f.ocal||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Le calendrier, c’est le « dossier » dans Outlook (Agenda (appli), RDV, Vacance DAM…).</p></div>';h+='<details class="fld ocat-d"'+(f.ocat?' open':'')+'><summary class="lbl">🏷️ Étiquette de couleur Outlook (facultatif)</summary><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">L’étiquette, c’est la couleur affichée sur l’événement dans Outlook. « Aucune » = pas d’étiquette (l’événement garde sa catégorie de l’appli). Calendrier et étiquette sont deux choses séparées.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></details>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur);const k=$('#f-ocal');if(k){const cc=($('#f-ocal .chip.on')||{dataset:{}}).dataset.o||'';k.innerHTML=ocalChips(cc)}}})}
@@ -5535,7 +5542,7 @@ function readForm(){
  }
  const cat=($('#f-cats .chip.on')||{dataset:{}}).dataset.id||S.cats[0].id;
  return{title:g('f-title').value.trim()||'Sans titre',allDay,start:g('f-sd').value,end:g('f-ed').value,startTime:g('f-st').value||'09:00',endTime:g('f-et').value||'10:00',
-  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',hi:$$('#f-hi .chip.on').reduce((a,c)=>a|(+c.dataset.b||0),0),pv:$('#f-pv')&&$('#f-pv').checked?1:0,rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
+  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',hi:$$('#f-hi .chip.on').reduce((a,c)=>a|(+c.dataset.b||0),0),pv:$('#f-pv')&&$('#f-pv').checked?1:0,vs:(($('#f-vs .chip.on')||{dataset:{}}).dataset.v)||'',rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
 }
 async function saveEditor(){
  const b=readForm();
@@ -5543,6 +5550,7 @@ async function saveEditor(){
  if(b.end<b.start){toast('La fin est avant le début');return}
  if(!b.allDay&&stampOf(b.end,b.endTime)<=stampOf(b.start,b.startTime)){toast('L’heure de fin doit être après le début');return}
  const ev0=ED.id?findEv(ED.id):null;
+ if(ev0&&(ev0.src==='cv'||ev0.src==='glf'))b.src=ev0.src;
  if(!b.allDay){const cf=conflictsFor(b,ev0?ev0.id:null);if(cf.length){const r=await ask({title:'Attention : horaire déjà pris',html:'<p style="margin:.2rem 0 .6rem">Il y a déjà '+(cf.length>1?'des événements':'un événement')+' à cette période :</p><p style="margin:0 0 .6rem;font-weight:650">'+esc(cflText(cf,4))+'</p>',btns:[{label:'Enregistrer quand même',value:'y',cls:'pri'},{label:'Modifier l’horaire',value:null}]});if(r!=='y')return}}
  let target=b.start,saved=null;
  const wantPhone=!!($('#f-phone')&&$('#f-phone').checked);
@@ -5700,7 +5708,7 @@ function openHelp(hist){
  h+=d('🧳 Voyages','<ul><li><b>Programme détaillé</b> : dans Matin, Après-midi ou Soir, « ＋ Ajouter » (heure facultative, quoi, détails) ; plusieurs choses par case, rangées par heure (avant 12 h Matin, 12 h–18 h Après-midi, après 18 h Soir). <b>🖨 Imprimer le voyage</b> : tout sur une page A4 (programme avec heures et repas, listes avec ☑ pris / ☐ reste à prendre, infos).</li><li><b>Nouveau voyage</b> : nom, dates, lieu.</li><li><b>Listes</b> : pars d’un <b>modèle</b> (valise, maison avant de partir…), ou <b>colle une liste depuis Notes</b> (une ligne = une case), ou crée une liste vide. Indique pour qui (valise de Léo). Coche au fur et à mesure. « ⋯ » sur une liste : tout décocher, renommer, <b>enregistrer comme modèle</b>, supprimer.</li><li><b>Programme</b> : matin, après-midi et soir pour chaque jour.</li><li><b>Repas</b> : les repas des jours du voyage (ceux de l’onglet Repas). « Ingrédients du séjour → courses » remplit la liste de courses.</li><li><b>Infos</b> : adresse (avec itinéraire), trajet, réservations, numéros utiles, budget, notes.</li><li><b>📤 Envoyer le voyage</b> l’envoie à la famille par SMS ou WhatsApp.</li></ul>');
  h+=d('🎉 Souhaiter un anniversaire','<ul><li><b>La carte</b> : 8 décors au choix (Ballons, Guirlande, Gâteau, Fleurs, Arc-en-ciel, Bulles, Étoiles, Chic) et le titre (Joyeux anniversaire, Bon anniversaire, Happy birthday, Bonne fête). Avec une photo : forme Rond, Cœur, Carré, Polaroïd ou Plein écran, et un effet (Vif, Chaud, Noir et blanc, Sépia).</li><li>Dans <b>Anniversaires</b>, touche <b>🎉</b> à côté de la personne (le jour J, le bouton apparaît aussi à l’ouverture de l’appli et dans l’agenda).</li><li>Choisis un <b>ton</b> : le message est écrit avec son prénom et son âge. <b>🔀 Un autre message</b> en propose un nouveau, et tu peux modifier le texte.</li><li>Choisis le <b>thème de la carte</b>, et ajoute une <b>photo</b> si tu veux.</li><li><b>📤 Envoyer la carte et le message</b> ouvre le partage du téléphone : Messages, WhatsApp, mail… C’est toi qui appuies sur Envoyer.</li><li><b>Signé</b> : choisis qui signe la carte (ton prénom, « Damien et Nora », Papa, Maman, Toute la famille, ou autre chose). Ton prénom se règle dans Réglages → Famille et contacts → <b>Ce téléphone est à</b>.</li><li>Relie la personne à un contact (Modifier l’anniversaire → Contact relié) pour avoir « SMS à… » en un geste.</li><li>Les photos restent dans l’appli et partent dans ta <b>sauvegarde .json</b> : enregistre-la toujours au même endroit (iCloud Drive, par exemple) pour tout retrouver.</li></ul>');
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
- h+=d('🏠 Gestion Locative Facile','<ul><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
+ h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
  h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
@@ -6360,6 +6368,7 @@ async function act(a,el,e){
   case 'app-dupes':appDupes();break;
   case 'ol-ign-reset':S.olIgn=[];saveSet();toast('Tout sera de nouveau proposé',3000);render();break;
   case 'pickhi':el.classList.toggle('on');break;
+  case 'pickvs':{const was=el.classList.contains('on');$$('#f-vs .chip').forEach(c=>c.classList.remove('on'));if(!was)el.classList.add('on');break}
   case 'pickocal':$$('#f-ocal .chip').forEach(c=>c.classList.toggle('on',c===el));break;
   case 'ms-pull':msPullNow();break;
   case 'xl-import':$('#fi-xl').value='';$('#fi-xl').click();break;
@@ -7117,12 +7126,14 @@ async function cvList(){
  const L=EV.filter(e=>e.src==='cv'||e.src==='glf').sort((a,b)=>(a.start+a.startTime).localeCompare(b.start+b.startTime));
  if(!L.length){toast('Rien n’a encore été ajouté depuis CV en poche ou Gestion Locative Facile',4500);return}
  const on=new Set();
- const html='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Coche les rendez-vous à retirer de l’agenda.</p><div id="cvl">'+L.map((e,i)=>'<label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--line,#0001)"><input type="checkbox" data-cvi="'+i+'" style="width:1.3rem;height:1.3rem;flex:none;margin-top:.15rem"><span><b>'+esc(e.title)+'</b><br><small class="mut">'+(e.src==='glf'?'Gestion Locative · ':'CV en poche · ')+esc(fShort(e.start))+(e.allDay?'':' · '+esc(e.startTime))+(e.place?' · '+esc(e.place):'')+'</small></span></label>').join('')+'</div>';
+ const html='<p class="mut" style="font-size:.88rem;margin:.2rem 0 .5rem">Coche les rendez-vous à retirer de l’agenda.</p>'+(L.length?'<div class="chips" id="cvf" style="margin-bottom:.4rem"><button type="button" class="chip on" data-cvf="*">Tous</button>'+VIS.map(x=>'<button type="button" class="chip" data-cvf="'+x[0]+'">'+x[1]+' '+(L.every(e=>e.src==='glf')?x[3]:x[2])+'</button>').join('')+'</div>':'')+'<div id="cvl">'+L.map((e,i)=>'<label class="chk" data-cvs="'+(e.vs||'')+'" style="display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--line,#0001)"><input type="checkbox" data-cvi="'+i+'" style="width:1.3rem;height:1.3rem;flex:none;margin-top:.15rem"><span><b>'+esc(visE(e.vs)+e.title)+'</b><br><small class="mut">'+(e.src==='glf'?'Gestion Locative · ':'CV en poche · ')+esc(fShort(e.start))+(e.allDay?'':' · '+esc(e.startTime))+(e.place?' · '+esc(e.place):'')+'</small></span></label>').join('')+'</div>';
  const root=$('#dlg');
  const h=e=>{const t=e.target;if(!t.dataset||t.dataset.cvi==null)return;const i=+t.dataset.cvi;t.checked?on.add(i):on.delete(i)};
  root.addEventListener('change',h,true);
+ const fl=e=>{const b=e.target.closest&&e.target.closest('[data-cvf]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const k=b.dataset.cvf;$$('#cvf .chip').forEach(c=>c.classList.toggle('on',c===b));$$('#cvl label').forEach((lb,i)=>{const show=k==='*'||lb.dataset.cvs===k;lb.style.display=show?'flex':'none';if(!show){const c=lb.querySelector('input');if(c)c.checked=false;on.delete(i)}})};
+ root.addEventListener('click',fl,true);
  const r=await ask({title:'📋 Reçus des applis liées ('+L.length+')',html,btns:[{label:'Retirer les rendez-vous cochés',value:'y',cls:'dng'},{label:'Fermer',value:null}]});
- root.removeEventListener('change',h,true);
+ root.removeEventListener('change',h,true);root.removeEventListener('click',fl,true);
  if(r!=='y')return;
  if(!on.size){toast('Aucun rendez-vous coché',3000);return}
  const ids=new Set([...on].map(i=>L[i].id));
