@@ -1079,12 +1079,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.26.0';
+const APP_VERSION='2.26.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.26.1',d:'02/11/2026',items:[
+  'Plus d’emojis dans la liste « Nourriture » (pomme de terre 🥔, purée, maïs, ail, oignon, champignon, riz, crevette, poisson, fruits, épices…) et dans les Courses, « purée » et « frites » reçoivent maintenant un 🥔 tout seuls.']},
  {v:'2.26.0',d:'02/11/2026',items:[
   'Réglages : le doublon « Mode d’emploi et historique » est retiré (le guide et l’historique restent dans la carte « Guide d’utilisation »). Fiche de l’appli : deux nouveaux boutons. <b>Partager la fiche</b> envoie le lien de la page de présentation avec un petit message : ceux qui la reçoivent peuvent <b>essayer la démo directement</b> ou aller sur le site. <b>Partager une affiche avec un message</b> te laisse choisir une affiche (claire, sombre, avec l’appli ou carte d’aperçu) et l’envoie avec un message qui présente l’appli et le lien de la fiche.']},
  {v:'2.25.0',d:'02/11/2026',items:[
@@ -3699,7 +3701,62 @@ const EMO_CATS=[
 🍴 couverts restaurant
 🧑‍🍳 cuisine cuisinier
 🛒 courses supermarché
-🥡 plat à emporter`],
+🥡 plat à emporter
+🥔 pomme de terre patate purée
+🍠 patate douce
+🌽 maïs épi
+🥒 concombre courgette cornichon
+🫑 poivron
+🌶️ piment épicé
+🧅 oignon échalote
+🧄 ail
+🍄 champignon
+🥬 salade chou épinard vert
+🫛 petits pois haricots verts
+🫘 haricots rouges lentilles légumineuses
+🥜 cacahuètes noix arachide
+🌰 châtaigne marron
+🫒 olive huile
+🥫 conserve boîte
+🧈 beurre
+🥚 oeuf
+🧂 sel poivre épices
+🍯 miel confiture
+🥣 bol céréales yaourt compote
+🍚 riz
+🍙 riz onigiri
+🥟 raviolis gyoza
+🌯 wrap tortilla burrito
+🥙 kebab pita falafel
+🥧 tarte
+🍮 flan crème dessert
+🍭 sucette bonbon
+🥯 bagel
+🥨 bretzel
+🧃 jus de fruit
+🫖 théière tisane infusion
+🍾 bouteille champagne
+🥃 whisky alcool
+🍶 saké
+🧊 glaçons
+🥢 baguettes chinois
+🦐 crevette gambas
+🦞 homard
+🦀 crabe
+🦑 calamar poulpe
+🐟 poisson saumon thon
+🥝 kiwi
+🍐 poire
+🍒 cerises
+🍏 pomme verte
+🥭 mangue
+🍍 ananas
+🍈 melon
+🥥 noix de coco
+🫐 myrtilles baies
+🫚 gingembre
+🧇 gaufre
+🥠 biscuit chinois`],
  ['Voyage',`🚗 voiture
 🚙 voiture suv
 🚕 taxi
@@ -7274,7 +7331,7 @@ const RAYONS=[['fl','🥕 Fruits et légumes',/pomme|poire|banane|citron|orange|
  ['au','🛒 Autres',/$^/]];
 const rayOf=n=>{const t=norm(n);for(const r of RAYONS){if(r[2].test(t)||r[2].test(String(n||'').toLowerCase()))return r[0]}return 'au'};
 /* Courses : un petit dessin devant chaque article, reconnu d'après son nom (sans internet, rien n'est envoyé nulle part) */
-const FOOD_EMO=[[/pate a tartiner|nutella/,'🍫'],[/capsules? lave|tablettes? lave|lave[- ]vaisselle/,'🧽'],[/deo|deodorant|parfum/,'🧴'],[/coton|demaquill|cotons?-?tiges?|rasoir|mousse a raser|coiffant|gel cheveux|apres-?shampo|creme (mains|visage|corps|solaire)|lait corporel|serviette hygien|tampon|protege/,'🧴'],[/compote/,'🍎'],[/crepe|galette|pancake|gaufre/,'🥞'],[/cordon bleu|escalope|cuisse|\baile|blanc de|magret|rillette|pate de campagne|foie gras|terrine/,'🍗'],[/crouton/,'🍞'],[/concass/,'🍅'],[/concoillote|conter|comte|cantal|boursin|saint[- ]?nectaire|munster|maroilles|roquefort|\bbleu\b|vache qui rit|kiri|babybel|fondue|tartiflette|crozet/,'🧀'],[/coquillette|lasagne|ravioli|gnocchi|tortellini|vermicelle|cannelloni/,'🍝'],[/cube|fond de|soupe|veloute|potage/,'🍲'],[/balsamique|vinaigrette/,'🫒'],[/pesto|tapenade|houmous|guacamole|tzatziki/,'🥣'],[/burger|hot ?dog|sandwich|croque|quiche|tourte|pizza|kebab|nem|samoussa/,'🥪'],[/tarte|feuillete/,'🥧'],[/steak vegetal|tofu|tempeh|soja/,'🌱'],[/lardons?|knacki|andouillette|boudin/,'🥓'],[/cornichon|olive|capre/,'🫒'],[/pain de mie|pain burger|brioche|pain au|chocolatine|madeleine|donut|muffin|cake|flan|eclair|pate a/,'🥐'],[/ketchup|tabasco|harissa|sauce soja|nuoc/,'🥫'],[/sirop d|limonade|ice tea|energie|red bull|badoit|perrier|evian|vittel|volvic|contrex/,'🥤'],[/pastis|whisky|vodka|rhum|gin\b|cidre|biere|cocktail|apero|liqueur/,'🍹'],[/lait (d|de) (amande|soja|avoine)|boisson (vegetale|avoine|soja)/,'🥛'],[/dosette|nespresso|senseo|filtre cafe|cafe/,'☕'],[/sucre glace|sucre vanille|pepite|vermicelle chocolat|nappage|colorant|decor/,'🍬'],[/papier alu|aluminium|film (alimentaire|etirable)|sac congelation|papier cuisson|sopalin|essuie[- ]?tout/,'🧻'],[/produit (vaisselle|wc|sol|vitre|multi)|detartrant|degraissant|desinfectant|spray|gant|balai|serpilliere|brosse wc|javel|adoucissant|capsules? lave|tablettes? lave|lave[- ]vaisselle|sel lave|liquide rincage|anti ?calcaire/,'🧽'],[/couche|lingette|bebe|biberon|lait (infantile|bebe|croissance)|petit pot|puree bebe|cereale bebe/,'👶'],[/bouquet de fleurs|bouquet|plante verte/,'💐'],[/timbre|enveloppe|stylo|cahier|colle|scotch|ruban|cadeau|bougie|allumette|briquet/,'🕯️'],[/patate douce/,'🍠'],[/pommes? de terre|patate/,'🥔'],[/pomme/,'🍎'],[/poire/,'🍐'],[/banane/,'🍌'],[/citron vert|\blime\b/,'🍋'],[/citron/,'🍋'],[/orange|clementine|mandarine/,'🍊'],[/fraise/,'🍓'],[/framboise|mure|myrtille|cassis|groseille/,'🫐'],[/cerise/,'🍒'],[/peche|abricot|nectarine/,'🍑'],[/raisin sec/,'🍇'],[/raisin/,'🍇'],[/kiwi/,'🥝'],[/mangue/,'🥭'],[/ananas/,'🍍'],[/melon/,'🍈'],[/past[eè]que/,'🍉'],[/noix de coco|coco/,'🥥'],[/avocat/,'🥑'],[/tomate/,'🍅'],[/aubergine/,'🍆'],[/carotte/,'🥕'],[/\bmais\b|epi de/,'🌽'],[/poivron|piment/,'🫑'],[/concombre|cornichon/,'🥒'],[/salade|laitue|mache|roquette|epinard/,'🥬'],[/brocoli|chou/,'🥦'],[/oignon|echalote/,'🧅'],[/\bail\b/,'🧄'],[/champignon/,'🍄'],[/courgette/,'🥒'],[/courge|potiron|citrouille/,'🎃'],[/haricot|petits? pois|\bpois\b/,'🫛'],[/herbe|persil|basilic|coriandre|ciboulette|menthe|thym|romarin|laurier/,'🌿'],[/gingembre/,'🫚'],[/olive/,'🫒'],[/legume/,'🥗'],[/fruit/,'🍎'],
+const FOOD_EMO=[[/pate a tartiner|nutella/,'🍫'],[/capsules? lave|tablettes? lave|lave[- ]vaisselle/,'🧽'],[/deo|deodorant|parfum/,'🧴'],[/coton|demaquill|cotons?-?tiges?|rasoir|mousse a raser|coiffant|gel cheveux|apres-?shampo|creme (mains|visage|corps|solaire)|lait corporel|serviette hygien|tampon|protege/,'🧴'],[/compote/,'🍎'],[/crepe|galette|pancake|gaufre/,'🥞'],[/cordon bleu|escalope|cuisse|\baile|blanc de|magret|rillette|pate de campagne|foie gras|terrine/,'🍗'],[/crouton/,'🍞'],[/concass/,'🍅'],[/concoillote|conter|comte|cantal|boursin|saint[- ]?nectaire|munster|maroilles|roquefort|\bbleu\b|vache qui rit|kiri|babybel|fondue|tartiflette|crozet/,'🧀'],[/coquillette|lasagne|ravioli|gnocchi|tortellini|vermicelle|cannelloni/,'🍝'],[/cube|fond de|soupe|veloute|potage/,'🍲'],[/balsamique|vinaigrette/,'🫒'],[/pesto|tapenade|houmous|guacamole|tzatziki/,'🥣'],[/burger|hot ?dog|sandwich|croque|quiche|tourte|pizza|kebab|nem|samoussa/,'🥪'],[/tarte|feuillete/,'🥧'],[/steak vegetal|tofu|tempeh|soja/,'🌱'],[/lardons?|knacki|andouillette|boudin/,'🥓'],[/cornichon|olive|capre/,'🫒'],[/pain de mie|pain burger|brioche|pain au|chocolatine|madeleine|donut|muffin|cake|flan|eclair|pate a/,'🥐'],[/ketchup|tabasco|harissa|sauce soja|nuoc/,'🥫'],[/sirop d|limonade|ice tea|energie|red bull|badoit|perrier|evian|vittel|volvic|contrex/,'🥤'],[/pastis|whisky|vodka|rhum|gin\b|cidre|biere|cocktail|apero|liqueur/,'🍹'],[/lait (d|de) (amande|soja|avoine)|boisson (vegetale|avoine|soja)/,'🥛'],[/dosette|nespresso|senseo|filtre cafe|cafe/,'☕'],[/sucre glace|sucre vanille|pepite|vermicelle chocolat|nappage|colorant|decor/,'🍬'],[/papier alu|aluminium|film (alimentaire|etirable)|sac congelation|papier cuisson|sopalin|essuie[- ]?tout/,'🧻'],[/produit (vaisselle|wc|sol|vitre|multi)|detartrant|degraissant|desinfectant|spray|gant|balai|serpilliere|brosse wc|javel|adoucissant|capsules? lave|tablettes? lave|lave[- ]vaisselle|sel lave|liquide rincage|anti ?calcaire/,'🧽'],[/couche|lingette|bebe|biberon|lait (infantile|bebe|croissance)|petit pot|puree bebe|cereale bebe/,'👶'],[/bouquet de fleurs|bouquet|plante verte/,'💐'],[/timbre|enveloppe|stylo|cahier|colle|scotch|ruban|cadeau|bougie|allumette|briquet/,'🕯️'],[/patate douce/,'🍠'],[/pommes? de terre|patate|puree|frites?|gratin dauphinois|dauphine|roesti|rosti/,'🥔'],[/pomme/,'🍎'],[/poire/,'🍐'],[/banane/,'🍌'],[/citron vert|\blime\b/,'🍋'],[/citron/,'🍋'],[/orange|clementine|mandarine/,'🍊'],[/fraise/,'🍓'],[/framboise|mure|myrtille|cassis|groseille/,'🫐'],[/cerise/,'🍒'],[/peche|abricot|nectarine/,'🍑'],[/raisin sec/,'🍇'],[/raisin/,'🍇'],[/kiwi/,'🥝'],[/mangue/,'🥭'],[/ananas/,'🍍'],[/melon/,'🍈'],[/past[eè]que/,'🍉'],[/noix de coco|coco/,'🥥'],[/avocat/,'🥑'],[/tomate/,'🍅'],[/aubergine/,'🍆'],[/carotte/,'🥕'],[/\bmais\b|epi de/,'🌽'],[/poivron|piment/,'🫑'],[/concombre|cornichon/,'🥒'],[/salade|laitue|mache|roquette|epinard/,'🥬'],[/brocoli|chou/,'🥦'],[/oignon|echalote/,'🧅'],[/\bail\b/,'🧄'],[/champignon/,'🍄'],[/courgette/,'🥒'],[/courge|potiron|citrouille/,'🎃'],[/haricot|petits? pois|\bpois\b/,'🫛'],[/herbe|persil|basilic|coriandre|ciboulette|menthe|thym|romarin|laurier/,'🌿'],[/gingembre/,'🫚'],[/olive/,'🫒'],[/legume/,'🥗'],[/fruit/,'🍎'],
 [/oeuf/,'🥚'],[/lait de coco/,'🥥'],[/lait/,'🥛'],[/beurre/,'🧈'],[/fromage|emmental|gruyere|comte|parmesan|mozzarella|chevre|feta|raclette|reblochon|camembert|brie/,'🧀'],[/yaourt|yogourt|creme|mascarpone|ricotta|fromage blanc/,'🥛'],
 [/poulet|dinde|volaille|nugget/,'🍗'],[/jambon|lardon|bacon|saucisse|chorizo|merguez|saucisson/,'🥓'],[/boeuf|steak|hache|veau|porc|agneau|viande|\bcotes?\b|roti/,'🥩'],[/saumon|thon|cabillaud|colin|lieu|sardine|poisson|truite|dorade|\bbar\b/,'🐟'],[/crevette|gambas/,'🦐'],[/moule|huitre|coquillage/,'🦪'],[/canard/,'🦆'],
 [/baguette|pain/,'🥖'],[/brioche|croissant|viennoiserie/,'🥐'],[/pate a pizza|pizza/,'🍕'],[/tortilla|wrap/,'🌯'],[/biscotte/,'🍞'],
