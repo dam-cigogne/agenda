@@ -1079,12 +1079,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.25.0';
+const APP_VERSION='2.26.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.26.0',d:'02/11/2026',items:[
+  'Réglages : le doublon « Mode d’emploi et historique » est retiré (le guide et l’historique restent dans la carte « Guide d’utilisation »). Fiche de l’appli : deux nouveaux boutons. <b>Partager la fiche</b> envoie le lien de la page de présentation avec un petit message : ceux qui la reçoivent peuvent <b>essayer la démo directement</b> ou aller sur le site. <b>Partager une affiche avec un message</b> te laisse choisir une affiche (claire, sombre, avec l’appli ou carte d’aperçu) et l’envoie avec un message qui présente l’appli et le lien de la fiche.']},
  {v:'2.25.0',d:'02/11/2026',items:[
   'Tâches : <b>alerte à l’heure</b>. Dans la fiche d’une tâche qui a une date et une heure, active « ⏰ M’alerter à l’heure » : à l’heure dite, une fenêtre propose ✅ Fait, Dans 1 h, Dans 2 h, Ce soir (18:00), Demain même heure ou Ignorer. L’alerte s’affiche quand AgenDam est ouvert (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie même appli fermée, le bouton « 📱 Enregistrer + calendrier du téléphone » envoie la tâche au calendrier du téléphone avec son alarme.']},
  {v:'2.24.0',d:'01/11/2026',items:[
@@ -2898,6 +2900,7 @@ async function rotDel(id){
 
 /* ---------- Guide, installation, fiche à partager (Réglages) ---------- */
 const FICHE_IMGS=[['affiches/affiche-claire.png','Affiche claire'],['affiches/affiche-sombre.png','Affiche sombre'],['affiches/affiche-appli.png','Affiche avec l’appli'],['apercu.png','Carte d’aperçu',1]];
+const FICHE_MSG='Je te recommande AgenDam : un agenda de famille gratuit, sans pub et sans compte (agenda, tâches, courses, repas, anniversaires…). Tu peux l’essayer tout de suite en démo, sans rien installer :';
 const FICHE_TXT='AgenDam : l’organisateur de la famille, comme un carnet. Agenda, tâches (qui a fait quoi), courses, repas et recettes, anniversaires avec cartes, voyages. Partagés en direct avec ta famille et tes amis : chacun choisit ce qu’il partage, chiffré de bout en bout. Gratuit, sans publicité, sans compte.';
 const ficheBase=()=>new URL('./',location.href).href;
 function guideCard(){
@@ -2913,25 +2916,32 @@ function installCard(){
 function ficheCard(){
  return '<div class="card"><h3>Fiche de l’appli (à partager)</h3><p class="mut" style="margin-top:0">Une fiche de présentation et des affiches pour faire connaître l’appli à tes proches. Aucune donnée personnelle dedans.</p>'+
   '<div class="fiche">'+FICHE_IMGS.map(f=>'<button type="button" data-act="fiche-img" data-f="'+f[0]+'"'+(f[2]?' class="wide"':'')+'><img loading="lazy" alt="" src="'+f[0]+'">'+f[1]+'</button>').join('')+'</div>'+
-  '<button class="btn blk pri" data-act="fiche-share">Partager avec le descriptif</button>'+
+  '<button class="btn blk pri" data-act="fiche-share">Partager la fiche (avec essai en démo)</button>'+
+  '<button class="btn blk" data-act="fiche-aff">Partager une affiche avec un message</button>'+
   '<div class="btns"><button class="btn grow" data-act="fiche-view">Voir la fiche</button><button class="btn grow" data-act="fiche-copy">Copier le lien</button></div></div>';
 }
 async function ficheCopy(txt,msg){
  try{await navigator.clipboard.writeText(txt);toast(msg||'Lien copié');return}catch(e){}
  try{const t=document.createElement('textarea');t.value=txt;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();toast(msg||'Lien copié')}catch(e){toast('Copie impossible')}
 }
+const ficheUrl=()=>ficheBase()+'presentation.html';
 async function ficheShare(){
- const url=ficheBase();
- if(navigator.share){try{await navigator.share({title:'AgenDam',text:FICHE_TXT,url});return}catch(e){if(e&&e.name==='AbortError')return}}
- ficheCopy(FICHE_TXT+'\n'+url,'Descriptif et lien copiés');
+ const url=ficheUrl();
+ if(navigator.share){try{await navigator.share({title:'AgenDam',text:FICHE_MSG,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+ ficheCopy(FICHE_MSG+'\n'+url,'Message et lien de la fiche copiés');
+}
+async function ficheAff(){
+ const r=await ask({title:'Quelle affiche envoyer ?',html:'<p class="mut" style="margin:.2rem 0 .6rem">Elle part avec un message qui présente l’appli et le lien de la fiche (démo comprise).</p>',
+  btns:FICHE_IMGS.map(f=>({label:f[1],value:f[0]})).concat([{label:'Annuler',value:null}])});
+ if(r)ficheSendImg(r);
 }
 async function ficheSendImg(path){
  const url=new URL(path,ficheBase()).href;
  try{
   const r=await fetch(url);const b=await r.blob();const f=new File([b],path.split('/').pop(),{type:b.type||'image/png'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:FICHE_TXT+'\n'+ficheBase()});return}catch(e){if(e&&e.name==='AbortError')return}}
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:FICHE_MSG+'\n'+ficheUrl()});return}catch(e){if(e&&e.name==='AbortError')return}}
  }catch(e){}
- ficheCopy(FICHE_TXT+'\n'+ficheBase(),'Partage de l’image impossible ici : descriptif et lien copiés');
+ ficheCopy(FICHE_MSG+'\n'+ficheUrl(),'Partage de l’image impossible ici : message et lien copiés');
 }
 async function ficheImg(path){
  const f=FICHE_IMGS.find(x=>x[0]===path)||[path,'Affiche'];
@@ -5672,9 +5682,8 @@ h+='<div class="card" id="ics-card">'+
  h+=rotCard();
  h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
  h+='\u0001aide\u0001'+guideCard()+ficheCard();
- h+='<div class="card"><h3>Démo et aide</h3>'+
+ h+='<div class="card"><h3>Démo</h3>'+
   (demo?mrow('exitdemo','Quitter le mode démo',''):mrow('demo','Voir le mode démo','Avec des données d’exemple'))+
-  mrow('help','Mode d’emploi et historique','Le guide, expliqué simplement')+
   (installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
  h+='\u0001about\u0001';
  h+='<div class="card" id="about-card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><button class="btn blk" data-act="upd-check">🔄 Rechercher une mise à jour</button>'+sfold('Comment l’appli se met à jour ?',UPD_HOW)+'<p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
@@ -5712,7 +5721,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('⏰ Alerte d’une tâche','<ul><li>Dans la fiche d’une tâche avec <b>date et heure</b>, active <b>⏰ M’alerter à l’heure</b>.</li><li>À l’heure dite, une fenêtre propose <b>✅ Fait</b>, <b>Dans 1 h</b>, <b>Dans 2 h</b>, <b>Ce soir (18:00)</b>, <b>Demain même heure</b> ou <b>Ignorer</b>. Reporter change l’heure de la tâche.</li><li>L’alerte s’affiche quand AgenDam est <b>ouvert</b> (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie appli fermée : <b>📱 Enregistrer + calendrier du téléphone</b> envoie la tâche avec son alarme à ton calendrier.</li><li><b>À savoir :</b> dès que tu quittes l’appli (écran verrouillé ou autre appli), le téléphone la met en pause : aucune alerte ne part tant qu’elle n’est pas rouverte. Une appli web ne peut pas faire sonner le téléphone toute seule.</li></ul>');
+ h+=d('⏰ Alerte d’une tâche','<ul><li>Dans la fiche d’une tâche qui a une date et une heure, active <b>⏰ M’alerter à l’heure</b> (un ⏰ s’affiche ensuite à côté de l’heure).</li><li>À l’heure dite, une fenêtre propose <b>✅ Fait</b>, <b>Dans 1 h</b>, <b>Dans 2 h</b>, <b>Ce soir (18:00)</b>, <b>Demain même heure</b> ou <b>Ignorer</b>. Reporter change l’heure de la tâche.</li><li>L’alerte s’affiche quand AgenDam est <b>ouvert</b> (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie appli fermée : <b>📱 Enregistrer + calendrier du téléphone</b> envoie la tâche avec son alarme à ton calendrier.</li><li><b>À savoir :</b> dès que tu quittes l’appli (écran verrouillé ou autre appli), le téléphone la met en pause : aucune alerte ne part tant qu’elle n’est pas rouverte. Une appli web ne peut pas faire sonner le téléphone toute seule.</li></ul>');
  h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
  h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
@@ -6084,8 +6093,9 @@ async function act(a,el,e){
   case 'sset':V.sset=el.dataset.t;render();{const m=$('#main');if(m)m.scrollTop=0}window.scrollTo(0,0);setTimeout(()=>{const x=$('.jump .chip.on');if(x)x.scrollIntoView({block:'nearest',inline:'center'})},30);break;
   case 'jump':{const x=document.getElementById(el.dataset.t);if(x&&x.tagName==='DETAILS'){x.open=true;V.optOpen=true}if(x)x.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'fiche-share':ficheShare();break;
-  case 'fiche-view':window.open(ficheBase()+'presentation.html','_blank');break;
-  case 'fiche-copy':ficheCopy(ficheBase());break;
+  case 'fiche-aff':ficheAff();break;
+  case 'fiche-view':window.open(ficheUrl(),'_blank');break;
+  case 'fiche-copy':ficheCopy(ficheUrl());break;
   case 'fiche-img':ficheImg(el.dataset.f);break;
   case 'map':openMap(el.dataset.p);break;
   case 'print':printCurrent();break;
@@ -6524,10 +6534,10 @@ function tkMark(d){return tkOn(d).length?'<em class="tkm" title="Tâches">☑</e
    Tâches qui reviennent : chaque fois est gardée dans k.h. Archiver (k.ar) les retire de la liste, elles restent dans « Suivi ». */
 const tkWho=k=>Array.isArray(k.ws)&&k.ws.length?k.ws:(k.w?[k.w]:[]);
 const tkFor=(k,w)=>!w||tkWho(k).includes(w);
-const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',tm:k.tm||undefined,al:k.al||undefined,w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
+const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',tm:k.tm||undefined,al:k.al?1:undefined,w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
 function tkMeta(k,showList){
  const P=tkWho(k).map(pplOf).filter(Boolean),t=today(),m=[];
- if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+(k.tm?' '+esc(k.tm):'')+'</span>');
+ if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+(k.tm?' '+esc(k.tm)+(k.al&&!k.x?' ⏰':''):'')+'</span>');
  if(k.r)m.push('🔁 '+esc(tkRepTxt(k.r)));
  P.forEach(p=>m.push('<span class="tk-p" style="--c:'+p.c+'">'+esc(p.n)+'</span>'));
  if(k.x&&(k.xb||k.xa))m.push('<span class="tk-by">✓ '+(k.xb?'par '+esc(k.xb)+' ':'')+(k.xa?esc(tkWhen(k.xa)):'')+'</span>');
@@ -6655,7 +6665,7 @@ function tasksView(){
 async function tkEdit(id,pre){
  const k0=id?tkAll().find(k=>k.id===id):null;
  if(id&&!k0)return;
- const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:'',tm:'',al:0},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||'',tm:k0.tm||'',al:k0.al||0}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
+ const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:'',tm:'',al:0},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||'',tm:k0.tm||'',al:k0.al?1:0}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
  const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
  const html='<label class="lbl" for="tk-t">Tâche</label><input class="in" id="tk-t" maxlength="120" value="'+esc(v.t)+'" placeholder="Ex. Acheter du pain, rendre les livres…" autocomplete="off">'+
   '<div class="tk-2"><div><label class="lbl" for="tk-l">Liste</label><select class="in" id="tk-l">'+opt(tkLists().map(l=>[l.id,(l.i?l.i+' ':'')+l.n]),v.l)+'</select></div>'+
@@ -6688,7 +6698,7 @@ async function tkEdit(id,pre){
  const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
  const k=k0||{id:uid(),ca:Date.now()};
  const ws=v.ws.filter(x=>pplOf(x));
- Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,al:d&&v.al&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?1:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,al:d&&!v.al&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?0:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
  if(rr)k.x=false;
  if(!k0)tkAll().push(k);
  saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
@@ -7001,7 +7011,7 @@ function shMerge(P,apply){
    map[p.id]=loc?loc.id:'';
   }
   for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),co:l.co?1:undefined,m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
-  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',tm:RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?k.tm:undefined,al:k.al&&RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?1:undefined,w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
+  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',tm:RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?k.tm:undefined,al:k.al?1:undefined,w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
   for(const k of (P.tk||[])){
    if(!k||!k.id||!k.t)continue;
    const loc=tkAll().find(x=>x.id===k.id);
