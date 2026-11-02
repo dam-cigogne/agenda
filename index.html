@@ -83,6 +83,9 @@ input,select,textarea{font:inherit;color:inherit}
 
 /* banners */
 #banner:empty{display:none}
+.agbar{display:flex;gap:.4rem;align-items:center;padding:.4rem .8rem;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto}
+.agbar .chip{flex:none;font-weight:650}
+.agbar .chip.on{background:var(--ac,var(--accent));color:#fff;border-color:var(--ac,var(--accent))}
 .bn{display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;margin:.45rem .7rem 0;padding:.45rem .7rem;border-radius:.9rem;font-size:.8rem;background:color-mix(in srgb,var(--warn) 16%,var(--surface));border:1.5px solid var(--warn)}
 .bn span{flex:1 1 10rem}
 .bn.demo{background:var(--accent-soft);border-color:var(--accent)}
@@ -1079,12 +1082,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.26.1';
+const APP_VERSION='2.27.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.27.0',d:'02/11/2026',items:[
+  '<b>Agenda pro</b> : une barre <b>Tous · 🏠 Perso · 💼 Agenda pro</b> en haut de l’agenda (jour, semaine, mois). Un clic et tu ne vois que tes rendez-vous de travail, ou que ceux de ta vie perso. Dans la fiche d’un rendez-vous, un nouveau choix « Agenda » (Perso par défaut). Les catégories ne changent pas. Le bouton ✏️ permet de renommer les deux agendas. Dans Réglages › Mon agenda, la carte « Agenda pro » range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook.']},
  {v:'2.26.1',d:'02/11/2026',items:[
   'Plus d’emojis dans la liste « Nourriture » (pomme de terre 🥔, purée, maïs, ail, oignon, champignon, riz, crevette, poisson, fruits, épices…) et dans les Courses, « purée » et « frites » reçoivent maintenant un 🥔 tout seuls.']},
  {v:'2.26.0',d:'02/11/2026',items:[
@@ -1659,6 +1664,7 @@ function cleanEvent(x){
   startTime:x.startTime||'09:00',endTime:x.endTime||'10:00',place:String(x.place||'').slice(0,200),note:String(x.note||'').slice(0,5000),
   cat:x.cat==='-'?'-':String(x.cat||'autre'),grp:String(x.grp||'').slice(0,40),src:String(x.src||'').slice(0,8),icon:iconClean(x.icon),ocat:String(x.ocat||'').slice(0,60),ocal:String(x.ocal||'').slice(0,200),oc:String(x.oc||'').slice(0,200),oid:idList(x.oid),old:idList(x.old),hi:((+x.hi)||0)&7,pv:x.pv?1:0,mt:+x.mt||0,rec:null,ex:[],alarm:null};
  if(VIS.some(v=>v[0]===x.vs))ev.vs=x.vs;
+ if(x.ag==='w')ev.ag='w';
  if(Array.isArray(x.mids)&&x.mids.length>1)ev.mids=x.mids.map(String).slice(0,400);
  if(!RX_D.test(ev.start))return null;
  if(!RX_D.test(ev.end)||ev.end<ev.start)ev.end=ev.start;
@@ -1722,7 +1728,8 @@ function occsOf(ev,from,to){
  return out;
 }
 function occsMine(from,to){const out=[];for(const ev of EV)out.push(...occsOf(ev,from,to));return out}
-function occs(from,to){const out=occsMine(from,to);if(!S.fevHide&&!demo)for(const ev of fevAll())out.push(...occsOf(ev,from,to));return out}
+const agOK=ev=>!S.agw||(S.agw==='w'?ev.ag==='w':ev.ag!=='w');
+function occs(from,to){let out=occsMine(from,to);if(!S.fevHide&&!demo)for(const ev of fevAll())out.push(...occsOf(ev,from,to));if(S.agw)out=out.filter(o=>agOK(o.ev));return out}
 /* rendez-vous partagés par la famille connectée (lecture seule) : S.fev[id] = {n, at, busy, ev:[…]} */
 let FEV_C=null;
 function fevAll(){
@@ -2282,6 +2289,21 @@ function searchView(){
 }
 
 /* ---------- Bandeaux ---------- */
+const AGN0={p:'Perso',w:'Agenda pro'};
+const agN=k=>{const n=S.agn&&typeof S.agn[k]==='string'?S.agn[k].trim():'';return (n||AGN0[k]).slice(0,20)};
+const agLbl=k=>(k==='w'?'💼 ':'🏠 ')+agN(k);
+const agBar=()=>'<div class="agbar" role="group" aria-label="Choix de l’agenda">'+[['','Tous',''],['p',agLbl('p'),'#2b6cb0'],['w',agLbl('w'),'#b7791f']].map(a=>'<button type="button" class="chip'+((S.agw||'')===a[0]?' on':'')+'"'+(a[2]?' style="--ac:'+a[2]+'"':'')+' data-act="agw" data-v="'+a[0]+'">'+esc(a[1])+'</button>').join('')+'<button type="button" class="chip" data-act="agn" aria-label="Renommer les agendas" title="Renommer">✏️</button></div>';
+async function agRename(){
+ const v={p:agN('p'),w:agN('w')};
+ const html='<label class="lbl" for="ag-n-p">🏠 Premier agenda</label><input class="in" id="ag-n-p" maxlength="20" value="'+esc(v.p)+'" autocomplete="off"><label class="lbl" for="ag-n-w">💼 Deuxième agenda</label><input class="in" id="ag-n-w" maxlength="20" value="'+esc(v.w)+'" autocomplete="off">';
+ const pr=ask({title:'Noms des agendas',html,btns:[{label:'Enregistrer',value:'y',cls:'pri'},{label:'Remettre Perso / Agenda pro',value:'rst'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.addEventListener('input',e=>{if(e.target.id==='ag-n-p')v.p=e.target.value;if(e.target.id==='ag-n-w')v.w=e.target.value});
+ const r=await pr;
+ if(r==='y')S.agn={p:v.p.trim().slice(0,20)||AGN0.p,w:v.w.trim().slice(0,20)||AGN0.w};
+ else if(r==='rst')delete S.agn;
+ else return;
+ saveSet();render();toast('Noms enregistrés');
+}
 function bannerHTML(){
  let h='';
  if(demo)h+='<div class="bn demo"><span><b>Mode démo</b> · rien n’est enregistré</span><button data-act="exitdemo">Quitter la démo</button></div>';
@@ -2341,7 +2363,7 @@ function render(){
  body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='courses'&&V.view!=='repas'&&V.view!=='voyages');
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
  $('#side').innerHTML=(nav&&isWide()&&S.side!==0)?sideHTML():'';
- $('#banner').innerHTML=bannerHTML();
+ $('#banner').innerHTML=(nav?agBar():'')+bannerHTML();
  tabsApply();
 }
 function tabsApply(){const H=S.tabsHide||[];$$('#tabs button').forEach(b=>{b.style.display=H.includes(b.dataset.v)?'none':''})}
@@ -5535,14 +5557,14 @@ function openEditor(opt){
  if(ev){
   const sd=opt.occDate||ev.start,dur=Math.max(0,diff(ev.end,ev.start));
   f={title:ev.title,allDay:ev.allDay,sd,st:ev.startTime,ed:add(sd,dur),et:ev.endTime,place:ev.place,note:ev.note,cat:ev.cat,icon:ev.icon||'',
-   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',hi:ev.hi||0,pv:ev.pv||0,vs:ev.vs||'',gl:ev.src==='glf'?'glf':ev.src==='cv'?'cv':''};
+   rec:ev.rec?Object.assign({},ev.rec,{days:ev.rec.days.slice()}):null,alarm:ev.alarm,ocal:ev.ocal||ev.oc||'',ocat:ev.ocat||'',hi:ev.hi||0,pv:ev.pv||0,vs:ev.vs||'',ag:ev.ag||'',gl:ev.src==='glf'?'glf':ev.src==='cv'?'cv':''};
  }else{
   const sd=opt.date||V.date;let st='09:00';
   if(opt.startMin!=null)st=hm(Math.min(1380,opt.startMin));
   else if(sd===today()){const m=Math.min(1350,Math.ceil((nowMin()+1)/30)*30);st=hm(m)}
   const s=tmin(st),e=Math.min(1439,s+60);
-  f={title:'',allDay:false,sd,st,ed:sd,et:hm(e),place:'',note:'',icon:'',cat:S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id,rec:null,alarm:S.defAlarm};
-  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{hi:c.hi||0,ocat:c.ocat||'',ocal:c.ocal||'',title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat||'-',icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
+  f={title:'',allDay:false,sd,st,ed:sd,et:hm(e),place:'',note:'',icon:'',cat:S.lastCat&&S.cats.some(c=>c.id===S.lastCat)?S.lastCat:S.cats[0].id,rec:null,alarm:S.defAlarm,ag:S.agw==='w'?'w':''};
+  if(opt.copy){const c=opt.copy;if(opt.tpl&&opt.tpl.rec)f.rec=Object.assign({},opt.tpl.rec,{days:[],until:null});Object.assign(f,{ag:c.ag||'',hi:c.hi||0,ocat:c.ocat||'',ocal:c.ocal||'',title:c.title,allDay:c.allDay,st:c.startTime,et:c.endTime,place:c.place,note:c.note,cat:c.cat||'-',icon:c.icon||'',alarm:c.alarm,ed:add(sd,Math.max(0,diff(c.end,c.start)))})}
  }
  ED={id:ev?ev.id:null,occ:ev?(opt.occDate||ev.start):null,snap:{sd:f.sd,st:f.st,ed:f.ed,et:f.et}};
  const r=f.rec||{type:'none',interval:1,days:[],on:3,off:2,until:null};
@@ -5556,6 +5578,7 @@ function openEditor(opt){
  if(typeof famAll==='function'&&famAll().length)h+='<div class="tgl-row" style="margin:.2rem 0 .5rem"><b>🔒 Privé <small class="mut" style="font-weight:600">· jamais partagé avec la famille connectée</small></b><label class="tgl"><input type="checkbox" id="f-pv"'+(f.pv?' checked':'')+'></label></div>';
  if(f.gl)h+='<div class="fld"><span class="lbl">'+(f.gl==='glf'?'Suite de la visite':'Suite de l’entretien')+'</span><div class="chips" id="f-vs">'+VIS.map(x=>'<button type="button" class="chip'+(f.vs===x[0]?' on':'')+'" data-act="pickvs" data-v="'+x[0]+'">'+x[1]+' '+visL(x,f.gl)+'</button>').join('')+'</div></div>';
  h+='<div class="fld"><span class="lbl">Mettre en valeur (événement important)</span><div class="chips" id="f-hi">'+[[1,'Contour'],[2,'Gras'],[4,'★ Étoile']].map(x=>'<button type="button" class="chip'+((f.hi||0)&x[0]?' on':'')+'" data-act="pickhi" data-b="'+x[0]+'">'+x[1]+'</button>').join('')+'</div></div>';
+ h+='<div class="fld"><span class="lbl">Agenda</span><div class="chips" id="f-ag"><button type="button" class="chip'+(f.ag==='w'?'':' on')+'" data-act="pickag" data-v="">'+esc(agLbl('p'))+'</button><button type="button" class="chip'+(f.ag==='w'?' on':'')+'" data-act="pickag" data-v="w">'+esc(agLbl('w'))+'</button></div></div>';
  h+='<div class="fld"><span class="lbl">Catégorie</span><div class="chips" id="f-cats">'+S.cats.map(c=>'<button type="button" class="chip cat'+(c.id===f.cat?' on':'')+'" style="--c:'+c.color+'" data-act="pickcat" data-id="'+esc(c.id)+'">'+esc(c.name)+'</button>').join('')+'<button type="button" class="chip cat'+(f.cat==='-'?' on':'')+'" style="--c:#94a3b8" data-act="pickcat" data-id="-">Sans catégorie</button></div></div>';
  if(typeof msConnected==='function'&&msConnected()&&f.src!=='ol'&&!demo){h+='<div class="fld"><span class="lbl">📅 Ranger dans quel calendrier Outlook ?</span><div class="chips" id="f-ocal">'+ocalChips(f.ocal||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">Le calendrier, c’est le « dossier » dans Outlook (Agenda (appli), RDV, Vacance DAM…).</p></div>';h+='<details class="fld ocat-d"'+(f.ocat?' open':'')+'><summary class="lbl">🏷️ Étiquette de couleur Outlook (facultatif)</summary><div class="chips" id="f-ocats">'+ocatChips(f.ocat||'')+'</div><p class="mut" style="margin:.3rem 0 0;font-size:.82rem">L’étiquette, c’est la couleur affichée sur l’événement dans Outlook. « Aucune » = pas d’étiquette (l’événement garde sa catégorie de l’appli). Calendrier et étiquette sont deux choses séparées.'+(MSA.catsFull?'':' Il manque des catégories ? Réglages → Outlook → « Reconnecter pour lire toutes mes catégories », ou utilise « Autre nom… ».')+'</p></details>';olCatsRefresh().then(ok=>{const c=$('#f-ocats');if(ok&&c){const cur=($('#f-ocats .chip.on')||{dataset:{}}).dataset.o||'';c.innerHTML=ocatChips(cur);const k=$('#f-ocal');if(k){const cc=($('#f-ocal .chip.on')||{dataset:{}}).dataset.o||'';k.innerHTML=ocalChips(cc)}}})}
  h+='<div class="fld tgl-row"><b>Journée entière</b><label class="tgl"><input type="checkbox" id="f-allday"'+(f.allDay?' checked':'')+'></label></div>';
@@ -5611,7 +5634,7 @@ function readForm(){
  }
  const cat=($('#f-cats .chip.on')||{dataset:{}}).dataset.id||S.cats[0].id;
  return{title:g('f-title').value.trim()||'Sans titre',allDay,start:g('f-sd').value,end:g('f-ed').value,startTime:g('f-st').value||'09:00',endTime:g('f-et').value||'10:00',
-  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',hi:$$('#f-hi .chip.on').reduce((a,c)=>a|(+c.dataset.b||0),0),pv:$('#f-pv')&&$('#f-pv').checked?1:0,vs:(($('#f-vs .chip.on')||{dataset:{}}).dataset.v)||'',rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
+  place:g('f-place').value.trim(),note:g('f-note').value.trim(),cat,icon:iconClean(g('f-icon').value.trim()),ocat:(($('#f-ocats .chip.on')||{dataset:{}}).dataset.o)||'',ocal:(($('#f-ocal .chip.on')||{dataset:{}}).dataset.o)||'',ag:(($('#f-ag .chip.on')||{dataset:{}}).dataset.v==='w')?'w':'',hi:$$('#f-hi .chip.on').reduce((a,c)=>a|(+c.dataset.b||0),0),pv:$('#f-pv')&&$('#f-pv').checked?1:0,vs:(($('#f-vs .chip.on')||{dataset:{}}).dataset.v)||'',rec,alarm:g('f-alarm').value===''?null:+g('f-alarm').value};
 }
 async function saveEditor(){
  const b=readForm();
@@ -5638,7 +5661,7 @@ async function saveEditor(){
    target=ED.occ?add(ED.occ,shiftD):b.start;saved=ev0;
   }
  }
- S.lastCat=b.cat;S.askPhone=wantPhone;saveSet();touch();
+ S.lastCat=b.cat;S.askPhone=wantPhone;if(S.agw&&!agOK(b))S.agw=b.ag==='w'?'w':'p';saveSet();touch();
  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
  closeSheet();V.date=target;render();toast('Événement enregistré');
  if(wantPhone&&saved&&!demo)askPhone(saved,!!ev0);
@@ -5682,6 +5705,25 @@ const pair=(a,b)=>'<div class="pair">'+a+b+'</div>';
 const srow=(title,sub,ctl,stack)=>'<div class="srow'+(stack?' stack':'')+'"><span><b>'+title+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</span>'+ctl+'</div>';
 const shead=t=>'<div class="shead">'+t+'</div>';
 const sfold=(t,html)=>'<details class="sfold"><summary>'+t+'</summary><div class="mut">'+html+'</div></details>';
+function agCard(){
+ const nw=EV.filter(e=>e.ag==='w').length;
+ return '<div class="card"><h3>💼 '+esc(agN('w'))+'</h3><p class="mut" style="margin-top:0">Sépare tes rendez-vous de travail de ceux de ta vie perso. Le choix <b>Tous · '+esc(agN('p'))+' · '+esc(agN('w'))+'</b> est en haut de l’agenda (le bouton ✏️ permet de renommer les agendas) ; dans la fiche d’un rendez-vous, tu choisis son agenda. Les catégories ne changent pas. Aujourd’hui : <b>'+nw+'</b> rendez-vous dans « '+esc(agN('w'))+' ».</p>'+
+  '<span class="lbl">Ranger d’un coup en Agenda pro</span><select class="in" id="ag-cat">'+S.cats.map(c=>'<option value="'+esc(c.id)+'">Tous ceux de la catégorie « '+esc(c.name)+' »</option>').join('')+'</select>'+
+  '<button class="btn blk" data-act="ag-move" data-m="cat">Mettre cette catégorie dans « '+esc(agN('w'))+' »</button>'+
+  '<button class="btn blk" data-act="ag-move" data-m="ol">Mettre tout ce qui vient d’Outlook dans « '+esc(agN('w'))+' »</button>'+
+  '<button class="btn blk" data-act="ag-move" data-m="back">Tout remettre dans « '+esc(agN('p'))+' »</button></div>';
+}
+async function agMove(m){
+ let L,t;
+ if(m==='cat'){const id=($('#ag-cat')||{}).value;L=EV.filter(e=>e.cat===id&&e.ag!=='w');t='Mettre dans « '+agN('w')+' »';}
+ else if(m==='ol'){L=EV.filter(e=>e.src==='ol'&&e.ag!=='w');t='Mettre dans « '+agN('w')+' »';}
+ else{L=EV.filter(e=>e.ag==='w');t='Remettre dans « '+agN('p')+' »';}
+ if(!L.length){toast('Aucun rendez-vous concerné');return}
+ const go=await ask({title:t,text:L.length+' rendez-vous seront '+(m==='back'?'remis dans « '+agN('p')+' ».':'rangés dans « '+agN('w')+' ».'),btns:[{label:t,value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(go!=='y')return;
+ for(const e of L){if(m==='back')delete e.ag;else e.ag='w'}
+ saveSet();touch();render();toast(L.length+' rendez-vous déplacés');
+}
 function settingsView(){
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  const perm=('Notification' in window)?Notification.permission:'indisponible';
@@ -5735,6 +5777,7 @@ h+='<div class="card" id="ics-card">'+
    :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
   '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
  h+='\u0001agenda\u0001';
+ h+=agCard();
  h+=tplCard();
  h+=rotCard();
  h+='<div class="card"><h3>Aide à l’adresse</h3><div class="tgl-row"><b>Proposer des adresses (France)</b><label class="tgl"><input type="checkbox" data-chg="adrAide"'+(S.adrAide?' checked':'')+'></label></div><p class="mut" style="margin:.3rem 0 0">Si activé, ce que tu tapes dans « Lieu » est envoyé au service public api-adresse.data.gouv.fr (Base Adresse Nationale : gratuit, sans pub, sans compte). Désactivé, l’appli ne contacte personne.</p></div>';
@@ -5778,6 +5821,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
+ h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
  h+=d('⏰ Alerte d’une tâche','<ul><li>Dans la fiche d’une tâche qui a une date et une heure, active <b>⏰ M’alerter à l’heure</b> (un ⏰ s’affiche ensuite à côté de l’heure).</li><li>À l’heure dite, une fenêtre propose <b>✅ Fait</b>, <b>Dans 1 h</b>, <b>Dans 2 h</b>, <b>Ce soir (18:00)</b>, <b>Demain même heure</b> ou <b>Ignorer</b>. Reporter change l’heure de la tâche.</li><li>L’alerte s’affiche quand AgenDam est <b>ouvert</b> (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie appli fermée : <b>📱 Enregistrer + calendrier du téléphone</b> envoie la tâche avec son alarme à ton calendrier.</li><li><b>À savoir :</b> dès que tu quittes l’appli (écran verrouillé ou autre appli), le téléphone la met en pause : aucune alerte ne part tant qu’elle n’est pas rouverte. Une appli web ne peut pas faire sonner le téléphone toute seule.</li></ul>');
  h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
@@ -6365,6 +6409,10 @@ async function act(a,el,e){
   case 'share1':{const ev=findEv(CUR.id);if(ev)exportICS(false,[ev]);break}
   case 'save':saveEditor();break;
   case 'pickicon':{const i=$('#f-icon');if(i)i.value=(i.value===ds_.i?'':ds_.i);break}
+  case 'agn':agRename();break;
+  case 'agw':S.agw=el.dataset.v||'';saveSet();render();break;
+  case 'pickag':$$('#f-ag .chip').forEach(c=>c.classList.toggle('on',c===el));break;
+  case 'ag-move':agMove(el.dataset.m);break;
   case 'pickcat':{$$('#f-cats .chip').forEach(c=>c.classList.toggle('on',c===el));
    const i=$('#f-icon'),cc=S.cats.find(x=>x.id===ds_.id);
    if(i&&cc&&cc.icon&&(!i.value||S.cats.some(x=>x.icon===i.value)))i.value=cc.icon;break}
