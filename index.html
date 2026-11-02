@@ -1079,12 +1079,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.24.0';
+const APP_VERSION='2.25.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.25.0',d:'02/11/2026',items:[
+  'Tâches : <b>alerte à l’heure</b>. Dans la fiche d’une tâche qui a une date et une heure, active « ⏰ M’alerter à l’heure » : à l’heure dite, une fenêtre propose ✅ Fait, Dans 1 h, Dans 2 h, Ce soir (18:00), Demain même heure ou Ignorer. L’alerte s’affiche quand AgenDam est ouvert (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie même appli fermée, le bouton « 📱 Enregistrer + calendrier du téléphone » envoie la tâche au calendrier du téléphone avec son alarme.']},
  {v:'2.24.0',d:'01/11/2026',items:[
   'Visites de <b>Gestion Locative Facile</b> : un <b>statut</b> dans la fiche (✅ Bien passée, 🔁 2ᵉ visite, 🤔 À réfléchir, 🎉 Retenu, ❌ Pas retenu). Même chose pour les <b>entretiens de CV en poche</b> (✅ Bien passé, 🔁 2ᵉ entretien, 🤔 À réfléchir, 🎉 Retenu, ❌ Refusé). Le dessin du statut s’affiche devant le titre dans l’agenda, et la liste « Reçus de CV en poche / Gestion Locative » peut être filtrée par statut. Modifier un événement reçu de CV en poche ou Gestion Locative ne le fait plus sortir de cette liste.']},
  {v:'2.23.4',d:'01/11/2026',items:[
@@ -5710,6 +5712,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
+ h+=d('⏰ Alerte d’une tâche','<ul><li>Dans la fiche d’une tâche avec <b>date et heure</b>, active <b>⏰ M’alerter à l’heure</b>.</li><li>À l’heure dite, une fenêtre propose <b>✅ Fait</b>, <b>Dans 1 h</b>, <b>Dans 2 h</b>, <b>Ce soir (18:00)</b>, <b>Demain même heure</b> ou <b>Ignorer</b>. Reporter change l’heure de la tâche.</li><li>L’alerte s’affiche quand AgenDam est <b>ouvert</b> (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie appli fermée : <b>📱 Enregistrer + calendrier du téléphone</b> envoie la tâche avec son alarme à ton calendrier.</li><li><b>À savoir :</b> dès que tu quittes l’appli (écran verrouillé ou autre appli), le téléphone la met en pause : aucune alerte ne part tant qu’elle n’est pas rouverte. Une appli web ne peut pas faire sonner le téléphone toute seule.</li></ul>');
  h+=d('🕐 Heure d’une tâche','<ul><li>Dans la fiche d’une tâche, choisis une <b>date</b> puis une <b>heure</b> (facultatif). Elle s’affiche à côté de la date, dans la liste et dans l’agenda.</li><li>Les tâches d’un même jour sont classées par heure.</li><li>Le ✕ à côté de l’heure la retire. Si tu retires la date, l’heure part avec.</li></ul>');
  h+=d('📝 Notes des tâches','<ul><li>La note d’une tâche s’affiche sous son titre (2 lignes). Touche la tâche pour la lire en entier ou la modifier.</li><li>Pas envie de la voir dans la liste ? Réglages → Affichage → « Tâches : afficher la note sous chaque tâche ».</li></ul>');
  h+=d('🛒 Plusieurs listes de courses','<ul><li><b>Choisir la liste</b> : quand tu ajoutes des ingrédients depuis une recette ou le menu, « Dans quelle liste ? » te laisse choisir (la liste commune par exemple).</li><li><b>Renommer ou masquer la liste principale</b> : ⋯ Options en haut de Courses. Masquée, ses articles sont gardés et tu peux la réafficher.</li></ul>');
@@ -6045,6 +6048,12 @@ function tick(){
    fired[key]=n;ch=true;
    notify(o.ev.title,(o.allDay?'Journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place:''),key);
   }
+ }
+ if(!document.querySelector('#dlg .ov'))for(const k of tkAll()){
+  if(!k.al||k.x||k.ar||!k.d||!k.tm)continue;
+  const w=tkWho(k);if(w.length&&S.meId&&!w.includes(S.meId))continue;
+  const at=atTime(k.d,tmin(k.tm)).getTime(),key=tkAlarmKey(k);
+  if(n>=at&&n-at<12*3600000&&!fired[key]){fired[key]=n;ch=true;ls.set(K.fired,fired);notify('⏰ '+k.t,k.tm,key);tkAlarm(k);break}
  }
  for(const k in fired)if(n-fired[k]>4*864e5){delete fired[k];ch=true}
  if(ch)ls.set(K.fired,fired);
@@ -6515,7 +6524,7 @@ function tkMark(d){return tkOn(d).length?'<em class="tkm" title="Tâches">☑</e
    Tâches qui reviennent : chaque fois est gardée dans k.h. Archiver (k.ar) les retire de la liste, elles restent dans « Suivi ». */
 const tkWho=k=>Array.isArray(k.ws)&&k.ws.length?k.ws:(k.w?[k.w]:[]);
 const tkFor=(k,w)=>!w||tkWho(k).includes(w);
-const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',tm:k.tm||undefined,w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
+const tkPack=(k,map)=>({id:k.id,t:k.t,l:k.l,d:k.d||'',tm:k.tm||undefined,al:k.al||undefined,w:map?(map(k.w)||''):(k.w||''),ws:tkWho(k).map(x=>map?map(x):x).filter(Boolean),r:k.r||null,n:k.n||'',x:!!k.x,xa:k.xa||0,xb:k.xb||'',xn:k.xn||'',ar:k.ar||0,h:Array.isArray(k.h)?k.h.slice(-30):undefined,m:k.m||k.ca||0,ig:k.ig||undefined,ry:k.ry||undefined});
 function tkMeta(k,showList){
  const P=tkWho(k).map(pplOf).filter(Boolean),t=today(),m=[];
  if(k.d)m.push('<span class="'+(!k.x&&k.d<t?'tk-late':'')+'">'+(k.d===t?'Aujourd’hui':k.d===add(t,1)?'Demain':esc(fShort(k.d)))+(k.tm?' '+esc(k.tm):'')+'</span>');
@@ -6646,7 +6655,7 @@ function tasksView(){
 async function tkEdit(id,pre){
  const k0=id?tkAll().find(k=>k.id===id):null;
  if(id&&!k0)return;
- const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:'',tm:''},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||'',tm:k0.tm||''}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
+ const v=Object.assign({t:'',l:TKV.l&&TKV.l!=='__done'?TKV.l:tkLists()[0].id,d:'',w:TKV.w||'',ws:TKV.w?[TKV.w]:[],r:'',n:'',tm:'',al:0},k0?{t:k0.t,l:k0.l,d:k0.d||'',w:k0.w||'',ws:tkWho(k0).slice(),r:tkRepKey(k0.r),n:k0.n||'',tm:k0.tm||'',al:k0.al||0}:{},pre||{});if(!Array.isArray(v.ws))v.ws=v.w?[v.w]:[];
  const opt=(arr,cur)=>arr.map(o=>'<option value="'+esc(o[0])+'"'+(String(o[0])===String(cur)?' selected':'')+'>'+esc(o[1])+'</option>').join('');
  const html='<label class="lbl" for="tk-t">Tâche</label><input class="in" id="tk-t" maxlength="120" value="'+esc(v.t)+'" placeholder="Ex. Acheter du pain, rendre les livres…" autocomplete="off">'+
   '<div class="tk-2"><div><label class="lbl" for="tk-l">Liste</label><select class="in" id="tk-l">'+opt(tkLists().map(l=>[l.id,(l.i?l.i+' ':'')+l.n]),v.l)+'</select></div>'+
@@ -6657,19 +6666,20 @@ async function tkEdit(id,pre){
   '<div class="tk-2"><div><label class="lbl" for="tk-d">Date (facultatif)</label><div class="dclr"><input class="in" type="date" id="tk-d" value="'+esc(v.d)+'"><button type="button" class="dclr-x" data-tdclr="1" aria-label="Retirer la date">✕</button></div></div>'+
   '<div><label class="lbl" for="tk-r">Revient</label><select class="in" id="tk-r">'+opt(TK_REP,v.r)+'</select></div></div>'+
   '<div class="tk-2"><div><label class="lbl" for="tk-tm">Heure (facultatif)</label><div class="dclr"><input class="in" type="time" id="tk-tm" value="'+esc(v.tm||'')+'"><button type="button" class="dclr-x" data-tmclr="1" aria-label="Retirer l’heure">✕</button></div></div><div></div></div>'+
+  '<div class="tgl-row"><b>⏰ M’alerter à l’heure<small style="display:block;font-weight:500;color:var(--muted)">Une fenêtre propose Fait / Reporter quand AgenDam est ouvert.</small></b><label class="tgl"><input type="checkbox" id="tk-al"'+(v.al?' checked':'')+'></label></div>'+
   '<label class="lbl" for="tk-n">Note</label><textarea class="in" id="tk-n" rows="2" maxlength="500">'+esc(v.n)+'</textarea>'+
   (ppl().length?'':'<p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Astuce : ajoute les prénoms de la famille avec « 👪 Famille » pour répartir les tâches.</p>');
- const btns=[{label:'Enregistrer',value:'ok',cls:'pri'}];if(k0)btns.push({label:'Supprimer',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
+ const btns=[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'📱 Enregistrer + calendrier du téléphone',value:'okcal'}];if(k0)btns.push({label:'Supprimer',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
  const p=ask({title:k0?'Modifier la tâche':'Nouvelle tâche',html,btns});
  const root=$('#dlg');const map={'tk-t':'t','tk-l':'l','tk-d':'d','tk-w':'w','tk-r':'r','tk-n':'n','tk-tm':'tm'};
- root.oninput=root.onchange=e=>{const f=map[e.target.id];if(f)v[f]=e.target.value};
+ root.oninput=root.onchange=e=>{if(e.target.id==='tk-al'){v.al=e.target.checked?1:0;return}const f=map[e.target.id];if(f)v[f]=e.target.value};
  const tw=e=>{const tc=e.target.closest&&e.target.closest('[data-tmclr]');if(tc){e.preventDefault();e.stopImmediatePropagation();v.tm='';const i=$('#tk-tm');if(i)i.value='';return}
   const cl=e.target.closest&&e.target.closest('[data-tdclr]');if(cl){e.preventDefault();e.stopImmediatePropagation();v.d='';v.r='';v.tm='';const ti=$('#tk-tm');if(ti)ti.value='';const i=$('#tk-d');if(i)i.value='';const rs=$('#tk-r');if(rs)rs.value='';toast('Date retirée (et l’heure et la répétition aussi)',2500);return}
   const b=e.target.closest&&e.target.closest('[data-tw]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const id=b.dataset.tw;const i=v.ws.indexOf(id);if(i>=0)v.ws.splice(i,1);else v.ws.push(id);b.classList.toggle('on',i<0)};root.addEventListener('click',tw,true);
  setTimeout(()=>{const i=$('#tk-t');if(i&&!k0)i.focus()},60);
  const r=await p;root.oninput=root.onchange=null;root.removeEventListener('click',tw,true);
  if(r==='del'){const ok=await ask({title:'Supprimer cette tâche ?',text:k0.t,btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.tk=tkAll().filter(k=>k.id!==id);tkTomb([id]);saveSet();render();toast('Tâche supprimée')}return}
- if(r!=='ok')return;
+ const cal=r==='okcal';if(r!=='ok'&&!cal)return;
  const t=String(v.t||'').trim().slice(0,120);
  if(!t){toast('Écris la tâche');return tkEdit(id,v)}
  let d=RX_D.test(v.d)?v.d:'';
@@ -6678,10 +6688,25 @@ async function tkEdit(id,pre){
  const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
  const k=k0||{id:uid(),ca:Date.now()};
  const ws=v.ws.filter(x=>pplOf(x));
- Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,al:d&&v.al&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?1:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
  if(rr)k.x=false;
  if(!k0)tkAll().push(k);
  saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
+ if(cal){if(!k.d||!k.tm){toast('Pour le calendrier du téléphone, choisis une date et une heure',4500)}else{const e0=cleanEvent({id:'tk-'+k.id,title:'☑ '+k.t,start:k.d,end:k.d,startTime:k.tm,endTime:hm(Math.min(1439,tmin(k.tm)+30)),allDay:false,note:k.n||'',alarm:0,cat:'-'});if(e0)exportICS(false,[e0])}}
+}
+function tkAlarmKey(k){return 'tk|'+k.id+'|'+k.d+'|'+k.tm}
+async function tkAlarm(k){
+ const t=today(),nm=nowMin();
+ const btns=[{label:'✅ Fait',value:'done',cls:'pri'},{label:'⏱ Dans 1 h',value:'1'},{label:'⏱ Dans 2 h',value:'2'}];
+ if(nm<17*60)btns.push({label:'🌆 Ce soir (18:00)',value:'eve'});
+ btns.push({label:'📅 Demain, même heure',value:'tom'},{label:'Ignorer',value:null});
+ const r=await ask({title:'⏰ '+k.t,text:(k.d===t?'Aujourd’hui':fShort(k.d))+' à '+k.tm+(k.n?' · '+k.n.slice(0,80):''),btns});
+ if(!r)return;
+ if(r==='done'){tkCheck(k.id);return}
+ if(r==='1'||r==='2'){const x=new Date(Date.now()+(+r)*3600000);const p=n=>String(n).padStart(2,'0');k.d=x.getFullYear()+'-'+p(x.getMonth()+1)+'-'+p(x.getDate());k.tm=p(x.getHours())+':'+p(Math.ceil(x.getMinutes()/5)*5%60);if(x.getMinutes()>55){x.setHours(x.getHours()+1);k.d=x.getFullYear()+'-'+p(x.getMonth()+1)+'-'+p(x.getDate());k.tm=p(x.getHours())+':00'}}
+ else if(r==='eve'){k.d=t;k.tm='18:00'}
+ else if(r==='tom'){k.d=add(t,1)}
+ k.m=Date.now();saveSet();render();toast('Reporté : '+(k.d===t?'aujourd’hui':k.d===add(t,1)?'demain':fShort(k.d))+' à '+k.tm,4500);
 }
 function tkCheck(id){
  const k=tkAll().find(x=>x.id===id);if(!k)return;
@@ -6976,7 +7001,7 @@ function shMerge(P,apply){
    map[p.id]=loc?loc.id:'';
   }
   for(const l of (P.tl||[])){const loc=tkLists().find(x=>x.id===l.id);if(!loc){if(apply)tkLists().push({id:String(l.id),n:String(l.n||'Liste').slice(0,30),i:String(l.i||'📋').slice(0,4),co:l.co?1:undefined,m:l.m||0})}else if((l.m||0)>(loc.m||0)&&apply)Object.assign(loc,{n:String(l.n).slice(0,30),i:String(l.i||'').slice(0,4),m:l.m})}
-  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',tm:RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?k.tm:undefined,w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
+  const clean=k=>({id:String(k.id),t:String(k.t||'').slice(0,120),l:tkLists().some(x=>x.id===k.l)||(P.tl||[]).some(x=>x.id===k.l)?k.l:tkLists()[0].id,d:RX_D.test(k.d||'')?k.d:'',tm:RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?k.tm:undefined,al:k.al&&RX_D.test(k.d||'')&&/^([01]\d|2[0-3]):[0-5]\d$/.test(k.tm||'')?1:undefined,w:map[k.w]||'',ws:(Array.isArray(k.ws)?k.ws:[]).map(x=>map[x]).filter(Boolean),r:k.r&&['d','w','m'].includes(k.r.f)?{f:k.r.f,i:Math.max(1,Math.min(12,+k.r.i||1)),md:k.r.md}:null,n:String(k.n||'').slice(0,500),x:!!k.x,xa:k.x?(+k.xa||now):0,xb:k.x?String(k.xb||'').slice(0,30):'',xn:k.x?String(k.xn||'').slice(0,300):'',ar:k.ar?1:0,h:Array.isArray(k.h)?k.h.slice(-30).map(z=>({a:+z.a||0,b:String(z.b||'').slice(0,30),n:z.n?String(z.n).slice(0,300):undefined,d:RX_D.test(z.d||'')?z.d:undefined})):undefined,m:+k.m||now,ig:k.ig&&k.ig.n?{q:k.ig.q==null?null:+k.ig.q,u:String(k.ig.u||'').slice(0,20),n:String(k.ig.n).slice(0,60)}:undefined,ry:RAYONS.some(r=>r[0]===k.ry)?k.ry:undefined});
   for(const k of (P.tk||[])){
    if(!k||!k.id||!k.t)continue;
    const loc=tkAll().find(x=>x.id===k.id);
