@@ -25,14 +25,14 @@
   /* Carnet : papier crème, encre bleue, intercalaires de couleur par onglet */
   --bg:#f7f4ec;--surface:#fffdf7;--surface2:#efe9dc;--text:#25211a;--muted:#736a5b;--line:#e3dbc9;--line2:#ece5d6;
   --accent:#2f6fb3;--on-accent:#fff;--accent-soft:rgba(47,111,179,.11);--todaybg:rgba(47,111,179,.09);--todayc:rgba(47,111,179,.17);
-  --sec:#2f6fb3;--k-ag:#2f6fb3;--k-tk:#4d7c0f;--k-bd:#be185d;--k-rp:#c2410c;--k-vy:#0e7490;--k-co:#0f766e;--margin:rgba(214,74,74,.28);
+  --sec:#2f6fb3;--k-ag:#2f6fb3;--k-tk:#4d7c0f;--k-bd:#be185d;--k-rp:#c2410c;--k-vy:#0e7490;--k-am:#7c3aed;--k-co:#0f766e;--margin:rgba(214,74,74,.28);
   --serif:"New York",ui-serif,"Iowan Old Style",Charter,"Bitstream Charter",Georgia,serif;
   --danger:#d92d20;--warn:#f59e0b;--shadow:0 10px 40px rgba(16,24,40,.22);--scale:1;
 }
 html[data-theme=dark]{
   --bg:#15130f;--surface:#1e1b16;--surface2:#29251e;--text:#f2ede2;--muted:#a99f8d;--line:#3a3429;--line2:#2b2720;
   --accent:#7fb2e8;--on-accent:#0d1520;--accent-soft:rgba(127,178,232,.15);--todaybg:rgba(127,178,232,.12);--todayc:rgba(127,178,232,.22);
-  --k-ag:#7fb2e8;--k-tk:#9ccc5a;--k-bd:#f17bb0;--k-rp:#fb923c;--k-vy:#4fc3d9;--k-co:#5eead4;--margin:rgba(240,110,110,.22);
+  --k-ag:#7fb2e8;--k-tk:#9ccc5a;--k-bd:#f17bb0;--k-rp:#fb923c;--k-vy:#4fc3d9;--k-am:#b794f4;--k-co:#5eead4;--margin:rgba(240,110,110,.22);
   --danger:#ff6b5f;--shadow:0 10px 40px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -184,6 +184,15 @@ body[data-ls="ardoise"] #main .tk-t small,.lsth[data-ls="ardoise"] .tk-t small,b
 body[data-ls="ardoise"] #main .tk-c,.lsth[data-ls="ardoise"] .tk-c{border-color:#f3f6f9;border-radius:.35rem;border-width:2px}
 body[data-ls="ardoise"] #main .co-tab,.lsth[data-ls="ardoise"] .co-tab{background:#343b43!important;border:1px dashed #8a95a1!important;border-radius:.4rem!important;color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif}
 body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{background:#e8edf2!important;color:#2b3138!important;border-style:solid!important}
+/* Groupe / Amicale */
+.am-tabs{display:flex;gap:.4rem;margin:.2rem 0 .5rem;flex-wrap:wrap}
+.am-tabs .chip.on{background:var(--k-am);border-color:var(--k-am);color:#fff}
+.am-h{margin:.9rem 0 .3rem;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.am-c{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line2);border-left:5px solid var(--k-am);border-radius:.9rem;padding:.6rem .75rem;margin:.4rem 0}
+.am-av{width:2.6rem;height:2.6rem;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-style:normal;flex:none}
+.am-x{flex:1;min-width:0}.am-x b{display:block}.am-x small{color:var(--muted)}
+.am-tag{display:inline-block;font-size:.68rem;font-weight:800;padding:.1rem .5rem;border-radius:1rem;vertical-align:middle}
+.am-b{background:#ede4ff;color:#5b21b6}.am-a{background:#dcf5e6;color:#0f6b3a}.am-ad{background:#fde8c8;color:#92400e}
 /* en-tête assorti au style choisi (Tâches, Courses) */
 body[data-ls] #top{transition:background .2s}
 body[data-ls="cartes"] #top{background:var(--surface);box-shadow:0 3px 10px rgba(0,0,0,.12);border-bottom:0;border-radius:0 0 1.4rem 1.4rem}
@@ -1200,6 +1209,7 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
     <button data-act="view" data-v="repas" style="--k:var(--k-rp)"><span data-ic="meal"></span><em>Repas</em></button>
     <button data-act="view" data-v="bdays" style="--k:var(--k-bd)"><span data-ic="cake"></span><em>Anniv.</em></button>
     <button data-act="view" data-v="voyages" style="--k:var(--k-vy)"><span data-ic="bag"></span><em>Voyages</em></button>
+    <button data-act="view" data-v="amicale" style="--k:var(--k-am);display:none"><span data-ic="group"></span><em>Groupe</em></button>
   </nav>
 </div>
 <div id="sheet"></div>
@@ -1213,12 +1223,18 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.29.2';
+const APP_VERSION='2.30.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.30.0',d:'03/11/2026',items:[
+  '<b>Nouvel onglet Groupe</b> (à renommer « Amicale », « Club »…) : tu crées un groupe, ou tu rejoins celui d’un autre avec un <b>code d’invitation</b> (Réglages › Famille et contacts › 👥 Groupe). L’onglet n’apparaît que si tu as un groupe, et tu peux le masquer.',
+  '<b>Deux niveaux d’accès</b> : <b>Bureau</b> et <b>Aide extérieur</b>. Chaque niveau a sa propre clé de chiffrement : un aide ne peut techniquement pas lire ce qui est réservé au bureau. Un code d’invitation = un niveau.',
+  '<b>Fiches des membres</b> : prénom, téléphone, mail perso, mail travail, avec boutons Appeler, SMS et Écrire un mail. L’administrateur donne les titres (Président, Secrétaire…), signés : personne d’autre ne peut s’en donner un.',
+  'Tout passe par ton serveur Cloudflare existant, chiffré de bout en bout. Prochaines étapes : tâches et courses partagées, agenda et notes du bureau, événements de l’année, messages.',
+ ]},
  {v:'2.29.2',d:'03/11/2026',items:[
   'Le <b>bandeau du haut</b> (titre, bouton Envoyer, icônes) prend maintenant le style choisi pour les Tâches et les Courses : couleurs, police et formes assorties à la liste.',
  ]},
@@ -2099,6 +2115,7 @@ const IC={
  search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
  cog:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
  gear:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+ group:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-1a5 5 0 0 1 10 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M15 14.2a4.5 4.5 0 0 1 6 4.3V20"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  cake:'<path d="M4 20h16M5 20v-7h14v7M12 13V9.5M12 7c1.1-1 1.1-2.4 0-3.5-1.1 1.1-1.1 2.5 0 3.5zM5 16.2c2.3 1.2 4.7-1.2 7 0s4.7 1.2 7 0"/>',
  bag:'<rect x="4" y="7" width="16" height="13" rx="2.5"/><path d="M9 7V4.5h6V7M9 11v5M15 11v5"/>',
@@ -2155,6 +2172,7 @@ function titles(){
  if(V.view==='fort'){const ws=fortStart(),we=add(ws,13);return[fShort(ws)+' – '+fShort(we),'Semaines '+isoWeek(add(ws,S.weekStart===1?3:4))+' et '+isoWeek(add(ws,7+(S.weekStart===1?3:4)))+' · '+pd(we).getFullYear()]}
  if(V.view==='month')return[cap(ML[pd(d).getMonth()]),String(pd(d).getFullYear())];
  if(V.view==='search')return['Rechercher','Dans tout l’agenda'];
+ if(V.view==='amicale'){const a=amc();return[a?(a.em||'👥')+' '+a.nm:'Groupe',a?(amList().length)+' membre'+(amList().length>1?'s':'')+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide'):'Aucun groupe']}
  if(V.view==='voyages'){const v=VY.id&&vyOf(VY.id);return v?[v.t,v.a?fShort(v.a)+(v.b&&v.b!==v.a?' → '+fShort(v.b):''):'Voyage']:['Voyages',vyAll().length?vyAll().length+' voyage'+(vyAll().length>1?'s':''):'Listes, programme, repas, infos']}
  if(V.view==='repas')return['Repas',RV.tab==='rc'?rcAll().length+' recette'+(rcAll().length>1?'s':''):RV.tab==='co'?'Liste de courses':'Menu de la semaine'];
  if(V.view==='bdays'){const n=bdClean().length;return['Anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant']}
@@ -2477,6 +2495,7 @@ function render(){
   case 'bdays':r=bdaysView();break;
   case 'repas':r=repasView();break;
   case 'voyages':r=voyagesView();break;
+  case 'amicale':r=amView();break;
   default:r=settingsView();
  }
  main.innerHTML=r.html;main.classList.toggle('fixed',!!r.fixed);
@@ -2492,7 +2511,7 @@ function render(){
  $('#nav').style.display=nav?'':'none';
  $$('#tabs button,#gearbtn,#srchbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view||(b.dataset.v==='agenda'&&nav)));
  $$('#agseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
- const SEC={tasks:'--k-tk',courses:'--k-co',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy'};
+ const SEC={tasks:'--k-tk',courses:'--k-co',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy',amicale:'--k-am'};
  document.documentElement.style.setProperty('--sec','var('+(SEC[V.view]||'--k-ag')+')');
  body.classList.toggle('agview',nav);document.body.classList.toggle('agview',nav);
  document.body.classList.toggle('paper',!nav&&V.view!=='settings');
@@ -2508,7 +2527,7 @@ function render(){
  styRefresh();
  tabsApply();
 }
-function tabsApply(){const H=S.tabsHide||[];$$('#tabs button').forEach(b=>{b.style.display=H.includes(b.dataset.v)?'none':''})}
+function tabsApply(){const H=S.tabsHide||[];$$('#tabs button').forEach(b=>{const v=b.dataset.v;let hid=H.includes(v);if(v==='amicale'){hid=hid||!(S.amc&&S.amc.on);const e=b.querySelector('em');if(e&&S.amc){const n=String(S.amc.nm||'Groupe').trim();e.textContent=n.length>8?n.slice(0,7).trim()+'…':n}}b.style.display=hid?'none':''})}
 function go(view){
  if(view==='agenda')view=['day','week','month','fort'].includes(S.agv)?S.agv:'month';
  if(['day','week','month','fort'].includes(view)&&S.agv!==view){S.agv=view;saveSet()}
@@ -5882,7 +5901,7 @@ function settingsView(){
   '<div class="tgl-row"><b>Tâches : afficher la note sous chaque tâche 📝</b><label class="tgl"><input type="checkbox" data-chg="tkNote"'+(S.tkNote===false?'':' checked')+'></label></div>'+
   '<div class="tgl-row"><b>Courses : un dessin devant chaque article 🍅</b><label class="tgl"><input type="checkbox" data-chg="coIc"'+(S.coIc===false?'':' checked')+'></label></div>'+
   '<div class="tgl-row"><b>Fenêtre « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
-  '<span class="lbl" style="display:block;margin-top:.5rem">Onglets en bas</span>'+[['tasks','☑ Tâches'],['courses','🛒 Courses'],['repas','🍽 Repas'],['bdays','🎂 Anniversaires'],['voyages','🧳 Voyages']].map(([v,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="'+v+'"'+((S.tabsHide||[]).includes(v)?'':' checked')+'></label></div>').join('')+
+  '<span class="lbl" style="display:block;margin-top:.5rem">Onglets en bas</span>'+[['tasks','☑ Tâches'],['courses','🛒 Courses'],['repas','🍽 Repas'],['bdays','🎂 Anniversaires'],['voyages','🧳 Voyages']].concat(S.amc&&S.amc.on?[['amicale','👥 '+(S.amc.nm||'Groupe')]]:[]).map(([v,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="'+v+'"'+((S.tabsHide||[]).includes(v)?'':' checked')+'></label></div>').join('')+
   '<div class="set-row"><span class="lbl">Listes (Tâches et Courses)</span>'+seg('lstPos',[['side','Sur le côté'],['top','En haut']],S.lstPos==='top'?'top':'side')+'</div>'+
   '<div class="set-row"><span class="lbl">Onglets des Réglages</span>'+seg('setPos',[['top','En haut'],['side','Sur le côté']],S.setPos==='side'?'side':'top')+'</div>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
@@ -5902,7 +5921,7 @@ function settingsView(){
  const agOn=(id,c)=>{const g=famGrant(id);return g.ag===2||(g.ag===1&&(g.agc||[]).includes(c))};
  h+='<div class="card"><h3>Catégories</h3>'+(AGM.length?'<p class="mut" style="font-size:.85rem;margin:-.2rem 0 .4rem">👥 Sous chaque catégorie, touche un prénom pour partager ses rendez-vous (famille connectée). Les rendez-vous « 🔒 Privé » ne partent jamais. La catégorie devient commune : l’autre la voit et peut y ajouter des rendez-vous.</p>'+AGM.map(id=>{const g=famGrant(id);return '<div class="agv"><span>👁 <b>'+esc(famName(id))+'</b> voit</span><div class="seg"><button data-act="ag-busy" data-m="'+esc(id)+'" data-v="0" class="'+(g.agb?'':'on')+'">les détails</button><button data-act="ag-busy" data-m="'+esc(id)+'" data-v="1" class="'+(g.agb?'on':'')+'">seulement « occupé »</button></div></div>'}).join(''):'')+(S.colBy==='cal'?'<div class="warn" style="margin:0 0 .5rem;font-size:.86rem"><b>Les couleurs de l’agenda viennent d’Outlook</b>Le réglage « Couleur des événements » est sur « Calendrier Outlook » : l’agenda ignore les couleurs ci-dessous.<button class="btn sm blk" data-act="set" data-k="colBy" data-v="cat" style="margin-top:.4rem">Utiliser les couleurs des catégories</button></div>':'')+S.cats.map((c,i)=>'<div class="catrow"><button type="button" class="catcol" data-act="catcol" data-i="'+i+'" style="background:'+esc(c.color)+'" aria-label="Couleur de '+esc(c.name)+'"></button><input class="in" value="'+esc(c.name)+'" data-cat="'+i+'" data-field="name" maxlength="30" aria-label="Nom"><button type="button" class="chip ico catemo" data-act="catemo" data-i="'+i+'" title="Emoji par défaut de la catégorie" aria-label="Emoji par défaut">'+(c.icon?esc(c.icon):'🙂')+'</button>'+(c.sh?'':'<button class="x" data-act="delcat" data-i="'+i+'" aria-label="Supprimer la catégorie">'+ic('trash')+'</button>')+'</div>'+(c.sh?'<div class="catsh"><small>📥 Catégorie commune de <b>'+esc(famName(c.sh))+'</b> : vous la remplissez à deux</small></div>':AGM.length?'<div class="catsh"><small>👥 Partager avec</small>'+AGM.map(id=>{const gg=grpOf(id);return '<button type="button" class="chip'+(agOn(id,c.id)?' on':'')+'" data-act="cat-sh" data-c="'+esc(c.id)+'" data-m="'+esc(id)+'">'+(agOn(id,c.id)?'✓ ':'')+esc(famName(id))+(famAll().length>1&&gg?' <small>'+esc(gg.em||'')+' '+esc(gg.nm||'')+'</small>':'')+'</button>'}).join('')+'</div>':'')).join('')+
   '<button class="btn blk" data-act="addcat">'+ic('plus')+' Ajouter une catégorie</button></div>';
- h+=vacH+'\u0001fam\u0001'+famCard();
+ h+=vacH+'\u0001fam\u0001'+famCard()+amSetCard();
  h+='\u0001cal\u0001'+phoneCard();
  if(OL_ON)h+=msCard();
  h+='\u0001fam\u0001'+bdCard()+'\u0001cal\u0001';
@@ -5964,6 +5983,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li>Pour l’instant : membres, fiches et titres. À venir : tâches et courses partagées, agenda et notes du bureau, événements de l’année, messages.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -6121,7 +6141,7 @@ function demoSettings(){
  const tlGrp={};
  return{ppl,tl,tk,coH,coLast,coT,rc,mn,bd,vy,me:'Sam',meOk:1,meId:'',coLid:'courses',fams:[],forg:{},tlGrp};
 }
-function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;EV=demoData()}
+function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;delete S.amc;EV=demoData()}
 function demoOff(){if(!demo)return;demo=false;if(REAL_S){S=REAL_S;REAL_S=null}}
 function enterDemo(){demoOn();V.date=today();render();toast('Mode démo : rien n’est enregistré')}
 function exitDemo(){demoOff();loadData();V.date=today();render()}
@@ -6541,6 +6561,15 @@ async function act(a,el,e){
   case 'fam-create':famCreate();break;
   case 'fam-code':famShowCode((S.fams||[])[+ds_.g]);break;
   case 'fam-code-join':famCodeJoin();break;
+  case 'am-new':amCreate();break;
+  case 'am-join':amJoinCode();break;
+  case 'am-mb':amFiche(ds_.id);break;
+  case 'am-tab':AMC_TAB=ds_.k;render();break;
+  case 'am-edit':amEditMe();break;
+  case 'am-inv':amInvite();break;
+  case 'am-ren':amRename();break;
+  case 'am-leave':amLeave();break;
+  case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
   case 'fam-rm':famRemove(ds_.id);break;
   case 'fam-readd':famReadd(ds_.id);break;
@@ -6735,6 +6764,7 @@ document.addEventListener('change',e=>{
  if(t.dataset.chg==='tkNote'){S.tkNote=t.checked;saveSet();return}
  if(t.dataset.chg==='coIc'){S.coIc=t.checked;saveSet();if(V.view==='courses')render();return}
  if(t.dataset.chg==='remind'){S.remind=t.checked;saveSet();return}
+ if(t.dataset.chg==='am-vis'){const a=amc();if(a){a.me.vis=t.checked?1:0;ls.set(K.set,S);amPush(true).catch(()=>{})}return}
  if(t.dataset.chg==='tabshow'){const H=new Set(S.tabsHide||[]);t.checked?H.delete(t.dataset.v):H.add(t.dataset.v);S.tabsHide=[...H];saveSet();tabsApply();return}
  if(t.dataset.chg==='defAlarm'){S.defAlarm=t.value===''?null:+t.value;saveSet();return}
  if(t.dataset.chg==='adrAide'){S.adrAide=t.checked;saveSet();return}
@@ -9487,6 +9517,7 @@ async function famCodeJoin(pre){
   const o=await res.json();
   const p=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
   const d=JSON.parse(new TextDecoder().decode(p));
+  if(d&&d.amc){await amJoinData(d);return}
   await famJoin(d.k,d.by||'',true,d.nm,d.em);
  }catch(e){toast('Impossible de rejoindre : '+(e.message||'hors connexion'),5000)}
 }
@@ -9503,6 +9534,264 @@ async function famShowCode(g){
  if(r==='copy'){try{await navigator.clipboard.writeText(famCodeShow(code));toast('Code copié')}catch(e){}return}
  if(r==='sms')return famSms(null,famCodeShow(code));
  if(r.indexOf('to:')===0)famSms(pplOf(r.slice(3)),famCodeShow(code));
+}
+/* ========= Groupe / Amicale (2.30.0) =========
+   Un groupe = deux « zones » chiffrées, chacune avec sa propre clé : Bureau et Aide.
+   Les gens du bureau ont les deux clés, les aides extérieurs seulement celle de la zone Aide : le serveur et les aides ne peuvent pas lire la zone Bureau.
+   L'administrateur signe la liste des titres (ECDSA) : personne d'autre ne peut se donner un titre.
+   Sur le serveur Cloudflare existant (mêmes adresses /s/… et /i/…), sans rien y changer. */
+const AMC_TITLES=['Président','Vice-président','Secrétaire','Trésorier','Membre du bureau','Aide extérieur'];
+let AMC_BUSY=false,AMC_TAB='mb';
+const amc=()=>S.amc&&S.amc.on?S.amc:null;
+const amName=()=>(amc()&&amc().nm)||'Groupe';
+const amLvl=()=>{const a=amc();return a?(a.kB?'b':'a'):''};
+const amRand=()=>shB64.enc(crypto.getRandomValues(new Uint8Array(16)));
+const amId=()=>Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');
+const amOpen=h=>{const a=document.createElement('a');a.href=h;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800)};
+async function amSign(list,at,priv){const k=await crypto.subtle.importKey('jwk',priv,{name:'ECDSA',namedCurve:'P-256'},false,['sign']);return shB64.enc(new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},k,new TextEncoder().encode(JSON.stringify([list,at])))))}
+async function amVerify(list,at,sig,pub){try{if(!pub||!sig)return false;const k=await crypto.subtle.importKey('jwk',pub,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);return await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},k,shB64.dec(sig),new TextEncoder().encode(JSON.stringify([list,at])))}catch(e){return false}}
+async function amForm(title,intro,fields,ok){
+ const v={};fields.forEach(f=>v[f.k]=f.v||'');
+ const root=$('#dlg');
+ const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label><input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">').join('');
+ const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.oninput=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
+ const r=await pr;root.oninput=null;return r==='ok'?v:null;
+}
+async function amPut(zone,doc,P){
+ const a=amc(),FK=await famKeys({k:zone==='b'?a.kB:a.kA}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+ if(!r.ok)throw new Error('Serveur : '+r.status);
+}
+const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',at:Date.now()}};
+function amList(){
+ const a=amc();if(!a)return[];
+ const R={};((a.roles&&a.roles.list)||[]).forEach(x=>{if(x&&x.id)R[x.id]=x});
+ const rl=a.rl||{};
+ const me={id:a.me.id,n:a.me.n,tel:a.me.tel,mp:a.me.mp,mw:a.me.mw,l:a.kB?'b':'a',self:1,t:a.apriv?(rl[a.me.id]&&rl[a.me.id].t||''):(R[a.me.id]&&R[a.me.id].t||''),adm:!!a.apriv};
+ const out=[me];
+ const seen=new Set([me.id]);
+ for(const id of Object.keys(a.mem||{})){
+  const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};
+  const r=a.apriv?(rl[id]||{}):(R[id]||{});
+  out.push({id,n:c.n||(R[id]&&R[id].n)||'?',tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',l:(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
+ }
+ // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
+ for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.n||'?',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
+ return out.filter(p=>!p.x);
+}
+async function amRolesPut(){
+ const a=amc();if(!a||!a.apriv)return;
+ const rl=a.rl||{},list=[];
+ const add=(id,n,l,adm)=>list.push({id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0});
+ add(a.me.id,a.me.n,'b',1);
+ for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,m.z||'a',0)}
+ const at=Date.now(),sig=await amSign(list,at,a.apriv);
+ await amPut('a','roles',{app:'agd',k:'amc',v:1,list,at,sig});
+ a.rolesDirty=0;a.roles={list,at};
+}
+async function amPush(force){
+ const a=amc();if(!a||!famUrl()||demo)return;
+ a.sent=a.sent||{};
+ const C=amCardOf(),h=famHash(C);
+ if(a.kB&&(force||a.sent.cb!==h)){await amPut('b','c-'+a.me.id,C);a.sent.cb=h}
+ if(!a.kB||a.me.vis){if(force||a.sent.ca!==h){await amPut('a','c-'+a.me.id,C);a.sent.ca=h}}
+ else if(a.kB&&a.sent.ca&&a.sent.ca!=='off'){await amPut('a','c-'+a.me.id,{app:'agd',k:'amc',v:1,id:a.me.id,off:1,at:Date.now()});a.sent.ca='off'}
+ if(a.apriv&&(force||a.rolesDirty))await amRolesPut();
+ ls.set(K.set,S);
+}
+async function amPull(manual){
+ const a=amc();if(!a||!famUrl()||demo||AMC_BUSY)return;
+ if(!manual&&Date.now()-(a.pullAt||0)<20000)return;
+ AMC_BUSY=true;a.pullAt=Date.now();
+ try{
+  a.last=a.last||{};a.mem=a.mem||{};
+  const ks=[];for(const [z,k] of [['b',a.kB],['a',a.kA]]){if(!k)continue;const FK=await famKeys({k});ks.push({z,FK,since:Math.max(0,Math.floor(a.last[z]||0))})}
+  const r=await fetch(famUrl()+'/m?q='+ks.map(x=>x.FK.space+'.'+x.since).join(','),{cache:'no-store'});
+  if(!r.ok)throw new Error('Serveur : '+r.status);
+  const J=await r.json();let chg=false;
+  for(const x of ks){
+   const docs=(J.r&&J.r[x.FK.space])||[];
+   for(const d of docs){
+    a.last[x.z]=Math.max(a.last[x.z]||0,d.at||0);
+    let P;try{P=await famDecK(JSON.parse(d.data),x.FK.key)}catch(e){continue}
+    if(!P||P.k!=='amc')continue;
+    if(d.doc==='roles'){
+     if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
+      if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};chg=true}}
+     continue}
+    const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
+    const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
+    e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),at:P.at||0};
+    if(x.z==='b')e.z='b';else if(!e.z)e.z='a';
+    chg=true;
+    if(a.apriv)a.rolesDirty=1;
+   }
+  }
+  ls.set(K.set,S);
+  if(a.apriv&&a.rolesDirty){try{await amRolesPut();ls.set(K.set,S)}catch(e){}}
+  if(chg&&V.view==='amicale')render();
+ }catch(e){if(manual)toast('Pas de connexion au serveur : '+(e.message||''),4000)}
+ finally{AMC_BUSY=false}
+}
+async function amCreate(){
+ if(!famUrl()){toast('Serveur de partage indisponible',4000);return}
+ if(amc()){toast('Tu fais déjà partie d’un groupe',3000);return}
+ const p=pplOf(S.meId)||{};
+ const v=await amForm('👥 Créer un groupe','Donne un nom à ton groupe (par exemple « Amicale »). Tu en seras l’administrateur.',[{k:'nm',l:'Nom du groupe',v:'Amicale',ph:'Amicale, Club, Association…'},{k:'n',l:'Ton prénom (tel qu’il apparaîtra)',v:meName()||''},{k:'tel',l:'Ton téléphone',v:p.tel||'',t:'tel'},{k:'mp',l:'Ton mail perso',v:p.mail||'',t:'email'},{k:'mw',l:'Ton mail de travail',v:'',t:'email'}],'Créer le groupe');
+ if(!v)return;
+ if(!v.n.trim()||!v.nm.trim()){toast('Il faut un nom pour le groupe et ton prénom',3500);return}
+ const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
+ const pr=await crypto.subtle.exportKey('jwk',kp.privateKey),pb=await crypto.subtle.exportKey('jwk',kp.publicKey);
+ S.amc={on:1,nm:v.nm.trim().slice(0,24),em:'👥',kB:amRand(),kA:amRand(),apub:{kty:pb.kty,crv:pb.crv,x:pb.x,y:pb.y},apriv:pr,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},rl:{},last:{},sent:{},rolesDirty:1};
+ ls.set(K.set,S);tabsApply();AMC_TAB='mb';
+ try{await amPush(true)}catch(e){toast('Groupe créé, mais pas encore envoyé : '+(e.message||'hors connexion'),5000)}
+ go('amicale');toast('Groupe « '+S.amc.nm+' » créé',3000);
+}
+async function amInvite(){
+ const a=amc();if(!a||!famUrl())return;
+ if(!a.kB){toast('Seul le bureau peut inviter',3000);return}
+ let lv='a';
+ if(a.apriv){
+  const r=await ask({title:'Inviter dans « '+a.nm+' »',html:'<p style="margin:.2rem 0 .5rem">Quel niveau d’accès pour cette personne ?</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem"><b>Bureau</b> : voit tout (agenda, notes, tâches, courses…).<br><b>Aide</b> : voit seulement ce qui est partagé avec les aides.</p>',btns:[{label:'🏛️ Bureau',value:'b',cls:'pri'},{label:'🤝 Aide extérieur',value:'a'},{label:'Annuler',value:null}]});
+  if(!r)return;lv=r;
+ }
+ let code='';
+ try{
+  const r8=crypto.getRandomValues(new Uint8Array(8));for(const b of r8)code+=FAM_ABC[b%FAM_ABC.length];
+  const FK=await famCodeKeys(code),iv=crypto.getRandomValues(new Uint8Array(12));
+  const pay={amc:1,lv,nm:a.nm,em:a.em,by:a.me.n,kA:a.kA,ap:a.apub};if(lv==='b')pay.kB=a.kB;
+  const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify(pay))));
+  const res=await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:shB64.enc(c),iv:shB64.enc(iv)})});
+  if(!res.ok)throw new Error('Serveur : '+res.status);
+ }catch(e){toast('Pas de connexion au serveur',4000);return}
+ const dest=pplSorted().filter(p=>p.tel&&p.id!==S.meId);
+ const btns=dest.slice(0,6).map(p=>({label:'💬 Envoyer à '+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'💬 Envoyer par SMS (choisir)',value:'sms',cls:dest.length?'':'pri'},{label:'Copier le message',value:'copy'},{label:'Fermer',value:null}]);
+ const msg='Rejoins « '+a.nm+' » dans AgenDam : Réglages → Famille et contacts → Rejoindre avec un code, puis tape '+famCodeShow(code)+' (valable 7 jours). Appli : '+location.origin+location.pathname;
+ const r=await ask({title:'🔢 Invitation '+(lv==='b'?'Bureau':'Aide'),html:'<p style="margin:.2rem 0 .4rem">La personne ouvre <b>AgenDam</b> → Réglages → Famille et contacts → <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;margin:.4rem 0 .3rem">'+famCodeShow(code)+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Valable 7 jours, pour une personne de niveau <b>'+(lv==='b'?'Bureau':'Aide')+'</b>.</p>',btns});
+ if(!r)return;
+ if(r==='copy'){try{await navigator.clipboard.writeText(msg);toast('Message copié')}catch(e){}return}
+ if(r==='sms')return famSms(null,msg);
+ if(r.indexOf('to:')===0)famSms(pplOf(r.slice(3)),msg);
+}
+async function amJoinData(d){
+ if(amc()){toast('Tu fais déjà partie d’un groupe',4000);return}
+ if(!d||!d.kA||!d.ap){toast('Invitation illisible',3500);return}
+ const p=pplOf(S.meId)||{};
+ const v=await amForm((d.em||'👥')+' Rejoindre « '+(d.nm||'le groupe')+' »',(d.by?esc(d.by)+' t’invite. ':'')+'Niveau : <b>'+(d.kB?'Bureau':'Aide')+'</b>. Les autres membres verront ces informations (seulement ceux de ton niveau et au-dessus). Tu peux laisser vide ce que tu ne veux pas partager.',[{k:'n',l:'Ton prénom (tel qu’il apparaîtra)',v:meName()||''},{k:'tel',l:'Ton téléphone',v:p.tel||'',t:'tel'},{k:'mp',l:'Ton mail perso',v:p.mail||'',t:'email'},{k:'mw',l:'Ton mail de travail',v:'',t:'email'}],'Rejoindre');
+ if(!v)return;if(!v.n.trim()){toast('Il faut au moins ton prénom',3000);return}
+ S.amc={on:1,nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},last:{},sent:{}};
+ ls.set(K.set,S);tabsApply();AMC_TAB='mb';
+ try{await amPush(true)}catch(e){toast('Pas de connexion : ta fiche sera envoyée plus tard',4000)}
+ go('amicale');amPull(true);toast('Bienvenue dans « '+S.amc.nm+' »',3000);
+}
+async function amJoinCode(){
+ if(!famUrl())return;
+ const v={t:''};const pr=ask({title:'🔢 Rejoindre un groupe',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2), ou colle tout le message reçu.</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center">',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='fc-in'){if(e.target.value.length>9){const c=famCodeFind(e.target.value);if(c)e.target.value=famCodeShow(c)}v.t=e.target.value}};
+ setTimeout(()=>{const i=$('#fc-in');if(i)i.focus()},120);
+ const r=await pr;root.oninput=null;if(r!=='ok')return;
+ const code=famCodeFind(v.t);if(!code){toast('Ce code ne semble pas bon : 8 caractères, par exemple K7P4-9QX2',5000);return}
+ try{
+  const FK=await famCodeKeys(code),res=await fetch(famUrl()+'/i/'+FK.id,{cache:'no-store'});
+  if(res.status===404){toast('Code inconnu ou expiré (7 jours). Demande un nouveau code.',6000);return}
+  if(!res.ok)throw new Error('Serveur : '+res.status);
+  const o=await res.json(),pl=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
+  const d=JSON.parse(new TextDecoder().decode(pl));
+  if(!d.amc){toast('Ce code est pour une famille connectée, pas pour un groupe',5000);return}
+  await amJoinData(d);
+ }catch(e){toast('Impossible de rejoindre : '+(e.message||'hors connexion'),5000)}
+}
+async function amEditMe(){
+ const a=amc();if(!a)return;const m=a.me;
+ const v=await amForm('Ma fiche','Visible par les membres de ton niveau'+(a.kB?' (bureau)':'')+'.',[{k:'n',l:'Prénom',v:m.n},{k:'tel',l:'Téléphone',v:m.tel,t:'tel'},{k:'mp',l:'Mail perso',v:m.mp,t:'email'},{k:'mw',l:'Mail de travail',v:m.mw,t:'email'}]);
+ if(!v)return;if(!v.n.trim()){toast('Il faut un prénom',3000);return}
+ Object.assign(m,{n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim()});if(a.apriv)a.rolesDirty=1;
+ ls.set(K.set,S);render();
+ try{await amPush()}catch(e){toast('Enregistré ici, envoi plus tard : '+(e.message||'hors connexion'),4000)}
+}
+async function amSetTitle(id){
+ const a=amc();if(!a||!a.apriv)return;
+ const r=await ask({title:'Titre de '+((amList().find(p=>p.id===id)||{}).n||''),text:'Le titre s’affiche à côté du nom pour tout le monde.',btns:AMC_TITLES.map(t=>({label:t,value:'t:'+t})).concat([{label:'Autre titre…',value:'other'},{label:'Aucun titre',value:'none'},{label:'Annuler',value:null}])});
+ if(!r)return;
+ let t='';
+ if(r==='other'){const v=await amForm('Autre titre','',[{k:'t',l:'Titre',ph:'Responsable buvette…'}]);if(!v||!v.t.trim())return;t=v.t.trim().slice(0,30)}
+ else if(r!=='none')t=r.slice(2);
+ a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{t});a.rolesDirty=1;ls.set(K.set,S);render();
+ try{await amRolesPut();ls.set(K.set,S)}catch(e){toast('Enregistré ici, envoi plus tard',3500)}
+}
+async function amRemove(id){
+ const a=amc();if(!a||!a.apriv||id===a.me.id)return;
+ const p=amList().find(x=>x.id===id);if(!p)return;
+ const r=await ask({title:'Retirer '+p.n+' de la liste ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⚠️ Pour l’instant, c’est un retrait de la liste : la personne garde ses accès tant que les clés du groupe ne sont pas renouvelées (prévu avec le partage de l’agenda et des notes).</p>',btns:[{label:'Retirer de la liste',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{x:1});a.rolesDirty=1;ls.set(K.set,S);render();
+ try{await amRolesPut();ls.set(K.set,S)}catch(e){toast('Enregistré ici, envoi plus tard',3500)}
+}
+async function amFiche(id){
+ const a=amc();if(!a)return;
+ const p=amList().find(x=>x.id===id);if(!p)return;
+ if(p.self){return amEditMe()}
+ const row=(l,v)=>v?'<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--line2)"><span class="mut">'+l+'</span><b style="text-align:right;word-break:break-all">'+esc(v)+'</b></div>':'';
+ const html='<p style="margin:.1rem 0 .4rem"><span class="am-tag am-'+p.l+'">'+(p.l==='b'?'Bureau':'Aide')+'</span>'+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+' '+(p.t?'<b>'+esc(p.t)+'</b>':'<span class="mut">Pas de titre</span>')+'</p>'+
+  (p.tel||p.mp||p.mw?row('📱 Téléphone',p.tel)+row('✉️ Mail perso',p.mp)+row('💼 Mail travail',p.mw):'<p class="mut" style="margin:.4rem 0">'+(p.ro?'Ses coordonnées ne sont pas visibles avec ton niveau d’accès.':'Cette personne n’a pas rempli de coordonnées.')+'</p>');
+ const btns=[];
+ if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
+ if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
+ if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
+ if(a.apriv)btns.push({label:'🏷️ Changer le titre',value:'title'},{label:'Retirer de la liste',value:'rm',cls:'dng'});
+ btns.push({label:'Fermer',value:null});
+ const r=await ask({title:p.n,html,btns});
+ if(r==='tel')amOpen('tel:'+telN(p.tel));
+ else if(r==='sms')famSms({tel:p.tel},'');
+ else if(r==='mp')amOpen('mailto:'+p.mp);
+ else if(r==='mw')amOpen('mailto:'+p.mw);
+ else if(r==='title')amSetTitle(id);
+ else if(r==='rm')amRemove(id);
+}
+async function amRename(){
+ const a=amc();if(!a||!a.apriv)return;
+ const v=await amForm('Nom du groupe','Par exemple « Amicale », « Club », « Association ». Il s’affiche sur l’onglet.',[{k:'nm',l:'Nom',v:a.nm}]);
+ if(!v||!v.nm.trim())return;a.nm=v.nm.trim().slice(0,24);ls.set(K.set,S);tabsApply();render();
+ toast('Nom changé ici. Les autres le verront après leur prochaine invitation (mise à jour des noms : à venir).',5000);
+}
+async function amLeave(){
+ const a=amc();if(!a)return;
+ const r=await ask({title:'Quitter « '+a.nm+' » ?',text:a.apriv?'Tu es l’administrateur : si tu quittes sans avoir transmis le groupe, plus personne ne pourra changer les titres. Tes données de groupe sont supprimées de ce téléphone.':'Tes données de groupe sont supprimées de ce téléphone. Tu pourras rejoindre à nouveau avec un nouveau code.',btns:[{label:'Quitter le groupe',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ delete S.amc;ls.set(K.set,S);tabsApply();if(V.view==='amicale')go('settings');else render();toast('Tu as quitté le groupe',3000);
+}
+function amView(){
+ const a=amc();
+ if(!a)return{html:'<div class="rp-wrap"><p class="empty">Pas de groupe sur ce téléphone.</p><button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
+ amPull();
+ const tabs=[['mb','👤 Membres'],['gr','⚙️ Groupe']];
+ let h='<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'">'+l+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>';
+ if(AMC_TAB==='gr'){
+  h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
+   mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
+   mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
+   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
+  if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
+  h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
+  h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
+ }else{
+  const L=amList(),ord=t=>{const i=AMC_TITLES.indexOf(t);return i<0?(t?50:99):i};
+  const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
+   return '<h4 class="am-h">'+lbl+' · '+G.length+'</h4>'+G.map(p=>'<button class="am-c" data-act="am-mb" data-id="'+esc(p.id)+'"><i class="am-av" style="background:'+(p.self?'var(--k-am)':'#8b7d68')+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</i><span class="am-x"><b>'+esc(p.n)+(p.self?' <small class="mut">(toi)</small>':'')+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+'</b><small>'+(p.t?esc(p.t):(a.apriv&&!p.self?'Touche pour donner un titre':p.l==='b'?'Bureau':'Aide'))+'</small></span>'+(p.tel?'<span class="am-ph" aria-hidden="true">📞</span>':'')+'</button>').join('')};
+  h+=grp('b','Bureau')+grp('a','Aides extérieurs');
+  if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : ⚙️ Groupe → 🔢 Inviter quelqu’un.':'')+'</p>';
+  if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
+ }
+ return{html:h+'</div>',fixed:false};
+}
+function amSetCard(){
+ if(!famUrl())return '';
+ const a=amc();
+ let h='<div class="card"><h3>👥 Groupe (amicale, club…)</h3>';
+ if(!a)h+='<p class="mut" style="margin:.2rem 0 .6rem;font-size:.9rem">Un espace à part pour communiquer avec les membres d’un groupe : fiches, titres, niveaux d’accès. L’onglet n’apparaît que si tu crées ou rejoins un groupe.</p><button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button>';
+ else h+=mrow('view',esc(a.em||'👥')+' '+esc(a.nm),(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+' · ouvrir l’onglet',' data-v="amicale"');
+ return h+'</div>';
 }
 function famHash2(){const h=location.hash||'';const m=h.match(/^#fam=([A-Za-z0-9_-]+)(?:&by=([^&]*))?/);if(!m)return false;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}setTimeout(()=>famJoin(m[1],decodeURIComponent(m[2]||'')),400);return true}
 
@@ -9546,7 +9835,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amPush,amRolesPut,amFiche,amVerify}};
 })();
 
 
