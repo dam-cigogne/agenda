@@ -86,91 +86,104 @@ input,select,textarea{font:inherit;color:inherit}
 .agbar{display:flex;gap:.4rem;align-items:center;padding:.4rem .8rem;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto}
 .agbar .chip{flex:none;font-weight:650}
 .agbar .chip.on{background:var(--ac,var(--accent));color:#fff;border-color:var(--ac,var(--accent))}
+/* feuille de choix des styles (aperçu en direct) */
+.stys{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--surface);border-top:1px solid var(--line);border-radius:1.1rem 1.1rem 0 0;box-shadow:0 -6px 22px rgba(0,0,0,.22);padding:.55rem .7rem .6rem;max-height:40vh;overflow-y:auto}
+.stys[hidden]{display:none}
+.stys-h{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap}.stys-h b{font-size:1.05rem}.stys-h .sp1{flex:1}
+.stys-row{display:flex;gap:.55rem;overflow-x:auto;padding:.15rem .1rem .35rem;scrollbar-width:none}
+.stys-c{flex:none;width:8.6rem;border:2px solid var(--line);border-radius:.9rem;background:var(--bg);padding:.3rem;text-align:center;font-weight:750;font-size:.85rem;color:var(--text);cursor:pointer}
+.stys-c.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.stys-c span{display:block;margin-top:.25rem}
+.lsth{zoom:.5;pointer-events:none;width:15.5rem;text-align:left;border-radius:.7rem;padding:.4rem;background:var(--bg);overflow:hidden}
+.lsth .tk-g{margin:0}.lsth .tk-c{margin:.45rem .3rem .45rem .5rem;flex:none}
+.lsth[data-ls="neon"]{background:#090d18}.lsth[data-ls="ardoise"]{background:#2b3138}
+.stys .thm{display:flex;overflow-x:auto;scrollbar-width:none}.stys .thm button{flex:none;width:9rem}
+body.stys-on #main{padding-bottom:46vh}
 /* apparences des listes (Tâches, Courses) */
-body[data-ls="neon"] #main .co-head,body[data-ls="neon"] #main .co-head b{color:#00ffa3!important}
-body[data-ls="neon"] #main .tk-r button:not([class]){background:#0f1526;color:#00ffa3;border:1px solid #1f3b4d}
-body[data-ls="ardoise"] #main .co-head,body[data-ls="ardoise"] #main .co-head b{color:#e8edf2!important}
-body[data-ls="ardoise"] #main .tk-r button:not([class]){background:#343b43;color:#e8edf2;border:1px solid #4b545e}
-body[data-ls="neon"] #main h2,body[data-ls="neon"] #main h3,body[data-ls="neon"] #main .tk-wrap h2{color:#00ffa3!important}
-body[data-ls="neon"] #main .seg{background:#0f1526}
-body[data-ls="neon"] #main .seg button{color:#c9fbe9}
-body[data-ls="neon"] #main .seg button.on{background:#00ffa3;color:#0b0f18}
-body[data-ls="neon"] #main .in{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
-body[data-ls="neon"] #main .chip{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
-body[data-ls="neon"] #main .btn{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
-body[data-ls="neon"] #main .mut,body[data-ls="neon"] #main .co-more{color:#c9fbe9!important;opacity:.85}
-body[data-ls="ardoise"] #main h2,body[data-ls="ardoise"] #main h3,body[data-ls="ardoise"] #main .tk-wrap h2{color:#e8edf2!important}
-body[data-ls="ardoise"] #main .seg{background:#343b43}
-body[data-ls="ardoise"] #main .seg button{color:#e8edf2}
-body[data-ls="ardoise"] #main .seg button.on{background:#e8edf2;color:#0b0f18}
-body[data-ls="ardoise"] #main .in{background:#343b43;color:#e8edf2;border-color:#4b545e}
-body[data-ls="ardoise"] #main .chip{background:#343b43;color:#e8edf2;border-color:#4b545e}
-body[data-ls="ardoise"] #main .btn{background:#343b43;color:#e8edf2;border-color:#4b545e}
-body[data-ls="ardoise"] #main .mut,body[data-ls="ardoise"] #main .co-more{color:#e8edf2!important;opacity:.85}
-body[data-ls="cartes"] .tk-g{background:transparent;border:0;overflow:visible}
-body[data-ls="cartes"] .tk-r{margin:.45rem 0;border:1px solid var(--line);border-radius:1.2rem;background:var(--surface);box-shadow:0 2px 6px rgba(0,0,0,.08)}
-body[data-ls="cartes"] .tk-c{border-radius:50%;width:2.5rem;height:2.5rem}
-body[data-ls="cartes"] .tk-t b{font-size:1.12rem}
-body[data-ls="cartes"] .tk-t{padding:.7rem .7rem .7rem .4rem}
-body[data-ls="cartes"] .co-tab{background:#fff!important;border:1px solid var(--line)!important;border-radius:1rem!important;box-shadow:0 2px 6px rgba(0,0,0,.12);color:#333!important}
-body[data-ls="cartes"] .co-tab.on{background:var(--tc)!important;color:#fff!important}
-body[data-ls="postit"] .tk-g{background:transparent;border:0;overflow:visible}
-body[data-ls="postit"] .tk-gh{font-family:"Comic Sans MS",cursive;font-size:1.2rem}
-body[data-ls="postit"] .tk-r{background:#fff1a0;margin:.55rem .3rem;border:0;border-radius:.15rem;box-shadow:2px 4px 8px rgba(0,0,0,.28);transform:rotate(-1.4deg)}
-body[data-ls="postit"] .tk-r:nth-child(even){background:#ffc9dc;transform:rotate(1.2deg)}
-body[data-ls="postit"] .tk-r:nth-child(3n){background:#c4ecff}
-body[data-ls="postit"] .tk-c{border:2px solid #333;border-radius:.2rem;background:#ffffffaa}
-body[data-ls="postit"] .tk-t b{font-family:"Comic Sans MS",cursive;color:#2a2a2a;font-size:1.05rem}
-body[data-ls="postit"] .tk-t small{color:#555}
-body[data-ls="postit"] .co-tab{background:#fff1a0!important;border:0!important;border-radius:.15rem!important;box-shadow:2px 3px 6px rgba(0,0,0,.28);transform:rotate(2deg);color:#2a2a2a!important;font-family:"Comic Sans MS",cursive}
-body[data-ls="postit"] .co-tab:nth-child(even){background:#c4ecff!important;transform:rotate(-2deg)}
-body[data-ls="postit"] .co-tab.on{background:#ffc9dc!important;transform:rotate(0) scale(1.06)}
-body[data-ls="neon"] #main{background:#090d18!important}
-body[data-ls="neon"] .tk-g{background:#0f1526;border:1px solid #1f3b4d;border-radius:.5rem;box-shadow:0 0 14px #00ffa31f}
-body[data-ls="neon"] .tk-gh{color:#00ffa3!important;font-family:ui-monospace,monospace;text-transform:uppercase;letter-spacing:.14em;font-size:.85rem}
-body[data-ls="neon"] .tk-r{border-bottom:1px solid #1b2742}
-body[data-ls="neon"] .tk-t b{color:#e4fff5;font-family:ui-monospace,monospace;font-weight:500}
-body[data-ls="neon"] .tk-t small,body[data-ls="neon"] .tk-t span{color:#5fe3c0!important}
-body[data-ls="neon"] .tk-c{border-color:#00ffa3;border-radius:50%;box-shadow:0 0 9px #00ffa388}
-body[data-ls="neon"] .co-tab{background:#0f1526!important;border:1px solid #00ffa3!important;color:#00ffa3!important;box-shadow:0 0 9px #00ffa355;font-family:ui-monospace,monospace}
-body[data-ls="neon"] .co-tab.on{background:#00ffa3!important;color:#04110c!important;box-shadow:0 0 16px #00ffa3}
-body[data-ls="journal"] .tk-g{background:transparent;border:0;border-top:2px solid #222;border-radius:0}
-body[data-ls="journal"] .tk-gh{font-family:Georgia,serif;font-variant:small-caps;letter-spacing:.18em;justify-content:center;text-align:center}
-body[data-ls="journal"] .tk-r{border-bottom:1px solid #d9d4c8}
-body[data-ls="journal"] .tk-c{border-radius:50%;width:1.25rem;height:1.25rem;border:1px solid #222;margin-left:.9rem}
-body[data-ls="journal"] .tk-t b{font-family:Georgia,serif;font-weight:400;font-style:italic;font-size:1.12rem}
-body[data-ls="journal"] .tk-t small{font-family:Georgia,serif}
-body[data-ls="journal"] .co-tab{background:transparent!important;border:0!important;border-right:1px solid #222!important;border-radius:0!important;box-shadow:none;color:#222!important;font-family:Georgia,serif;font-style:italic}
-body[data-ls="journal"] .co-tab.on{border-right:5px solid #222!important;font-weight:700}
-body[data-ls="pop"] .tk-g{background:transparent;border:0;overflow:visible}
-body[data-ls="pop"] .tk-gh{font-weight:900;font-size:1.25rem}
-body[data-ls="pop"] .tk-r{margin:.45rem 0;border:0;border-radius:2rem;background:#ffd3de}
-body[data-ls="pop"] .tk-r:nth-child(3n+2){background:#d2f3df}
-body[data-ls="pop"] .tk-r:nth-child(3n){background:#d6e2ff}
-body[data-ls="pop"] .tk-c{border:0;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px #222;width:2.2rem;height:2.2rem}
-body[data-ls="pop"] .tk-t b{font-weight:900;font-size:1.12rem;color:#1d1d1d}
-body[data-ls="pop"] .tk-t small{color:#333}
-body[data-ls="pop"] .co-tab{border:0!important;border-radius:1.5rem!important;background:#ffd3de!important;color:#1d1d1d!important;font-weight:900}
-body[data-ls="pop"] .co-tab:nth-child(3n+2){background:#d2f3df!important}
-body[data-ls="pop"] .co-tab:nth-child(3n){background:#d6e2ff!important}
-body[data-ls="pop"] .co-tab.on{box-shadow:inset 0 0 0 3px #222}
-body[data-ls="tableau"] .tk-g{border-radius:0;border:0;border-left:7px solid var(--accent);box-shadow:0 1px 0 #0002}
-body[data-ls="tableau"] .tk-gh{background:var(--accent);color:#fff!important;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;font-weight:800}
-body[data-ls="tableau"] .tk-gh *{color:#fff!important}
-body[data-ls="tableau"] .tk-c{border-radius:0;width:1.6rem;height:1.6rem;border-width:3px}
-body[data-ls="tableau"] .tk-t b{text-transform:uppercase;font-size:.88rem;font-weight:800;letter-spacing:.04em}
-body[data-ls="tableau"] .tk-t small{text-transform:uppercase;font-size:.68rem;letter-spacing:.06em}
-body[data-ls="tableau"] .co-tab{background:#fff!important;border:2px solid #2b6cb0!important;border-radius:0!important;color:#2b6cb0!important;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
-body[data-ls="tableau"] .co-tab.on{background:#2b6cb0!important;color:#fff!important}
-body[data-ls="ardoise"] #main{background:#2b3138!important}
-body[data-ls="ardoise"] .tk-g{background:#343b43;border:1px solid #4b545e;border-radius:.4rem}
-body[data-ls="ardoise"] .tk-gh{color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif;border-bottom:2px dashed #6d7882}
-body[data-ls="ardoise"] .tk-r{border-bottom:1px dashed #56606b}
-body[data-ls="ardoise"] .tk-t b{color:#f3f6f9;font-family:"Trebuchet MS",sans-serif;font-weight:500}
-body[data-ls="ardoise"] .tk-t small,body[data-ls="ardoise"] .tk-t span{color:#aeb9c4!important}
-body[data-ls="ardoise"] .tk-c{border-color:#f3f6f9;border-radius:.35rem;border-width:2px}
-body[data-ls="ardoise"] .co-tab{background:#343b43!important;border:1px dashed #8a95a1!important;border-radius:.4rem!important;color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif}
-body[data-ls="ardoise"] .co-tab.on{background:#e8edf2!important;color:#2b3138!important;border-style:solid!important}
+[data-ls="neon"] #main .co-head,[data-ls="neon"] #main .co-head b{color:#00ffa3!important}
+[data-ls="neon"] #main .tk-r button:not([class]){background:#0f1526;color:#00ffa3;border:1px solid #1f3b4d}
+[data-ls="ardoise"] #main .co-head,[data-ls="ardoise"] #main .co-head b{color:#e8edf2!important}
+[data-ls="ardoise"] #main .tk-r button:not([class]){background:#343b43;color:#e8edf2;border:1px solid #4b545e}
+[data-ls="neon"] #main h2,[data-ls="neon"] #main h3,[data-ls="neon"] #main .tk-wrap h2{color:#00ffa3!important}
+[data-ls="neon"] #main .seg{background:#0f1526}
+[data-ls="neon"] #main .seg button{color:#c9fbe9}
+[data-ls="neon"] #main .seg button.on{background:#00ffa3;color:#0b0f18}
+[data-ls="neon"] #main .in{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
+[data-ls="neon"] #main .chip{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
+[data-ls="neon"] #main .btn{background:#0f1526;color:#c9fbe9;border-color:#1f3b4d}
+[data-ls="neon"] #main .mut,[data-ls="neon"] #main .co-more{color:#c9fbe9!important;opacity:.85}
+[data-ls="ardoise"] #main h2,[data-ls="ardoise"] #main h3,[data-ls="ardoise"] #main .tk-wrap h2{color:#e8edf2!important}
+[data-ls="ardoise"] #main .seg{background:#343b43}
+[data-ls="ardoise"] #main .seg button{color:#e8edf2}
+[data-ls="ardoise"] #main .seg button.on{background:#e8edf2;color:#0b0f18}
+[data-ls="ardoise"] #main .in{background:#343b43;color:#e8edf2;border-color:#4b545e}
+[data-ls="ardoise"] #main .chip{background:#343b43;color:#e8edf2;border-color:#4b545e}
+[data-ls="ardoise"] #main .btn{background:#343b43;color:#e8edf2;border-color:#4b545e}
+[data-ls="ardoise"] #main .mut,[data-ls="ardoise"] #main .co-more{color:#e8edf2!important;opacity:.85}
+[data-ls="cartes"] .tk-g{background:transparent;border:0;overflow:visible}
+[data-ls="cartes"] .tk-r{margin:.45rem 0;border:1px solid var(--line);border-radius:1.2rem;background:var(--surface);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+[data-ls="cartes"] .tk-c{border-radius:50%;width:2.5rem;height:2.5rem}
+[data-ls="cartes"] .tk-t b{font-size:1.12rem}
+[data-ls="cartes"] .tk-t{padding:.7rem .7rem .7rem .4rem}
+[data-ls="cartes"] .co-tab{background:#fff!important;border:1px solid var(--line)!important;border-radius:1rem!important;box-shadow:0 2px 6px rgba(0,0,0,.12);color:#333!important}
+[data-ls="cartes"] .co-tab.on{background:var(--tc)!important;color:#fff!important}
+[data-ls="postit"] .tk-g{background:transparent;border:0;overflow:visible}
+[data-ls="postit"] .tk-gh{font-family:"Comic Sans MS",cursive;font-size:1.2rem}
+[data-ls="postit"] .tk-r{background:#fff1a0;margin:.55rem .3rem;border:0;border-radius:.15rem;box-shadow:2px 4px 8px rgba(0,0,0,.28);transform:rotate(-1.4deg)}
+[data-ls="postit"] .tk-r:nth-child(even){background:#ffc9dc;transform:rotate(1.2deg)}
+[data-ls="postit"] .tk-r:nth-child(3n){background:#c4ecff}
+[data-ls="postit"] .tk-c{border:2px solid #333;border-radius:.2rem;background:#ffffffaa}
+[data-ls="postit"] .tk-t b{font-family:"Comic Sans MS",cursive;color:#2a2a2a;font-size:1.05rem}
+[data-ls="postit"] .tk-t small{color:#555}
+[data-ls="postit"] .co-tab{background:#fff1a0!important;border:0!important;border-radius:.15rem!important;box-shadow:2px 3px 6px rgba(0,0,0,.28);transform:rotate(2deg);color:#2a2a2a!important;font-family:"Comic Sans MS",cursive}
+[data-ls="postit"] .co-tab:nth-child(even){background:#c4ecff!important;transform:rotate(-2deg)}
+[data-ls="postit"] .co-tab.on{background:#ffc9dc!important;transform:rotate(0) scale(1.06)}
+[data-ls="neon"] #main{background:#090d18!important}
+[data-ls="neon"] .tk-g{background:#0f1526;border:1px solid #1f3b4d;border-radius:.5rem;box-shadow:0 0 14px #00ffa31f}
+[data-ls="neon"] .tk-gh{color:#00ffa3!important;font-family:ui-monospace,monospace;text-transform:uppercase;letter-spacing:.14em;font-size:.85rem}
+[data-ls="neon"] .tk-r{border-bottom:1px solid #1b2742}
+[data-ls="neon"] .tk-t b{color:#e4fff5;font-family:ui-monospace,monospace;font-weight:500}
+[data-ls="neon"] .tk-t small,[data-ls="neon"] .tk-t span{color:#5fe3c0!important}
+[data-ls="neon"] .tk-c{border-color:#00ffa3;border-radius:50%;box-shadow:0 0 9px #00ffa388}
+[data-ls="neon"] .co-tab{background:#0f1526!important;border:1px solid #00ffa3!important;color:#00ffa3!important;box-shadow:0 0 9px #00ffa355;font-family:ui-monospace,monospace}
+[data-ls="neon"] .co-tab.on{background:#00ffa3!important;color:#04110c!important;box-shadow:0 0 16px #00ffa3}
+[data-ls="journal"] .tk-g{background:transparent;border:0;border-top:2px solid #222;border-radius:0}
+[data-ls="journal"] .tk-gh{font-family:Georgia,serif;font-variant:small-caps;letter-spacing:.18em;justify-content:center;text-align:center}
+[data-ls="journal"] .tk-r{border-bottom:1px solid #d9d4c8}
+[data-ls="journal"] .tk-c{border-radius:50%;width:1.25rem;height:1.25rem;border:1px solid #222;margin-left:.9rem}
+[data-ls="journal"] .tk-t b{font-family:Georgia,serif;font-weight:400;font-style:italic;font-size:1.12rem}
+[data-ls="journal"] .tk-t small{font-family:Georgia,serif}
+[data-ls="journal"] .co-tab{background:transparent!important;border:0!important;border-right:1px solid #222!important;border-radius:0!important;box-shadow:none;color:#222!important;font-family:Georgia,serif;font-style:italic}
+[data-ls="journal"] .co-tab.on{border-right:5px solid #222!important;font-weight:700}
+[data-ls="pop"] .tk-g{background:transparent;border:0;overflow:visible}
+[data-ls="pop"] .tk-gh{font-weight:900;font-size:1.25rem}
+[data-ls="pop"] .tk-r{margin:.45rem 0;border:0;border-radius:2rem;background:#ffd3de}
+[data-ls="pop"] .tk-r:nth-child(3n+2){background:#d2f3df}
+[data-ls="pop"] .tk-r:nth-child(3n){background:#d6e2ff}
+[data-ls="pop"] .tk-c{border:0;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px #222;width:2.2rem;height:2.2rem}
+[data-ls="pop"] .tk-t b{font-weight:900;font-size:1.12rem;color:#1d1d1d}
+[data-ls="pop"] .tk-t small{color:#333}
+[data-ls="pop"] .co-tab{border:0!important;border-radius:1.5rem!important;background:#ffd3de!important;color:#1d1d1d!important;font-weight:900}
+[data-ls="pop"] .co-tab:nth-child(3n+2){background:#d2f3df!important}
+[data-ls="pop"] .co-tab:nth-child(3n){background:#d6e2ff!important}
+[data-ls="pop"] .co-tab.on{box-shadow:inset 0 0 0 3px #222}
+[data-ls="tableau"] .tk-g{border-radius:0;border:0;border-left:7px solid var(--accent);box-shadow:0 1px 0 #0002}
+[data-ls="tableau"] .tk-gh{background:var(--accent);color:#fff!important;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;font-weight:800}
+[data-ls="tableau"] .tk-gh *{color:#fff!important}
+[data-ls="tableau"] .tk-c{border-radius:0;width:1.6rem;height:1.6rem;border-width:3px}
+[data-ls="tableau"] .tk-t b{text-transform:uppercase;font-size:.88rem;font-weight:800;letter-spacing:.04em}
+[data-ls="tableau"] .tk-t small{text-transform:uppercase;font-size:.68rem;letter-spacing:.06em}
+[data-ls="tableau"] .co-tab{background:#fff!important;border:2px solid #2b6cb0!important;border-radius:0!important;color:#2b6cb0!important;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+[data-ls="tableau"] .co-tab.on{background:#2b6cb0!important;color:#fff!important}
+[data-ls="ardoise"] #main{background:#2b3138!important}
+[data-ls="ardoise"] .tk-g{background:#343b43;border:1px solid #4b545e;border-radius:.4rem}
+[data-ls="ardoise"] .tk-gh{color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif;border-bottom:2px dashed #6d7882}
+[data-ls="ardoise"] .tk-r{border-bottom:1px dashed #56606b}
+[data-ls="ardoise"] .tk-t b{color:#f3f6f9;font-family:"Trebuchet MS",sans-serif;font-weight:500}
+[data-ls="ardoise"] .tk-t small,[data-ls="ardoise"] .tk-t span{color:#aeb9c4!important}
+[data-ls="ardoise"] .tk-c{border-color:#f3f6f9;border-radius:.35rem;border-width:2px}
+[data-ls="ardoise"] .co-tab{background:#343b43!important;border:1px dashed #8a95a1!important;border-radius:.4rem!important;color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif}
+[data-ls="ardoise"] .co-tab.on{background:#e8edf2!important;color:#2b3138!important;border-style:solid!important}
 
 .bn{display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;margin:.45rem .7rem 0;padding:.45rem .7rem;border-radius:.9rem;font-size:.8rem;background:color-mix(in srgb,var(--warn) 16%,var(--surface));border:1.5px solid var(--warn)}
 .bn span{flex:1 1 10rem}
@@ -1168,12 +1181,14 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.28.0';
+const APP_VERSION='2.29.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.29.0',d:'03/11/2026',items:[
+  '<b>Choisir un style sans revenir en arrière</b> : un bouton <b>🎨</b> sur l’agenda (à côté de ✏️), <b>🎨 Style</b> sur les Tâches et sur les Courses. Il ouvre une petite fenêtre en bas avec une <b>vignette</b> de chaque style : tu touches, et l’écran du dessus change tout de suite, sans fermer la fenêtre. Sur l’agenda, ce sont les thèmes (Classique, Compact, Pastel…). Sur les Tâches et les Courses, les styles de listes, avec un choix « Même style Tâches et Courses ». Dans Réglages, la carte « Apparence des listes » a aussi un bouton « Choisir avec aperçu ».']},
  {v:'2.28.0',d:'03/11/2026',items:[
   '<b>Apparence des listes</b> : 7 styles pour les Tâches et les Courses (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise), en plus de l’actuel. Ils changent la forme des lignes, les couleurs, la police et les onglets du côté. Réglages › Affichage › « Apparence des listes » : un choix pour les deux, ou un style différent pour les Tâches et pour les Courses. Ça se combine avec ton thème.']},
  {v:'2.27.0',d:'02/11/2026',items:[
@@ -2380,7 +2395,7 @@ function searchView(){
 const AGN0={p:'Perso',w:'Agenda pro'};
 const agN=k=>{const n=S.agn&&typeof S.agn[k]==='string'?S.agn[k].trim():'';return (n||AGN0[k]).slice(0,20)};
 const agLbl=k=>(k==='w'?'💼 ':'🏠 ')+agN(k);
-const agBar=()=>'<div class="agbar" role="group" aria-label="Choix de l’agenda">'+[['','Tous',''],['p',agLbl('p'),'#2b6cb0'],['w',agLbl('w'),'#b7791f']].map(a=>'<button type="button" class="chip'+((S.agw||'')===a[0]?' on':'')+'"'+(a[2]?' style="--ac:'+a[2]+'"':'')+' data-act="agw" data-v="'+a[0]+'">'+esc(a[1])+'</button>').join('')+'<button type="button" class="chip" data-act="agn" aria-label="Renommer les agendas" title="Renommer">✏️</button></div>';
+const agBar=()=>'<div class="agbar" role="group" aria-label="Choix de l’agenda">'+[['','Tous',''],['p',agLbl('p'),'#2b6cb0'],['w',agLbl('w'),'#b7791f']].map(a=>'<button type="button" class="chip'+((S.agw||'')===a[0]?' on':'')+'"'+(a[2]?' style="--ac:'+a[2]+'"':'')+' data-act="agw" data-v="'+a[0]+'">'+esc(a[1])+'</button>').join('')+'<button type="button" class="chip" data-act="agn" aria-label="Renommer les agendas" title="Renommer">✏️</button><button type="button" class="chip" data-act="sty" aria-label="Changer le thème" title="Thème">🎨</button></div>';
 async function agRename(){
  const v={p:agN('p'),w:agN('w')};
  const html='<label class="lbl" for="ag-n-p">🏠 Premier agenda</label><input class="in" id="ag-n-p" maxlength="20" value="'+esc(v.p)+'" autocomplete="off"><label class="lbl" for="ag-n-w">💼 Deuxième agenda</label><input class="in" id="ag-n-w" maxlength="20" value="'+esc(v.w)+'" autocomplete="off">';
@@ -2453,6 +2468,7 @@ function render(){
  body.classList.toggle('mview',V.view==='fort'||(V.view==='month'&&S.monthMode!=='dots'));
  $('#side').innerHTML=(nav&&isWide()&&S.side!==0)?sideHTML():'';
  $('#banner').innerHTML=(nav?agBar():'')+bannerHTML();
+ styRefresh();
  tabsApply();
 }
 function tabsApply(){const H=S.tabsHide||[];$$('#tabs button').forEach(b=>{b.style.display=H.includes(b.dataset.v)?'none':''})}
@@ -5911,6 +5927,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
+ h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
  h+=d('⏰ Alerte d’une tâche','<ul><li>Dans la fiche d’une tâche qui a une date et une heure, active <b>⏰ M’alerter à l’heure</b> (un ⏰ s’affiche ensuite à côté de l’heure).</li><li>À l’heure dite, une fenêtre propose <b>✅ Fait</b>, <b>Dans 1 h</b>, <b>Dans 2 h</b>, <b>Ce soir (18:00)</b>, <b>Demain même heure</b> ou <b>Ignorer</b>. Reporter change l’heure de la tâche.</li><li>L’alerte s’affiche quand AgenDam est <b>ouvert</b> (ou à la prochaine ouverture, dans les 12 h). Pour une vraie sonnerie appli fermée : <b>📱 Enregistrer + calendrier du téléphone</b> envoie la tâche avec son alarme à ton calendrier.</li><li><b>À savoir :</b> dès que tu quittes l’appli (écran verrouillé ou autre appli), le téléphone la met en pause : aucune alerte ne part tant qu’elle n’est pas rouverte. Une appli web ne peut pas faire sonner le téléphone toute seule.</li></ul>');
@@ -6261,12 +6278,38 @@ function tick(){
 }
 
 /* ---------- Actions ---------- */
+const STY={mode:null};
+const LS_OK={ls:['tasks','courses','settings'],ev:['day','week','month','fort','settings']};
+const lsCur=()=>{const pk=o=>o==='none'?'':(o||S.ls||'');return V.view==='tasks'?pk(S.lsT):V.view==='courses'?pk(S.lsC):(S.ls||'')};
+function lsThumb(){return '<div class="tk-g"><div class="tk-r"><span class="tk-c"></span><div class="tk-t"><b>Appeler le plombier</b><small>Aujourd’hui · 🏠 Maison</small></div></div><div class="tk-r"><span class="tk-c"></span><div class="tk-t"><b>Rendre les livres</b><small>Demain</small></div></div></div>'}
+function styHTML(){
+ if(STY.mode==='ev'){
+  return '<div class="stys-h"><b>🎨 Thème de l’agenda</b><span class="sp1"></span><button class="ib" data-act="sty-close" aria-label="Fermer">'+ic('x')+'</button></div><div class="thm">'+EV_THEMES.map(t=>'<button type="button" data-act="ev-theme" data-v="'+t[0]+'" class="'+(evThemeOn(t)?'on':'')+'" style="--tb:'+t[4]+';--tt:'+t[5]+'">'+t[1]+'<small>'+t[2]+'</small><i><b style="--c:'+(t[3].acc||'#2f6fb3')+'"></b><b style="--c:#16a34a"></b><b style="--c:#ea580c"></b></i></button>').join('')+'</div>';
+ }
+ const cur=lsCur(),tab=V.view==='tasks'||V.view==='courses',same=S.lsSame!==false;
+ return '<div class="stys-h"><b>🎨 Style des listes</b>'+(tab?'<button type="button" class="chip'+(same?' on':'')+'" data-act="ls-same">'+(same?'✓ ':'')+'Même style Tâches et Courses</button>':'')+'<span class="sp1"></span><button class="ib" data-act="sty-close" aria-label="Fermer">'+ic('x')+'</button></div>'+
+  '<div class="stys-row">'+LS_OPTS.map(o=>'<button type="button" class="stys-c'+((cur||'')===o[0]?' on':'')+'" data-act="ls-pick" data-v="'+o[0]+'"><div class="lsth" data-ls="'+o[0]+'">'+lsThumb()+'</div><span>'+esc(o[1])+'</span></button>').join('')+'</div>';
+}
+function styOpen(mode){
+ STY.mode=mode||(['day','week','month','fort'].includes(V.view)?'ev':'ls');
+ let el=$('#stysheet');if(!el){el=document.createElement('div');el.id='stysheet';el.className='stys';el.setAttribute('role','dialog');el.setAttribute('aria-label','Choix du style');$('#app').appendChild(el)}
+ el.hidden=false;document.body.classList.add('stys-on');{const tb=$('#tabs');el.style.bottom=(tb&&getComputedStyle(tb).flexDirection==='row'?tb.offsetHeight:0)+'px'}styDraw();
+}
+function styDraw(){
+ const el=$('#stysheet');if(!el)return;
+ const r=$('.stys-row,.thm',el),sl=r?r.scrollLeft:0,st=el.scrollTop;
+ el.innerHTML=styHTML();
+ const r2=$('.stys-row,.thm',el);if(r2)r2.scrollLeft=sl;el.scrollTop=st;
+}
+function styClose(){STY.mode=null;const el=$('#stysheet');if(el){el.hidden=true;el.innerHTML=''}document.body.classList.remove('stys-on')}
+function styRefresh(){if(!STY.mode)return;if(!LS_OK[STY.mode].includes(V.view)){styClose();return}styDraw()}
 const LS_OPTS=[['','Actuel'],['cartes','Cartes'],['postit','Post-it'],['neon','Nuit néon'],['journal','Journal'],['pop','Pop'],['tableau','Tableau'],['ardoise','Ardoise']];
 function lsCard(){
+ const pv='<button class="btn blk" data-act="sty-ls">🖼️ Choisir avec aperçu (et sans revenir en arrière)</button>';
  const row=(k,val,opts)=>'<div class="chips" style="margin:.2rem 0 .6rem">'+opts.map(o=>'<button type="button" class="chip'+((val||'')===o[0]?' on':'')+'" data-act="set" data-k="'+k+'" data-v="'+o[0]+'">'+esc(o[1])+'</button>').join('')+'</div>';
  const ov=[['','Comme le choix général'],['none','Actuel']].concat(LS_OPTS.slice(1));
  return '<div class="card"><h3>🎨 Apparence des listes</h3><p class="mut" style="margin-top:0">Change la forme, les couleurs et les onglets des <b>Tâches</b> et des <b>Courses</b>. Se combine avec ton thème (couleurs, police).</p>'+
-  '<span class="lbl">Pour Tâches et Courses</span>'+row('ls',S.ls,LS_OPTS)+
+  pv+'<span class="lbl">Pour Tâches et Courses</span>'+row('ls',S.ls,LS_OPTS)+
   '<span class="lbl">Tâches seulement</span>'+row('lsT',S.lsT,ov)+
   '<span class="lbl">Courses seulement</span>'+row('lsC',S.lsC,ov)+'</div>';
 }
@@ -6534,6 +6577,11 @@ async function act(a,el,e){
   case 'vac-add':vacAddMan();break;
   case 'vac-edit':vacAddMan(+ds_.i);break;
   case 'vac-del':{const x=(S.vacMan||[])[+ds_.i];if(!x)break;const r=await ask({title:'Supprimer cette période ?',text:x.n+' : du '+fLongY(x.a)+' au '+fLongY(x.b),btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r==='y'){S.vacMan=S.vacMan.filter((_,k)=>k!==+ds_.i);saveSet();vacReset();render()}break}
+  case 'sty':styOpen();break;
+  case 'sty-ls':styOpen('ls');break;
+  case 'sty-close':styClose();break;
+  case 'ls-same':S.lsSame=(S.lsSame===false);saveSet();styDraw();break;
+  case 'ls-pick':{const v=ds_.v;if(S.lsSame!==false||!['tasks','courses'].includes(V.view)){S.ls=v;delete S.lsT;delete S.lsC}else{S[V.view==='tasks'?'lsT':'lsC']=v||'none'}saveSet();render();break}
   case 'ev-theme':{const t=EV_THEMES.find(x=>x[0]===ds_.v);if(t){Object.assign(S,t[3]);saveSet();setTheme();render();toast('Thème « '+t[1].replace(/^\S+ /,'')+' »')}break}
   case 'set':{const v=ds_.v;setSetting(ds_.k,v==='null'?null:(v!==''&&!isNaN(+v)?+v:v));break}
   case 'notif':{
@@ -6840,7 +6888,7 @@ function tasksView(){
  let h='<div class="tk-wrap"><div class="tk-bar">'+(side?'<div class="tk-dummy">':'<div class="chips tk-chips">')+chip('tk-f','l','','Toutes <small>'+tkAll().filter(k=>!k.x&&!isCoL(k.l)).length+'</small>',!TKV.l)+
 
   L.filter(l=>!isCoL(l.id)).map(l=>chip('tk-f','l',l.id,esc((l.i?l.i+' ':'')+l.n)+' <small>'+cnt(l.id)+'</small>',TKV.l===l.id)).join('')+chip('tk-f','l','__done','📜 Suivi',TKV.l==='__done')+'<button class="chip" data-act="tk-lists">⚙ Listes</button></div>'+
-  '<div class="chips tk-chips">'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+(side?'<button class="chip" data-act="tk-more">⋯ Plus</button></div></div>':'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>');
+  '<div class="chips tk-chips"><button class="chip" data-act="sty">🎨 Style</button>'+(P.length?chip('tk-f','w','','Tout le monde',!TKV.w)+P.map(p=>chip('tk-f','w',p.id,'<i class="tk-dot" style="background:'+p.c+'"></i>'+esc(p.n),TKV.w===p.id)).join(''):'')+(side?'<button class="chip" data-act="tk-more">⋯ Plus</button></div></div>':'<button class="chip" data-act="tk-ppl">👪 Famille</button></div><div class="chips tk-chips"><button class="chip" data-act="sh-tk">📤 Envoyer</button><button class="chip" data-act="sh-recv">📥 Recevoir</button><button class="chip" data-act="tk-imp">📋 Importer une liste</button><button class="chip" data-act="tk-print">'+ic('print')+' Imprimer</button></div></div>');
  const by=(a,b)=>(a.d||'9')<(b.d||'9')?-1:(a.d||'9')>(b.d||'9')?1:(a.tm||'99')<(b.tm||'99')?-1:(a.tm||'99')>(b.tm||'99')?1:a.t.localeCompare(b.t);
  const G=[['En retard',k=>k.d&&k.d<t],['Aujourd’hui',k=>k.d===t],['Cette semaine',k=>k.d>t&&k.d<=wk],['Plus tard',k=>k.d>wk],['Sans date',k=>!k.d]];
  if(isCoL(TKV.l)){S.coLid=TKV.l;TKV.l='';setTimeout(()=>go('courses'),0)}
@@ -7637,7 +7685,7 @@ function coursesHTML(){
   h+=CV.mode==='cat'?coCatHTML(cur,H,inL):coBuyHTML(cur,L,pend,done,H,si,false);
  }
  if(!lstSide()){
-  const top='<div class="chips tk-chips co-lists">'+coLists().map(l=>{const i=coShareInfo(l.id),n=tkAll().filter(k=>k.l===l.id&&!k.x).length;const who=i.from?'📥 '+famName(i.from):i.to.length?'👥 '+i.to.map(famName).join(', '):'';return '<button class="chip'+(l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(l.id)+'">🛒 '+esc(l.n)+(who?' <small>'+esc(who)+'</small>':'')+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="co-new">＋ Nouvelle liste</button></div>';
+  const top='<div class="chips tk-chips co-lists">'+coLists().map(l=>{const i=coShareInfo(l.id),n=tkAll().filter(k=>k.l===l.id&&!k.x).length;const who=i.from?'📥 '+famName(i.from):i.to.length?'👥 '+i.to.map(famName).join(', '):'';return '<button class="chip'+(l.id===cur?' on':'')+'" data-act="co-l" data-v="'+esc(l.id)+'">🛒 '+esc(l.n)+(who?' <small>'+esc(who)+'</small>':'')+(n?' <small>'+n+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="co-new">＋ Nouvelle liste</button><button class="chip" data-act="sty">🎨 Style</button></div>';
   return '<div class="co-flat co-cp" style="--tcur:'+col+'">'+top+h+'</div>';
  }
  return '<div class="co-book co-cp" style="--tcur:'+col+'"><div class="co-page">'+h+'</div>'+coTabsHTML(cur)+'</div>';
