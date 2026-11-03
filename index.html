@@ -185,8 +185,13 @@ body[data-ls="ardoise"] #main .tk-c,.lsth[data-ls="ardoise"] .tk-c{border-color:
 body[data-ls="ardoise"] #main .co-tab,.lsth[data-ls="ardoise"] .co-tab{background:#343b43!important;border:1px dashed #8a95a1!important;border-radius:.4rem!important;color:#e8edf2!important;font-family:"Trebuchet MS",sans-serif}
 body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{background:#e8edf2!important;color:#2b3138!important;border-style:solid!important}
 /* Groupe / Amicale */
-.am-tabs{display:flex;gap:.4rem;margin:.2rem 0 .5rem;flex-wrap:wrap}
+.am-tabs{display:flex;gap:.3rem;margin:.2rem 0 .5rem;flex-wrap:nowrap;overflow-x:auto}
+.am-tabs .chip{padding:.4rem .6rem;font-size:.85rem;white-space:nowrap;flex:none}
 .am-tabs .chip.on{background:var(--k-am);border-color:var(--k-am);color:#fff}
+.am-it{display:flex;align-items:center;gap:.6rem;background:var(--surface);border:1px solid var(--line2);border-left:5px solid var(--k-am);border-radius:.9rem;padding:.5rem .6rem;margin:.35rem 0}
+.am-it.done{opacity:.55}.am-it.done .am-itx b{text-decoration:line-through}
+.am-ck{width:2rem;height:2rem;border-radius:50%;border:2px solid var(--k-am);flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:transparent}.am-it.done .am-ck{background:var(--k-am)}
+.am-itx{flex:1;min-width:0;text-align:left;padding:.2rem 0}.am-itx b{display:block;font-weight:700}.am-itx small{color:var(--muted)}
 .am-h{margin:.9rem 0 .3rem;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .am-c{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line2);border-left:5px solid var(--k-am);border-radius:.9rem;padding:.6rem .75rem;margin:.4rem 0}
 .am-av{width:2.6rem;height:2.6rem;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-style:normal;flex:none}
@@ -1223,12 +1228,16 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.30.0';
+const APP_VERSION='2.31.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.31.0',d:'03/11/2026',items:[
+  '<b>Tâches et courses partagées dans le groupe</b> : deux nouveaux sous-onglets ✅ Tâches et 🛒 Courses. Chaque élément est « Bureau seulement » ou « Tout le monde » (bureau et aides) : ceux du bureau sont chiffrés avec la clé Bureau, un aide ne peut donc pas les voir. Les aides n’ont que les éléments « Tout le monde ».',
+  'Tâches : texte, date, <b>qui s’en occupe</b>, case à cocher ; les retards passent en rouge. Courses : article et quantité, coché = acheté, bouton pour vider les articles achetés. Tout le monde peut cocher, modifier ou supprimer ; en cas de modification en même temps, la plus récente gagne. Les modifications faites sans connexion partent dès que le réseau revient.',
+ ]},
  {v:'2.30.0',d:'03/11/2026',items:[
   '<b>Nouvel onglet Groupe</b> (à renommer « Amicale », « Club »…) : tu crées un groupe, ou tu rejoins celui d’un autre avec un <b>code d’invitation</b> (Réglages › Famille et contacts › 👥 Groupe). L’onglet n’apparaît que si tu as un groupe, et tu peux le masquer.',
   '<b>Deux niveaux d’accès</b> : <b>Bureau</b> et <b>Aide extérieur</b>. Chaque niveau a sa propre clé de chiffrement : un aide ne peut techniquement pas lire ce qui est réservé au bureau. Un code d’invitation = un niveau.',
@@ -5983,7 +5992,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li>Pour l’instant : membres, fiches et titres. À venir : tâches et courses partagées, agenda et notes du bureau, événements de l’année, messages.</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li>À venir : agenda et notes du bureau, événements de l’année, messages.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -6569,6 +6578,10 @@ async function act(a,el,e){
   case 'am-inv':amInvite();break;
   case 'am-ren':amRename();break;
   case 'am-leave':amLeave();break;
+  case 'am-add':amItemForm(ds_.k);break;
+  case 'am-it':amItemOpen(ds_.id);break;
+  case 'am-tick':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amItemSave(Object.assign({},it,{x:it.x?0:1}));break}
+  case 'am-clear':{const a=amc();if(a){for(const it of amItems(ds_.k).filter(i=>i.x)){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}ls.set(K.set,S);render();amFlush()}break}
   case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
   case 'fam-rm':famRemove(ds_.id);break;
@@ -9553,10 +9566,10 @@ async function amVerify(list,at,sig,pub){try{if(!pub||!sig)return false;const k=
 async function amForm(title,intro,fields,ok){
  const v={};fields.forEach(f=>v[f.k]=f.v||'');
  const root=$('#dlg');
- const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label><input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">').join('');
+ const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label><'+(f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
  const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- root.oninput=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
- const r=await pr;root.oninput=null;return r==='ok'?v:null;
+ root.oninput=root.onchange=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
+ const r=await pr;root.oninput=root.onchange=null;return r==='ok'?v:null;
 }
 async function amPut(zone,doc,P){
  const a=amc(),FK=await famKeys({k:zone==='b'?a.kB:a.kA}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
@@ -9620,6 +9633,11 @@ async function amPull(manual){
      if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
       if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};chg=true}}
      continue}
+    const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
+    if(mi){
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co'].includes(P.kind))continue;
+     a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
+     a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
     e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),at:P.at||0};
@@ -9628,8 +9646,10 @@ async function amPull(manual){
     if(a.apriv)a.rolesDirty=1;
    }
   }
+  const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   ls.set(K.set,S);
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();ls.set(K.set,S)}catch(e){}}
+  amFlush();
   if(chg&&V.view==='amicale')render();
  }catch(e){if(manual)toast('Pas de connexion au serveur : '+(e.message||''),4000)}
  finally{AMC_BUSY=false}
@@ -9761,13 +9781,52 @@ async function amLeave(){
  if(r!=='y')return;
  delete S.amc;ls.set(K.set,S);tabsApply();if(V.view==='amicale')go('settings');else render();toast('Tu as quitté le groupe',3000);
 }
+let AMC_FL=0;
+async function amFlush(){
+ const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;
+ try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',by:it.by||'',at:it.at,del:it.del?1:0};await amPut(it.z,'i-'+it.id,P);if(it.at===P.at)delete it.dirty}ls.set(K.set,S)}
+ catch(e){}finally{AMC_FL=0}
+}
+function amItemSave(it){const a=amc();a.it=a.it||{};it.at=Math.max(Date.now(),(a.it[it.id]&&a.it[it.id].at||0)+1);it.by=a.me.n;it.dirty=1;a.it[it.id]=it;ls.set(K.set,S);render();amFlush()}
+const amItems=kind=>{const a=amc();return Object.values(a&&a.it||{}).filter(i=>i&&i.kind===kind&&!i.del)};
+async function amItemForm(kind,it){
+ const a=amc();if(!a)return;
+ const mem=amList().filter(p=>!p.ro||true).map(p=>[p.n,p.n]);
+ const F=[{k:'tx',l:kind==='tk'?'Tâche':'Article',v:it?it.tx:'',ph:kind==='tk'?'Ce qu’il faut faire':'Ce qu’il faut acheter'}];
+ if(kind==='co')F.push({k:'qt',l:'Quantité (facultatif)',v:it?it.qt:'',ph:'2 kg, 3 packs…'});
+ if(kind==='tk'){F.push({k:'d',l:'Pour le (facultatif)',v:it?it.d:'',t:'date'});F.push({k:'w',l:'Qui s’en occupe',t:'select',v:it?it.w:'',o:[['','Personne en particulier']].concat(mem)})}
+ if(a.kB&&!it)F.push({k:'z',l:'Visible par',t:'select',v:'b',o:[['b','Bureau seulement'],['a','Tout le monde (bureau et aides)']]});
+ const v=await amForm(it?'Modifier':(kind==='tk'?'Nouvelle tâche':'Nouvel article'),'',F,it?'Enregistrer':'Ajouter');
+ if(!v||!String(v.tx||'').trim())return;
+ const o=it?Object.assign({},it):{id:amId(),kind,x:0,z:a.kB?(v.z||'b'):'a'};
+ o.tx=v.tx.trim().slice(0,200);o.qt=(v.qt||'').trim().slice(0,20);o.d=v.d||'';o.w=v.w||'';
+ amItemSave(o);
+}
+async function amItemOpen(id){
+ const a=amc();const it=a&&a.it&&a.it[id];if(!it)return;
+ const r=await ask({title:it.tx,html:'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">'+(it.z==='b'?'🔒 Bureau seulement':'👥 Tout le monde')+(it.by?' · dernière modification par '+esc(it.by):'')+'</p>',btns:[{label:'✏️ Modifier',value:'ed',cls:'pri'},{label:'🗑️ Supprimer',value:'del',cls:'dng'},{label:'Fermer',value:null}]});
+ if(r==='ed')amItemForm(it.kind,it);
+ else if(r==='del')amItemSave(Object.assign({},it,{del:1}));
+}
+function amItemsHTML(kind){
+ const a=amc(),L=amItems(kind);
+ const open=L.filter(i=>!i.x).sort((p,q)=>(p.d||'9')<(q.d||'9')?-1:(p.d||'9')>(q.d||'9')?1:(p.at||0)-(q.at||0)),done=L.filter(i=>i.x).sort((p,q)=>(q.at||0)-(p.at||0));
+ const today=new Date().toISOString().slice(0,10);
+ const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ')+'</small></button></div>';
+ let h='<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='tk'?'Nouvelle tâche':'Nouvel article')+'</button>';
+ h+=open.length?open.map(row).join(''):'<p class="empty">'+(kind==='tk'?'Aucune tâche pour l’instant.':'La liste de courses est vide.')+'</p>';
+ if(done.length){h+='<h4 class="am-h">'+(kind==='tk'?'Faites':'Achetés')+' · '+done.length+'</h4>'+done.slice(0,30).map(row).join('')+'<button class="btn blk" data-act="am-clear" data-k="'+kind+'" style="margin-top:.5rem">🧹 Vider '+(kind==='tk'?'les tâches faites':'les articles achetés')+'</button>'}
+ return h;
+}
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap"><p class="empty">Pas de groupe sur ce téléphone.</p><button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
  amPull();
- const tabs=[['mb','👤 Membres'],['gr','⚙️ Groupe']];
- let h='<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'">'+l+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>';
- if(AMC_TAB==='gr'){
+ const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
+ const tabs=[['mb','👤 Membres'],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')],['gr','⚙️']];
+ let h='<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'>'+l+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>';
+ if(AMC_TAB==='tk'||AMC_TAB==='co')h+=amItemsHTML(AMC_TAB);
+ else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
@@ -9780,7 +9839,7 @@ function amView(){
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    return '<h4 class="am-h">'+lbl+' · '+G.length+'</h4>'+G.map(p=>'<button class="am-c" data-act="am-mb" data-id="'+esc(p.id)+'"><i class="am-av" style="background:'+(p.self?'var(--k-am)':'#8b7d68')+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</i><span class="am-x"><b>'+esc(p.n)+(p.self?' <small class="mut">(toi)</small>':'')+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+'</b><small>'+(p.t?esc(p.t):(a.apriv&&!p.self?'Touche pour donner un titre':p.l==='b'?'Bureau':'Aide'))+'</small></span>'+(p.tel?'<span class="am-ph" aria-hidden="true">📞</span>':'')+'</button>').join('')};
   h+=grp('b','Bureau')+grp('a','Aides extérieurs');
-  if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : ⚙️ Groupe → 🔢 Inviter quelqu’un.':'')+'</p>';
+  if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
  }
  return{html:h+'</div>',fixed:false};
@@ -9835,7 +9894,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amPush,amRolesPut,amFiche,amVerify}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amRolesPut,amFiche,amVerify}};
 })();
 
 
