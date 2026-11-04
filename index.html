@@ -1321,12 +1321,19 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.46.0';
+const APP_VERSION='2.48.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.48.0',d:'04/11/2026',items:[
+  '<b>Changer le niveau d’accès d’un membre</b> (administrateur) : fiche du membre → « Passer en Aide extérieur » ou « Passer au Bureau ». Les clés du groupe sont renouvelées ; la personne qui passe en aide ne voit plus les amicalistes, bulletins et notes du bureau, et sa copie locale est effacée. Avant, choisir le titre « Aide extérieur » ne changeait que l’affichage.',
+  ]},
+ {v:'2.47.0',d:'04/11/2026',items:[
+  '<b>Qui a coché quoi, partout</b> : dans la préparation d’un événement, chaque tâche faite affiche « ✅ fait par Nora · 18:47 » ; dans les inscrits et le Jour J, chaque ligne affiche « ✍️ Nora · 18:47 » (dernière personne qui a coché présence, ticket ou paiement) ; dans les courses du groupe, un article au chariot affiche qui l’a pris.',
+  '<b>Import de préparation</b> : si tu choisis par erreur un fichier de personnes (liste d’amicalistes), l’appli le signale au lieu de tout mettre dans la préparation.',
+  ]},
  {v:'2.46.0',d:'04/11/2026',items:[
   '<b>Jour J : un couple = deux cases</b> : si une personne a 2 tickets (par exemple « Arrivé » pour elle et sa femme), il y a deux boutons (Arrivé 1/2 et Arrivé 2/2). Tu coches seulement celui qui est là ; la ligne disparaît quand les deux sont cochés. Le décompte compte les unités.',
   '<b>Courses du groupe : habituels</b> : une liste d’articles que vous rachetez souvent (coca, glaçons, gobelets…), rangés par thème. Un appui les ajoute aux courses, un second les retire. Le bureau en ajoute ou en retire quand il veut.',
@@ -9924,7 +9931,7 @@ function amList(){
  for(const id of Object.keys(a.mem||{})){
   const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};
   const r=a.apriv?(rl[id]||{}):(R[id]||{});
-  out.push({id,n:c.n||(R[id]&&R[id].n)||'?',tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',l:(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
+  out.push({id,n:c.n||(R[id]&&R[id].n)||'?',tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
  for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.n||'?',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
@@ -9935,7 +9942,7 @@ async function amRolesPut(){
  const rl=a.rl||{},list=[];
  const add=(id,n,l,adm)=>list.push({id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0});
  add(a.me.id,a.me.n,'b',1);
- for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,m.z||'a',0)}
+ for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',0)}
  const at=Date.now(),sig=await amSign(list,at,a.apriv);
  await amPut('a','roles',{app:'agd',k:'amc',v:1,list,at,sig});
  a.rolesDirty=0;a.roles={list,at};
@@ -9985,7 +9992,7 @@ async function amPull(manual){
      a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};
      if(P.kind==='co'||P.kind==='cq')a.it[P.id].l=String(P.l||'').slice(0,24);
-     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3)}))}
+     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3)}))}
      if(P.kind==='bs'){const o4=a.it[P.id];o4.w=String(P.w||'').slice(0,16);o4.sg=/^data:image\/png;base64,[A-Za-z0-9+\/=]{20,60000}$/.test(String(P.sg||''))?String(P.sg):''}
      if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
      chg=true;continue}
@@ -9998,7 +10005,7 @@ async function amPull(manual){
     if(a.apriv)a.rolesDirty=1;
    }
   }
-  if(rot){a.kA=rot.kA;if(rot.kB)a.kB=rot.kB;a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);toast('Les clés du groupe ont été renouvelées',3500)}
+  if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);toast('Les clés du groupe ont été renouvelées',3500)}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
@@ -10123,6 +10130,17 @@ async function amEditMe(){
  amSave();render();
  try{await amPush()}catch(e){toast('Enregistré ici, envoi plus tard : '+(e.message||'hors connexion'),4000)}
 }
+async function amSetLevel(id){
+ if(demo){toast('Non disponible en mode démo',2500);return}
+ const a=amc();if(!a||!a.apriv||id===a.me.id)return;
+ const p=amList().find(x=>x.id===id);if(!p)return;
+ const to=p.l==='b'?'a':'b';
+ const r=await ask({title:'Niveau de '+p.n,html:'<p style="margin:.2rem 0 .5rem">Actuellement : <b>'+(p.l==='b'?'Bureau':'Aide extérieur')+'</b>.</p><p style="margin:0 0 .5rem">'+(to==='a'?'Cette personne ne verra plus ce qui est réservé au bureau (amicalistes, bulletins, notes…). Sa copie locale est effacée à sa prochaine connexion. Ce qu’elle a déjà vu ne peut pas être « repris ».':'Cette personne verra tout ce que voit le bureau (amicalistes, bulletins, notes…).')+'</p><p class="mut" style="font-size:.88rem;margin:0">🔑 Les clés du groupe sont renouvelées pour appliquer le changement.</p>',btns:[{label:to==='a'?'Passer en Aide extérieur':'Passer au Bureau',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ a.lvo=a.lvo||{};a.lvo[id]=to;a.rolesDirty=1;amSave();toast('Renouvellement des clés…',3000);
+ try{await amRotate()}catch(e){toast('Erreur pendant le renouvellement : '+(e.message||''),5000);return}
+ render();toast(p.n+' est maintenant '+(to==='a'?'aide extérieur':'au bureau')+' · clés renouvelées',5000);
+}
 async function amSetTitle(id){
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a||!a.apriv)return;
@@ -10132,6 +10150,7 @@ async function amSetTitle(id){
  if(r==='other'){const v=await amForm('Autre titre','',[{k:'t',l:'Titre',ph:'Responsable buvette…'}]);if(!v||!v.t.trim())return;t=v.t.trim().slice(0,30)}
  else if(r!=='none')t=r.slice(2);
  a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{t});a.rolesDirty=1;amSave();render();
+ if(t==='Aide extérieur'&&((amList().find(x=>x.id===id)||{}).l==='b'))toast('Attention : un titre ne change pas l’accès. Pour qu’elle ne voie plus le bureau, ouvre sa fiche → « Passer en Aide extérieur ».',8000);
  try{await amRolesPut();amSave()}catch(e){toast('Enregistré ici, envoi plus tard',3500)}
 }
 async function amRemove(id){
@@ -10160,7 +10179,7 @@ async function amFiche(id){
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
- if(a.apriv)btns.push({label:'🏷️ Changer le titre',value:'title'},{label:'Retirer du groupe',value:'rm',cls:'dng'});
+ if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'},{label:'Retirer du groupe',value:'rm',cls:'dng'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
  if(r==='tel')amOpen('tel:'+telN(p.tel));
@@ -10168,6 +10187,7 @@ async function amFiche(id){
  else if(r==='mp')amOpen('mailto:'+p.mp);
  else if(r==='mw')amOpen('mailto:'+p.mw);
  else if(r==='title')amSetTitle(id);
+ else if(r==='lvl')amSetLevel(id);
  else if(r==='rm')amRemove(id);
 }
 async function amRename(){
@@ -10384,7 +10404,11 @@ function amNotePage(it){
 }
 function amEeMut(fn){
  const a=amc();if(!a||!a.kB)return;const it=a.it&&a.it[AMC_EE];if(!it)return;
- const o=JSON.parse(JSON.stringify(it));o.ck=o.ck||[];o.pg=o.pg||[];o.pt=o.pt||[];fn(o);amItemSave(o);
+ const o=JSON.parse(JSON.stringify(it));o.ck=o.ck||[];o.pg=o.pg||[];o.pt=o.pt||[];const old=JSON.parse(JSON.stringify(o)),me=String(a.me.n||'').slice(0,30),now=Date.now();fn(o);
+ const strip=(c,k)=>JSON.stringify(Object.assign({},c,{[k]:0,ot:0,bt:0}));
+ if(old.ck.length===o.ck.length)o.ck.forEach((c,i)=>{if(strip(c,'ob')!==strip(old.ck[i],'ob')){if(c.ok){c.ob=me;c.ot=now}else{delete c.ob;delete c.ot}}});
+ if(old.pt.length===o.pt.length)o.pt.forEach((c,i)=>{if(strip(c,'by')!==strip(old.pt[i],'by')){c.by=me;c.bt=now}});
+ amItemSave(o);
 }
 const AM_TH={
  fete:{n:'🎉 Fête',c1:'#7c3aed',c2:'#ec4899',bg:'#fff7fb',em:['🎉','🎈','🎊','✨','🎶','🎈','🎉']},
@@ -10597,6 +10621,7 @@ function amRowsToLines(rows){
   if(tc<0&&rc<0&&!tm&&tx.length>1&&tx[1].length<=20&&tx[1].split(' ').length<=2&&!/\d/.test(tx[1]))rs=tx.splice(1,1)[0];
   if(tm)nt++;return {tm,t:tx.join(' '),rs}}).filter(x=>x.t);
  const pg=out.length>0&&nt>=out.length/2;
+ if(h.some(x=>/^(grade|cotisation payee|categorie|patch recu)$/.test(x))&&h.some(x=>HR.test(x)||/^nom/.test(x)))return {to:'ck',text:'',people:1};
  return {to:pg?'pg':'ck',text:out.map(x=>pg?(x.tm?x.tm+' ':'')+x.t:x.t+(x.rs?' - '+x.rs:'')).join('\n')};
 }
 async function amEeImport(pre,to0){
@@ -10608,7 +10633,7 @@ async function amEeImport(pre,to0){
   if(r==='file'){
    const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.docx,.txt,.md,.csv,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
    inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
-    try{let r;if(/\.xlsx$/i.test(f.name))r=amRowsToLines(await amReadXlsx(await f.arrayBuffer()));else if(/\.docx$/i.test(f.name))r=amRowsToLines((await amReadDocx(await f.arrayBuffer())).split('\n').map(l=>l.split(/\t|;/)));else{const L=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);r=amRowsToLines(L.map(l=>l.split(/;|\t/)))}if(!r.text.trim())throw new Error('rien trouvé');amEeImport(r.text,r.to)}
+    try{let r;if(/\.xlsx$/i.test(f.name))r=amRowsToLines(await amReadXlsx(await f.arrayBuffer()));else if(/\.docx$/i.test(f.name))r=amRowsToLines((await amReadDocx(await f.arrayBuffer())).split('\n').map(l=>l.split(/\t|;/)));else{const L=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);r=amRowsToLines(L.map(l=>l.split(/;|\t/)))}if(r.people){toast('Ce fichier est une liste de personnes (grades, cotisations…). Pour des inscrits, utilise « Importer une liste d’inscrits » plus bas.',7000);return}if(!r.text.trim())throw new Error('rien trouvé');amEeImport(r.text,r.to)}
     catch(e){toast('Fichier illisible ici ('+(e.message||'erreur')+') : colle le texte à la place',6000)}};
    inp.click();return}
   text='';
@@ -10961,7 +10986,7 @@ function amPtHTML(it,rw){
  let h='<h4 class="am-h">Inscrits et suivi'+(pt.length?' · '+pt.length:'')+'</h4>';
  if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Terminés <b>'+pt.filter(p=>amDone(p,amTy(it))).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
  const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=x.m&&(x.m.o||{}).rg,q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+amQ(p,k)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
-  return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+'</div>'};
+  return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):'',p.by?'✍️ '+esc(p.by)+(p.bt?' · '+esc(amHM(p.bt)):''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+'</div>'};
  const grp=(t,L)=>L.length?'<h4 class="am-h" style="font-size:.95rem">'+t+' · '+L.length+' <small class="mut">(présents '+L.filter(x=>x.p.p).length+')</small></h4>'+L.map(row).join(''):'';
  h+=grp('🎖 Amicalistes',A)+grp('👤 Non-amicalistes',N);
  if(!pt.length)h+='<p class="empty">Repas, loto, sortie… : ajoute les participants pour pointer les présents, compter les tickets et suivre les paiements.</p>';
@@ -10991,6 +11016,7 @@ async function amSvOn(){
  const r=await ask({title:'Liste d’inscrits',text:'Quel type de suivi pour cet événement ?',btns:[{label:'🍽 Repas : inscrits + tickets + paiement',value:'r',cls:'pri'},{label:'👥 Autre événement (soirée, loto, sortie…) : inscrits, présence, cadeaux, paiement',value:'p'},{label:'Annuler',value:null}]});
  if(!r)return;amEeMut(o=>{o.sv=r});if(r==='r')await amTyEdit();
 }
+const amHM=t=>{try{return new Date(t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}catch(e){return ''}};
 const AM_TY0=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'}];
 const AM_TYP=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'},{k:'ar',l:'Arrivé',e:'✅'},{k:'cd',l:'Cadeau',e:'🎁'}];
 const amTy=it=>Array.isArray(it.ty)&&it.ty.length?it.ty:(it.sv==='p'?[]:AM_TY0);
@@ -11029,7 +11055,7 @@ function amJjList(){
  const st=$('#jj-st');if(st)st.innerHTML=TY.map(t=>{const T=PT.reduce((n,p)=>n+amQ(p,t.k),0),G=PT.reduce((n,p)=>n+Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0),0);return T?'<span class="jj-cn'+(G===T?' ok':'')+'">'+esc(t.e||'')+' '+esc(t.l)+' <b>'+G+'/'+T+'</b> <small>reste '+(T-G)+'</small></span>':''}).join('')+'<span class="jj-cn">✅ Personnes terminées <b>'+sv+'/'+tot+'</b></span>';
  ['a','n','s'].forEach(t=>{const b=$('#jj-t-'+t);if(b)b.querySelector('i').textContent=cnt(t)});
  box.innerHTML=L.length?L.map(x=>{const o=(x.m&&x.m.o)||{},d=dn(x.p),ch=TY.filter(t=>amQ(x.p,t.k)>0).map(t=>{const q=amQ(x.p,t.k),g=Math.min(q,(x.p.gv||{})[t.k]||0);let o='';for(let u=0;u<q;u++){const on=u<g;o+='<button class="jj-tk'+(on?' on':'')+'" data-act="jj-g" data-i="'+x.i+'" data-k="'+t.k+'" data-u="'+u+'">'+(on?'✓ ':'')+esc(t.e||'')+' '+esc(t.l)+(q>1?' '+(u+1)+'/'+q:'')+'</button>'}return o}).join('')||'<span class="mut">aucun ticket</span>';
-  return '<div class="jj-r'+(d?' ok':'')+'"><button class="jj-c" data-act="jj-sv" data-i="'+x.i+'" aria-label="Tout marquer">'+(d?'✓':'')+'</button><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+ch+'</span></div>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’est encore terminé.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout est fait 🎉'))+'</p>';
+  return '<div class="jj-r'+(d?' ok':'')+'"><button class="jj-c" data-act="jj-sv" data-i="'+x.i+'" aria-label="Tout marquer">'+(d?'✓':'')+'</button><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',o.rg?'🍽 '+esc(o.rg):'',x.p.by?'✍️ '+esc(x.p.by)+(x.p.bt?' · '+esc(amHM(x.p.bt)):''):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+ch+'</span></div>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’est encore terminé.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout est fait 🎉'))+'</p>';
  const ab=$('#jj-all');if(ab){ab.style.display=L.length?'':'none';ab.textContent=JJ.tab==='s'?'↩ Tout remettre à faire ('+L.length+')':'✓ Tout marquer terminé ('+L.length+')'}
 }
 function amJjOpen(){
@@ -11093,7 +11119,7 @@ function amEeHTML(){
   let h='<button class="btn blk" data-act="ee-back" style="margin-bottom:.5rem">‹ Tous les événements</button>';
   h+='<div class="card"><h3>'+esc(it.tx)+'</h3><p style="margin:.2rem 0"><b>📅 '+esc(fShort(it.d))+' '+esc(String(it.d).slice(0,4))+'</b>'+(it.pl?'<br>📍 '+esc(it.pl):'')+'</p><p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(it.z==='b'?'🔒 Bureau seulement':'👥 Visible par les aides')+(it.by?' · modifié par '+esc(it.by):'')+'</p>'+(it.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(it.bd)+'</div>':'')+(rw?'<button class="btn blk" data-act="ee-edit">✏️ Modifier les infos</button>':'')+'<button class="btn pri blk" data-act="ee-print" style="margin-top:.4rem">🖨 Imprimer · affiche · PDF</button></div>';
   h+='<h4 class="am-h">Préparation'+(ck.length?' · '+nok+'/'+ck.length:'')+'</h4>';
-  h+=ck.length?ck.map((c,i)=>'<div class="am-it'+(c.ok?' done':'')+'"><button class="am-ck" '+(rw?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+'</b>'+(c.w?'<small>👤 '+esc(c.w)+'</small>':'')+'</button></div>').join(''):'<p class="empty">Rien à préparer pour l’instant.</p>';
+  h+=ck.length?ck.map((c,i)=>'<div class="am-it'+(c.ok?' done':'')+'"><button class="am-ck" '+(rw?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+'</b>'+(c.w||(c.ok&&c.ob)?'<small>'+[c.w?'👤 '+esc(c.w):'',c.ok&&c.ob?'✅ fait par <b>'+esc(c.ob)+'</b>'+(c.ot?' · '+esc(amHM(c.ot)):''):''].filter(Boolean).join(' · ')+'</small>':'')+'</button></div>').join(''):'<p class="empty">Rien à préparer pour l’instant.</p>';
   if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div>';
   h+=amPtHTML(it,rw);
   h+='<h4 class="am-h">Programme'+(pg.length?' · '+pg.length:'')+'</h4>';
@@ -11138,7 +11164,7 @@ function amCqTap(id){
 }
 const amCoLists=()=>{const a=amc(),L=['Courses'];amItems('co').forEach(i=>{const n=i.l||'Courses';if(!L.includes(n))L.push(n)});((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return L};
 function amCoRow(i){
- const a=amc(),sub=[i.qt?esc(i.qt):'',a.kB&&i.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ');
+ const a=amc(),sub=[i.qt?esc(i.qt):'',a.kB&&i.z==='b'?'🔒 bureau':'',i.x&&i.by?'✅ '+esc(i.by):''].filter(Boolean).join(' · ');
  return '<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="'+(i.x?'Décocher':'Cocher')+'">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</button>'+
   (i.x?'':'<span class="am-q"><button data-act="amco-q" data-id="'+esc(i.id)+'" data-n="-1" aria-label="Moins">−</button><button data-act="amco-q" data-id="'+esc(i.id)+'" data-n="1" aria-label="Plus">+</button></span>')+'</div>';
 }
