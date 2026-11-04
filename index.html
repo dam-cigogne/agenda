@@ -1321,12 +1321,21 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.41.0';
+const APP_VERSION='2.44.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.44.0',d:'04/11/2026',items:[
+  '<b>Importer la préparation et le programme d’un événement depuis Excel</b> (.xlsx), Word, CSV ou texte collé : l’appli reconnaît toute seule les colonnes Heure, Tâche / Activité et Responsable (avec ou sans ligne de titres) et choisit entre programme et préparation ; tu vérifies avant d’ajouter.',
+  ]},
+ {v:'2.43.0',d:'04/11/2026',items:[
+  '<b>Importer les amicalistes depuis un fichier Excel</b> (.xlsx), Word, CSV ou texte, ou en collant une liste : colonnes Nom, Prénom, Grade, Catégorie, Adhésion, Cotisation payée, Payée par, Prix, Patch, Régime, Notes reconnues dans n’importe quel ordre ; un export de l’appli se réimporte tel quel ; les doublons sont ignorés.',
+  ]},
+ {v:'2.42.0',d:'04/11/2026',items:[
+  '<b>Jour J pour tous les événements</b> : soirée de Noël, loto, sortie… « Ce qu’on distribue » propose aussi Arrivé et Cadeau (en plus de repas, boisson, dessert, café et tes rubriques). Tu cliques les personnes arrivées, celles qui ont eu leur cadeau ; les autres restent dans la liste. Une nouvelle rubrique est mise à 1 pour tous les inscrits.',
+  ]},
  {v:'2.41.0',d:'04/11/2026',items:[
   '<b>Envoyer un listing à un membre du bureau</b> : dans chaque export (amicalistes, suivi d’un événement), nouveau choix « 📨 Envoyer à un membre du bureau » : tu choisis la personne puis SMS, mail pro ou mail perso ; le texte est prêt dans ton application SMS ou mail.',
   ]},
@@ -6353,6 +6362,7 @@ function demoGroup(){
  I('ee','Fête de fin d’année',{d:D(55),pl:'Parc municipal',bd:'Repas partagé, jeux pour les enfants, remise des récompenses.',z:'a',ck:[C('Choisir la date',1,'Paul Durand'),C('Réserver le parc',0,'Luc Martin'),C('Faire la liste des invités',0,'Claire Moreau'),C('Commander le repas',0,'Anne Bernard')],pg:[G('12:00','Apéritif'),G('13:00','Repas'),G('15:00','Jeux pour les enfants'),G('17:00','Remise des récompenses')]});
  I('ee','Vide-grenier de printemps',{d:D(150),pl:'Place du village',bd:'Réservé au bureau pour l’instant : à valider à la prochaine réunion.',z:'b',ck:[C('Valider la date avec la mairie',0,'Paul Durand'),C('Ouvrir les inscriptions',0,'')],pg:[]});
  I('ee','Repas annuel',{d:D(-70),pl:'Restaurant du centre',z:'a',ck:[C('Réserver',1,'Luc Martin'),C('Envoyer les invitations',1,'Marie Lefèvre'),C('Payer l’acompte',1,'Anne Bernard')],pg:[G('12:30','Apéritif'),G('13:30','Repas')]});
+ {const nv=Object.values(it).find(x=>x.kind==='ee'&&x.tx==='Fête de fin d’année');nv.sv='p';nv.ty=[{k:'ar',l:'Arrivé',e:'✅'},{k:'cd',l:'Cadeau',e:'🎁'}];nv.pt=am.slice(0,6).map((m,i)=>({n:m.tx,m:m.id,a:1,p:i<3?1:0,tr:0,tb:0,pa:0,pm:'',sd:0,gv:i<3?{ar:1}:{},xt:{ar:1,cd:1}})).concat([{n:'Enfant de Marie',m:'',a:0,p:0,tr:0,tb:0,pa:0,pm:'',sd:0,gv:{},xt:{ar:1,cd:1}}]);}
  {const ev=Object.values(it).find(x=>x.kind==='ee'&&x.tx==='Repas annuel');ev.sv='r';ev.ty=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'}];ev.pt=am.slice(0,9).map((m,i)=>({sd:i<2?1:0,gv:i<2?{tr:1,tb:1,ds:1,cf:1}:i===2?{tr:1,tb:1}:{},xt:{ds:i<7?1:0,cf:i<7?1:0},n:m.tx,m:m.id,a:1,p:i<7?1:0,tr:i<7?1:0,tb:i<7?2:0,pa:i<7?(i%2?25:20):0,pm:i<7?(i%3?'cb':'esp'):''})).concat([{n:'Invité de Luc',m:'',a:0,p:1,tr:1,tb:1,pa:30,pm:'esp'},{n:'Mme Garnier',m:'',a:0,p:1,tr:1,tb:2,pa:30,pm:'chq'},{n:'M. Lambert',m:'',a:0,p:0,tr:0,tb:0,pa:0,pm:''}])}
  return{on:1,nm:'Amicale',em:'👥',kB:'demo',kA:'demo',apub:null,me:{id:'dmpaul',n:'Paul Durand',tel:'06 00 00 00 11',mp:'paul@exemple.fr',mw:'',vis:1},mem,rl:{},roles,last:{},sent:{},gen:0,it};
 }
@@ -10549,22 +10559,36 @@ async function amReadXlsx(buf){
    if(t==='s'&&v)val=ss[+v.textContent]||'';else if(t==='inlineStr'&&is)val=[...is.querySelectorAll('t')].map(x=>x.textContent).join('');else if(v)val=v.textContent;row[k]=val});rows.push(row.map(x=>x==null?'':x))});
  return rows;
 }
-async function amEeImport(pre){
+/* tableau (Excel/Word) -> lignes de texte : « 19h00 Repas » (programme) ou « Tâche - Prénom » (préparation) ; reconnaît tout seul les colonnes Heure / Tâche / Responsable */
+function amRowsToLines(rows){
+ rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
+ const N=x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(),HT=/^(heure|heures|horaire|horaires|h|debut|début)$/,HR=/^(responsable|qui|resp|nom|prenom|personne|charge|en charge|referent|benevole)$/,HX=/^(tache|taches|a faire|activite|activites|programme|libelle|description|designation|action|preparation|point|intitule|evenement)$/;
+ let tc=-1,rc=-1;const h=rows[0]?rows[0].map(N):[];
+ if(h.some(x=>HT.test(x)||HR.test(x)||HX.test(x))){h.forEach((x,i)=>{if(tc<0&&HT.test(x))tc=i;else if(rc<0&&HR.test(x))rc=i});rows=rows.slice(1)}
+ const tmOf=v=>{v=String(v||'').trim();let m=v.match(/^(\d{1,2})\s*[hH:]\s*(\d{2})?(?::\d{2})?$/);if(m)return String(+m[1]).padStart(2,'0')+'h'+String(+(m[2]||0)).padStart(2,'0');if(/^0?\.\d+$/.test(v)){const t=Math.round(parseFloat(v)*1440);return String(Math.floor(t/60)%24).padStart(2,'0')+'h'+String(t%60).padStart(2,'0')}return ''};
+ let nt=0;const out=rows.map(r=>{let tm='',rs='',tx=[];
+  r.forEach((c,i)=>{if(!c)return;if(i===tc){tm=tmOf(c)||'';if(!tm)tx.push(c)}else if(i===rc)rs=c;else if(tc<0&&!tm&&tmOf(c)&&i===0||tc<0&&!tm&&tmOf(c)&&tx.length===0)tm=tmOf(c);else tx.push(c)});
+  if(tc<0&&rc<0&&!tm&&tx.length>1&&tx[1].length<=20&&tx[1].split(' ').length<=2&&!/\d/.test(tx[1]))rs=tx.splice(1,1)[0];
+  if(tm)nt++;return {tm,t:tx.join(' '),rs}}).filter(x=>x.t);
+ const pg=out.length>0&&nt>=out.length/2;
+ return {to:pg?'pg':'ck',text:out.map(x=>pg?(x.tm?x.tm+' ':'')+x.t:x.t+(x.rs?' - '+x.rs:'')).join('\n')};
+}
+async function amEeImport(pre,to0){
  const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
  let text=pre||'';
  if(pre==null||pre===undefined){
-  const r=await ask({title:'📥 Importer une liste',text:'Colle une liste depuis Word, Notes, un mail… (un point par ligne) ou choisis un fichier Word (.docx) ou texte (.txt).',btns:[{label:'📋 Coller du texte',value:'paste',cls:'pri'},{label:'📎 Choisir un fichier',value:'file'},{label:'Annuler',value:null}]});
+  const r=await ask({title:'📥 Importer une liste',text:'Colle une liste depuis Word, Notes, un mail… (un point par ligne) ou choisis un fichier Excel (.xlsx), Word (.docx) ou texte. Pour un tableau Excel, l’appli reconnaît toute seule les colonnes Heure, Tâche / Activité et Responsable (avec ou sans ligne de titres).',btns:[{label:'📋 Coller du texte',value:'paste',cls:'pri'},{label:'📎 Choisir un fichier',value:'file'},{label:'Annuler',value:null}]});
   if(!r)return;
   if(r==='file'){
-   const inp=document.createElement('input');inp.type='file';inp.accept='.docx,.txt,.md,.csv,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+   const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.docx,.txt,.md,.csv,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
    inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
-    try{const t=/\.docx$/i.test(f.name)?await amReadDocx(await f.arrayBuffer()):await f.text();amEeImport(t)}
+    try{let r;if(/\.xlsx$/i.test(f.name))r=amRowsToLines(await amReadXlsx(await f.arrayBuffer()));else if(/\.docx$/i.test(f.name))r=amRowsToLines((await amReadDocx(await f.arrayBuffer())).split('\n').map(l=>l.split(/\t|;/)));else{const L=(await f.text()).replace(/^\uFEFF/,'').split(/\r?\n/);r=amRowsToLines(L.map(l=>l.split(/;|\t/)))}if(!r.text.trim())throw new Error('rien trouvé');amEeImport(r.text,r.to)}
     catch(e){toast('Fichier illisible ici ('+(e.message||'erreur')+') : colle le texte à la place',6000)}};
    inp.click();return}
   text='';
  }
  const v=await amForm('Liste à importer','Vérifie et corrige le texte. Pour le programme, commence chaque ligne par l’heure (19h00 Repas). Pour la préparation, ajoute « - Prénom » en fin de ligne pour désigner un responsable.',[
-  {k:'to',l:'Ajouter à',t:'select',v:'ck',o:[['ck','✅ Liste de préparation'],['pg','🕐 Programme']]},
+  {k:'to',l:'Ajouter à',t:'select',v:to0||'ck',o:[['ck','✅ Liste de préparation'],['pg','🕐 Programme']]},
   {k:'tx',l:'Texte',t:'area',v:text,ph:'Réserver la salle\nCommander les lots - Anne\nImprimer les affiches'}],'Importer');
  if(!v||!String(v.tx||'').trim())return;
  const L=amParseImport(v.tx,v.to);if(!L.length){toast('Rien à importer',3000);return}
@@ -10859,12 +10883,40 @@ async function amAmEdit(id){
 }
 async function amAmImport(){
  const a=amc();if(!a||!a.kB)return;
- const v=await amForm('📥 Importer des amicalistes','Colle ta liste (depuis Excel ou Word) : une personne par ligne, « Nom Prénom ; Grade ». Le grade est facultatif. Les doublons sont ignorés.',[{k:'t',l:'Liste',t:'area',v:'',ph:'DUPONT Jean ; Sergent\nMARTIN Luc ; Capitaine'}],'Importer');
- if(!v||!String(v.t||'').trim())return;
- const have=new Set(amItems('am').map(m=>amNk(m.tx)));let n=0;
- for(const raw of v.t.split(/\r?\n/)){const p=raw.split(/[;\t]/).map(x=>x.trim()),nm=amPLine(p[0]).slice(0,60);if(!nm||have.has(amNk(nm)))continue;have.add(amNk(nm));
-  const gr=amGrFind(p[1]);a.it=a.it||{};const id=amId();a.it[id]={id,kind:'am',tx:nm,x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:'',by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:{gr,ct:'actif',cf:'0',pm:'',pa:'',pc:'0',rg:''}};n++}
- amSave();render();amFlush();toast(n+' amicaliste'+(n>1?'s':'')+' ajouté'+(n>1?'s':''),3000);
+ const r=await ask({title:'📥 Importer des amicalistes',text:'Choisis un fichier Excel (.xlsx), Word (.docx), CSV ou texte, ou colle ta liste. Colonnes reconnues (dans n’importe quel ordre, avec une ligne de titres) : Nom, Prénom, Grade, Catégorie, Adhésion, Cotisation payée, Payée par, Prix payé, Patch reçu, Régime, Notes. Sans titres : 1re colonne = nom, 2e = grade. Un fichier exporté par l’appli se réimporte tel quel. Les personnes déjà présentes sont ignorées.',btns:[{label:'📎 Choisir un fichier',value:'file',cls:'pri'},{label:'📋 Coller la liste',value:'paste'},{label:'Annuler',value:null}]});
+ if(!r)return;
+ if(r==='paste'){
+  const v=await amForm('📋 Coller la liste','Une personne par ligne, « Nom Prénom ; Grade ». Le grade est facultatif.',[{k:'t',l:'Liste',t:'area',v:'',ph:'DUPONT Jean ; Sergent\nMARTIN Luc ; Capitaine'}],'Importer');
+  if(!v||!String(v.t||'').trim())return;amAmRowsAdd(String(v.t).split(/\r?\n/).map(l=>l.split(/[;\t]/)));return}
+ const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.docx,.csv,.txt,.md,text/plain,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
+  try{let rows;
+   if(/\.xlsx$/i.test(f.name))rows=await amReadXlsx(await f.arrayBuffer());
+   else if(/\.docx$/i.test(f.name))rows=(await amReadDocx(await f.arrayBuffer())).split('\n').map(l=>l.split(/\t|;/));
+   else{const t=(await f.text()).replace(/^﻿/,'').split(/\r?\n/),sep=(t[0]||'').includes(';')||(t[0]||'').includes('\t')?/;|\t/:/,/;rows=t.map(l=>l.split(sep).map(x=>x.replace(/^"|"$/g,'')))}
+   amAmRowsAdd(rows)}
+  catch(e){toast('Fichier illisible ('+(e.message||'erreur')+') : colle la liste à la place',6000)}};
+ inp.click();
+}
+function amAmRowsAdd(rows){
+ const a=amc();if(!a||!a.kB)return;
+ rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
+ const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|amicaliste|adherent)$/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion|date)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(payee par|paye par|paiement|mode de paiement|moyen de paiement)$/,pa:/^(prix|prix paye|montant|montant paye)$/,pc:/^(patch|patch recu)$/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/};
+ const H=rows[0]?rows[0].map(x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()):[],col={};
+ H.forEach((h,i)=>{for(const k in key)if(col[k]==null&&key[k].test(h))col[k]=i});
+ const hasH=col.nom!=null;if(hasH)rows=rows.slice(1);else{col.nom=0;col.gr=1}
+ const yes=v=>/^(oui|yes|o|x|1|vrai|true|paye|payee|ok|recu|✓|✔)$/i.test(norm(v).trim());
+ const dt=v=>{v=String(v||'').trim();let m;if((m=v.match(/^(\d{4})-(\d{2})-(\d{2})/)))return m[0];if((m=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/)))return (m[3].length===2?'20'+m[3]:m[3])+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');if(/^\d{5}$/.test(v)){const d=new Date(Date.UTC(1899,11,30)+(+v)*864e5);return d.toISOString().slice(0,10)}return ''};
+ const have=new Set(amItems('am').map(m=>amNk(m.tx)));let n=0,dbl=0;a.it=a.it||{};
+ for(const r of rows){
+  let nm=amPLine(r[col.nom]||'');if(col.pre!=null&&r[col.pre])nm=amPLine((r[col.nom]||'')+' '+r[col.pre]);
+  nm=nm.slice(0,60);if(!nm||/^\d+$/.test(nm))continue;
+  if(have.has(amNk(nm))){dbl++;continue}have.add(amNk(nm));
+  const g=c=>col[c]!=null?(r[col[c]]||''):'',ctn=norm(g('ct')),ct=(AM_CT.find(x=>ctn&&(norm(x[1]).startsWith(ctn)||ctn.startsWith(x[0])))||['actif'])[0],pmn=norm(g('pm')),
+   pm=pmn?(AM_PM.find(x=>x[0]&&(pmn.startsWith(x[0])||norm(x[1]).startsWith(pmn)||(x[0]==='cb'&&/carte|cb/.test(pmn))))||[''])[0]:'';
+  const id=amId(),pa=String(g('pa')).replace(',','.').replace(/[^0-9.]/g,'').slice(0,8);
+  a.it[id]={id,kind:'am',tx:nm,x:0,d:dt(g('ad')),w:'',qt:'',tm:'',pl:'',bd:g('nt').slice(0,300),by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:{gr:amGrFind(g('gr')),ct,cf:yes(g('cf'))?'1':'0',pm,pa,pc:yes(g('pc'))?'1':'0',rg:g('rg').slice(0,60)}};n++}
+ amSave();render();amFlush();toast(n+' amicaliste'+(n>1?'s':'')+' ajouté'+(n>1?'s':'')+(dbl?' · '+dbl+' déjà présent'+(dbl>1?'s':'')+' (ignoré'+(dbl>1?'s':'')+')':''),5000);
 }
 function amAmExport(){
  const L=amAmSorted(amItems('am'));if(!L.length){toast('Liste vide');return}
@@ -10878,17 +10930,17 @@ function amPtTot(L){const t={n:L.length,p:0,tr:0,tb:0,pa:0,cb:0,esp:0,chq:0,vir:
 function amPtHTML(it,rw){
  const pt=it.pt||[];if(!pt.length&&!rw)return '';
  if(!pt.length&&!it.sv)return '<div class="btns" style="margin-top:.8rem"><button class="btn grow" data-act="ee-svon">🍽 Repas / liste d’inscrits (tickets, présence, paiement)</button></div>';
- const tk=it.sv==='r'||pt.some(p=>p.tr||p.tb);
+ const tk=it.sv==='r'||(it.ty&&it.ty.length>0)||pt.some(p=>p.tr||p.tb);
  const [A,N]=amPtGroups(it),T=amPtTot(pt);
  let h='<h4 class="am-h">Inscrits et suivi'+(pt.length?' · '+pt.length:'')+'</h4>';
- if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Servis <b>'+pt.filter(p=>amDone(p,amTy(it))).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
+ if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Terminés <b>'+pt.filter(p=>amDone(p,amTy(it))).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
  const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=x.m&&(x.m.o||{}).rg,q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+amQ(p,k)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
   return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+'</div>'};
  const grp=(t,L)=>L.length?'<h4 class="am-h" style="font-size:.95rem">'+t+' · '+L.length+' <small class="mut">(présents '+L.filter(x=>x.p.p).length+')</small></h4>'+L.map(row).join(''):'';
  h+=grp('🎖 Amicalistes',A)+grp('👤 Non-amicalistes',N);
  if(!pt.length)h+='<p class="empty">Repas, loto, sortie… : ajoute les participants pour pointer les présents, compter les tickets et suivre les paiements.</p>';
  if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-ptadd">🎖 Ajouter des amicalistes</button><button class="btn grow" data-act="ee-ptimp">📥 Importer une liste d’inscrits</button></div><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptnames">✍️ Ajouter des noms</button></div>';
-  if(pt.length)h+='<div class="btns" style="margin-top:.5rem"><button class="btn grow pri" data-act="jj-open">🎟 Page Jour J (distribution)</button>'+(tk?'<button class="btn grow" data-act="ee-ty">⚙️ Ce qu’on distribue</button>':'')+'</div>'+(tk?'<div class="btns" style="margin-top:.3rem">'+amTy(it).map(t=>'<button class="btn grow" data-act="ee-ty1" data-k="'+t.k+'">'+esc(t.e||'')+' +1 '+esc(String(t.l).toLowerCase())+' pour tous</button>').join('')+'</div>':'')+'<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptall">☑️ Tout cocher / décocher</button><button class="btn grow" data-act="ee-ptexp">📤 Exporter (Excel)</button></div>'}
+  if(pt.length)h+='<div class="btns" style="margin-top:.5rem"><button class="btn grow pri" data-act="jj-open">🎟 Page Jour J (distribution)</button>'+'<button class="btn grow" data-act="ee-ty">⚙️ Ce qu’on distribue (repas, cadeau, arrivée…)</button>'+'</div>'+(tk?'<div class="btns" style="margin-top:.3rem">'+amTy(it).map(t=>'<button class="btn grow" data-act="ee-ty1" data-k="'+t.k+'">'+esc(t.e||'')+' +1 '+esc(String(t.l).toLowerCase())+' pour tous</button>').join('')+'</div>':'')+'<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptall">☑️ Tout cocher / décocher</button><button class="btn grow" data-act="ee-ptexp">📤 Exporter (Excel)</button></div>'}
  else if(pt.length)h+='<button class="btn blk" data-act="ee-ptexp" style="margin-top:.3rem">📤 Exporter (Excel)</button>';
  return h;
 }
@@ -10910,12 +10962,12 @@ async function amPtEdit(i){
 }
 
 async function amSvOn(){
- const r=await ask({title:'Liste d’inscrits',text:'Quel type de suivi pour cet événement ?',btns:[{label:'🍽 Repas : inscrits + tickets + paiement',value:'r',cls:'pri'},{label:'👥 Inscrits : présence + paiement',value:'p'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'Liste d’inscrits',text:'Quel type de suivi pour cet événement ?',btns:[{label:'🍽 Repas : inscrits + tickets + paiement',value:'r',cls:'pri'},{label:'👥 Autre événement (soirée, loto, sortie…) : inscrits, présence, cadeaux, paiement',value:'p'},{label:'Annuler',value:null}]});
  if(!r)return;amEeMut(o=>{o.sv=r});if(r==='r')await amTyEdit();
 }
 const AM_TY0=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'}];
-const AM_TYP=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'}];
-const amTy=it=>Array.isArray(it.ty)&&it.ty.length?it.ty:AM_TY0;
+const AM_TYP=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'},{k:'ar',l:'Arrivé',e:'✅'},{k:'cd',l:'Cadeau',e:'🎁'}];
+const amTy=it=>Array.isArray(it.ty)&&it.ty.length?it.ty:(it.sv==='p'?[]:AM_TY0);
 const amDone=(p,TY)=>{const nd=TY.filter(t=>amQ(p,t.k)>0);return nd.length?nd.every(t=>(p.gv||{})[t.k]):!!p.sd};
 const amQ=(p,k)=>k==='tr'||k==='tb'?(p[k]||0):((p.xt||{})[k]||0);
 async function amTy1(k){
@@ -10934,7 +10986,7 @@ async function amTyEdit(){
  const ty=AM_TYP.filter(t=>v[t.k]==='1').map(t=>Object.assign({},t));
  const old=cust.slice();
  String(v.xx||'').split(',').map(x=>x.trim().slice(0,20)).filter(Boolean).slice(0,4).forEach((l,i)=>{const o=old.find(t=>t.l===l);ty.push({k:o?o.k:'x'+(Date.now()%1000+i),l,e:'🎟'})});
- amEeMut(o=>{o.ty=ty.length?ty:AM_TY0.map(t=>Object.assign({},t))});
+ amEeMut(o=>{const before=amTy(o).map(t=>t.k);o.ty=ty.length||o.sv==='p'?ty:AM_TY0.map(t=>Object.assign({},t));o.ty.filter(t=>!before.includes(t.k)).forEach(t=>o.pt.forEach(c=>{if(t.k==='tr'||t.k==='tb')c[t.k]=Math.max(1,c[t.k]||0);else{c.xt=c.xt||{};c.xt[t.k]=Math.max(1,c.xt[t.k]||0)}}))});
 }
 let JJ={q:'',gr:'',tab:'a'};
 function amJjFilter(it){
@@ -10951,15 +11003,15 @@ function amJjList(){
  const st=$('#jj-st');if(st)st.innerHTML=TY.map(t=>{const T=PT.reduce((n,p)=>n+(amQ(p,t.k)>0?1:0),0),G=PT.filter(p=>amQ(p,t.k)>0&&(p.gv||{})[t.k]).length;return T?'<span class="jj-cn'+(G===T?' ok':'')+'">'+esc(t.e||'')+' '+esc(t.l)+' <b>'+G+'/'+T+'</b> <small>reste '+(T-G)+'</small></span>':''}).join('')+'<span class="jj-cn">✅ Personnes terminées <b>'+sv+'/'+tot+'</b></span>';
  ['a','n','s'].forEach(t=>{const b=$('#jj-t-'+t);if(b)b.querySelector('i').textContent=cnt(t)});
  box.innerHTML=L.length?L.map(x=>{const o=(x.m&&x.m.o)||{},d=dn(x.p),ch=TY.filter(t=>amQ(x.p,t.k)>0).map(t=>{const g=(x.p.gv||{})[t.k];return '<button class="jj-tk'+(g?' on':'')+'" data-act="jj-g" data-i="'+x.i+'" data-k="'+t.k+'">'+(g?'✓ ':'')+esc(t.e||'')+' '+esc(t.l)+(amQ(x.p,t.k)>1?' ×'+amQ(x.p,t.k):'')+'</button>'}).join('')||'<span class="mut">aucun ticket</span>';
-  return '<div class="jj-r'+(d?' ok':'')+'"><button class="jj-c" data-act="jj-sv" data-i="'+x.i+'" aria-label="Tout marquer">'+(d?'✓':'')+'</button><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+ch+'</span></div>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’a encore tout reçu.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout le monde est servi 🎉'))+'</p>';
- const ab=$('#jj-all');if(ab){ab.style.display=L.length?'':'none';ab.textContent=JJ.tab==='s'?'↩ Tout remettre à servir ('+L.length+')':'✓ Tout marquer servi ('+L.length+')'}
+  return '<div class="jj-r'+(d?' ok':'')+'"><button class="jj-c" data-act="jj-sv" data-i="'+x.i+'" aria-label="Tout marquer">'+(d?'✓':'')+'</button><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+ch+'</span></div>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’est encore terminé.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout est fait 🎉'))+'</p>';
+ const ab=$('#jj-all');if(ab){ab.style.display=L.length?'':'none';ab.textContent=JJ.tab==='s'?'↩ Tout remettre à faire ('+L.length+')':'✓ Tout marquer terminé ('+L.length+')'}
 }
 function amJjOpen(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length)return;
  const grs=[...new Set(amPtGroups(it)[0].map(x=>(x.m.o||{}).gr).filter(Boolean))].sort((p,q)=>amGrRank(p)-amGrRank(q));
  const tb=(t,l)=>'<button class="chip'+(JJ.tab===t?' on':'')+'" id="jj-t-'+t+'" data-act="jj-tab" data-v="'+t+'">'+l+' <i>0</i></button>';
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎟 '+esc(it.tx)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 Amicalistes')+tb('n','👤 Non-amicalistes')+tb('s','✅ Servis')+'</div>';
+ h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 Amicalistes')+tb('n','👤 Non-amicalistes')+tb('s','✅ Terminés')+'</div>';
  h+='<div class="jj-f"><input class="in" id="jj-q" type="search" placeholder="🔍 Chercher un nom…" value="'+esc(JJ.q)+'" autocomplete="off"><select class="in" id="jj-gr"><option value="">Tous les grades</option>'+grs.map(g=>'<option'+(JJ.gr===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select></div>';
  h+='<div id="jj-list" class="jj-l"></div><button class="btn blk" id="jj-all" data-act="jj-all" style="margin-top:.4rem"></button>';
  const r=openSheet(h,'jj');
