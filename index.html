@@ -224,6 +224,10 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .pst.dk{color:#f3eefc}.pst.dk .pst-box{background:#241b44}.pst.dk .pst-lieu,.pst.dk .pst-info,.pst.dk .pst-pg{color:#f3eefc}
 .pst-in{position:relative}.pst-hr{font-size:30px;font-weight:800;margin-top:8px}
 .pst-ft{position:absolute;left:0;right:0;bottom:140px;font-size:20px;font-style:italic;opacity:.8}
+.am-it.pt{flex-wrap:wrap;row-gap:.2rem}.am-it.pt .am-itx{flex:1 1 calc(100% - 3.4rem);min-width:0}.am-it.pt .am-itx+.pt-q{margin-left:3.2rem}.am-it.pt.done,.am-it.pt.done *{text-decoration:none!important}.am-it.pt.done .am-itx b{color:var(--k-am,inherit)}.am-it.pt.done{opacity:1}.pt-q{display:inline-flex;align-items:center;gap:.2rem;margin-left:.3rem}.pt-q b{min-width:1rem;text-align:center}.pt-q button{width:2rem;height:2rem;border-radius:.6rem;background:var(--surface2);font-weight:800}
+.pst-fi{position:absolute;display:block;height:auto;z-index:5;touch-action:none;cursor:grab}.pst-fi.sel{outline:3px dashed #2563eb;outline-offset:2px}
+.sh.po{max-width:min(72rem,98vw);padding-top:.7rem}.po-g{display:block}.po-l{position:sticky;top:-1px;z-index:6;background:var(--surface);padding:.2rem 0 .5rem;text-align:center}#po-pv{margin:0 auto;border-radius:6px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.28);background:#fff;touch-action:none}
+@media(min-width:760px){.sh.po{height:90vh;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}.po-g{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;flex:1;min-height:0}.po-l{position:static;padding:0}.po-r{overflow:auto;min-height:0;padding:0 .3rem 1rem 0}}
 .pst-img{margin:22px auto 0;overflow:hidden;border:6px solid var(--c1);box-shadow:0 8px 0 var(--c2);background:#fff}.pst-img img{width:100%;height:100%;object-fit:cover;display:block}
 .pst-img.rond{width:300px;height:300px;border-radius:50%}.pst-img.carre{width:300px;height:300px;border-radius:34px}.pst-img.ban{width:640px;height:250px;border-radius:24px}
 .pst.f-ele h1,.pst.f-ele .pst-date{font-family:Georgia,"Times New Roman",serif;font-style:italic}
@@ -604,7 +608,7 @@ html[data-theme=dark] .tst button{color:#2f5bea}
 .rotrow small{display:block;color:var(--muted)}
 .rstep{border:1.5px solid var(--line);border-radius:.9rem;padding:.7rem;margin:.5rem 0;display:flex;flex-direction:column;gap:.5rem}
 
-#updbtn{display:none}@media(min-width:561px){#updbtn{display:inline-flex}}#updbtn.spin .ic{animation:updsp 1s linear infinite}@keyframes updsp{to{transform:rotate(360deg)}}
+@media(max-width:560px){body:not(.agview) #top>#updbtn{grid-column:2;grid-row:1}}#updbtn.spin .ic{animation:updsp 1s linear infinite}@keyframes updsp{to{transform:rotate(360deg)}}
 #gearbtn.on{background:var(--accent-soft);color:var(--accent)}
 #gearbtn .ic{width:1.5rem;height:1.5rem}
 .stp{margin:.2rem 0 .8rem}.stp h4{margin:.6rem 0 .2rem;font-size:1.05rem}
@@ -804,6 +808,7 @@ body.agview #top>.ib[data-act=help]{display:none}
  #agflt .chip.on{background:var(--ac,var(--accent));color:#fff;border-color:var(--ac,var(--accent))}
  .agbar{display:none}
 }
+@media(max-width:560px){body.agview #top{grid-template-columns:auto 1fr auto auto auto auto auto}body.agview #top>#updbtn{grid-area:1/6;width:2.3rem}body.agview #top>#gearbtn{grid-area:1/7}body.agview #agrow{grid-area:2/1/3/8}body.agview #top>#srchbtn{grid-area:1/5}}
 #tabs button{position:relative;--k:var(--accent)}
 #tabs button.on{color:var(--k);background:color-mix(in srgb,var(--k) 12%,transparent)}
 #tabs button.on::before{content:"";position:absolute;left:22%;right:22%;top:0;height:4px;border-radius:0 0 4px 4px;background:var(--k)}
@@ -1315,17 +1320,26 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.35.0';
+const APP_VERSION='2.36.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.36.0',d:'04/11/2026',items:[
+  '<b>🎖 Onglet Amicalistes (bureau seulement)</b> : la liste de tous les adhérents avec nom, grade (tri par grade), catégorie, date d’adhésion, cotisation payée (CB, espèces ou chèque, prix payé), patch reçu, régime particulier (halal, allergie, végétarien…) et notes. Totaux en haut, recherche, filtres « À payer », « Sans patch », « Régimes », ajout, modification, retrait, import d’une liste collée et <b>export Excel</b>.',
+  '<b>Suivi d’un événement (repas, loto…)</b> : dans la fiche, « Inscrits et suivi » : ajoute des amicalistes en un geste ou colle des noms ; l’appli range automatiquement <b>amicalistes / non-amicalistes</b> d’après ta liste. Pour chacun : présent (case), tickets repas et boisson (− / +), montant payé et mode. Totaux (présents, tickets, encaissé par mode) et <b>export Excel</b> du suivi.',
+  '<b>Affiche : l’aperçu reste à gauche, les réglages à droite</b> (sur téléphone, l’aperçu reste en haut) : tu vois tout de suite l’effet de chaque changement.',
+  '<b>Affiche : images et logos libres</b> (jusqu’à 4) : glisse-les où tu veux sur l’affiche, règle leur taille avec le curseur, ◀ ▲ ▼ ▶ pour ajuster, Centrer, Retirer.',
+  '<b>Affiche : beaucoup plus de couleurs</b> : 18 couleurs principales et secondaires, un sélecteur libre « Autre », la couleur de fond, et un mode ⚫⚪ Noir et blanc sans couleur (économise l’encre).',
+  '<b>Intercalaires verticaux par défaut sur iPad</b> (comme sur iPhone). Pour revenir à l’horizontal : Réglages › Affichage › Sens des intercalaires.',
+  '<b>Bouton 🔄 « Mettre à jour l’application » aussi sur iPhone</b> : à côté des Réglages, dans tous les écrans.',
+ ]},
  {v:'2.35.0',d:'04/11/2026',items:[
   '<b>PDF qui marche sur iPhone et iPad</b> (notes et événements du groupe) : l’appli fabrique le PDF, puis tu choisis Imprimer, Mail ou Fichiers. Plusieurs pages si besoin.',
   '<b>Impressions d’événement</b> : programme, liste de préparation, fiche complète, calendrier de l’année, et <b>🖼 affiche à placarder</b> (A4) personnalisable comme les cartes d’anniversaire, avec aperçu en direct : 11 styles (fête, loto, repas, vide-grenier, assemblée, Noël, été, sport, enfants, soirée, sobre), 4 mises en page (bandeau, encadré, plein fond, côté), couleur au choix, police et taille du titre, décor (emojis perso, confettis), photo ou logo, horaire, accroche, infos, bas de page, contact et programme. Tes réglages sont gardés pour chaque événement.',
   '<b>Importer une liste de préparation ou un programme</b> depuis Word (.docx), un fichier texte ou un texte collé (Notes, mail…) : un point par ligne, responsable reconnu avec « - Prénom ».',
-  '<b>Bouton 🔄 « Mettre à jour l’application »</b> à côté des Réglages (iPad et grands écrans) : un seul geste pour récupérer la dernière version, sans fermer l’appli. Sur iPhone : Réglages › À propos.',
+  '<b>Bouton 🔄 « Mettre à jour l’application »</b> à côté des Réglages : un seul geste pour récupérer la dernière version, sans fermer l’appli.',
   '<b>Courses du groupe</b> : même présentation que les autres onglets de l’amicale (plus de style « courses perso » dans l’amicale).',
  ]},
  {v:'2.34.0',d:'04/11/2026',items:[
@@ -2646,7 +2660,7 @@ function render(){
  const nav=['day','week','month','fort'].includes(V.view);
  $('#nav').style.display=nav?'':'none';
  $$('#tabs button,#gearbtn,#srchbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view||(b.dataset.v==='agenda'&&nav)));
- document.body.classList.toggle('tabsv',S.tabsDir==='v');
+ document.body.classList.toggle('tabsv',S.tabsDir!=='h');
  $$('#agseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view));
  $$('#agflt [data-act=agw]').forEach(b=>b.classList.toggle('on',(S.agw||'')===b.dataset.v));
  const SEC={tasks:'--k-tk',courses:'--k-co',bdays:'--k-bd',repas:'--k-rp',voyages:'--k-vy',amicale:'--k-am'};
@@ -6042,7 +6056,7 @@ function settingsView(){
   '<div class="tgl-row"><b>Fenêtre « À venir aujourd’hui » à l’ouverture</b><label class="tgl"><input type="checkbox" data-chg="remind"'+(S.remind?' checked':'')+'></label></div>'+
   '<span class="lbl" style="display:block;margin-top:.5rem">Onglets en bas</span>'+[['tasks','☑ Tâches'],['courses','🛒 Courses'],['repas','🍽 Repas'],['bdays','🎂 Anniversaires'],['voyages','🧳 Voyages']].concat(S.amc&&S.amc.on?[['amicale','👥 '+(S.amc.nm||'Groupe')]]:[]).map(([v,l])=>'<div class="tgl-row"><b>'+l+'</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="'+v+'"'+((S.tabsHide||[]).includes(v)?'':' checked')+'></label></div>').join('')+
   '<div class="set-row"><span class="lbl">Listes (Tâches et Courses)</span>'+seg('lstPos',[['side','Sur le côté'],['top','En haut']],S.lstPos==='top'?'top':'side')+'</div>'+
-  '<div class="set-row"><span class="lbl">Sens des intercalaires (iPad, grand écran)</span>'+seg('tabsDir',[['h','Horizontal'],['v','Vertical (comme iPhone)']],S.tabsDir==='v'?'v':'h')+'</div>'+
+  '<div class="set-row"><span class="lbl">Sens des intercalaires (iPad, grand écran)</span>'+seg('tabsDir',[['h','Horizontal'],['v','Vertical (comme iPhone)']],S.tabsDir==='h'?'h':'v')+'</div>'+
   '<div class="set-row"><span class="lbl">Onglets des Réglages</span>'+seg('setPos',[['top','En haut'],['side','Sur le côté']],S.setPos==='side'?'side':'top')+'</div>'+
   '<div class="set-row"><span class="lbl">Écran au démarrage</span>'+seg('start',[['day','Aujourd’hui'],['week','Semaine'],['month','Mois'],['fort','2 sem.']],S.start)+'</div>'+
   '<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div>'+
@@ -6123,7 +6137,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>🎖 Amicalistes</b> (bureau) : la liste des adhérents (grade, cotisation, patch, régime…) avec export Excel ; dans un événement, « Inscrits et suivi » pour pointer les présents, compter les tickets et suivre les paiements (amicalistes / non-amicalistes triés tout seuls).</li><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -6304,11 +6318,14 @@ function demoGroup(){
  I('nt','Compte rendu de la réunion',{bd:'Décisions :\n- loto le mois prochain\n- tarif des cartons inchangé\n- recruter 3 bénévoles pour la buvette',z:'b'});
  I('nt','Idées d’animations',{bd:'Tombola, structure gonflable pour les enfants, concours de pâtisserie.',z:'b'});
  I('nt','Budget prévisionnel du loto',{bd:'Lots : 800 €\nSalle : gratuite\nBuvette : bénéfice attendu 300 €',z:'b'});
+ const AMD=[['DUPONT Jean','Sergent','actif','1','20','cb','1',''],['MARTIN Luc','Capitaine','actif','1','25','esp','1','Halal'],['BERNARD Anne','Adjudant','actif','1','20','chq','0',''],['PETIT Hugo','Caporal','actif','0','','','0',''],['ROUSSEAU Sam','Soldat','actif','1','15','cb','1','Végétarien'],['LEFEVRE Marie','Lieutenant','honneur','1','25','cb','1',''],['DURAND Paul','Colonel','honneur','1','30','esp','1',''],['MOREAU Eric','Major','actif','0','','','0','Allergie arachides'],['SIMON Claire','Civil','bienf','1','20','cb','0',''],['GIRARD Tom','Caporal-chef','actif','1','20','esp','1',''],['ROUX Lea','Sergent-chef','actif','1','20','cb','1',''],['FABRE Noe','Adjudant-chef','ancien','0','','','0','']];
+ const am=AMD.map(m=>I('am',m[0],{z:'b',d:D(-200),o:{gr:m[1],ct:m[2],cf:m[3],pa:m[4],pm:m[5],pc:m[6],rg:m[7]}}));
  const C=(t2,ok,w)=>({t:t2,ok:ok?1:0,w:w||''}),G=(tm,t2)=>({tm,t:t2});
  I('ee','Loto de l’amicale',{d:D(30),pl:'Salle des fêtes',bd:'Grand loto annuel ouvert à tous. Environ 120 personnes attendues.',z:'a',ck:[C('Réserver la salle',1,'Luc Martin'),C('Demander l’autorisation à la mairie',1,'Paul Durand'),C('Commander les lots',0,'Anne Bernard'),C('Imprimer les affiches',0,'Hugo Petit'),C('Prévoir la buvette et les boissons',0,'Sam Rousseau'),C('Prévenir les bénévoles',0,'Marie Lefèvre'),C('Louer le matériel de sono',0,'')],pg:[G('16:00','Installation des tables'),G('18:30','Ouverture des portes'),G('19:00','Début des parties'),G('21:30','Tirage de la tombola'),G('23:00','Rangement')]});
  I('ee','Fête de fin d’année',{d:D(55),pl:'Parc municipal',bd:'Repas partagé, jeux pour les enfants, remise des récompenses.',z:'a',ck:[C('Choisir la date',1,'Paul Durand'),C('Réserver le parc',0,'Luc Martin'),C('Faire la liste des invités',0,'Claire Moreau'),C('Commander le repas',0,'Anne Bernard')],pg:[G('12:00','Apéritif'),G('13:00','Repas'),G('15:00','Jeux pour les enfants'),G('17:00','Remise des récompenses')]});
  I('ee','Vide-grenier de printemps',{d:D(150),pl:'Place du village',bd:'Réservé au bureau pour l’instant : à valider à la prochaine réunion.',z:'b',ck:[C('Valider la date avec la mairie',0,'Paul Durand'),C('Ouvrir les inscriptions',0,'')],pg:[]});
  I('ee','Repas annuel',{d:D(-70),pl:'Restaurant du centre',z:'a',ck:[C('Réserver',1,'Luc Martin'),C('Envoyer les invitations',1,'Marie Lefèvre'),C('Payer l’acompte',1,'Anne Bernard')],pg:[G('12:30','Apéritif'),G('13:30','Repas')]});
+ {const ev=Object.values(it).find(x=>x.kind==='ee'&&x.tx==='Repas annuel');ev.pt=am.slice(0,9).map((m,i)=>({n:m.tx,m:m.id,a:1,p:i<7?1:0,tr:i<7?1:0,tb:i<7?2:0,pa:i<7?(i%2?25:20):0,pm:i<7?(i%3?'cb':'esp'):''})).concat([{n:'Invité de Luc',m:'',a:0,p:1,tr:1,tb:1,pa:30,pm:'esp'},{n:'Mme Garnier',m:'',a:0,p:1,tr:1,tb:2,pa:30,pm:'chq'},{n:'M. Lambert',m:'',a:0,p:0,tr:0,tb:0,pa:0,pm:''}])}
  return{on:1,nm:'Amicale',em:'👥',kB:'demo',kA:'demo',apub:null,me:{id:'dmpaul',n:'Paul Durand',tel:'06 00 00 00 11',mp:'paul@exemple.fr',mw:'',vis:1},mem,rl:{},roles,last:{},sent:{},gen:0,it};
 }
 function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;S.amc=demoGroup();S.tabsHide=(S.tabsHide||[]).filter(x=>x!=='amicale');AMC_TAB='mb';AMC_EE='';EV=demoData()}
@@ -6742,6 +6759,22 @@ async function act(a,el,e){
   case 'am-ren':amRename();break;
   case 'am-leave':amLeave();break;
   case 'am-add':amItemForm(ds_.k,null,ds_.d);break;
+  case 'am-amadd':amAmEdit(null);break;
+  case 'am-amed':amAmEdit(ds_.id);break;
+  case 'am-amimp':amAmImport();break;
+  case 'am-amexp':amAmExport();break;
+  case 'am-amsort':AM_SORT=ds_.v;render();break;
+  case 'am-amflt':AM_FLT=AM_FLT===ds_.v?'':ds_.v;render();break;
+  case 'pt-p':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)c.p=c.p?0:1});break;
+  case 'pt-t':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)c[ds_.k]=Math.max(0,Math.min(99,(c[ds_.k]||0)+(+ds_.n)))});break;
+  case 'pt-ed':amPtEdit(+ds_.i);break;
+  case 'ee-ptadd':amPtPick();break;
+  case 'ee-ptnames':amPtNames();break;
+  case 'ee-ptexp':amPtExport();break;
+  case 'ee-ptall':amEeMut(o=>{const all=o.pt.every(c=>c.p);o.pt.forEach(c=>c.p=all?0:1)});break;
+  case 'pk-t':if(PK){PK.sel.has(ds_.id)?PK.sel.delete(ds_.id):PK.sel.add(ds_.id);amPkRender()}break;
+  case 'pk-all':if(PK){const L=amPkVisible();const all=L.every(m=>PK.sel.has(m.id));L.forEach(m=>all?PK.sel.delete(m.id):PK.sel.add(m.id));amPkRender()}break;
+  case 'pk-ok':amPkDone();break;
   case 'amco-l':AMC_CL=ds_.v;render();break;
   case 'amco-z':S.amCoZ=S.amCoZ==='b'?'a':'b';saveSet();render();break;
   case 'amco-newl':amCoNewList();break;
@@ -6771,7 +6804,10 @@ async function act(a,el,e){
   case 'ee-print':amEePrint();break;
   case 'po':amPoSet(ds_.k,ds_.v);break;
   case 'po-go':amPoGo();break;
-  case 'po-imgdel':if(PO){PO.img='';amPoSave();amPoOpen()}break;
+  case 'po-imgdel':if(PO&&PO.imgs.length){PO.imgs.splice(PO.sel,1);PO.sel=0;amPoSave();amPoOpen()}break;
+  case 'po-sel':if(PO){PO.sel=+ds_.v;amPoOpen()}break;
+  case 'po-ctr':if(PO&&PO.imgs[PO.sel]){const m=PO.imgs[PO.sel];m.x=(794-m.w)/2;amPoSave();amPoPv()}break;
+  case 'po-mv':if(PO&&PO.imgs[PO.sel]){const m=PO.imgs[PO.sel],d=ds_.d;if(d==='l')m.x-=20;if(d==='r')m.x+=20;if(d==='u')m.y-=20;if(d==='d')m.y+=20;amPoSave();amPoPv()}break;
   case 'po-reset':{const a=amc(),it=a&&a.it&&a.it[PO&&PO.id];if(it){PO=amPoDef(it,{});amPoSave();amPoOpen()}break}
   case 'ee-imp':amEeImport();break;
   case 'ee-year':amEeYearPrint();break;
@@ -9875,12 +9911,13 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','ev','nt','ee'].includes(P.kind))continue;
-     if(P.kind==='nt'&&x.z!=='b')continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','ev','nt','ee','am'].includes(P.kind))continue;
+     if((P.kind==='nt'||P.kind==='am')&&x.z!=='b')continue;
      a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};
      if(P.kind==='co')a.it[P.id].l=String(P.l||'').slice(0,24);
-     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}))}
+     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.pt=arr(P.pt).slice(0,250).map(c=>({n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3)}))}
+     if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,60)})}
      chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
@@ -10081,7 +10118,7 @@ let AMC_FL=0;
 async function amFlush(){
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;
  if(a.rot)amRotFlush();
- try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[]}
+ try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[]}if(it.kind==='am')P.o=it.o||{};
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
    await amPut(it.z,'i-'+it.id,P);if(it.at===P.at)delete it.dirty}amSave()}
  catch(e){}finally{AMC_FL=0}
@@ -10265,7 +10302,7 @@ function amNotePage(it){
 }
 function amEeMut(fn){
  const a=amc();if(!a||!a.kB)return;const it=a.it&&a.it[AMC_EE];if(!it)return;
- const o=JSON.parse(JSON.stringify(it));o.ck=o.ck||[];o.pg=o.pg||[];fn(o);amItemSave(o);
+ const o=JSON.parse(JSON.stringify(it));o.ck=o.ck||[];o.pg=o.pg||[];o.pt=o.pt||[];fn(o);amItemSave(o);
 }
 const AM_TH={
  fete:{n:'🎉 Fête',c1:'#7c3aed',c2:'#ec4899',bg:'#fff7fb',em:['🎉','🎈','🎊','✨','🎶','🎈','🎉']},
@@ -10303,75 +10340,109 @@ async function amEePrint(){
 }
 function amPoDef(it,sv){
  const a=amc();sv=sv||{};
- return {id:it.id,th:sv.th||amThGuess(it.tx),lay:sv.lay||'band',fnt:sv.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||'em',col:sv.col||'',em:sv.em||'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt||'',acc:sv.acc||'',hr:sv.hr||'',dt:sv.dt||'1',pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info||'',ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',img:sv.img||'',shp:sv.shp||'rond'};
+ let imgs=Array.isArray(sv.imgs)?sv.imgs.slice(0,4):[];
+ if(!imgs.length&&sv.img)imgs=[{src:sv.img,x:247,y:330,w:300}];
+ return {id:it.id,th:sv.th||amThGuess(it.tx),lay:sv.lay||'band',fnt:sv.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||'em',col:sv.col||'',col2:sv.col2||'',bgc:sv.bgc||'',bw:sv.bw||'0',em:sv.em||'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt||'',acc:sv.acc||'',hr:sv.hr||'',dt:sv.dt||'1',pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info||'',ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',imgs,sel:0};
 }
-function amPosterHTML(it,P){
- const a=amc(),T=AM_TH[P.th]||AM_TH.fete,c1=P.col||T.c1,c2=P.col?'#'+[1,3,5].map(k=>{const v=Math.min(255,Math.round(parseInt(P.col.slice(k,k+2),16)*.55+255*.45));return v.toString(16).padStart(2,'0')}).join(''):T.c2;
- const emo=(P.em||'').trim()?Array.from((P.em||'').replace(/\s+/g,'')).slice(0,12):T.em;
+const AM_PO_COL2=['#7c3aed','#a855f7','#ec4899','#f43f5e','#dc2626','#ea580c','#f59e0b','#ca8a04','#84cc16','#16a34a','#0d9488','#0891b2','#0ea5e9','#1d4ed8','#1e3a8a','#78350f','#475569','#111827'];
+function amPosterHTML(it,P,edit){
+ const a=amc(),T=AM_TH[P.th]||AM_TH.fete,bw=P.bw==='1';
+ const lite=c=>'#'+[1,3,5].map(k=>{const v=Math.min(255,Math.round(parseInt(c.slice(k,k+2),16)*.55+255*.45));return v.toString(16).padStart(2,'0')}).join('');
+ let c1=P.col||T.c1,c2=P.col2||(P.col?lite(P.col):T.c2),bg=P.bgc||T.bg;
+ if(bw){c1='#111111';c2='#777777';bg=P.bgc||'#ffffff'}
+ const emo=bw?['✦','✦','✦','✦','✦','✦','✦']:((P.em||'').trim()?Array.from((P.em||'').replace(/\s+/g,'')).slice(0,12):T.em);
  const row=(P.dec==='em'||P.dec==='both')?'<div class="pst-em">'+emo.join('')+'</div>':'';
  let conf='';
  if(P.dec==='conf'||P.dec==='both'){let sd=11;const rn=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};for(let k=0;k<46;k++){const x=Math.round(rn()*790),y=Math.round(rn()*1110),w=8+Math.round(rn()*14),c=k%2?c1:c2;conf+='<i style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+Math.round(w*.5)+'px;background:'+c+';transform:rotate('+Math.round(rn()*180)+'deg)"></i>'}conf='<div class="pst-cf">'+conf+'</div>'}
  const title=(P.tt||it.tx).trim()||it.tx;
  const pg=P.pg==='1'?(it.pg||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1).slice(0,8):[];
- const img=P.img?'<div class="pst-img '+P.shp+'"><img src="'+P.img+'" alt=""></div>':'';
- const dark=P.th==='nuit'?' dk':'';
- return '<div class="pst l-'+P.lay+' f-'+P.fnt+' z-'+P.sz+dark+'" style="--c1:'+c1+';--c2:'+c2+';--bg:'+T.bg+'">'+conf+
+ const imgs=(P.imgs||[]).map((m,k)=>'<img class="pst-fi'+(edit&&k===P.sel?' sel':'')+'" data-i="'+k+'" src="'+m.src+'" alt="" style="left:'+Math.round(m.x)+'px;top:'+Math.round(m.y)+'px;width:'+Math.round(m.w)+'px">').join('');
+ const dark=P.th==='nuit'&&!bw&&!P.bgc?' dk':'';
+ return '<div class="pst l-'+P.lay+' f-'+P.fnt+' z-'+P.sz+dark+'" style="--c1:'+c1+';--c2:'+c2+';--bg:'+bg+'">'+conf+
   '<div class="pst-top">'+(P.kick.trim()?'<small>'+esc(P.kick.trim())+'</small>':'')+'<h1>'+esc(title)+'</h1></div>'+row+
-  '<div class="pst-in">'+(P.acc.trim()?'<div class="pst-acc">'+esc(P.acc.trim())+'</div>':'')+img+
+  '<div class="pst-in">'+(P.acc.trim()?'<div class="pst-acc">'+esc(P.acc.trim())+'</div>':'')+
   ((P.dt==='1'||P.pl==='1'||P.hr.trim())?'<div class="pst-box">'+(P.dt==='1'?'<div class="pst-date">'+esc(amDLong(it.d))+'</div>':'')+(P.hr.trim()?'<div class="pst-hr">🕐 '+esc(P.hr.trim())+'</div>':'')+(P.pl==='1'&&it.pl?'<div class="pst-lieu">📍 '+esc(it.pl)+'</div>':'')+'</div>':'')+
   (pg.length?'<div class="pst-pg">'+pg.map(p=>'<div><b>'+esc(p.tm||'')+'</b><span>'+esc(p.t)+'</span></div>').join('')+'</div>':'')+
   (P.info.trim()?'<div class="pst-info">'+esc(P.info.trim())+'</div>':'')+'</div>'+
   (P.ft.trim()?'<div class="pst-ft">'+esc(P.ft.trim())+'</div>':'')+
-  (P.ct.trim()?'<div class="pst-ct">'+esc(P.ct.trim())+'</div>':'')+(row?'<div class="pst-bot">'+row+'</div>':'')+'</div>';
+  (P.ct.trim()?'<div class="pst-ct">'+esc(P.ct.trim())+'</div>':'')+(row?'<div class="pst-bot">'+row+'</div>':'')+imgs+'</div>';
 }
 function amPoChips(k,L,cur){return '<div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+L.map(t=>'<button class="chip'+(cur===t[0]?' on':'')+'" data-act="po" data-k="'+k+'" data-v="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>'}
 function amPoFld(k,l,v,ph,area){return '<label class="fld"><span>'+l+'</span>'+(area?'<textarea class="in" rows="3" data-po="'+k+'" placeholder="'+esc(ph||'')+'">'+esc(v)+'</textarea>':'<input class="in" data-po="'+k+'" value="'+esc(v)+'" placeholder="'+esc(ph||'')+'">')+'</label>'}
+const amPoWide=()=>window.innerWidth>=760;
 function amPoPv(){
  const a=amc(),it=a&&a.it&&a.it[PO&&PO.id];const box=$('#po-pv');if(!box||!it)return;
- const w=box.clientWidth||320,k=w/794;
- box.style.height=Math.round(1123*k)+'px';
- box.innerHTML='<div style="width:794px;height:1123px;transform:scale('+k+');transform-origin:top left;pointer-events:none">'+amPosterHTML(it,PO)+'</div>';
+ const col=box.parentElement,maxH=Math.max(220,amPoWide()?window.innerHeight*.86-70:window.innerHeight*.36),colW=amPoWide()?Math.min(window.innerWidth*.44,560):Math.min(col.clientWidth||340,340);
+ const w=Math.max(140,Math.min(colW,maxH/1.41421)),k=w/794;
+ box.style.width=Math.round(w)+'px';box.style.height=Math.round(1123*k)+'px';box.dataset.k=k;
+ box.innerHTML='<div style="width:794px;height:1123px;transform:scale('+k+');transform-origin:top left">'+amPosterHTML(it,PO,true)+'</div>';
 }
-function amPoSave(){if(demo||!PO)return;S.amPo=S.amPo||{};S.amPo[PO.id]=Object.assign({},PO);amSave()}
+function amPoSave(){if(demo||!PO)return;S.amPo=S.amPo||{};const o=Object.assign({},PO);delete o.sel;S.amPo[PO.id]=o;amSave()}
 function amEePoster(it){
  const sv=(S.amPo&&S.amPo[it.id])||{};PO=amPoDef(it,sv);amPoOpen();
 }
+function amPoSw(k,cur,withNone){return '<div class="chips tk-chips" style="margin:.2rem 0 .4rem;align-items:center">'+(withNone?'<button class="chip'+(!cur?' on':'')+'" data-act="po" data-k="'+k+'" data-v="">Du style</button>':'')+AM_PO_COL2.map(c=>'<button class="chip'+(cur===c?' on':'')+'" data-act="po" data-k="'+k+'" data-v="'+c+'" aria-label="'+c+'" style="background:'+c+';min-width:2rem;padding:.3rem"> </button>').join('')+'<label class="chip" style="position:relative;overflow:hidden">🎨 Autre<input type="color" data-poc="'+k+'" value="'+(cur||'#7c3aed')+'" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label></div>'}
+function amPoImgUI(){
+ const L=PO.imgs||[];let h='<div class="chips" style="margin:.2rem 0 .3rem"><label class="chip" style="position:relative;overflow:hidden">📷 Ajouter une image ou un logo'+(L.length>=4?' (4 max)':'')+'<input type="file" accept="image/*" id="po-img" style="position:absolute;inset:0;opacity:0"'+(L.length>=4?' disabled':'')+'></label></div>';
+ if(L.length){
+  h+='<div class="chips tk-chips" style="margin:0 0 .3rem">'+L.map((m,k)=>'<button class="chip'+(PO.sel===k?' on':'')+'" data-act="po-sel" data-v="'+k+'"><img src="'+m.src+'" alt="" style="height:1.4rem;max-width:2.4rem;object-fit:contain;vertical-align:middle"> '+(k+1)+'</button>').join('')+'</div>';
+  const m=L[PO.sel]||L[0];
+  h+='<label class="fld"><span>Taille de l’image '+(PO.sel+1)+'</span><input type="range" id="po-sz" min="40" max="794" step="2" value="'+Math.round(m.w)+'" style="width:100%"></label>';
+  h+='<div class="chips" style="margin:.1rem 0 .3rem"><button class="chip" data-act="po-mv" data-d="l">◀</button><button class="chip" data-act="po-mv" data-d="u">▲</button><button class="chip" data-act="po-mv" data-d="d">▼</button><button class="chip" data-act="po-mv" data-d="r">▶</button><button class="chip" data-act="po-ctr">⊕ Centrer</button><button class="chip" data-act="po-imgdel">🗑 Retirer</button></div><p class="mut" style="font-size:.8rem;margin:0 0 .4rem">Astuce : glisse l’image directement sur l’affiche pour la placer.</p>';
+ }
+ return h;
+}
 function amPoOpen(){
  const a=amc(),it=a&&a.it&&a.it[PO.id];if(!it){PO=null;return}
- const _o=$('#sheet .sh'),top=(_o&&$('#po-pv'))?_o.scrollTop:0;
+ const _o=$('#sheet .sh'),_r=$('#sheet .po-r'),top=(_o&&$('#po-pv'))?_o.scrollTop:0,top2=_r?_r.scrollTop:0;
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🖼 Affiche « '+esc(it.tx)+' »</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<div class="po-g"><div class="po-l"><div id="po-pv"></div></div><div class="po-r">';
  h+='<b class="rc-h" style="display:block">Style</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+Object.keys(AM_TH).map(k=>'<button class="chip'+(PO.th===k?' on':'')+'" data-act="po" data-k="th" data-v="'+k+'">'+AM_TH[k].n+'</button>').join('')+'</div>';
- h+='<b class="rc-h" style="display:block">Couleur</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(!PO.col?' on':'')+'" data-act="po" data-k="col" data-v="">Du style</button>'+AM_PO_COL.map(c=>'<button class="chip'+(PO.col===c?' on':'')+'" data-act="po" data-k="col" data-v="'+c+'" aria-label="'+c+'" style="background:'+c+';min-width:2.2rem"> </button>').join('')+'</div>';
- h+='<div class="wish-card" style="margin:.3rem 0 .6rem"><div id="po-pv" style="width:100%;max-width:340px;margin:0 auto;border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.25);background:#fff"></div></div>';
+ h+='<b class="rc-h" style="display:block">Couleurs</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem"><button class="chip'+(PO.bw==='1'?' on':'')+'" data-act="po" data-k="bw" data-v="'+(PO.bw==='1'?'0':'1')+'">⚫⚪ Noir et blanc (sans couleur)</button></div>';
+ if(PO.bw!=='1')h+='<span class="mut" style="font-size:.8rem">Couleur principale</span>'+amPoSw('col',PO.col,true)+'<span class="mut" style="font-size:.8rem">Deuxième couleur</span>'+amPoSw('col2',PO.col2,true);
+ h+='<span class="mut" style="font-size:.8rem">Fond de l’affiche</span><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(!PO.bgc?' on':'')+'" data-act="po" data-k="bgc" data-v="">Du style</button>'+['#ffffff','#fff7ed','#fef9c3','#ecfccb','#e0f2fe','#fce7f3','#ede9fe','#e5e7eb','#111827'].map(c=>'<button class="chip'+(PO.bgc===c?' on':'')+'" data-act="po" data-k="bgc" data-v="'+c+'" style="background:'+c+';min-width:2rem;padding:.3rem;border:1px solid #bbb"> </button>').join('')+'<label class="chip" style="position:relative;overflow:hidden">🎨 Autre<input type="color" data-poc="bgc" value="'+(PO.bgc||'#ffffff')+'" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label></div>';
  h+='<b class="rc-h" style="display:block">Mise en page</b>'+amPoChips('lay',AM_PO_LAY,PO.lay);
  h+='<b class="rc-h" style="display:block">Titre</b>'+amPoChips('fnt',AM_PO_FNT,PO.fnt)+amPoChips('sz',AM_PO_SZ,PO.sz);
  h+='<b class="rc-h" style="display:block">Décor</b>'+amPoChips('dec',AM_PO_DEC,PO.dec)+amPoFld('em','Tes propres emojis (facultatif)',PO.em,'🎃👻🍬');
- h+='<b class="rc-h" style="display:block">Photo ou logo</b><div class="chips" style="margin:.2rem 0 .3rem"><label class="chip" style="position:relative;overflow:hidden">📷 '+(PO.img?'Changer':'Ajouter')+'<input type="file" accept="image/*" id="po-img" style="position:absolute;inset:0;opacity:0"></label>'+(PO.img?'<button class="chip" data-act="po-imgdel">🗑 Retirer</button>':'')+'</div>'+(PO.img?amPoChips('shp',AM_PO_SHP,PO.shp):'');
+ h+='<b class="rc-h" style="display:block">Images et logos</b>'+amPoImgUI();
  h+='<b class="rc-h" style="display:block">Textes</b>'+amPoFld('kick','Ligne du haut (association)',PO.kick,'Amicale…')+amPoFld('tt','Titre (par défaut : le nom de l’événement)',PO.tt,it.tx)+amPoFld('acc','Phrase d’accroche',PO.acc,'Venez nombreux !')+amPoFld('hr','Horaire',PO.hr,'Dès 14 h · Ouverture des portes 13 h 30')+amPoFld('info','Infos pratiques',PO.info,'Entrée libre · Buvette sur place',true)+amPoFld('ft','Bas de page',PO.ft,'Ne pas jeter sur la voie publique')+amPoFld('ct','Contact',PO.ct,'Prénom · téléphone');
  h+='<b class="rc-h" style="display:block">Afficher</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(PO.dt==='1'?' on':'')+'" data-act="po" data-k="dt" data-v="'+(PO.dt==='1'?'0':'1')+'">📅 Date</button><button class="chip'+(PO.pl==='1'?' on':'')+'" data-act="po" data-k="pl" data-v="'+(PO.pl==='1'?'0':'1')+'">📍 Lieu</button><button class="chip'+(PO.pg==='1'?' on':'')+'" data-act="po" data-k="pg" data-v="'+(PO.pg==='1'?'0':'1')+'">🕐 Programme</button></div>';
- h+='<button class="btn pri blk" data-act="po-go">🖨 Imprimer / créer le PDF</button><button class="btn blk" data-act="po-reset">↺ Tout remettre par défaut</button><p class="mut" style="font-size:.8rem;margin:.4rem 0 0">Tes réglages sont gardés pour cet événement (et pour l’an prochain si tu le copies).</p>';
- openSheet(h);
- {const n=$('#sheet .sh');if(n&&top)n.scrollTop=top}
- amPoPv();
+ h+='<button class="btn pri blk" data-act="po-go">🖨 Imprimer / créer le PDF</button><button class="btn blk" data-act="po-reset">↺ Tout remettre par défaut</button><p class="mut" style="font-size:.8rem;margin:.4rem 0 0">Tes réglages sont gardés pour cet événement (et pour l’an prochain si tu le copies).</p></div></div>';
+ openSheet(h,'po');
+ {const n=$('#sheet .sh');if(n&&top)n.scrollTop=top;const r=$('#sheet .po-r');if(r&&top2)r.scrollTop=top2}
+ amPoPv();amPoDrag();
 }
 function amPoSet(k,v){
- if(!PO)return;PO[k]=v;
- if(k==='th'){PO.col=PO.col}
- amPoSave();
- /* mise à jour sur place des puces du même groupe */
+ if(!PO)return;PO[k]=v;amPoSave();
  $$('#sheet [data-act="po"][data-k="'+k+'"]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- if(k==='dt'||k==='pl'||k==='pg'){amPoOpen();return}
+ if(k==='dt'||k==='pl'||k==='pg'||k==='bw'||k==='bgc'||k==='col'||k==='col2'){amPoOpen();return}
  amPoPv();
 }
-document.addEventListener('input',e=>{const t=e.target;if(PO&&t&&t.dataset&&t.dataset.po&&$('#po-pv')){PO[t.dataset.po]=t.value;amPoSave();amPoPv()}});
-document.addEventListener('change',async e=>{const t=e.target;if(!(PO&&t&&t.id==='po-img'&&t.files&&t.files[0]))return;
- try{const u=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(t.files[0])});
-  const im=await loadImg(u),k=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
-  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
-  PO.img=c.toDataURL('image/jpeg',.82);amPoSave();amPoOpen()}catch(x){toast('Image illisible')}});
+function amPoDrag(){
+ const box=$('#po-pv');if(!box||box._d)return;box._d=1;let cur=null;
+ box.addEventListener('pointerdown',e=>{const im=e.target.closest&&e.target.closest('.pst-fi');if(!im||!PO)return;const i=+im.dataset.i,m=PO.imgs[i];if(!m)return;
+  const k=+box.dataset.k||1;cur={i,sx:e.clientX,sy:e.clientY,x:m.x,y:m.y,k};
+  if(PO.sel!==i){PO.sel=i;$$('#sheet [data-act="po-sel"]').forEach(b=>b.classList.toggle('on',+b.dataset.v===i));const z=$('#po-sz');if(z)z.value=Math.round(m.w)}
+  try{box.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+ box.addEventListener('pointermove',e=>{if(!cur)return;const m=PO.imgs[cur.i];m.x=cur.x+(e.clientX-cur.sx)/cur.k;m.y=cur.y+(e.clientY-cur.sy)/cur.k;amPoPv()});
+ const up=()=>{if(cur){cur=null;amPoSave()}};box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
+}
+document.addEventListener('input',e=>{const t=e.target;if(!(PO&&t&&$('#po-pv')))return;
+ if(t.dataset&&t.dataset.po){PO[t.dataset.po]=t.value;amPoSave();amPoPv()}
+ else if(t.id==='po-sz'){const m=PO.imgs[PO.sel];if(m){const c=m.x+m.w/2,d=m.y+m.w*(m.h||1)/2;m.w=+t.value;m.x=c-m.w/2;amPoSave();amPoPv()}}
+ else if(t.dataset&&t.dataset.poc){PO[t.dataset.poc]=t.value;amPoSave();amPoPv()}});
+document.addEventListener('change',async e=>{const t=e.target;
+ if(PO&&t&&t.dataset&&t.dataset.poc){amPoOpen();return}
+ if(!(PO&&t&&t.id==='po-img'&&t.files&&t.files[0]))return;
+ try{const f=t.files[0],u=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
+  const im=await loadImg(u),k=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+  const g=c.getContext('2d'),png=/png|gif|webp|svg/.test(f.type);if(!png){g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height)}g.drawImage(im,0,0,c.width,c.height);
+  const w=Math.min(300,Math.max(120,Math.round(300*Math.min(1,c.width/c.height>1.6?1.4:1))));
+  PO.imgs=PO.imgs||[];if(PO.imgs.length>=4)return;
+  PO.imgs.push({src:png?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.85),x:Math.round((794-w)/2),y:330+PO.imgs.length*30,w,h:c.height/c.width});PO.sel=PO.imgs.length-1;amPoSave();amPoOpen()}catch(x){toast('Image illisible')}});
 function amPoGo(){
  const a=amc(),it=a&&a.it&&a.it[PO&&PO.id];if(!it)return;
- const html=amPosterHTML(it,PO),nm='affiche-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24)+'.pdf';
+ const html=amPosterHTML(it,PO,false),nm='affiche-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24)+'.pdf';
  closeSheet();
  amPdf(html,nm,true);
 }
@@ -10465,6 +10536,122 @@ async function amEeDel(){
  const r=await ask({title:'Supprimer « '+it.tx+' » ?',text:'Pour tout le monde, avec sa liste de préparation et son programme.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;amItemSave(Object.assign({},it,{del:1}));AMC_EE='';toast('Supprimé',2000);
 }
+
+const AM_GR=['Soldat','1re classe','Caporal','Caporal-chef','Sergent','Sergent-chef','Adjudant','Adjudant-chef','Major','Aspirant','Sous-lieutenant','Lieutenant','Capitaine','Commandant','Lieutenant-colonel','Colonel','Général','Civil'];
+const AM_CT=[['actif','Actif'],['honneur','Membre d’honneur'],['bienf','Bienfaiteur'],['ancien','Ancien'],['autre','Autre']];
+const AM_PM=[['','—'],['cb','Carte bancaire'],['esp','Espèces'],['chq','Chèque'],['vir','Virement']];
+let AM_SORT='nom',AM_FLT='',AM_Q='',PK=null;
+const amNk=t=>norm(String(t||'')).split(/\s+/).filter(Boolean).sort().join(' ');
+const amGrRank=g=>{const i=AM_GR.findIndex(x=>norm(x)===norm(g));return i<0?(g?98:99):i};
+const amGrFind=t=>{const n=norm(t);if(!n)return '';const e=AM_GR.find(x=>norm(x)===n);if(e)return e;return AM_GR.find(x=>norm(x).startsWith(n)&&n.length>=3)||''};
+const amEur=n=>(Math.round((+n||0)*100)/100).toString().replace('.',',')+' €';
+const amPmLb=k=>({cb:'CB',esp:'espèces',chq:'chèque',vir:'virement'}[k]||'');
+const amCsv=rows=>rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+async function amFileOut(name,text){
+ const f=new File(['﻿'+text],name,{type:'text/csv'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+ const u=URL.createObjectURL(f),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000);toast('Fichier prêt : ouvre-le avec Excel',3500);
+}
+function amAmSorted(L){const g=m=>amGrRank((m.o||{}).gr),c=m=>AM_CT.findIndex(x=>x[0]===(m.o||{}).ct);
+ return L.slice().sort((p,q)=>AM_SORT==='grade'?(g(p)-g(q)||p.tx.localeCompare(q.tx,'fr')):AM_SORT==='cat'?(c(p)-c(q)||p.tx.localeCompare(q.tx,'fr')):p.tx.localeCompare(q.tx,'fr'))}
+function amAmRows(){
+ const q=norm(AM_Q);let L=amItems('am');
+ if(AM_FLT==='cot')L=L.filter(m=>(m.o||{}).cf!=='1');else if(AM_FLT==='patch')L=L.filter(m=>(m.o||{}).pc!=='1');else if(AM_FLT==='rg')L=L.filter(m=>(m.o||{}).rg);
+ if(q)L=L.filter(m=>norm(m.tx+' '+((m.o||{}).gr||'')+' '+((m.o||{}).rg||'')).includes(q));
+ L=amAmSorted(L);
+ return L.length?L.map(m=>{const o=m.o||{};return '<button class="am-it" data-act="am-amed" data-id="'+esc(m.id)+'"><span class="am-itx"><b>'+esc(m.tx)+'</b><small>'+[o.gr?esc(o.gr):'',((AM_CT.find(x=>x[0]===o.ct)||[])[1])||'',o.cf==='1'?'💶 cotisation ✓'+(o.pa?' '+esc(amEur(o.pa)):'')+(o.pm?' ('+amPmLb(o.pm)+')':''):'⚠️ cotisation à payer',o.pc==='1'?'🧵 patch ✓':'',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span></button>'}).join(''):'<p class="empty">'+(amItems('am').length?'Aucun résultat.':'Aucun amicaliste pour l’instant. Ajoute-les un par un ou importe ta liste.')+'</p>';
+}
+function amAmHTML(){
+ const L=amItems('am'),n=L.length,cot=L.filter(m=>(m.o||{}).cf==='1'),tot=cot.reduce((s,m)=>s+(+(m.o||{}).pa||0),0);
+ const by=AM_CT.map(c=>[c[1],L.filter(m=>(m.o||{}).ct===c[0]).length]).filter(x=>x[1]);
+ let h='<div class="card"><h3>🎖 Amicalistes · '+n+'</h3><p class="mut" style="margin:.2rem 0;font-size:.9rem">💶 Cotisation payée : <b>'+cot.length+'/'+n+'</b>'+(tot?' · encaissé '+esc(amEur(tot)):'')+'<br>🧵 Patch reçu : <b>'+L.filter(m=>(m.o||{}).pc==='1').length+'</b> · 🍽 Régimes particuliers : <b>'+L.filter(m=>(m.o||{}).rg).length+'</b>'+(by.length?'<br>'+by.map(x=>esc(x[0])+' '+x[1]).join(' · '):'')+'</p><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">🔒 Liste visible par le bureau seulement.</p></div>';
+ h+='<button class="btn pri blk" data-act="am-amadd">'+ic('plus')+' Ajouter un amicaliste</button><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-amimp">📥 Importer une liste</button><button class="btn grow" data-act="am-amexp">📤 Exporter (Excel)</button></div>';
+ h+='<div class="chips tk-chips" style="margin:.6rem 0 .3rem">'+[['nom','Nom'],['grade','Grade'],['cat','Catégorie']].map(x=>'<button class="chip'+(AM_SORT===x[0]?' on':'')+'" data-act="am-amsort" data-v="'+x[0]+'">Tri : '+x[1]+'</button>').join('')+'</div>';
+ h+='<div class="chips tk-chips" style="margin:0 0 .3rem">'+[['cot','💶 À payer'],['patch','🧵 Sans patch'],['rg','🍽 Régimes']].map(x=>'<button class="chip'+(AM_FLT===x[0]?' on':'')+'" data-act="am-amflt" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
+ h+='<input class="in" id="am-q" placeholder="Chercher un nom, un grade…" value="'+esc(AM_Q)+'" autocomplete="off" style="margin:.2rem 0 .4rem"><div id="am-list">'+amAmRows()+'</div>';
+ return h;
+}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='am-q'){AM_Q=e.target.value;const l=$('#am-list');if(l)l.innerHTML=amAmRows()}
+ else if(e.target&&e.target.id==='pk-q'&&PK){PK.q=e.target.value;amPkRender()}});
+async function amAmEdit(id){
+ const a=amc();if(!a||!a.kB)return;const m=id&&a.it[id],o=(m&&m.o)||{};
+ const F=[{k:'tx',l:'Nom et prénom',v:m?m.tx:'',ph:'DUPONT Jean'},{k:'gr',l:'Grade',t:'select',v:o.gr||'',o:[['','—']].concat(AM_GR.map(g=>[g,g]))},{k:'ct',l:'Catégorie',t:'select',v:o.ct||'actif',o:AM_CT},{k:'d',l:'Date d’adhésion',t:'date',v:m?m.d:''},
+  {k:'cf',l:'Cotisation',t:'select',v:o.cf||'0',o:[['0','Non payée'],['1','Payée']]},{k:'pm',l:'Payée par',t:'select',v:o.pm||'',o:AM_PM},{k:'pa',l:'Prix payé (€)',v:o.pa||'',ph:'20'},{k:'pc',l:'Patch reçu',t:'select',v:o.pc||'0',o:[['0','Non'],['1','Oui']]},{k:'rg',l:'Régime particulier',v:o.rg||'',ph:'Halal, végétarien, allergie aux arachides…'},{k:'bd',l:'Notes',t:'area',v:m?m.bd:''}];
+ if(m)F.push({k:'act',l:'Action',t:'select',v:'',o:[['','Garder dans la liste'],['del','🗑 Retirer de la liste']]});
+ const v=await amForm(m?'Modifier l’amicaliste':'Nouvel amicaliste','',F,m?'Enregistrer':'Ajouter');if(!v)return;
+ if(m&&v.act==='del'){amItemSave(Object.assign({},m,{del:1}));toast('Retiré de la liste',2000);return}
+ if(!String(v.tx||'').trim()){toast('Il faut un nom',2500);return}
+ const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:{gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60)}};
+ amItemSave(n);
+}
+async function amAmImport(){
+ const a=amc();if(!a||!a.kB)return;
+ const v=await amForm('📥 Importer des amicalistes','Colle ta liste (depuis Excel ou Word) : une personne par ligne, « Nom Prénom ; Grade ». Le grade est facultatif. Les doublons sont ignorés.',[{k:'t',l:'Liste',t:'area',v:'',ph:'DUPONT Jean ; Sergent\nMARTIN Luc ; Capitaine'}],'Importer');
+ if(!v||!String(v.t||'').trim())return;
+ const have=new Set(amItems('am').map(m=>amNk(m.tx)));let n=0;
+ for(const raw of v.t.split(/\r?\n/)){const p=raw.split(/[;\t]/).map(x=>x.trim()),nm=amPLine(p[0]).slice(0,60);if(!nm||have.has(amNk(nm)))continue;have.add(amNk(nm));
+  const gr=amGrFind(p[1]);a.it=a.it||{};const id=amId();a.it[id]={id,kind:'am',tx:nm,x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:'',by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:{gr,ct:'actif',cf:'0',pm:'',pa:'',pc:'0',rg:''}};n++}
+ amSave();render();amFlush();toast(n+' amicaliste'+(n>1?'s':'')+' ajouté'+(n>1?'s':''),3000);
+}
+function amAmExport(){
+ const L=amAmSorted(amItems('am'));if(!L.length){toast('Liste vide');return}
+ const rows=[['Nom','Grade','Catégorie','Adhésion','Cotisation payée','Payée par','Prix payé','Patch reçu','Régime particulier','Notes']].concat(L.map(m=>{const o=m.o||{};return [m.tx,o.gr||'',(AM_CT.find(x=>x[0]===o.ct)||[])[1]||'',m.d||'',o.cf==='1'?'Oui':'Non',amPmLb(o.pm),o.pa||'',o.pc==='1'?'Oui':'Non',o.rg||'',m.bd||'']}));
+ amFileOut('amicalistes-'+today()+'.csv',amCsv(rows));
+}
+/* ---- suivi d'un événement : inscrits, présence, tickets, paiement ---- */
+function amPtMember(p){const a=amc();if(!a||!a.kB)return null;const L=amItems('am');return L.find(m=>m.id===p.m)||L.find(m=>amNk(m.tx)===amNk(p.n))||null}
+function amPtGroups(it){const a=amc(),pt=(it.pt||[]).map((p,i)=>({p,i,m:amPtMember(p)})),isA=x=>x.m||(!a.kB&&x.p.a);return[pt.filter(isA),pt.filter(x=>!isA(x))]}
+function amPtTot(L){const t={n:L.length,p:0,tr:0,tb:0,pa:0,cb:0,esp:0,chq:0,vir:0};L.forEach(p=>{t.p+=p.p?1:0;t.tr+=p.tr||0;t.tb+=p.tb||0;t.pa+=p.pa||0;if(p.pm&&t[p.pm]!=null)t[p.pm]+=p.pa||0});return t}
+function amPtHTML(it,rw){
+ const pt=it.pt||[];if(!pt.length&&!rw)return '';
+ const [A,N]=amPtGroups(it),T=amPtTot(pt);
+ let h='<h4 class="am-h">Inscrits et suivi'+(pt.length?' · '+pt.length:'')+'</h4>';
+ if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b> · 🍽 Tickets repas <b>'+T.tr+'</b> · 🍷 Tickets boisson <b>'+T.tb+'</b>'+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
+ const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=x.m&&(x.m.o||{}).rg,q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+(p[k]||0)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
+  return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):''].filter(Boolean).join(' · ')+'</small></button>'+q('tr','🍽')+q('tb','🍷')+'</div>'};
+ const grp=(t,L)=>L.length?'<h4 class="am-h" style="font-size:.95rem">'+t+' · '+L.length+' <small class="mut">(présents '+L.filter(x=>x.p.p).length+')</small></h4>'+L.map(row).join(''):'';
+ h+=grp('🎖 Amicalistes',A)+grp('👤 Non-amicalistes',N);
+ if(!pt.length)h+='<p class="empty">Repas, loto, sortie… : ajoute les participants pour pointer les présents, compter les tickets et suivre les paiements.</p>';
+ if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-ptadd">🎖 Ajouter des amicalistes</button><button class="btn grow" data-act="ee-ptnames">✍️ Ajouter des noms</button></div>';
+  if(pt.length)h+='<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptall">☑️ Tout cocher / décocher</button><button class="btn grow" data-act="ee-ptexp">📤 Exporter (Excel)</button></div>'}
+ else if(pt.length)h+='<button class="btn blk" data-act="ee-ptexp" style="margin-top:.3rem">📤 Exporter (Excel)</button>';
+ return h;
+}
+function amPtExport(){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length){toast('Aucun inscrit');return}
+ const [A,N]=amPtGroups(it),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{};return [st,p.n,o.gr||'',p.p?'Oui':'Non',p.tr||0,p.tb||0,p.pa||'',amPmLb(p.pm),o.rg||'']};
+ const rows=[[it.tx+' · '+it.d],['Statut','Nom','Grade','Présent','Tickets repas','Tickets boisson','Montant payé','Payé par','Régime particulier']];
+ A.concat(N).forEach(x=>rows.push(line(A.includes(x)?'Amicaliste':'Non-amicaliste',x)));
+ const T=g=>amPtTot(g.map(x=>x.p));rows.push([]);
+ [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','',t.p+' présents',t.tr,t.tb,t.pa,'',''])});
+ const t=amPtTot(it.pt);rows.push(['TOTAL',t.n+' inscrits','',t.p+' présents',t.tr,t.tb,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']);
+ amFileOut('suivi-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24)+'.csv',amCsv(rows));
+}
+async function amPtEdit(i){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE],p=it&&(it.pt||[])[i];if(!p||!a.kB)return;
+ const v=await amForm('Participant','',[{k:'n',l:'Nom',v:p.n},{k:'pa',l:'Montant payé (€)',v:p.pa||'',ph:'0'},{k:'pm',l:'Payé par',t:'select',v:p.pm||'',o:AM_PM},{k:'act',l:'Action',t:'select',v:'',o:[['','Garder'],['del','🗑 Retirer de la liste']]}]);
+ if(!v)return;
+ amEeMut(o=>{if(v.act==='del'){o.pt.splice(i,1);return}const c=o.pt[i];c.n=String(v.n||c.n).trim().slice(0,60);c.pa=Math.max(0,Math.min(9999,parseFloat(String(v.pa||'0').replace(',','.'))||0));c.pm=v.pm||''});
+}
+async function amPtNames(){
+ const a=amc();if(!a||!a.kB)return;
+ const v=await amForm('✍️ Ajouter des noms','Un nom par ligne (invités, ou liste collée depuis Excel/Word). Ceux qui sont dans ta liste d’amicalistes sont rangés avec eux, les autres chez les non-amicalistes.',[{k:'t',l:'Noms',t:'area',v:'',ph:'DUPONT Jean\nMartin Luc\nInvité extérieur'}],'Ajouter');
+ if(!v||!String(v.t||'').trim())return;
+ amEeMut(o=>{const have=new Set(o.pt.map(p=>amNk(p.n)));v.t.split(/\r?\n/).forEach(raw=>{const nm=amPLine(raw.split(/[;\t]/)[0]).slice(0,60);if(!nm||have.has(amNk(nm))||o.pt.length>=250)return;have.add(amNk(nm));const m=amItems('am').find(x=>amNk(x.tx)===amNk(nm));o.pt.push({n:m?m.tx:nm,m:m?m.id:'',a:m?1:0,p:0,tr:0,tb:0,pa:0,pm:''})})});
+}
+function amPkVisible(){const a=amc(),it=a.it[AMC_EE],have=new Set((it.pt||[]).map(p=>amNk(p.n))),q=norm(PK.q);return amAmSorted(amItems('am')).filter(m=>!have.has(amNk(m.tx))&&(!q||norm(m.tx+' '+((m.o||{}).gr||'')).includes(q)))}
+function amPkRender(){const l=$('#pk-l');if(!l||!PK)return;const L=amPkVisible();l.innerHTML=L.length?L.map(m=>'<button class="chip'+(PK.sel.has(m.id)?' on':'')+'" data-act="pk-t" data-id="'+esc(m.id)+'" style="margin:.15rem">'+esc(m.tx)+((m.o||{}).gr?' · '+esc(m.o.gr):'')+'</button>').join(''):'<p class="empty">Personne à ajouter.</p>';const b=$('#pk-ok');if(b)b.textContent='Ajouter ('+PK.sel.size+')'}
+function amPtPick(){
+ const a=amc();if(!a||!a.kB)return;if(!amItems('am').length){toast('Ajoute d’abord des amicalistes (onglet 🎖 Amicalistes)',3500);return}
+ PK={sel:new Set(),q:''};
+ openSheet('<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎖 Ajouter des amicalistes</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><input class="in" id="pk-q" placeholder="Chercher…" autocomplete="off" style="margin:.2rem 0 .4rem"><div class="chips" style="margin:0 0 .3rem"><button class="chip" data-act="pk-all">☑️ Tout (liste affichée)</button></div><div id="pk-l" style="max-height:50vh;overflow:auto"></div><button class="btn pri blk" id="pk-ok" data-act="pk-ok" style="margin-top:.6rem">Ajouter (0)</button>');
+ amPkRender();
+}
+function amPkDone(){
+ if(!PK||!PK.sel.size){toast('Choisis au moins une personne',2500);return}
+ const ids=[...PK.sel];closeSheet();
+ amEeMut(o=>{ids.forEach(id=>{const m=amItems('am').find(x=>x.id===id);if(m&&o.pt.length<250)o.pt.push({n:m.tx,m:m.id,a:1,p:0,tr:0,tb:0,pa:0,pm:''})})});PK=null;
+}
 function amEeHTML(){
  const a=amc(),L=amItems('ee'),today=new Date().toISOString().slice(0,10),rw=!!a.kB;
  const it=AMC_EE&&a.it&&a.it[AMC_EE];
@@ -10476,6 +10663,7 @@ function amEeHTML(){
   h+='<h4 class="am-h">Préparation'+(ck.length?' · '+nok+'/'+ck.length:'')+'</h4>';
   h+=ck.length?ck.map((c,i)=>'<div class="am-it'+(c.ok?' done':'')+'"><button class="am-ck" '+(rw?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+'</b>'+(c.w?'<small>👤 '+esc(c.w)+'</small>':'')+'</button></div>').join(''):'<p class="empty">Rien à préparer pour l’instant.</p>';
   if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div>';
+  h+=amPtHTML(it,rw);
   h+='<h4 class="am-h">Programme'+(pg.length?' · '+pg.length:'')+'</h4>';
   h+=pg.length?pg.map(p=>'<button class="am-it am-ev" '+(rw?'data-act="ee-pg" data-i="'+p.i+'"':'disabled')+'><span class="am-dt"><b>'+esc(p.tm||'–')+'</b></span><span class="am-itx"><b>'+esc(p.t)+'</b></span></button>').join(''):'<p class="empty">Programme vide.</p>';
   if(rw)h+='<button class="btn blk" data-act="ee-addpg" style="margin-top:.4rem">'+ic('plus')+' Ajouter un créneau</button><button class="btn blk" data-act="ee-copy" style="margin-top:.8rem">📋 Copier pour l’an prochain</button><button class="btn blk dng" data-act="ee-del" style="margin-top:.4rem">🗑️ Supprimer l’événement</button>';
@@ -10528,13 +10716,14 @@ function amView(){
  amPull();
  const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
- if(AMC_TAB==='nt'&&!a.kB)AMC_TAB='mb';
+ if((AMC_TAB==='nt'||AMC_TAB==='am')&&!a.kB)AMC_TAB='mb';
  const n4=amItems('ee').filter(i=>(i.d||'')>=td).length;
- const tabs=[['mb','👤 Membres'],['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]].concat(a.kB?[['nt','📝 Notes']]:[],[['gr','⚙️ Groupe']]);
+ const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amItems('am').length?' '+amItems('am').length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes']]:[],[['gr','⚙️ Groupe']]);
  const side=S.amSide!==0;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  let h='';
  if(['tk','co','ev','nt','ee'].includes(AMC_TAB))h+=amItemsHTML(AMC_TAB);
+ else if(AMC_TAB==='am')h+=amAmHTML();
  else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
