@@ -1228,12 +1228,15 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.31.0';
+const APP_VERSION='2.31.1';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.31.1',d:'03/11/2026',items:[
+  '<b>Onglets du groupe sur le côté</b>, comme les Tâches et les Courses : Membres, Tâches, Courses et Groupe en onglets verticaux (avec le nombre d’éléments à faire). Au choix <b>sur le côté</b> ou <b>en haut</b> : onglet ⚙ Groupe › Affichage. Ils suivent aussi le style choisi pour les listes.',
+ ]},
  {v:'2.31.0',d:'03/11/2026',items:[
   '<b>Tâches et courses partagées dans le groupe</b> : deux nouveaux sous-onglets ✅ Tâches et 🛒 Courses. Chaque élément est « Bureau seulement » ou « Tout le monde » (bureau et aides) : ceux du bureau sont chiffrés avec la clé Bureau, un aide ne peut donc pas les voir. Les aides n’ont que les éléments « Tout le monde ».',
   'Tâches : texte, date, <b>qui s’en occupe</b>, case à cocher ; les retards passent en rouge. Courses : article et quantité, coché = acheté, bouton pour vider les articles achetés. Tout le monde peut cocher, modifier ou supprimer ; en cas de modification en même temps, la plus récente gagne. Les modifications faites sans connexion partent dès que le réseau revient.',
@@ -9823,8 +9826,10 @@ function amView(){
  if(!a)return{html:'<div class="rp-wrap"><p class="empty">Pas de groupe sur ce téléphone.</p><button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
  amPull();
  const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
- const tabs=[['mb','👤 Membres'],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')],['gr','⚙️']];
- let h='<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'>'+l+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>';
+ const tabs=[['mb','👤 Membres'],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')],['gr','⚙️ Groupe']];
+ const side=S.amSide!==0;
+ const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
+ let h='';
  if(AMC_TAB==='tk'||AMC_TAB==='co')h+=amItemsHTML(AMC_TAB);
  else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
@@ -9832,6 +9837,7 @@ function amView(){
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
   if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
+  h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Onglets du groupe</span>'+seg('amSide',[[1,'Sur le côté'],[0,'En haut']],side?1:0)+'</div></div>';
   h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
   h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
  }else{
@@ -9842,7 +9848,11 @@ function amView(){
   if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
  }
- return{html:h+'</div>',fixed:false};
+ if(side){
+  const nav='<nav class="co-tabs" aria-label="Onglets du groupe">'+tabs.map(([k,l])=>'<button class="co-tab'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'" style="--tc:var(--k-am)"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'><span class="co-tn">'+l.replace(/^\S+\s/,'').replace(/ \d+$/,'')+'</span>'+(/ (\d+)$/.test(l)?'<b class="co-tc">'+l.match(/ (\d+)$/)[1]+'</b>':'')+'</button>').join('')+'<button class="co-tab co-tadd" data-act="am-sync" title="Actualiser" aria-label="Actualiser">🔄</button></nav>';
+  return{html:'<div class="tk-wrap"><div class="co-book" style="--tcur:var(--k-am)"><div class="co-page">'+h+'</div>'+nav+'</div></div>',fixed:false};
+ }
+ return{html:'<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'>'+(k==='gr'?'⚙️':l)+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>'+h+'</div>',fixed:false};
 }
 function amSetCard(){
  if(!famUrl())return '';
