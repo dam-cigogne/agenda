@@ -1321,12 +1321,15 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.48.0';
+const APP_VERSION='2.49.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.49.0',d:'04/11/2026',items:[
+  '<b>Affiche : un style change tout</b> : choisir un style change maintenant la mise en page, la police du titre et le décor en plus des couleurs ; il désactive aussi « Noir et blanc » qui masquait le changement. Tu peux ensuite retoucher chaque réglage.',
+  ]},
  {v:'2.48.0',d:'04/11/2026',items:[
   '<b>Changer le niveau d’accès d’un membre</b> (administrateur) : fiche du membre → « Passer en Aide extérieur » ou « Passer au Bureau ». Les clés du groupe sont renouvelées ; la personne qui passe en aide ne voit plus les amicalistes, bulletins et notes du bureau, et sa copie locale est effacée. Avant, choisir le titre « Aide extérieur » ne changeait que l’affichage.',
   ]},
@@ -10411,17 +10414,17 @@ function amEeMut(fn){
  amItemSave(o);
 }
 const AM_TH={
- fete:{n:'🎉 Fête',c1:'#7c3aed',c2:'#ec4899',bg:'#fff7fb',em:['🎉','🎈','🎊','✨','🎶','🎈','🎉']},
- loto:{n:'🎱 Loto',c1:'#0f766e',c2:'#f59e0b',bg:'#f2fbf8',em:['🎱','🍀','🎁','⭐','🎱','🍀','🎁']},
- repas:{n:'🍽️ Repas',c1:'#b45309',c2:'#dc2626',bg:'#fffaf0',em:['🍽️','🍷','🥖','🍰','🧀','🍷','🍽️']},
- vide:{n:'🏷️ Vide-grenier',c1:'#1d4ed8',c2:'#16a34a',bg:'#f3f8ff',em:['🏷️','🧸','📚','🪑','👕','🏷️','🧸']},
- ag:{n:'📋 Assemblée / réunion',c1:'#1e3a8a',c2:'#64748b',bg:'#f6f8fc',em:['📋','🤝','🗳️','📅','🤝','📋','🗳️']},
- sobre:{n:'✨ Sobre',c1:'#111827',c2:'#6b7280',bg:'#ffffff',em:['✦','✦','✦','✦','✦','✦','✦']},
- noel:{n:'🎄 Noël / hiver',c1:'#b91c1c',c2:'#15803d',bg:'#fff8f6',em:['🎄','⭐','🎁','❄️','🔔','🎄','🎁']},
- ete:{n:'☀️ Été / plein air',c1:'#ea580c',c2:'#0891b2',bg:'#fffbeb',em:['☀️','🌴','🍉','🕶️','🍦','🌴','☀️']},
- sport:{n:'⚽ Sport / tournoi',c1:'#15803d',c2:'#1d4ed8',bg:'#f3faf5',em:['⚽','🏆','🥇','🏃','🏅','🏆','⚽']},
- enfants:{n:'🧸 Enfants',c1:'#db2777',c2:'#0ea5e9',bg:'#fff5fb',em:['🧸','🎨','🎈','🍭','🪁','🎠','🧸']},
- nuit:{n:'🌙 Soirée',c1:'#c084fc',c2:'#38bdf8',bg:'#17122b',em:['🌙','✨','🪩','🎵','✨','🪩','🌙']}
+ fete:{lay:'band',fnt:'fun',dec:'both',n:'🎉 Fête',c1:'#7c3aed',c2:'#ec4899',bg:'#fff7fb',em:['🎉','🎈','🎊','✨','🎶','🎈','🎉']},
+ loto:{lay:'center',fnt:'imp',dec:'em',n:'🎱 Loto',c1:'#0f766e',c2:'#f59e0b',bg:'#f2fbf8',em:['🎱','🍀','🎁','⭐','🎱','🍀','🎁']},
+ repas:{lay:'side',fnt:'ele',dec:'em',n:'🍽️ Repas',c1:'#b45309',c2:'#dc2626',bg:'#fffaf0',em:['🍽️','🍷','🥖','🍰','🧀','🍷','🍽️']},
+ vide:{lay:'band',fnt:'imp',dec:'none',n:'🏷️ Vide-grenier',c1:'#1d4ed8',c2:'#16a34a',bg:'#f3f8ff',em:['🏷️','🧸','📚','🪑','👕','🏷️','🧸']},
+ ag:{lay:'center',fnt:'gras',dec:'none',n:'📋 Assemblée / réunion',c1:'#1e3a8a',c2:'#64748b',bg:'#f6f8fc',em:['📋','🤝','🗳️','📅','🤝','📋','🗳️']},
+ sobre:{lay:'center',fnt:'ele',dec:'none',n:'✨ Sobre',c1:'#111827',c2:'#6b7280',bg:'#ffffff',em:['✦','✦','✦','✦','✦','✦','✦']},
+ noel:{lay:'full',fnt:'ele',dec:'both',n:'🎄 Noël / hiver',c1:'#b91c1c',c2:'#15803d',bg:'#fff8f6',em:['🎄','⭐','🎁','❄️','🔔','🎄','🎁']},
+ ete:{lay:'full',fnt:'fun',dec:'em',n:'☀️ Été / plein air',c1:'#ea580c',c2:'#0891b2',bg:'#fffbeb',em:['☀️','🌴','🍉','🕶️','🍦','🌴','☀️']},
+ sport:{lay:'band',fnt:'imp',dec:'conf',n:'⚽ Sport / tournoi',c1:'#15803d',c2:'#1d4ed8',bg:'#f3faf5',em:['⚽','🏆','🥇','🏃','🏅','🏆','⚽']},
+ enfants:{lay:'side',fnt:'fun',dec:'both',n:'🧸 Enfants',c1:'#db2777',c2:'#0ea5e9',bg:'#fff5fb',em:['🧸','🎨','🎈','🍭','🪁','🎠','🧸']},
+ nuit:{lay:'band',fnt:'gras',dec:'both',n:'🌙 Soirée',c1:'#c084fc',c2:'#38bdf8',bg:'#17122b',em:['🌙','✨','🪩','🎵','✨','🪩','🌙']}
 };
 const AM_PO_COL=['#7c3aed','#ec4899','#dc2626','#ea580c','#ca8a04','#16a34a','#0891b2','#1d4ed8','#111827'];
 const AM_PO_LAY=[['band','Bandeau'],['center','Encadré'],['full','Plein fond'],['side','Côté']];
@@ -10525,7 +10528,7 @@ function amPoOpen(){
 const AM_PO_BLK=[['top','Titre'],['acc','Accroche'],['box','Date et lieu'],['pg','Programme'],['info','Infos'],['ft','Bas de page'],['ct','Contact']];
 function amPoSet(k,v){
  if(!PO)return;PO[k]=v;
- if(k==='th'){PO.col='';PO.col2='';PO.bgc='';PO.em='';amPoSave();amPoOpen();return}
+ if(k==='th'){const T=AM_TH[v]||{};PO.bw='0';PO.col='';PO.col2='';PO.bgc='';PO.em='';if(T.lay)PO.lay=T.lay;if(T.fnt)PO.fnt=T.fnt;if(T.dec)PO.dec=T.dec;amPoSave();amPoOpen();return}
  amPoSave();
  $$('#sheet [data-act="po"][data-k="'+k+'"]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
  if(k==='dt'||k==='pl'||k==='pg'||k==='bw'||k==='bgc'||k==='col'||k==='col2'){amPoOpen();return}
