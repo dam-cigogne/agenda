@@ -1230,12 +1230,18 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.32.0';
+const APP_VERSION='2.32.2';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.32.2',d:'04/11/2026',items:[
+  '<b>Lier un autre appareil</b> (onglet ⚙ Groupe › 📲) : un code à usage unique, valable 15 minutes, à taper sur l’iPad ou le nouveau téléphone. L’autre appareil devient <b>toi-même</b> : même fiche, mêmes droits (administrateur compris), mêmes clés, et il récupère tout le contenu du groupe. Tu n’apparais qu’une fois dans la liste. Chaque membre peut faire de même pour ses propres appareils. Sert aussi à changer de téléphone sans perdre l’administration.',
+ ]},
+ {v:'2.32.1',d:'04/11/2026',items:[
+  '<b>Retirer quelqu’un coupe vraiment l’accès</b> : quand l’administrateur retire un membre, les deux clés du groupe sont <b>renouvelées</b>. Les membres restants reçoivent les nouvelles clés automatiquement (envoyées une par une, signées par l’administrateur et chiffrées pour chacun), la personne retirée ne reçoit rien et ne peut plus rien lire de nouveau. Si un membre n’a pas encore la dernière version de l’appli, l’administrateur est prévenu : il faudra le ré-inviter.',
+ ]},
  {v:'2.32.0',d:'04/11/2026',items:[
   '<b>Agenda et notes du groupe</b> : deux nouveaux sous-onglets. <b>📅 Agenda</b> : les événements du groupe (titre, date, heure, lieu, détails), « Bureau seulement » ou « Tout le monde ». <b>📝 Notes</b> : comptes rendus et idées, <b>réservés au bureau</b> (les aides n’ont même pas l’onglet, et leurs téléphones ne reçoivent pas ces notes).',
  ]},
@@ -6000,7 +6006,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li>À venir : renouvellement des clés quand on retire quelqu’un, événements de l’année, messages.</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li>À venir : événements de l’année, messages.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -6584,6 +6590,7 @@ async function act(a,el,e){
   case 'am-tab':AMC_TAB=ds_.k;render();break;
   case 'am-edit':amEditMe();break;
   case 'am-inv':amInvite();break;
+  case 'am-link':amLinkOut();break;
   case 'am-ren':amRename();break;
   case 'am-leave':amLeave();break;
   case 'am-add':amItemForm(ds_.k);break;
@@ -7812,7 +7819,7 @@ function coCatHTML(cur,H,inL){
  else if(cs==='ry'){groups=RAYONS.map(r=>({id:r[0],lbl:r[1],idx:r[1].split(' ')[0],a:H.filter(x=>(x.ry||rayOf(x.n))===r[0]).sort(byN)})).filter(g=>g.a.length)}
  else groups=[{id:'top',lbl:'',idx:'',a:H.slice().sort((a,b)=>(b.c||0)-(a.c||0)||byN(a,b)).slice(0,60)}];
  const row=x=>{const k=coKey(x.n),on=inL.has(k),nm=x.n.charAt(0).toUpperCase()+x.n.slice(1);
-  return '<div class="cat-r'+(on?' on':'')+'" data-n="'+esc(norm(x.n))+'"><button class="cat-b" data-act="co-cat" data-k="'+esc(k)+'"><span class="cat-c">'+(on?'✓':'')+'</span>'+(S.coIc===false?'':'<span class="cat-em" aria-hidden="true">'+foodEmo(x.n)+'</span>')+'<b>'+esc(nm)+'</b></button>'+(CV.edit?'<button class="cat-del" data-act="co-catdel" data-k="'+esc(k)+'" aria-label="Retirer de la liste type">🗑</button>':'')+'</div>'};
+  return '<div class="cat-r'+(on?' on':'')+'" data-n="'+esc(norm(x.n))+'"><button class="cat-b" data-act="co-cat" data-k="'+esc(k)+'"><span class="cat-c">'+(on?'✓':'')+'</span>'+(S.coIc===false?'':'<span class="cat-em" aria-hidden="true">'+foodEmo(x.n)+'</span>')+'<b>'+esc(nm)+'</b></button>'+(CV.edit?'<button class="cat-del" data-act="co-catdel" data-k="'+esc(k)+'" aria-label="Retirer du groupe type">🗑</button>':'')+'</div>'};
  h+=zlBar('ct');
  h+='<div class="cat-wrap">'+(groups.length>1?'<nav class="cat-idx">'+groups.map(g=>'<button data-act="cat-jump" data-v="'+esc(g.id)+'">'+esc(g.idx)+'</button>').join('')+'</nav>':'')+
   '<div id="cat-list" class="zl zl-'+((+S.zlCt)||0)+' zl-ct">'+groups.map(g=>(g.lbl?'<div class="cat-h" id="cat-g-'+esc(g.id)+'">'+esc(g.lbl)+'</div>':'')+'<div class="cat-grid">'+g.a.map(row).join('')+'</div>').join('')+'</div></div>';
@@ -9579,12 +9586,45 @@ async function amForm(title,intro,fields,ok){
  root.oninput=root.onchange=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
  const r=await pr;root.oninput=root.onchange=null;return r==='ok'?v:null;
 }
-async function amPut(zone,doc,P){
- const a=amc(),FK=await famKeys({k:zone==='b'?a.kB:a.kA}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
+async function amPut(zone,doc,P,kraw){
+ const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
  const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
-const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',at:Date.now()}};
+const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',pub:m.pub||null,at:Date.now()}};
+async function amEnsureKeys(){const a=amc();if(!a||a.me.ek)return;const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);a.me.ek=await crypto.subtle.exportKey('jwk',kp.privateKey);const p=await crypto.subtle.exportKey('jwk',kp.publicKey);a.me.pub={x:p.x,y:p.y};ls.set(K.set,S)}
+async function amDerive(privJwk,pubXY,salt){
+ const priv=await crypto.subtle.importKey('jwk',privJwk,{name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
+ const pub=await crypto.subtle.importKey('jwk',{kty:'EC',crv:'P-256',x:pubXY.x,y:pubXY.y},{name:'ECDH',namedCurve:'P-256'},false,[]);
+ const bits=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:pub},priv,256));
+ return crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',new Uint8Array([...bits,...new TextEncoder().encode(salt)])),'AES-GCM',false,['encrypt','decrypt']);
+}
+/* Renouvellement des clés : l'administrateur change les deux clés du groupe et les envoie, une par une et signées, aux membres restants (chiffrées avec leur clé publique). Le membre retiré ne les reçoit pas. */
+async function amRotate(){
+ const a=amc();if(!a||!a.apriv)return 0;
+ const gen=(a.gen||0)+1,kB2=amRand(),kA2=amRand(),todo=[];let n=0;
+ for(const p of amList().filter(p=>!p.self)){
+  const m=a.mem&&a.mem[p.id];if(!m||!m.pub)continue;
+  const eph=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const ep=await crypto.subtle.exportKey('jwk',eph.publicKey),er=await crypto.subtle.exportKey('jwk',eph.privateKey);
+  const key=await amDerive(er,m.pub,'agendam-rk:'+gen+':'+p.id),iv=crypto.getRandomValues(new Uint8Array(12));
+  const c=shB64.enc(new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify({gen,kA:kA2,kB:p.l==='b'?kB2:''}))))),ivs=shB64.enc(iv);
+  const sig=await amSign([p.id,gen,ep.x,ep.y,c,ivs],0,a.apriv);
+  todo.push({doc:'rk-'+p.id,P:{app:'agd',k:'amc',v:1,t:'rk',id:p.id,gen,e:{x:ep.x,y:ep.y},c,iv:ivs,sig}});n++;
+ }
+ const oldA=a.kA;
+ a.rot={oldA,todo:(a.rot&&a.rot.oldA===oldA?a.rot.todo:[]).concat(todo)};
+ a.kB=kB2;a.kA=kA2;a.gen=gen;a.last={};a.sent={};a.rolesDirty=1;
+ for(const it of Object.values(a.it||{}))it.dirty=1;
+ ls.set(K.set,S);
+ await amRotFlush();
+ try{await amPush(true);await amFlush()}catch(e){}
+ return n;
+}
+async function amRotFlush(){
+ const a=amc();if(!a||!a.rot||!famUrl()||demo)return;
+ try{while(a.rot&&a.rot.todo.length){const t=a.rot.todo[0];await amPut('a',t.doc,t.P,a.rot.oldA);a.rot.todo.shift();ls.set(K.set,S)}if(a.rot&&!a.rot.todo.length){delete a.rot;ls.set(K.set,S)}}catch(e){}
+}
 function amList(){
  const a=amc();if(!a)return[];
  const R={};((a.roles&&a.roles.list)||[]).forEach(x=>{if(x&&x.id)R[x.id]=x});
@@ -9613,6 +9653,7 @@ async function amRolesPut(){
 }
 async function amPush(force){
  const a=amc();if(!a||!famUrl()||demo)return;
+ await amEnsureKeys();
  a.sent=a.sent||{};
  const C=amCardOf(),h=famHash(C);
  if(a.kB&&(force||a.sent.cb!==h)){await amPut('b','c-'+a.me.id,C);a.sent.cb=h}
@@ -9630,7 +9671,7 @@ async function amPull(manual){
   const ks=[];for(const [z,k] of [['b',a.kB],['a',a.kA]]){if(!k)continue;const FK=await famKeys({k});ks.push({z,FK,since:Math.max(0,Math.floor(a.last[z]||0))})}
   const r=await fetch(famUrl()+'/m?q='+ks.map(x=>x.FK.space+'.'+x.since).join(','),{cache:'no-store'});
   if(!r.ok)throw new Error('Serveur : '+r.status);
-  const J=await r.json();let chg=false;
+  const J=await r.json();let chg=false,rot=null;
   for(const x of ks){
    const docs=(J.r&&J.r[x.FK.space])||[];
    for(const d of docs){
@@ -9641,6 +9682,12 @@ async function amPull(manual){
      if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
       if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};chg=true}}
      continue}
+    const mr=d.doc.match(/^rk-([a-z0-9]{6,16})$/);
+    if(mr){
+     if(mr[1]!==a.me.id||x.z!=='a'||P.t!=='rk'||(P.gen||0)<=(a.gen||0)||!a.me.ek||!P.e||!(await amVerify([P.id,P.gen,P.e.x,P.e.y,P.c,P.iv],0,P.sig,a.apub)))continue;
+     try{const key=await amDerive(a.me.ek,P.e,'agendam-rk:'+P.gen+':'+a.me.id),pl=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(P.iv)},key,shB64.dec(P.c))));
+      if(pl.kA&&pl.gen===P.gen&&(!rot||pl.gen>rot.gen))rot=pl}catch(e){}
+     continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
      if(P.t!=='it'||P.id!==mi[1]||!['tk','co','ev','nt'].includes(P.kind))continue;
@@ -9649,12 +9696,14 @@ async function amPull(manual){
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
+    if(P.pub&&P.pub.x&&P.pub.y)e.pub={x:String(P.pub.x),y:String(P.pub.y)};
     e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),at:P.at||0};
     if(x.z==='b')e.z='b';else if(!e.z)e.z='a';
     chg=true;
     if(a.apriv)a.rolesDirty=1;
    }
   }
+  if(rot){a.kA=rot.kA;if(rot.kB)a.kB=rot.kB;a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;ls.set(K.set,S);setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);toast('Les clés du groupe ont été renouvelées',3500)}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   ls.set(K.set,S);
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();ls.set(K.set,S)}catch(e){}}
@@ -9714,13 +9763,48 @@ async function amJoinData(d){
  try{await amPush(true)}catch(e){toast('Pas de connexion : ta fiche sera envoyée plus tard',4000)}
  go('amicale');amPull(true);toast('Bienvenue dans « '+S.amc.nm+' »',3000);
 }
+const amCode12=()=>{let c='';for(const b of crypto.getRandomValues(new Uint8Array(12)))c+=FAM_ABC[b%FAM_ABC.length];return c};
+async function amLinkOut(){
+ const a=amc();if(!a||!famUrl())return;
+ await amEnsureKeys();
+ const pay={amc:1,link:1,t0:Date.now(),nm:a.nm,em:a.em,kB:a.kB||'',kA:a.kA,ap:a.apub,apriv:a.apriv||null,gen:a.gen||0,rl:a.rl||{},me:a.me};
+ const code=amCode12();
+ try{
+  const FK=await famCodeKeys(code),iv=crypto.getRandomValues(new Uint8Array(12));
+  const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify(pay))));
+  const body=JSON.stringify({c:shB64.enc(c),iv:shB64.enc(iv)});if(body.length>4000)throw new Error('trop de données');
+  const res=await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body});if(!res.ok)throw new Error('Serveur : '+res.status);
+ }catch(e){toast('Impossible de créer le code : '+(e.message||'hors connexion'),5000);return}
+ const sh=code.slice(0,4)+'-'+code.slice(4,8)+'-'+code.slice(8);
+ const r=await ask({title:'📲 Lier un autre appareil',html:'<p style="margin:.2rem 0 .4rem">Sur l’autre appareil (iPad, nouveau téléphone…), ouvre <b>AgenDam</b> → Réglages → Famille et contacts → <b>👥 Groupe</b> → <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:1.6rem;font-weight:800;letter-spacing:.08em;text-align:center;margin:.4rem 0 .3rem">'+sh+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">⚠️ Ce code donne accès à <b>toi</b> (fiche, droits, clés) : ne le donne à personne. À usage unique, valable 15 minutes.</p>',btns:[{label:'Copier le code',value:'copy',cls:'pri'},{label:'Fermer',value:null}]});
+ if(r==='copy'){try{await navigator.clipboard.writeText(sh);toast('Code copié')}catch(e){}}
+}
+async function amLinkIn(code){
+ if(amc()){toast('Cet appareil fait déjà partie d’un groupe',4000);return}
+ try{
+  const FK=await famCodeKeys(code),res=await fetch(famUrl()+'/i/'+FK.id,{cache:'no-store'});
+  if(res.status===404){toast('Code inconnu ou déjà utilisé',5000);return}
+  if(!res.ok)throw new Error('Serveur : '+res.status);
+  const o=await res.json(),pl=await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o.iv)},FK.key,shB64.dec(o.c));
+  const d=JSON.parse(new TextDecoder().decode(pl));
+  if(!d.link||!d.me||!d.kA||!d.ap){toast('Ce code n’est pas un code de liaison',5000);return}
+  if(Date.now()-(d.t0||0)>15*60e3){toast('Ce code a expiré (15 minutes). Génère-en un nouveau.',6000);return}
+  S.amc={on:1,nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:d.me,mem:{},rl:d.rl||{},last:{},sent:{},gen:d.gen||0,it:{}};
+  if(d.apriv)S.amc.apriv=d.apriv;
+  ls.set(K.set,S);tabsApply();AMC_TAB='mb';
+  try{await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:'x',iv:'x'})})}catch(e){}
+  try{await amPush(true)}catch(e){}
+  go('amicale');amPull(true);toast('Appareil lié : tu es '+S.amc.me.n,4000);
+ }catch(e){toast('Impossible de lier : '+(e.message||'hors connexion'),5000)}
+}
 async function amJoinCode(){
  if(!famUrl())return;
- const v={t:''};const pr=ask({title:'🔢 Rejoindre un groupe',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2), ou colle tout le message reçu.</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center">',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- const root=$('#dlg');root.oninput=e=>{if(e.target.id==='fc-in'){if(e.target.value.length>9){const c=famCodeFind(e.target.value);if(c)e.target.value=famCodeShow(c)}v.t=e.target.value}};
+ const v={t:''};const pr=ask({title:'🔢 Rejoindre un groupe',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2) ou le code de liaison d’un appareil (12 caractères), ou colle tout le message reçu.</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center">',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const root=$('#dlg');root.oninput=e=>{if(e.target.id==='fc-in'){if(e.target.value.length>9&&famCodeNorm(e.target.value).length!==12){const c=famCodeFind(e.target.value);if(c)e.target.value=famCodeShow(c)}v.t=e.target.value}};
  setTimeout(()=>{const i=$('#fc-in');if(i)i.focus()},120);
  const r=await pr;root.oninput=null;if(r!=='ok')return;
- const code=famCodeFind(v.t);if(!code){toast('Ce code ne semble pas bon : 8 caractères, par exemple K7P4-9QX2',5000);return}
+ {const n=famCodeNorm(v.t);if(n.length===12&&[...n].every(c=>FAM_ABC.includes(c))){await amLinkIn(n);return}}
+ const code=famCodeFind(v.t);if(!code){toast('Ce code ne semble pas bon : 8 caractères pour une invitation (K7P4-9QX2), 12 pour lier un appareil',5000);return}
  try{
   const FK=await famCodeKeys(code),res=await fetch(famUrl()+'/i/'+FK.id,{cache:'no-store'});
   if(res.status===404){toast('Code inconnu ou expiré (7 jours). Demande un nouveau code.',6000);return}
@@ -9752,10 +9836,13 @@ async function amSetTitle(id){
 async function amRemove(id){
  const a=amc();if(!a||!a.apriv||id===a.me.id)return;
  const p=amList().find(x=>x.id===id);if(!p)return;
- const r=await ask({title:'Retirer '+p.n+' de la liste ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⚠️ Pour l’instant, c’est un retrait de la liste : la personne garde ses accès tant que les clés du groupe ne sont pas renouvelées (prévu avec le partage de l’agenda et des notes).</p>',btns:[{label:'Retirer de la liste',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
- a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{x:1});a.rolesDirty=1;ls.set(K.set,S);render();
- try{await amRolesPut();ls.set(K.set,S)}catch(e){toast('Enregistré ici, envoi plus tard',3500)}
+ const miss=amList().filter(q=>!q.self&&q.id!==id&&!(a.mem&&a.mem[q.id]&&a.mem[q.id].pub));
+ if(miss.length){const r2=await ask({title:'Des membres ne sont pas à jour',html:'<p style="margin:.2rem 0 .5rem">'+miss.map(q=>esc(q.n)).join(', ')+' n’ont pas encore ouvert la dernière version d’AgenDam : ils ne peuvent pas recevoir les nouvelles clés et devraient être <b>ré-invités</b> avec un nouveau code.</p>',btns:[{label:'Renouveler quand même',value:'y',cls:'dng'},{label:'Attendre qu’ils se mettent à jour',value:null}]});if(r2!=='y')return}
+ a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{x:1});a.rolesDirty=1;ls.set(K.set,S);
+ let n=0;try{n=await amRotate()}catch(e){toast('Erreur pendant le renouvellement : '+(e.message||''),5000);return}
+ render();toast('Retiré. Clés renouvelées pour '+n+' membre'+(n>1?'s':''),4500)
 }
 async function amFiche(id){
  const a=amc();if(!a)return;
@@ -9768,7 +9855,7 @@ async function amFiche(id){
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
- if(a.apriv)btns.push({label:'🏷️ Changer le titre',value:'title'},{label:'Retirer de la liste',value:'rm',cls:'dng'});
+ if(a.apriv)btns.push({label:'🏷️ Changer le titre',value:'title'},{label:'Retirer du groupe',value:'rm',cls:'dng'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
  if(r==='tel')amOpen('tel:'+telN(p.tel));
@@ -9793,6 +9880,7 @@ async function amLeave(){
 let AMC_FL=0;
 async function amFlush(){
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;
+ if(a.rot)amRotFlush();
  try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};await amPut(it.z,'i-'+it.id,P);if(it.at===P.at)delete it.dirty}ls.set(K.set,S)}
  catch(e){}finally{AMC_FL=0}
 }
@@ -9862,6 +9950,7 @@ function amView(){
  else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
+   mrow('am-link','📲 Lier un autre appareil','iPad, nouveau téléphone… : c’est toi, mêmes droits')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
   if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
@@ -9932,7 +10021,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amRolesPut,amFiche,amVerify}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify}};
 })();
 
 
