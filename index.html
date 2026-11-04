@@ -224,9 +224,9 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .pst.dk{color:#f3eefc}.pst.dk .pst-box{background:#241b44}.pst.dk .pst-lieu,.pst.dk .pst-info,.pst.dk .pst-pg{color:#f3eefc}
 .pst-in{position:relative}.pst-hr{font-size:30px;font-weight:800;margin-top:8px}
 .pst-ft{position:absolute;left:0;right:0;bottom:140px;font-size:20px;font-style:italic;opacity:.8}
-.am-it.pt{flex-wrap:wrap;row-gap:.2rem}.am-it.pt .am-itx{flex:1 1 calc(100% - 3.4rem);min-width:0}.am-it.pt .am-itx+.pt-q{margin-left:3.2rem}.am-it.pt.done,.am-it.pt.done *{text-decoration:none!important}.am-it.pt.done .am-itx b{color:var(--k-am,inherit)}.am-it.pt.done{opacity:1}.pt-q{display:inline-flex;align-items:center;gap:.2rem;margin-left:.3rem}.pt-q b{min-width:1rem;text-align:center}.pt-q button{width:2rem;height:2rem;border-radius:.6rem;background:var(--surface2);font-weight:800}
+.am-by{color:var(--muted);font-size:.72rem!important;opacity:.9}.am-it.pt{flex-wrap:wrap;row-gap:.2rem}.am-it.pt .am-itx{flex:1 1 calc(100% - 3.4rem);min-width:0}.am-it.pt .am-itx+.pt-q{margin-left:3.2rem}.am-it.pt.done,.am-it.pt.done *{text-decoration:none!important}.am-it.pt.done .am-itx b{color:var(--k-am,inherit)}.am-it.pt.done{opacity:1}.pt-q{display:inline-flex;align-items:center;gap:.2rem;margin-left:.3rem}.pt-q b{min-width:1rem;text-align:center}.pt-q button{width:2rem;height:2rem;border-radius:.6rem;background:var(--surface2);font-weight:800}
 .pst-fi{position:absolute;display:block;height:auto;z-index:5;touch-action:none;cursor:grab}.pst-fi.sel{outline:3px dashed #2563eb;outline-offset:2px}
-.sh.po{max-width:min(72rem,98vw);padding-top:.7rem}.po-g{display:block}.po-l{position:sticky;top:-1px;z-index:6;background:var(--surface);padding:.2rem 0 .5rem;text-align:center}#po-pv{margin:0 auto;border-radius:6px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.28);background:#fff;touch-action:none}
+.sh.jj{max-width:min(46rem,98vw);height:94vh;max-height:94vh;display:flex;flex-direction:column;padding-top:.7rem}.jj-st{margin:.1rem 0 .3rem;font-size:1.05rem}.jj-tabs .chip{font-size:1rem;padding:.55rem .8rem}.jj-tabs i{font-style:normal;font-weight:800;margin-left:.2rem}.jj-f{display:flex;gap:.4rem;margin:.4rem 0}.jj-f .in{flex:1;min-width:0;font-size:1.05rem;padding:.65rem}.jj-l{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}.jj-r{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;padding:.7rem .6rem;margin:.3rem 0;border-radius:1rem;background:var(--surface2);border:2px solid transparent;min-height:4.2rem}.jj-r.ok{opacity:.75;border-color:var(--k-am)}.jj-c{width:2.8rem;height:2.8rem;flex:none;border-radius:50%;border:3px solid var(--k-am);display:grid;place-items:center;font-size:1.5rem;font-weight:800;color:#fff}.jj-r.ok .jj-c{background:var(--k-am)}.jj-n{flex:1;min-width:0;display:flex;flex-direction:column}.jj-n b{font-size:1.2rem}.jj-n small{color:var(--muted)}.jj-q{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:flex-end;max-width:45%}.jj-tk{background:var(--surface);border-radius:.6rem;padding:.25rem .5rem;font-weight:700;font-size:1rem}.sh.po{max-width:min(72rem,98vw);padding-top:.7rem}.po-g{display:block}.po-l{position:sticky;top:-1px;z-index:6;background:var(--surface);padding:.2rem 0 .5rem;text-align:center}#po-pv{margin:0 auto;border-radius:6px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.28);background:#fff;touch-action:none}
 @media(min-width:760px){.sh.po{height:90vh;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}.po-g{display:grid;grid-template-columns:auto 1fr;gap:1.2rem;flex:1;min-height:0}.po-l{position:static;padding:0}.po-r{overflow:auto;min-height:0;padding:0 .3rem 1rem 0}}
 .pst-img{margin:22px auto 0;overflow:hidden;border:6px solid var(--c1);box-shadow:0 8px 0 var(--c2);background:#fff}.pst-img img{width:100%;height:100%;object-fit:cover;display:block}
 .pst-img.rond{width:300px;height:300px;border-radius:50%}.pst-img.carre{width:300px;height:300px;border-radius:34px}.pst-img.ban{width:640px;height:250px;border-radius:24px}
@@ -1321,12 +1321,21 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.37.0';
+const APP_VERSION='2.39.0';
 const P='agd-';
 const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'};
 const BACKUP_FILE='agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.39.0',d:'04/11/2026',items:[
+  '<b>Page « Jour J » pour les événements</b> : bouton « 🎟 Page Jour J » dans un événement avec inscrits. Grande liste lisible, recherche par nom, filtre par grade, onglets Amicalistes / Non-amicalistes / Servis. Un appui sur la ligne (le rond à gauche) et la personne passe dans « Servis » ; un appui dans « Servis » la remet à servir.',
+  '<b>Choisir ce qu’on distribue</b> : repas, boisson, dessert, café et tes propres rubriques (pain, entrée, tombola…), au démarrage du suivi ou plus tard via « ⚙️ Ce qu’on distribue ». Les totaux et l’export Excel suivent.',
+  ]},
+ {v:'2.38.0',d:'04/11/2026',items:[
+  '<b>Bulletins signés partagés avec le bureau</b> : n’importe quel membre du bureau peut faire signer une adhésion ; le bulletin (signature et réponses, quelques Ko) est envoyé chiffré aux autres appareils du bureau, sans PDF stocké.',
+  '<b>🗄 Archiver les bulletins</b> (administrateur, onglet Amicalistes) : un seul ZIP avec un PDF par personne, nommé NOM-Prénom, à ranger où tu veux ; ensuite tu peux les supprimer de l’appli pour libérer la place (la fiche garde « bulletin archivé »).',
+  '<b>Qui a fait quoi</b> : sous chaque amicaliste « inscrit par … » et « bulletin signé devant … », le nom de la personne sur chaque tâche et article, le bulletin PDF indique qui l’a recueilli, et Groupe › 🕘 Qui a fait quoi liste les dernières actions.',
+ ]},
  {v:'2.37.0',d:'04/11/2026',items:[
   '<b>Bulletin d’adhésion à signer au doigt</b> : fiche d’un amicaliste › Bulletin (ou « Faire signer maintenant » à la création). Le bulletin se remplit avec la personne (grade, adresse, téléphone, mail, régime), calcule la cotisation selon le grade, enregistre le règlement (CB, espèces, chèque, virement reçu ou annoncé, ce qui coche « cotisation payée »), puis la personne signe avec le doigt. L’appli fabrique le PDF daté et signé, qu’on peut rouvrir depuis la fiche.',
   '<b>Ton propre modèle de bulletin</b> : Groupe › Bulletin d’adhésion : modifier le texte, fixer les tarifs par grade, importer ton modèle (Word, texte ou fichier modèle) et l’exporter pour un autre bureau.',
@@ -6149,7 +6158,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('👥 Groupe (amicale, club…)','<ul><li><b>🎖 Amicalistes</b> (bureau) : la liste des adhérents (grade, cotisation, patch, régime…) avec export Excel ; dans un événement, « Inscrits et suivi » pour pointer les présents, compter les tickets et suivre les paiements (amicalistes / non-amicalistes triés tout seuls).</li><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>🎟 Jour J</b> : dans un événement avec inscrits, « Page Jour J » affiche la liste à servir (recherche, grade, Amicalistes / Non-amicalistes) ; un appui sur la personne la fait passer dans « Servis ». « ⚙️ Ce qu’on distribue » choisit repas, boisson, dessert, café ou tes propres rubriques.</li><li><b>🎖 Amicalistes</b> (bureau) : la liste des adhérents (grade, cotisation, patch, régime…) avec export Excel ; dans un événement, « Inscrits et suivi » pour pointer les présents, compter les tickets et suivre les paiements (amicalistes / non-amicalistes triés tout seuls).</li><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -6337,7 +6346,7 @@ function demoGroup(){
  I('ee','Fête de fin d’année',{d:D(55),pl:'Parc municipal',bd:'Repas partagé, jeux pour les enfants, remise des récompenses.',z:'a',ck:[C('Choisir la date',1,'Paul Durand'),C('Réserver le parc',0,'Luc Martin'),C('Faire la liste des invités',0,'Claire Moreau'),C('Commander le repas',0,'Anne Bernard')],pg:[G('12:00','Apéritif'),G('13:00','Repas'),G('15:00','Jeux pour les enfants'),G('17:00','Remise des récompenses')]});
  I('ee','Vide-grenier de printemps',{d:D(150),pl:'Place du village',bd:'Réservé au bureau pour l’instant : à valider à la prochaine réunion.',z:'b',ck:[C('Valider la date avec la mairie',0,'Paul Durand'),C('Ouvrir les inscriptions',0,'')],pg:[]});
  I('ee','Repas annuel',{d:D(-70),pl:'Restaurant du centre',z:'a',ck:[C('Réserver',1,'Luc Martin'),C('Envoyer les invitations',1,'Marie Lefèvre'),C('Payer l’acompte',1,'Anne Bernard')],pg:[G('12:30','Apéritif'),G('13:30','Repas')]});
- {const ev=Object.values(it).find(x=>x.kind==='ee'&&x.tx==='Repas annuel');ev.sv='r';ev.pt=am.slice(0,9).map((m,i)=>({n:m.tx,m:m.id,a:1,p:i<7?1:0,tr:i<7?1:0,tb:i<7?2:0,pa:i<7?(i%2?25:20):0,pm:i<7?(i%3?'cb':'esp'):''})).concat([{n:'Invité de Luc',m:'',a:0,p:1,tr:1,tb:1,pa:30,pm:'esp'},{n:'Mme Garnier',m:'',a:0,p:1,tr:1,tb:2,pa:30,pm:'chq'},{n:'M. Lambert',m:'',a:0,p:0,tr:0,tb:0,pa:0,pm:''}])}
+ {const ev=Object.values(it).find(x=>x.kind==='ee'&&x.tx==='Repas annuel');ev.sv='r';ev.ty=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'}];ev.pt=am.slice(0,9).map((m,i)=>({sd:i<2?1:0,xt:{ds:i<7?1:0,cf:i<7?1:0},n:m.tx,m:m.id,a:1,p:i<7?1:0,tr:i<7?1:0,tb:i<7?2:0,pa:i<7?(i%2?25:20):0,pm:i<7?(i%3?'cb':'esp'):''})).concat([{n:'Invité de Luc',m:'',a:0,p:1,tr:1,tb:1,pa:30,pm:'esp'},{n:'Mme Garnier',m:'',a:0,p:1,tr:1,tb:2,pa:30,pm:'chq'},{n:'M. Lambert',m:'',a:0,p:0,tr:0,tb:0,pa:0,pm:''}])}
  return{on:1,nm:'Amicale',em:'👥',kB:'demo',kA:'demo',apub:null,me:{id:'dmpaul',n:'Paul Durand',tel:'06 00 00 00 11',mp:'paul@exemple.fr',mw:'',vis:1},mem,rl:{},roles,last:{},sent:{},gen:0,it};
 }
 function demoOn(){if(!demo)REAL_S=S;demo=true;S=Object.assign({},REAL_S||S,demoSettings());delete S.fam;S.amc=demoGroup();S.tabsHide=(S.tabsHide||[]).filter(x=>x!=='amicale');AMC_TAB='mb';AMC_EE='';EV=demoData()}
@@ -6778,6 +6787,7 @@ async function act(a,el,e){
   case 'bm-exp':amBmExport();break;
   case 'bm-rst':amBmReset();break;
   case 'bs-clr':amBsClear();break;
+  case 'bs-arch':amBsArchive();break;
   case 'bs-ok':amBsDone();break;
   case 'am-amed':amAmEdit(ds_.id);break;
   case 'am-amimp':amAmImport();break;
@@ -6785,7 +6795,12 @@ async function act(a,el,e){
   case 'am-amsort':AM_SORT=ds_.v;render();break;
   case 'am-amflt':AM_FLT=AM_FLT===ds_.v?'':ds_.v;render();break;
   case 'pt-p':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)c.p=c.p?0:1});break;
-  case 'pt-t':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)c[ds_.k]=Math.max(0,Math.min(99,(c[ds_.k]||0)+(+ds_.n)))});break;
+  case 'pt-t':amEeMut(o=>{const c=o.pt[+ds_.i];if(!c)return;if(ds_.k==='tr'||ds_.k==='tb')c[ds_.k]=Math.max(0,Math.min(99,(c[ds_.k]||0)+(+ds_.n)));else{c.xt=c.xt||{};c.xt[ds_.k]=Math.max(0,Math.min(99,(c.xt[ds_.k]||0)+(+ds_.n)))}});break;
+  case 'ee-ty':amTyEdit();break;
+  case 'jj-open':amJjOpen();break;
+  case 'jj-sv':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)c.sd=c.sd?0:1});amJjList();break;
+  case 'jj-tab':JJ.tab=ds_.v;amJjOpen();break;
+  case 'jj-all':amEeMut(o=>{const L=amJjFilter(o).filter(x=>JJ.tab==='s'?x.p.sd:!x.p.sd);L.forEach(x=>o.pt[x.i].sd=JJ.tab==='s'?0:1)});amJjList();break;
   case 'pt-ed':amPtEdit(+ds_.i);break;
   case 'ee-ptadd':amPtPick();break;
   case 'ee-ptnames':amPtNames();break;
@@ -9932,13 +9947,14 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','ev','nt','ee','am'].includes(P.kind))continue;
-     if((P.kind==='nt'||P.kind==='am')&&x.z!=='b')continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','ev','nt','ee','am','bs'].includes(P.kind))continue;
+     if((P.kind==='nt'||P.kind==='am'||P.kind==='bs')&&x.z!=='b')continue;
      a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};
      if(P.kind==='co')a.it[P.id].l=String(P.l||'').slice(0,24);
-     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.pt=arr(P.pt).slice(0,250).map(c=>({n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3)}))}
-     if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
+     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({sd:c&&c.sd?1:0,xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3)}))}
+     if(P.kind==='bs'){const o4=a.it[P.id];o4.w=String(P.w||'').slice(0,16);o4.sg=/^data:image\/png;base64,[A-Za-z0-9+\/=]{20,60000}$/.test(String(P.sg||''))?String(P.sg):''}
+     if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
      chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
@@ -10139,7 +10155,7 @@ let AMC_FL=0;
 async function amFlush(){
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;
  if(a.rot)amRotFlush();
- try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||''}if(it.kind==='am')P.o=it.o||{};
+ try{for(const it of Object.values(a.it||{})){if(!it.dirty)continue;const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[]}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs')P.sg=it.sg||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
    await amPut(it.z,'i-'+it.id,P);if(it.at===P.at)delete it.dirty}amSave()}
  catch(e){}finally{AMC_FL=0}
@@ -10256,6 +10272,18 @@ function pdfFromJpegs(pg){
  put(enc(x+'trailer\n<< /Size '+n+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF'));
  const out=new Uint8Array(len);let q=0;for(const u of parts){out.set(u,q);q+=u.length}
  return out;
+}
+async function amPdfBlob(html){
+ await loadH2C();
+ const shot=document.createElement('div');shot.className='am-shot';shot.innerHTML=html;document.body.appendChild(shot);
+ try{
+  await new Promise(r=>setTimeout(r,250));
+  const cv=await html2canvas(shot,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,windowWidth:794});
+  const PW=cv.width,PH=Math.round(PW*1.41421),n=Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
+  for(let i=0;i<n;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
+   const bin=atob(c2.toDataURL('image/jpeg',0.9).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH})}
+  return new Blob([pdfFromJpegs(pages)],{type:'application/pdf'});
+ }finally{shot.remove()}
 }
 async function amPdf(html,name,poster){
  if(!amMobile()){amPrintDoc(html,poster);return}
@@ -10561,7 +10589,7 @@ async function amEeCopy(){
  const D=new Date(it.d+'T12:00');D.setFullYear(D.getFullYear()+1);
  const v=await amForm('Copier pour l’an prochain','La liste de préparation est copiée avec toutes les cases décochées, le programme aussi.',[{k:'tx',l:'Nom',v:it.tx},{k:'d',l:'Nouvelle date',v:D.toISOString().slice(0,10),t:'date'}],'Copier');
  if(!v||!String(v.tx||'').trim()||!v.d)return;
- const o={id:amId(),kind:'ee',x:0,z:it.z,tx:v.tx.trim().slice(0,200),d:v.d,pl:it.pl||'',bd:it.bd||'',w:'',qt:'',tm:'',sv:it.sv||'',pt:[],ck:(it.ck||[]).map(c=>({t:c.t,ok:0,w:c.w||''})),pg:(it.pg||[]).map(c=>({tm:c.tm,t:c.t}))};
+ const o={id:amId(),kind:'ee',x:0,z:it.z,tx:v.tx.trim().slice(0,200),d:v.d,pl:it.pl||'',bd:it.bd||'',w:'',qt:'',tm:'',sv:it.sv||'',ty:it.ty||[],pt:[],ck:(it.ck||[]).map(c=>({t:c.t,ok:0,w:c.w||''})),pg:(it.pg||[]).map(c=>({tm:c.tm,t:c.t}))};
  AMC_EE=o.id;amItemSave(o);toast('Événement copié',2500);
 }
 async function amEeDel(){
@@ -10642,7 +10670,7 @@ async function amExport(title,rows,base){
 /* ---- bulletin d'adhésion signable au doigt ---- */
 const AM_BM_DEF={ti:'Bulletin d’adhésion',intro:'Je soussigné(e) {nom}{grade}, demande mon adhésion à {asso} pour l’année {annee} et m’engage à respecter ses statuts et son règlement intérieur.',cl:'J’ai pris connaissance du montant de la cotisation annuelle.\nJ’accepte de recevoir les informations de l’amicale par téléphone ou par mail.',rgpd:'Les informations recueillies sont conservées par l’amicale pour la gestion des adhésions. Vous disposez d’un droit d’accès, de rectification et de retrait en contactant le bureau.',tar:''};
 const amBm=()=>Object.assign({},AM_BM_DEF,(amc()||{}).bm||{});
-const amSg=()=>demo?(window.__bsd=window.__bsd||{}):(S.amSg=S.amSg||{});
+const amSg=()=>{const out=Object.assign({},demo?(window.__bsd||{}):(S.amSg||{})),a=amc();Object.values((a&&a.it)||{}).forEach(i=>{if(i&&i.kind==='bs'&&!i.del&&i.sg){let f={};try{f=JSON.parse(i.bd||'{}')}catch(e){}out[i.w]={at:i.d,sig:i.sg,f,by:i.by,it:i}}});return out};
 function amBmPrice(gr){const L=String(amBm().tar||'').split(/\r?\n/);let def='';for(const l of L){const i=l.indexOf('=');if(i<0)continue;const k=norm(l.slice(0,i)).trim(),v=l.slice(i+1).replace(',','.').replace(/[^0-9.]/g,'');if(k==='*')def=v;else if(gr&&k===norm(gr)&&v!=='')return v}return def}
 async function amBmEdit(pre){
  const a=amc();if(!a||!a.kB)return;const b=amBm(),p=pre||{};
@@ -10721,20 +10749,54 @@ async function amBsDone(){
  if(!BS.dirty){toast('La signature est vide : la personne doit signer avec le doigt',3500);return}
  const pa=g('pa').replace(',','.').replace(/[^0-9.]/g,''),pmx=g('pm'),pm=pmx==='va'?'vir':pmx,cf=['cb','esp','chq','vir'].includes(pmx)?'1':'0';
  const f={gr:g('gr'),ct:g('ct'),ad:g('ad'),tl:g('tl'),ml:g('ml'),rg:g('rg'),pa,pmx},day=today();
- amSg()[m.id]={at:day,sig:$('#bs-cv').toDataURL('image/png'),f};
- amItemSave(Object.assign({},m,{tx:nom.slice(0,60),d:m.d||day,o:Object.assign({},m.o||{},{gr:f.gr,ct:f.ct||'actif',ad:f.ad,tl:f.tl,ml:f.ml,rg:f.rg,pa,pm,cf,bs:day})}));
+ const sigU=$('#bs-cv').toDataURL('image/png'),old=amSg()[m.id];
+ amItemSave(Object.assign({},m,{tx:nom.slice(0,60),d:m.d||day,o:Object.assign({},m.o||{},{gr:f.gr,ct:f.ct||'actif',ad:f.ad,tl:f.tl,ml:f.ml,rg:f.rg,pa,pm,cf,bs:day,bb:a.me.n,ba:''})}));
+ if(demo){(window.__bsd=window.__bsd||{})[m.id]={at:day,sig:sigU,f,by:a.me.n}}else{const bi=old&&old.it?Object.assign({},old.it):{id:amId(),kind:'bs',x:0,z:'b',tm:'',pl:'',qt:'',del:0};bi.tx=nom.slice(0,60);bi.w=m.id;bi.d=day;bi.bd=JSON.stringify(f).slice(0,3500);bi.sg=sigU;amItemSave(bi)}
  const id=m.id;BS=null;closeSheet();setTimeout(()=>amBsPdf(id),200);
 }
-function amBsPdf(id){
- const a=amc(),m=a&&a.it&&a.it[id],sg=amSg()[id];if(!m||!sg){toast('Pas de bulletin signé pour cette personne',3000);return}
+function amBsHtml(id){
+ const a=amc(),m=a&&a.it&&a.it[id],sg=amSg()[id];if(!m||!sg)return null;
  const b=amBm(),f=sg.f||{},nom=m.tx,cl=String(b.cl||'').split(/\r?\n/).filter(Boolean),ct=(AM_CT.find(x=>x[0]===f.ct)||[])[1]||'';
  const pay=f.pa?('Cotisation : <b>'+esc(amEur(f.pa))+'</b> — '+({cb:'réglée par carte bancaire',esp:'réglée en espèces',chq:'réglée par chèque',vir:'réglée par virement',va:'virement annoncé (à recevoir)'}[f.pmx]||'à régler')):'';
  const rows=[['Nom et prénom',nom],['Grade',f.gr],['Catégorie',ct],['Adresse',f.ad],['Téléphone',f.tl],['Mail',f.ml],['Régime particulier',f.rg]].filter(r=>r[1]);
  const body='<p>'+esc(amBsFill(b.intro,nom,f.gr))+'</p><table class="amp-t">'+rows.map(r=>'<tr><td style="width:170px">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>'+
   (cl.length?'<ul>'+cl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+(pay?'<p>'+pay+'</p>':'')+
   '<p style="margin-top:22px">Fait le '+esc(amDateFr(new Date(sg.at+'T12:00').getTime()))+'</p><p style="margin:0">Signature :</p><img src="'+sg.sig+'" alt="Signature" style="height:100px;border-bottom:1px solid #999;display:block">'+
-  '<p style="margin-top:26px;font-size:11px;color:#666"><i>'+esc(b.rgpd)+'</i></p>';
- amPdf(amDocFrame(b.ti,'',body),'bulletin-'+norm(nom).replace(/[^a-z0-9]+/g,'-').slice(0,24)+'.pdf');
+  (sg.by?'<p style="font-size:11px;color:#666">Bulletin recueilli par '+esc(sg.by)+'</p>':'')+'<p style="margin-top:14px;font-size:11px;color:#666"><i>'+esc(b.rgpd)+'</i></p>';
+ return amDocFrame(b.ti,'',body);
+}
+const amSlug=t=>norm(t).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'sans-nom';
+function amBsPdf(id){const h=amBsHtml(id);if(!h){toast('Pas de bulletin signé pour cette personne',3000);return}const m=amc().it[id];amPdf(h,'bulletin-'+amSlug(m.tx)+'.pdf')}
+
+async function amBsArchive(){
+ const a=amc();if(!a||!a.apriv)return;
+ const L=Object.values(a.it||{}).filter(i=>i&&i.kind==='bs'&&!i.del&&i.sg);
+ if(!L.length){toast('Aucun bulletin à archiver',3000);return}
+ const r=await ask({title:'🗄 Archiver les bulletins signés',text:L.length+' bulletin'+(L.length>1?'s':'')+' signé'+(L.length>1?'s':'')+'. L’appli fabrique un PDF par personne (nommé NOM-Prénom) dans un seul fichier ZIP à ranger où tu veux. Ensuite tu pourras les supprimer de l’appli pour libérer la place : les fiches des amicalistes restent.',btns:[{label:'Créer le ZIP',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ const files=[],used={};let k=0;
+ try{
+  for(const bi of L.slice(0,80)){k++;toast('PDF '+k+'/'+Math.min(L.length,80)+'…',60000);
+   const m=a.it[bi.w],html=amBsHtml(bi.w);if(!html)continue;
+   const blob=await amPdfBlob(html);let nm=amSlug(m?m.tx:bi.tx);if(used[nm]){used[nm]++;nm+='-'+used[nm]}else used[nm]=1;
+   files.push({n:nm+'-'+String(bi.d||'').slice(0,4)+'.pdf',d:new Uint8Array(await blob.arrayBuffer()),bi})}
+ }catch(e){toast('Création impossible : '+(e&&e.message||'erreur'),6000);return}
+ if(!files.length){toast('Rien à archiver',3000);return}
+ await amSaveBlob(amZip(files.map(f=>({n:f.n,d:f.d}))),'bulletins-'+today()+'.zip','application/zip');
+ const r2=await ask({title:'Supprimer ces '+files.length+' bulletins de l’appli ?',text:'Seulement si le ZIP est bien enregistré chez toi. Les signatures sont effacées sur tous les appareils du bureau ; les fiches des amicalistes gardent la mention « bulletin archivé ».',btns:[{label:'Oui, libérer la place',value:'y',cls:'dng'},{label:'Non, garder',value:null}]});
+ if(r2!=='y')return;
+ for(const f of files){const bi=f.bi,m=a.it[bi.w];
+  if(demo){delete (window.__bsd||{})[bi.w];continue}
+  if(S.amSg&&S.amSg[bi.w])delete S.amSg[bi.w];
+  amItemSave(Object.assign({},bi,{del:1,sg:'',bd:''}));
+  if(m)amItemSave(Object.assign({},m,{o:Object.assign({},m.o||{},{ba:'1'})}))}
+ amSave();render();toast(files.length+' bulletins supprimés de l’appli',4000);
+}
+const AM_KL={tk:'tâche',co:'article',ev:'agenda',ee:'événement',nt:'note',am:'amicaliste',bs:'bulletin'};
+function amRelT(t){const d=Math.round((Date.now()-t)/60000);return d<1?'à l’instant':d<60?'il y a '+d+' min':d<1440?'il y a '+Math.round(d/60)+' h':'il y a '+Math.round(d/1440)+' j'}
+function amJournalHTML(){
+ const a=amc(),L=Object.values((a&&a.it)||{}).filter(i=>i&&i.by&&i.at&&AM_KL[i.kind]).sort((p,q)=>q.at-p.at).slice(0,25);
+ return '<div class="card"><h3>🕘 Qui a fait quoi</h3>'+(L.length?L.map(i=>'<p style="margin:.25rem 0;font-size:.88rem"><b>'+esc(i.by)+'</b> · '+(i.del?'a supprimé':'a modifié')+' '+AM_KL[i.kind]+(i.kind==='bs'?'':' « '+esc(String(i.tx||'').slice(0,40))+' »')+' <small class="mut">· '+amRelT(i.at)+'</small></p>').join(''):'<p class="empty">Rien pour l’instant.</p>')+'<p class="mut" style="font-size:.78rem;margin:.4rem 0 0">Dernière action de chaque élément. Chaque ligne d’une liste porte aussi le nom de la personne (✍️).</p></div>';
 }
 function amAmSorted(L){const g=m=>amGrRank((m.o||{}).gr),c=m=>AM_CT.findIndex(x=>x[0]===(m.o||{}).ct);
  return L.slice().sort((p,q)=>AM_SORT==='grade'?(g(p)-g(q)||p.tx.localeCompare(q.tx,'fr')):AM_SORT==='cat'?(c(p)-c(q)||p.tx.localeCompare(q.tx,'fr')):p.tx.localeCompare(q.tx,'fr'))}
@@ -10743,13 +10805,15 @@ function amAmRows(){
  if(AM_FLT==='cot')L=L.filter(m=>(m.o||{}).cf!=='1');else if(AM_FLT==='patch')L=L.filter(m=>(m.o||{}).pc!=='1');else if(AM_FLT==='rg')L=L.filter(m=>(m.o||{}).rg);
  if(q)L=L.filter(m=>norm(m.tx+' '+((m.o||{}).gr||'')+' '+((m.o||{}).rg||'')).includes(q));
  L=amAmSorted(L);
- return L.length?L.map(m=>{const o=m.o||{};return '<button class="am-it" data-act="am-amed" data-id="'+esc(m.id)+'"><span class="am-itx"><b>'+esc(m.tx)+'</b><small>'+[o.gr?esc(o.gr):'',((AM_CT.find(x=>x[0]===o.ct)||[])[1])||'',o.cf==='1'?'💶 cotisation ✓'+(o.pa?' '+esc(amEur(o.pa)):'')+(o.pm?' ('+amPmLb(o.pm)+')':''):'⚠️ cotisation à payer',o.pc==='1'?'🧵 patch ✓':'',o.bs?'📝 bulletin ✓':'',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span></button>'}).join(''):'<p class="empty">'+(amItems('am').length?'Aucun résultat.':'Aucun amicaliste pour l’instant. Ajoute-les un par un ou importe ta liste.')+'</p>';
+ return L.length?L.map(m=>{const o=m.o||{};return '<button class="am-it" data-act="am-amed" data-id="'+esc(m.id)+'"><span class="am-itx"><b>'+esc(m.tx)+'</b><small>'+[o.gr?esc(o.gr):'',((AM_CT.find(x=>x[0]===o.ct)||[])[1])||'',o.cf==='1'?'💶 cotisation ✓'+(o.pa?' '+esc(amEur(o.pa)):'')+(o.pm?' ('+amPmLb(o.pm)+')':''):'⚠️ cotisation à payer',o.pc==='1'?'🧵 patch ✓':'',o.bs?(o.ba?'📝 bulletin archivé':'📝 bulletin ✓'):'',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small>'+((o.cb||o.bb)?'<small class="am-by">'+[o.cb?'✍️ inscrit par '+esc(o.cb):'',o.bb&&o.bb!==o.cb?'bulletin signé devant '+esc(o.bb):''].filter(Boolean).join(' · ')+'</small>':'')+'</span></button>'}).join(''):'<p class="empty">'+(amItems('am').length?'Aucun résultat.':'Aucun amicaliste pour l’instant. Ajoute-les un par un ou importe ta liste.')+'</p>';
 }
 function amAmHTML(){
  const L=amItems('am'),n=L.length,cot=L.filter(m=>(m.o||{}).cf==='1'),tot=cot.reduce((s,m)=>s+(+(m.o||{}).pa||0),0);
  const by=AM_CT.map(c=>[c[1],L.filter(m=>(m.o||{}).ct===c[0]).length]).filter(x=>x[1]);
  let h='<div class="card"><h3>🎖 Amicalistes · '+n+'</h3><p class="mut" style="margin:.2rem 0;font-size:.9rem">💶 Cotisation payée : <b>'+cot.length+'/'+n+'</b>'+(tot?' · encaissé '+esc(amEur(tot)):'')+'<br>🧵 Patch reçu : <b>'+L.filter(m=>(m.o||{}).pc==='1').length+'</b> · 🍽 Régimes particuliers : <b>'+L.filter(m=>(m.o||{}).rg).length+'</b>'+(by.length?'<br>'+by.map(x=>esc(x[0])+' '+x[1]).join(' · '):'')+'</p><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">🔒 Liste visible par le bureau seulement.</p></div>';
  h+='<button class="btn pri blk" data-act="am-amadd">'+ic('plus')+' Ajouter un amicaliste</button><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-amimp">📥 Importer une liste</button><button class="btn grow" data-act="am-amexp">📤 Exporter (Excel)</button></div>';
+ const nbs=Object.values((amc()||{}).it||{}).filter(i=>i&&i.kind==='bs'&&!i.del&&i.sg).length;
+ if(amc().apriv&&nbs)h+='<button class="btn blk" data-act="bs-arch" style="margin-top:.4rem">🗄 Archiver les bulletins signés ('+nbs+')</button>';
  h+='<div class="chips tk-chips" style="margin:.6rem 0 .3rem">'+[['nom','Nom'],['grade','Grade'],['cat','Catégorie']].map(x=>'<button class="chip'+(AM_SORT===x[0]?' on':'')+'" data-act="am-amsort" data-v="'+x[0]+'">Tri : '+x[1]+'</button>').join('')+'</div>';
  h+='<div class="chips tk-chips" style="margin:0 0 .3rem">'+[['cot','💶 À payer'],['patch','🧵 Sans patch'],['rg','🍽 Régimes']].map(x=>'<button class="chip'+(AM_FLT===x[0]?' on':'')+'" data-act="am-amflt" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
  h+='<input class="in" id="am-q" placeholder="Chercher un nom, un grade…" value="'+esc(AM_Q)+'" autocomplete="off" style="margin:.2rem 0 .4rem"><div id="am-list">'+amAmRows()+'</div>';
@@ -10766,7 +10830,7 @@ async function amAmEdit(id){
  if(m&&v.act==='del'){amItemSave(Object.assign({},m,{del:1}));toast('Retiré de la liste',2000);return}
  if(m&&v.act==='pdf'){amBsPdf(m.id);return}
  if(!String(v.tx||'').trim()){toast('Il faut un nom',2500);return}
- const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60)})};
+ const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{cb:o.cb||a.me.n,gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60)})};
  amItemSave(n);
  if(v.bul==='1'||v.act==='bul')setTimeout(()=>amBsOpen(n.id),150);
 }
@@ -10794,25 +10858,25 @@ function amPtHTML(it,rw){
  const tk=it.sv==='r'||pt.some(p=>p.tr||p.tb);
  const [A,N]=amPtGroups(it),T=amPtTot(pt);
  let h='<h4 class="am-h">Inscrits et suivi'+(pt.length?' · '+pt.length:'')+'</h4>';
- if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?' · 🍽 Tickets repas <b>'+T.tr+'</b> · 🍷 Tickets boisson <b>'+T.tb+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
- const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=x.m&&(x.m.o||{}).rg,q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+(p[k]||0)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
-  return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?q('tr','🍽')+q('tb','🍷'):'')+'</div>'};
+ if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Servis <b>'+pt.filter(p=>p.sd).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
+ const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=x.m&&(x.m.o||{}).rg,q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+amQ(p,k)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
+  return '<div class="am-it pt'+(p.p?' done':'')+'"><button class="am-ck" '+(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':'')+'</button><button class="am-itx" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'🍽 '+esc(rg):'',p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+'</div>'};
  const grp=(t,L)=>L.length?'<h4 class="am-h" style="font-size:.95rem">'+t+' · '+L.length+' <small class="mut">(présents '+L.filter(x=>x.p.p).length+')</small></h4>'+L.map(row).join(''):'';
  h+=grp('🎖 Amicalistes',A)+grp('👤 Non-amicalistes',N);
  if(!pt.length)h+='<p class="empty">Repas, loto, sortie… : ajoute les participants pour pointer les présents, compter les tickets et suivre les paiements.</p>';
  if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-ptadd">🎖 Ajouter des amicalistes</button><button class="btn grow" data-act="ee-ptimp">📥 Importer une liste d’inscrits</button></div><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptnames">✍️ Ajouter des noms</button></div>';
-  if(pt.length)h+='<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptall">☑️ Tout cocher / décocher</button><button class="btn grow" data-act="ee-ptexp">📤 Exporter (Excel)</button></div>'}
+  if(pt.length)h+='<div class="btns" style="margin-top:.5rem"><button class="btn grow pri" data-act="jj-open">🎟 Page Jour J (distribution)</button>'+(tk?'<button class="btn grow" data-act="ee-ty">⚙️ Ce qu’on distribue</button>':'')+'</div><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptall">☑️ Tout cocher / décocher</button><button class="btn grow" data-act="ee-ptexp">📤 Exporter (Excel)</button></div>'}
  else if(pt.length)h+='<button class="btn blk" data-act="ee-ptexp" style="margin-top:.3rem">📤 Exporter (Excel)</button>';
  return h;
 }
 function amPtExport(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length){toast('Aucun inscrit');return}
- const [A,N]=amPtGroups(it),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{};return [st,p.n,o.gr||'',p.p?'Oui':'Non',p.tr||0,p.tb||0,p.pa||'',amPmLb(p.pm),o.rg||'']};
- const rows=[[it.tx+' · '+it.d],['Statut','Nom','Grade','Présent','Tickets repas','Tickets boisson','Montant payé','Payé par','Régime particulier']];
+ const [A,N]=amPtGroups(it),TY=amTy(it),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{};return [st,p.n,o.gr||'',p.p?'Oui':'Non'].concat(TY.map(t=>amQ(p,t.k)),[p.sd?'Oui':'Non',p.pa||'',amPmLb(p.pm),o.rg||''])};
+ const rows=[[it.tx+' · '+it.d],['Statut','Nom','Grade','Présent'].concat(TY.map(t=>'Tickets '+String(t.l).toLowerCase()),['Servi','Montant payé','Payé par','Régime particulier'])];
  A.concat(N).forEach(x=>rows.push(line(A.includes(x)?'Amicaliste':'Non-amicaliste',x)));
  const T=g=>amPtTot(g.map(x=>x.p));rows.push([]);
- [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','',t.p+' présents',t.tr,t.tb,t.pa,'',''])});
- const t=amPtTot(it.pt);rows.push(['TOTAL',t.n+' inscrits','',t.p+' présents',t.tr,t.tb,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']);
+ [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','',t.p+' présents'].concat(TY.map(y=>g.reduce((n,x)=>n+amQ(x.p,y.k),0)),[g.filter(x=>x.p.sd).length,t.pa,'','']))});
+ const t=amPtTot(it.pt);rows.push(['TOTAL',t.n+' inscrits','',t.p+' présents'].concat(TY.map(y=>it.pt.reduce((n,p)=>n+amQ(p,y.k),0)),[it.pt.filter(p=>p.sd).length,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']));
  amExport('Suivi : '+it.tx,rows,'suivi-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24));
 }
 async function amPtEdit(i){
@@ -10824,7 +10888,50 @@ async function amPtEdit(i){
 
 async function amSvOn(){
  const r=await ask({title:'Liste d’inscrits',text:'Quel type de suivi pour cet événement ?',btns:[{label:'🍽 Repas : inscrits + tickets + paiement',value:'r',cls:'pri'},{label:'👥 Inscrits : présence + paiement',value:'p'},{label:'Annuler',value:null}]});
- if(!r)return;amEeMut(o=>{o.sv=r});
+ if(!r)return;amEeMut(o=>{o.sv=r});if(r==='r')await amTyEdit();
+}
+const AM_TY0=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'}];
+const AM_TYP=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'}];
+const amTy=it=>Array.isArray(it.ty)&&it.ty.length?it.ty:AM_TY0;
+const amQ=(p,k)=>k==='tr'||k==='tb'?(p[k]||0):((p.xt||{})[k]||0);
+async function amTyEdit(){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!a.kB)return;
+ const cur=amTy(it),has=k=>cur.some(t=>t.k===k)?'1':'0',YN=[['1','Oui'],['0','Non']];
+ const cust=cur.filter(t=>!AM_TYP.some(x=>x.k===t.k));
+ const v=await amForm('Qu’est-ce qu’on distribue ?','Choisis ce dont tu as besoin pour cet événement. Tu pourras changer plus tard.',AM_TYP.map(t=>({k:t.k,l:t.e+' '+t.l,t:'select',v:has(t.k),o:YN})).concat([{k:'xx',l:'Autres (sépare par des virgules)',v:cust.map(t=>t.l).join(', '),ph:'Pain, Entrée, Ticket tombola…'}]),'Valider');
+ if(!v)return;
+ const ty=AM_TYP.filter(t=>v[t.k]==='1').map(t=>Object.assign({},t));
+ const old=cust.slice();
+ String(v.xx||'').split(',').map(x=>x.trim().slice(0,20)).filter(Boolean).slice(0,4).forEach((l,i)=>{const o=old.find(t=>t.l===l);ty.push({k:o?o.k:'x'+(Date.now()%1000+i),l,e:'🎟'})});
+ amEeMut(o=>{o.ty=ty.length?ty:AM_TY0.map(t=>Object.assign({},t))});
+}
+let JJ={q:'',gr:'',tab:'a'};
+function amJjFilter(it){
+ const q=norm(JJ.q).trim(),[A,N]=amPtGroups(it),isA=x=>A.includes(x);
+ return A.concat(N).filter(x=>{if(q&&!norm(x.p.n+' '+((x.m&&(x.m.o||{}).gr)||'')).includes(q))return false;if(JJ.gr&&((x.m&&(x.m.o||{}).gr)||'')!==JJ.gr)return false;return true}).sort((p,q2)=>p.p.n.localeCompare(q2.p.n,'fr')).map(x=>Object.assign({},x,{isA:isA(x)}));
+}
+function amJjList(){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE],box=$('#jj-list');if(!it||!box)return;
+ const TY=amTy(it),all=amJjFilter(it),[A0,N0]=amPtGroups(it),tot=(it.pt||[]).length,sv=(it.pt||[]).filter(p=>p.sd).length;
+ const L=all.filter(x=>JJ.tab==='s'?x.p.sd:(!x.p.sd&&(JJ.tab==='a'?x.isA:!x.isA)));
+ const cnt=t=>(it.pt||[]).filter((p,i)=>t==='s'?p.sd:(!p.sd&&(t==='a'?A0.some(x=>x.i===i):N0.some(x=>x.i===i)))).length;
+ const st=$('#jj-st');if(st)st.innerHTML='Servis <b>'+sv+'</b> / '+tot+' · Reste à servir <b>'+(tot-sv)+'</b>';
+ ['a','n','s'].forEach(t=>{const b=$('#jj-t-'+t);if(b)b.querySelector('i').textContent=cnt(t)});
+ box.innerHTML=L.length?L.map(x=>{const o=(x.m&&x.m.o)||{},tk=TY.map(t=>[t,amQ(x.p,t.k)]).filter(y=>y[1]>0).map(y=>'<span class="jj-tk">'+esc(y[0].e||y[0].l)+' ×'+y[1]+'</span>').join('')||'<span class="mut">aucun ticket</span>';
+  return '<button class="jj-r'+(x.p.sd?' ok':'')+'" data-act="jj-sv" data-i="'+x.i+'"><span class="jj-c">'+(x.p.sd?'✓':'')+'</span><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',o.rg?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+tk+'</span></button>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’a encore été servi.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout le monde est servi 🎉'))+'</p>';
+ const ab=$('#jj-all');if(ab)ab.style.display=L.length?'':'none';if(ab)ab.textContent=JJ.tab==='s'?'↩ Tout remettre à servir ('+L.length+')':'✓ Tout marquer servi ('+L.length+')';
+}
+function amJjOpen(){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length)return;
+ const grs=[...new Set(amPtGroups(it)[0].map(x=>(x.m.o||{}).gr).filter(Boolean))].sort((p,q)=>amGrRank(p)-amGrRank(q));
+ const tb=(t,l)=>'<button class="chip'+(JJ.tab===t?' on':'')+'" id="jj-t-'+t+'" data-act="jj-tab" data-v="'+t+'">'+l+' <i>0</i></button>';
+ let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎟 '+esc(it.tx)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 Amicalistes')+tb('n','👤 Non-amicalistes')+tb('s','✅ Servis')+'</div>';
+ h+='<div class="jj-f"><input class="in" id="jj-q" type="search" placeholder="🔍 Chercher un nom…" value="'+esc(JJ.q)+'" autocomplete="off"><select class="in" id="jj-gr"><option value="">Tous les grades</option>'+grs.map(g=>'<option'+(JJ.gr===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select></div>';
+ h+='<div id="jj-list" class="jj-l"></div><button class="btn blk" id="jj-all" data-act="jj-all" style="margin-top:.4rem"></button>';
+ const r=openSheet(h,'jj');
+ const q=$('#jj-q'),g=$('#jj-gr');q.oninput=()=>{JJ.q=q.value;amJjList()};g.onchange=()=>{JJ.gr=g.value;amJjList()};
+ amJjList();
 }
 const AM_HDR=/^(nom|noms|pr[ée]nom|pr[ée]noms|name|n°|num[ée]ro|#)$/i;
 function amNamesFromRows(rows){
@@ -10918,7 +11025,7 @@ function amItemsHTML(kind){
  const a=amc(),L=amItems(kind);
  const open=L.filter(i=>!i.x).sort((p,q)=>(p.d||'9')<(q.d||'9')?-1:(p.d||'9')>(q.d||'9')?1:(p.at||0)-(q.at||0)),done=L.filter(i=>i.x).sort((p,q)=>(q.at||0)-(p.at||0));
  const today=new Date().toISOString().slice(0,10);
- const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ')+'</small></button></div>';
+ const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':'',i.by?'✍️ '+esc(i.by):''].filter(Boolean).join(' · ')+'</small></button></div>';
  let h='<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='tk'?'Nouvelle tâche':'Nouvel article')+'</button>';
  h+=open.length?open.map(row).join(''):'<p class="empty">'+(kind==='tk'?'Aucune tâche pour l’instant.':'La liste de courses est vide.')+'</p>';
  if(done.length){h+='<h4 class="am-h">'+(kind==='tk'?'Faites':'Achetés')+' · '+done.length+'</h4>'+done.slice(0,30).map(row).join('')+'<button class="btn blk" data-act="am-clear" data-k="'+kind+'" style="margin-top:.5rem">🧹 Vider '+(kind==='tk'?'les tâches faites':'les articles achetés')+'</button>'}
@@ -10946,6 +11053,7 @@ function amView(){
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
   if(a.kB)h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). Tu peux garder le modèle de l’appli ou importer le tien.</p>'+mrow('bm-edit','✏️ Modifier le texte','Titre, engagement, mention RGPD')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+(a.bm?mrow('bm-rst','↺ Revenir au modèle de l’appli',''):'')+'</div>';
   if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
+  h+=amJournalHTML();
   h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Onglets du groupe</span>'+seg('amSide',[[1,'Sur le côté'],[0,'En haut']],side?1:0)+'</div></div>';
   h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
   h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
