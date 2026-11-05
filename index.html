@@ -689,11 +689,11 @@ details.dev[open] summary{margin-bottom:.5rem}
 }
 /* intercalaires des listes à l'horizontale sur iPad et ordinateur : le nom se lit en entier */
 @media(min-width:900px){
-  body:not(.tabsv) .co-tabs{width:9.5rem}
-  body:not(.tabsv) .co-tab{writing-mode:horizontal-tb;flex-direction:column;align-items:flex-start;gap:.15rem;min-height:0;max-height:none;width:100%;padding:.5rem .6rem;white-space:normal;text-align:left;border-radius:0 .7rem .7rem 0;position:relative}
-  body:not(.tabsv) .co-tab.on{width:100%}
-  body:not(.tabsv) .co-tn{white-space:normal;overflow-wrap:anywhere;line-height:1.2;padding-right:1.6rem}.co-tw{white-space:normal;line-height:1.2}
-  body:not(.tabsv) .co-tc{position:absolute;top:.45rem;right:.4rem}
+  body:not(.tabsv) .co-tabs:not(.am-sn){width:9.5rem}
+  body:not(.tabsv) .co-tabs:not(.am-sn) .co-tab{writing-mode:horizontal-tb;flex-direction:column;align-items:flex-start;gap:.15rem;min-height:0;max-height:none;width:100%;padding:.5rem .6rem;white-space:normal;text-align:left;border-radius:0 .7rem .7rem 0;position:relative}
+  body:not(.tabsv) .co-tabs:not(.am-sn) .co-tab.on{width:100%}
+  body:not(.tabsv) .co-tabs:not(.am-sn) .co-tn{white-space:normal;overflow-wrap:anywhere;line-height:1.2;padding-right:1.6rem}.co-tw{white-space:normal;line-height:1.2}
+  body:not(.tabsv) .co-tabs:not(.am-sn) .co-tc{position:absolute;top:.45rem;right:.4rem}
   body .co-tadd{align-items:center;min-height:2.2rem}
 }
 /* petits écrans en paysage : on gagne de la hauteur */
@@ -1364,7 +1364,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.55.0';
+const APP_VERSION='2.55.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1372,6 +1372,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.55.1',d:'05/11/2026',items:[
+  'iPad et ordinateur : les onglets du groupe (Membres, Amicalistes, Agenda…) restent écrits à la verticale comme sur le téléphone (ils étaient coupés à l’horizontale dans une colonne trop étroite).'
+ ]},
  {v:'2.55.0',d:'05/11/2026',items:[
   '<b>Votre fichier Excel des amicalistes</b> s’importe tel quel : grades abrégés (SGC, ADC, SGT, ADJ, SLT, LTT, Cat. C…), N° de badge, moyen de paiement (« Sortie Ecole » = gratuit), « date paiement » avec qui a encaissé (« 29/07/2026 DAMIEN », « 13-août »), patch « OK », coffret 8 ans. Réimporter le fichier met les fiches à jour, sans doublon.',
   '<b>🧹 Retirer les doublons</b> (onglet Amicalistes) : une seule fiche par personne, toutes les infos réunies, bulletins gardés.',
