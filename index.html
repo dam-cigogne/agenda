@@ -1398,7 +1398,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.62.3';
+const APP_VERSION='2.62.4';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1406,6 +1406,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.62.4',d:'06/11/2026',items:[
+  '<b>💶 Remettre les prix à jour : une case par personne</b>. Décoche ceux qui doivent garder leur prix (sortie d’école, offert…) : le prix est gardé et ne sera plus proposé. Les prix à 0 € sont décochés d’office. Un prix changé à la main dans la fiche est aussi gardé.'
+ ]},
  {v:'2.62.3',d:'06/11/2026',items:[
   '<b>Import : colonne « date » reconnue</b> comme date d’inscription / de paiement (avec le nom de celui qui a encaissé : « 30/07/2026 DAMIEN »), et remplit aussi la date d’adhésion si elle est vide. Reconnues aussi : « N° TEL CIVIL » (téléphone), « MONTANT COTISATION » (prix ; les cases « #NOM? » sont ignorées).'
  ]},
@@ -10323,7 +10326,7 @@ async function amPull(manual){
      if(P.kind==='ac'){const c=a.it[P.id];if(c.del||!c.bd)await PH.del('adc-'+P.id);else await PH.put('adc-'+P.id,c.bd);c.bd=''}
      if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.rp=amRpClean(P.rp);o2.pr=amPrClean(P.pr);o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({rg:S2(c&&c.rg).slice(0,40),by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3),du:c&&c.du!=null&&c.du!==''&&isFinite(+c.du)?Math.max(0,Math.min(9999,+c.du)):null,eb:S2(c&&c.eb).slice(0,30),et:Math.max(0,+(c&&c.et)||0)}))}
      if(P.kind==='bs'){const o4=a.it[P.id];o4.w=String(P.w||'').slice(0,16);o4.sg=/^data:image\/png;base64,[A-Za-z0-9+\/=]{20,60000}$/.test(String(P.sg||''))?String(P.sg):''}
-     if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba','bsa','bp','sv','bg','k8','pd','pb','st'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
+     if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba','bsa','bp','sv','bg','k8','pd','pb','st','pxk'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
      chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
@@ -11916,7 +11919,7 @@ async function amAmEdit(id){
  if(m&&v.act==='pdf'){amBsMenu(m.id);return}
  if(m&&v.act==='cd'){amCdMember(m.id);return}
  if(!String(v.tx||'').trim()){toast('Il faut un nom',2500);return}
- const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{cb:m?(o.cb||o.pb||''):a.me.n,gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60),sv:String(v.sv||'').slice(0,60),tl:String(v.tl||'').trim().slice(0,30),ml:String(v.ml||'').trim().slice(0,60),bg:String(v.bg||'').trim().slice(0,20),k8:v.k8==='1'?'1':'',pd:v.pd||'',pb:String(v.pb||'').trim().slice(0,30),st:v.st==='n'?'n':''})};
+ const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{cb:m?(o.cb||o.pb||''):a.me.n,gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pxk:String(v.pa||'').replace(',','.').slice(0,8)!==String(o.pa||'')?'1':(o.pxk||''),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60),sv:String(v.sv||'').slice(0,60),tl:String(v.tl||'').trim().slice(0,30),ml:String(v.ml||'').trim().slice(0,60),bg:String(v.bg||'').trim().slice(0,20),k8:v.k8==='1'?'1':'',pd:v.pd||'',pb:String(v.pb||'').trim().slice(0,30),st:v.st==='n'?'n':''})};
  if(n.o.cf==='1'&&o.cf!=='1'){if(!n.o.pd)n.o.pd=today();if(!n.o.pb)n.o.pb=a.me.n}
  if(v.bp==='1')Object.assign(n.o,{bp:'1',bs:(o.bp==='1'&&amBsSa(o)===sac&&o.bs)||today(),bsa:sac,ba:''});else if(v.bp==='0'&&o.bp==='1')Object.assign(n.o,{bp:'',bs:'',bsa:''});
  amItemSave(n);
@@ -12314,15 +12317,17 @@ async function amPrixRecalc(){
  if(!String(amBm().tar||'').split(/\r?\n/).some(l=>/=\s*\d/.test(l))){const r=await ask({title:'💶 Pas encore de tarifs',text:'Il faut d’abord écrire les tarifs (Groupe › Bulletin d’adhésion › Tarifs) : « Sergent = 20 », « Capitaine = 30 »… Ensuite je peux remplir les prix tout seul.',btns:[{label:'Écrire les tarifs',value:'t',cls:'pri'},{label:'Annuler',value:null}]});if(r==='t')amBmTar();return}
  const v=await amForm('💶 Remettre les prix à jour','Pour les amicalistes qui ont <b>payé leur cotisation</b>, je calcule le prix d’après les tarifs : <b>catégorie</b> (si elle a un tarif), sinon <b>grade</b>, sinon le tarif « * ». Sortie d’école = 0 €. Tu vois la liste avant de valider.',[{k:'w',l:'Qui ?',t:'select',v:'all',o:[['all','Tous ceux qui ont payé (corrige les erreurs)'],['empty','Seulement ceux sans prix']]}],'Voir les changements');
  if(!v)return;
- const L=amAms().filter(m=>(m.o||{}).cf==='1').map(m=>{const o=m.o||{},old=String(o.pa||'').trim(),nw=amPrixCalc(m);return{m,old,nw}}).filter(x=>x.nw!==''&&x.nw!=null&&(v.w==='all'?parseFloat(x.old||'NaN')!==parseFloat(x.nw):x.old===''));
+ const L=amAms().filter(m=>(m.o||{}).cf==='1'&&(m.o||{}).pxk!=='1').map(m=>{const o=m.o||{},old=String(o.pa||'').trim(),nw=amPrixCalc(m);return{m,old,nw}}).filter(x=>x.nw!==''&&x.nw!=null&&(v.w==='all'?parseFloat(x.old||'NaN')!==parseFloat(x.nw):x.old===''));
  const miss=amAms().filter(m=>(m.o||{}).cf==='1'&&(amPrixCalc(m)===''||amPrixCalc(m)==null));
  if(!L.length){if(miss.length)await amPrixMiss(miss,true);else toast('Rien à changer : tous les prix sont déjà bons',3500);return}
  const tot=L.reduce((t,x)=>t+(parseFloat(x.nw)||0)-(parseFloat(x.old)||0),0);
- const r=await ask({title:'💶 '+L.length+' prix à changer',html:'<div class="bg-tab" style="max-height:45vh;overflow:auto"><table><tr><th>Nom</th><th>Grade</th><th>Avant</th><th>Après</th></tr>'+L.map(x=>'<tr><td>'+esc(x.m.tx)+'</td><td>'+esc((x.m.o||{}).gr||'')+((x.m.o||{}).pm==='se'?' (sortie d’école)':'')+'</td><td>'+(x.old===''?'<i>vide</i>':esc(amEur(x.old)))+'</td><td><b>'+esc(amEur(x.nw))+'</b></td></tr>').join('')+'</table></div><p style="margin:.4rem 0 0">Différence sur le total encaissé : '+(tot>=0?'+':'')+esc(amEur(tot))+'</p>'+(miss.length?'<p class="mut" style="font-size:.85rem">Sans tarif trouvé ('+miss.length+') : '+esc(miss.slice(0,8).map(m=>m.tx+' ('+((m.o||{}).gr||'sans grade')+')').join(', '))+(miss.length>8?'…':'')+'. Ajoute leur grade dans les tarifs.</p>':''),btns:[{label:'✅ Appliquer',value:'y',cls:'pri'}].concat(miss.length?[{label:'📋 Voir / imprimer les '+miss.length+' sans tarif',value:'m'}]:[],[{label:'Annuler',value:null}])});
+ const CK=new Set(L.map((x,i)=>x.old==='0'?-1:i).filter(i=>i>=0));const ckH=e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('px-ck')){const i=+t.dataset.i;t.checked?CK.add(i):CK.delete(i)}};document.addEventListener('change',ckH,true);setTimeout(()=>{},0);
+ const r=await ask({title:'💶 '+L.length+' prix à changer',html:'<div class="bg-tab" style="max-height:45vh;overflow:auto"><table><tr><th>✓</th><th>Nom</th><th>Grade</th><th>Avant</th><th>Après</th></tr>'+L.map((x,i)=>'<tr><td><input type="checkbox" class="px-ck" data-i="'+i+'"'+(x.old==='0'?'':' checked')+' aria-label="Changer ce prix" style="width:1.2rem;height:1.2rem"></td><td>'+esc(x.m.tx)+'</td><td>'+esc((x.m.o||{}).gr||'')+((x.m.o||{}).pm==='se'?' (sortie d’école)':'')+'</td><td>'+(x.old===''?'<i>vide</i>':esc(amEur(x.old)))+'</td><td><b>'+esc(amEur(x.nw))+'</b></td></tr>').join('')+'</table></div><p style="margin:.4rem 0 0">Différence sur le total encaissé : '+(tot>=0?'+':'')+esc(amEur(tot))+' <small class="mut">(si tout est coché)</small></p><p class="mut" style="font-size:.85rem;margin:.3rem 0 0">Décoche ceux qui doivent garder leur prix (sortie d’école, offert…) : il sera <b>gardé</b> et ne sera plus proposé. Les prix à 0 € sont décochés d’office.</p>'+(miss.length?'<p class="mut" style="font-size:.85rem">Sans tarif trouvé ('+miss.length+') : '+esc(miss.slice(0,8).map(m=>m.tx+' ('+((m.o||{}).gr||'sans grade')+')').join(', '))+(miss.length>8?'…':'')+'. Ajoute leur grade dans les tarifs.</p>':''),btns:[{label:'✅ Appliquer',value:'y',cls:'pri'}].concat(miss.length?[{label:'📋 Voir / imprimer les '+miss.length+' sans tarif',value:'m'}]:[],[{label:'Annuler',value:null}])});
+ document.removeEventListener('change',ckH,true);
  if(r==='m'){await amPrixMiss(miss);return}
  if(r!=='y')return;try{await amSnapTake('avant')}catch(e){}
- const now=Date.now();L.forEach((x,k)=>{a.it[x.m.id]=Object.assign({},x.m,{o:Object.assign({},x.m.o||{},{pa:x.nw}),at:Math.max(now+k,(x.m.at||0)+1),by:a.me.n,dirty:1})});
- amSave();render();amFlush();toast('💶 '+L.length+' prix mis à jour',3000);
+ const now=Date.now();let nc=0,nk=0;L.forEach((x,k)=>{const on=CK.has(k);if(on)nc++;else nk++;a.it[x.m.id]=Object.assign({},x.m,{o:Object.assign({},x.m.o||{},on?{pa:x.nw,pxk:''}:{pxk:'1'}),at:Math.max(now+k,(x.m.at||0)+1),by:a.me.n,dirty:1})});
+ amSave();render();amFlush();toast('💶 '+nc+' prix mis à jour'+(nk?' · '+nk+' gardé'+(nk>1?'s':'')+' tel'+(nk>1?'s':'')+' quel'+(nk>1?'s':''):''),3500);
 }
 /* ---- 🔄 nouvelle saison : tout le monde redevient non-amicaliste, on garde l'identité ---- */
 async function amSeasonOpen(){
