@@ -1398,7 +1398,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.61.0';
+const APP_VERSION='2.61.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1406,6 +1406,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.61.1',d:'06/11/2026',items:[
+  '<b>Import : tri amicalistes / non-amicalistes corrigé</b>. La colonne est reconnue si son titre contient « Amicale » ou « Amicaliste » (ex. « AMICALE OUI/NON », « Amicaliste ? »), même s’il y a une ligne de titre au-dessus des en-têtes. Si aucune colonne n’est trouvée, l’appli le dit et affiche les colonnes lues. Réimporte ton fichier : les fiches existantes sont remises dans la bonne liste.'
+ ]},
  {v:'2.61.0',d:'06/11/2026',items:[
   '<b>👤 Non-amicalistes connus</b> : onglet Amicalistes, deux listes « 🎖 Amicalistes » / « 👤 Non-amicalistes connus ». On garde les infos des non-amicalistes (grade, service, badge, téléphone, mail, régime…). Fiche › Statut pour passer de l’un à l’autre. Import Excel : colonne « Amicaliste » (oui ; vide = non-amicaliste). L’export ajoute cette colonne.',
   '<b>Inscription pré-remplie</b> : dans « Ajouter un amicaliste », dès les premières lettres du nom, l’appli propose les personnes déjà connues : un appui reprend toutes leurs infos, il ne reste que la cotisation.',
@@ -11898,7 +11901,7 @@ async function amAmEdit(id){
 }
 async function amAmImport(){
  const a=amc();if(!a||!a.kB)return;
- const r=await ask({title:'📥 Importer des amicalistes',text:'Choisis un fichier Excel (.xlsx), Word (.docx), CSV ou texte, ou colle ta liste. Colonnes reconnues (dans n’importe quel ordre, avec une ligne de titres) : Nom, Prénom, Grade, Amicaliste (oui ; vide = non-amicaliste, ses infos sont gardées), Catégorie, Adhésion, Cotisation payée, Payée par, Prix payé, Patch reçu, Régime, Téléphone, Mail, Notes. Sans titres : 1re colonne = nom, 2e = grade. Un fichier exporté par l’appli se réimporte tel quel. Les personnes déjà présentes sont mises à jour.',btns:[{label:'📎 Choisir un fichier',value:'file',cls:'pri'},{label:'📋 Coller la liste',value:'paste'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'📥 Importer des amicalistes',text:'Choisis un fichier Excel (.xlsx), Word (.docx), CSV ou texte, ou colle ta liste. Colonnes reconnues (dans n’importe quel ordre, avec une ligne de titres) : Nom, Prénom, Grade, Amicaliste ou Amicale (oui ; vide = non-amicaliste, ses infos sont gardées), Catégorie, Adhésion, Cotisation payée, Payée par, Prix payé, Patch reçu, Régime, Téléphone, Mail, Notes. Sans titres : 1re colonne = nom, 2e = grade. Un fichier exporté par l’appli se réimporte tel quel. Les personnes déjà présentes sont mises à jour.',btns:[{label:'📎 Choisir un fichier',value:'file',cls:'pri'},{label:'📋 Coller la liste',value:'paste'},{label:'Annuler',value:null}]});
  if(!r)return;
  if(r==='paste'){
   const v=await amForm('📋 Coller la liste','Une personne par ligne, « Nom Prénom ; Grade ». Le grade est facultatif.',[{k:'t',l:'Liste',t:'area',v:'',ph:'DUPONT Jean ; Sergent\nMARTIN Luc ; Capitaine'}],'Importer');
@@ -11996,8 +11999,9 @@ function amPtAddNames(names){const have=new Set();amEeMut(o=>{(o.pt||[]).forEach
 function amAmRowsAdd(rows){
  const a=amc();if(!a||!a.kB)return;
  rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
- const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:/^(amicaliste|amicalistes|amicaliste oui non|est amicaliste|membre amicale|amicale)$/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion|date)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^date (de )?paiement$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/^(telephone|tel|portable)$/};
- const H=rows[0]?rows[0].map(x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()):[],col={};
+ const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:/amical|adherent oui|membre oui/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion|date)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^date (de )?paiement$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/^(telephone|tel|portable)$/};
+ const hN=r=>(r||[]).map(x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim());{const j=rows.slice(0,6).findIndex(r=>hN(r).some(h=>key.nom.test(h)));if(j>0)rows=rows.slice(j)}
+ const rows0h=(rows[0]||[]).slice(),H=hN(rows[0]),col={};
  H.forEach((h,i)=>{for(const k in key)if(col[k]==null&&key[k].test(h))col[k]=i});
  const hasH=col.nom!=null;if(hasH)rows=rows.slice(1);else{col.nom=0;col.gr=1}
  const yes=v=>/^(oui|yes|o|x|1|vrai|true|paye|payee|ok|recu|✓|✔)$/i.test(norm(v).trim());
@@ -12014,7 +12018,8 @@ function amAmRowsAdd(rows){
    pm=pmn?(AM_PM.find(x=>x[0]&&(pmn.startsWith(x[0])||norm(x[1]).startsWith(pmn)||(x[0]==='cb'&&/carte|cb/.test(pmn))))||[''])[0]:'';
   const id=amId(),pa=String(g('pa')).replace(',','.').replace(/[^0-9.]/g,'').slice(0,8);
   a.it[id]={id,kind:'am',tx:nm,x:0,d:dt(g('ad')),w:'',qt:'',tm:'',pl:'',bd:g('nt').slice(0,300),by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:Object.assign({gr:amGrFind(g('gr')),ct,cf:yes(g('cf'))?'1':'0',pm,pa,pc:yes(g('pc'))?'1':'0',rg:g('rg').slice(0,60)},Object.fromEntries(Object.entries(X).filter(e=>e[1]!==''&&e[1]!=null)))};n++}
- amSave();render();amFlush();toast(n+' ajouté'+(n>1?'s':'')+(upd?' · '+upd+' mis à jour':'')+(dbl?' · '+dbl+' déjà à jour':'')+(col.am!=null?' · dont '+nNon+' non-amicaliste'+(nNon>1?'s':'')+' (colonne « Amicaliste » vide)':''),7000);
+ amSave();render();amFlush();toast(n+' ajouté'+(n>1?'s':'')+(upd?' · '+upd+' mis à jour':'')+(dbl?' · '+dbl+' déjà à jour':'')+(col.am!=null?' · dont '+nNon+' non-amicaliste'+(nNon>1?'s':'')+' (colonne « '+String((rows0h||[])[col.am]||'Amicaliste')+' » vide)':''),7000);
+ if(hasH&&col.am==null)setTimeout(()=>ask({title:'⚠️ Pas de colonne « Amicaliste »',html:'<p>Je n’ai pas trouvé de colonne qui dit qui est amicaliste. Tout le monde a été rangé en <b>🎖 Amicalistes</b>.</p><p>Colonnes lues : <i>'+esc((rows0h||[]).filter(Boolean).join(' · '))+'</i></p><p>Pour trier tout seul : une colonne dont le titre contient <b>« Amicale »</b> ou <b>« Amicaliste »</b>, avec « oui » pour les amicalistes et vide (ou « non ») pour les autres. Puis réimporte le fichier : les fiches sont mises à jour.</p>',btns:[{label:'Compris',value:1,cls:'pri'}]}),400);
 }
 async function amSelEdit(){
  const a=amc();if(!a||!AM_SEL||!AM_SEL.size)return;const L=amItems('am').filter(m=>AM_SEL.has(m.id));
