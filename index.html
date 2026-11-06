@@ -1398,7 +1398,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.62.2';
+const APP_VERSION='2.62.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1406,6 +1406,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.62.3',d:'06/11/2026',items:[
+  '<b>Import : colonne « date » reconnue</b> comme date d’inscription / de paiement (avec le nom de celui qui a encaissé : « 30/07/2026 DAMIEN »), et remplit aussi la date d’adhésion si elle est vide. Reconnues aussi : « N° TEL CIVIL » (téléphone), « MONTANT COTISATION » (prix ; les cases « #NOM? » sont ignorées).'
+ ]},
  {v:'2.62.2',d:'06/11/2026',items:[
   '<b>Import : date et nom de la colonne « date paiement »</b>. Une date sans année (« 13/07 Patrice ») est maintenant lue (année de la saison en cours) ; le nom écrit à côté est la personne qui a inscrit et encaissé : la fiche affiche « payée le 13/07/2026 par Patrice » et « ✍️ inscrit par Patrice ».',
   'Modifier une fiche ne remplace plus « inscrit par … » par le nom de celui qui modifie. Réimporter le fichier remet les bons noms.'
@@ -11956,7 +11959,8 @@ function amAmImpX(r,col,yes,dt){
  else if(/nouve|arriv/.test(pm)){X.pm='na';X.cf='1'}
  else if(pm){const k=/carte|cb/.test(pm)?'cb':/esp/.test(pm)?'esp':/ch/.test(pm)?'chq':/vir/.test(pm)?'vir':'';if(k){X.pm=k;X.cf='1'}}
  const P=amPayCell(g('pd'));if(P.pd){X.pd=P.pd;X.cf='1'}if(P.pb)X.pb=P.pb;if(g('pb'))X.pb=g('pb').slice(0,30);if(X.pb)X.cb=X.pb;
- if(X.cf==='1'&&X.pa==null&&!g('pa')&&X.gr){const p=amBmPrice(X.gr,X.ct);if(p)X.pa=p}
+ {const pv=g('pa').replace(',','.').replace(/[^0-9.]/g,'').replace(/^\.+|\.+$/g,'');if(X.pa==null&&pv)X.pa=String(+pv)}
+ if(X.cf==='1'&&X.pa==null&&X.gr){const p=amBmPrice(X.gr,X.ct);if(p)X.pa=p}
  const bg=g('bg');if(bg){if(bg.includes('@'))X.ml=bg.slice(0,60);else X.bg=bg.replace(/\.0$/,'').slice(0,20)}
  if(g('pc'))X.pc=yes(g('pc'))?'1':'0';
  if(col.k8!=null&&g('k8'))X.k8=yes(g('k8'))||/^(1|8|coffret)/i.test(g('k8'))?'1':'';
@@ -12020,7 +12024,7 @@ function amPtAddNames(names){const have=new Set();amEeMut(o=>{(o.pt||[]).forEach
 function amAmRowsAdd(rows){
  const a=amc();if(!a||!a.kB)return;
  rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
- const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:/amical|adherent oui|membre oui/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion|date)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^date (de )?paiement$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/^(telephone|tel|portable)$/};
+ const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:/amical|adherent oui|membre oui/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye|montant cotisation|cotisation montant|montant de la cotisation)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^(date|dates|date (de )?paiement|date d inscription|date inscription|inscrit le|paye le|payee le)$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/(^|\s)(telephone|tel|portable|mobile|gsm)(\s|$)/};
  const hN=r=>(r||[]).map(x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim());{const j=rows.slice(0,6).findIndex(r=>hN(r).some(h=>key.nom.test(h)));if(j>0)rows=rows.slice(j)}
  const rows0h=(rows[0]||[]).slice(),H=hN(rows[0]),col={};
  H.forEach((h,i)=>{for(const k in key)if(col[k]==null&&key[k].test(h))col[k]=i});
@@ -12034,11 +12038,11 @@ function amAmRowsAdd(rows){
   const kk=amNk(nm);if(seen.has(kk)){dbl++;continue}seen.add(kk);
   const X=amAmImpX(r,col,yes,dt);
   if(X.st==='n')nNon++;
-  if(byK[kk]){const m=byK[kk],o2=Object.assign({},m.o||{});let ch=0;for(const k in X)if(X[k]!==''&&X[k]!=null&&o2[k]!==X[k]){o2[k]=X[k];ch=1}if(col.am!=null&&(o2.st||'')!==(X.st||'')){o2.st=X.st||'';ch=1}if(ch){a.it[m.id]=Object.assign({},m,{o:o2,at:Math.max(Date.now()+n+upd,(m.at||0)+1),by:a.me.n,dirty:1});upd++}else dbl++;continue}
+  if(byK[kk]){const m=byK[kk],o2=Object.assign({},m.o||{});let ch=0,d2=m.d||'';if(!d2&&col.ad==null&&X.pd){d2=X.pd;ch=1}for(const k in X)if(X[k]!==''&&X[k]!=null&&o2[k]!==X[k]){o2[k]=X[k];ch=1}if(col.am!=null&&(o2.st||'')!==(X.st||'')){o2.st=X.st||'';ch=1}if(ch){a.it[m.id]=Object.assign({},m,{o:o2,d:d2,at:Math.max(Date.now()+n+upd,(m.at||0)+1),by:a.me.n,dirty:1});upd++}else dbl++;continue}
   const g=c=>col[c]!=null?(r[col[c]]||''):'',ctn=norm(g('ct')),ct=(AM_CT.find(x=>ctn&&(norm(x[1]).startsWith(ctn)||ctn.startsWith(x[0])))||['actif'])[0],pmn=norm(g('pm')),
    pm=pmn?(AM_PM.find(x=>x[0]&&(pmn.startsWith(x[0])||norm(x[1]).startsWith(pmn)||(x[0]==='cb'&&/carte|cb/.test(pmn))))||[''])[0]:'';
   const id=amId(),pa=String(g('pa')).replace(',','.').replace(/[^0-9.]/g,'').slice(0,8);
-  a.it[id]={id,kind:'am',tx:nm,x:0,d:dt(g('ad')),w:'',qt:'',tm:'',pl:'',bd:g('nt').slice(0,300),by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:Object.assign({gr:amGrFind(g('gr')),ct,cf:yes(g('cf'))?'1':'0',pm,pa,pc:yes(g('pc'))?'1':'0',rg:g('rg').slice(0,60)},Object.fromEntries(Object.entries(X).filter(e=>e[1]!==''&&e[1]!=null)))};n++}
+  a.it[id]={id,kind:'am',tx:nm,x:0,d:dt(g('ad'))||(col.ad==null&&X.pd)||'',w:'',qt:'',tm:'',pl:'',bd:g('nt').slice(0,300),by:a.me.n,at:Date.now()+n,del:0,z:'b',dirty:1,o:Object.assign({gr:amGrFind(g('gr')),ct,cf:yes(g('cf'))?'1':'0',pm,pa,pc:yes(g('pc'))?'1':'0',rg:g('rg').slice(0,60)},Object.fromEntries(Object.entries(X).filter(e=>e[1]!==''&&e[1]!=null)))};n++}
  amSave();render();amFlush();toast(n+' ajouté'+(n>1?'s':'')+(upd?' · '+upd+' mis à jour':'')+(dbl?' · '+dbl+' déjà à jour':'')+(col.am!=null?' · dont '+nNon+' non-amicaliste'+(nNon>1?'s':'')+' (colonne « '+String((rows0h||[])[col.am]||'Amicaliste')+' » vide)':''),7000);
  if(hasH&&col.am==null)setTimeout(()=>ask({title:'⚠️ Pas de colonne « Amicaliste »',html:'<p>Je n’ai pas trouvé de colonne qui dit qui est amicaliste. Tout le monde a été rangé en <b>🎖 Amicalistes</b>.</p><p>Colonnes lues : <i>'+esc((rows0h||[]).filter(Boolean).join(' · '))+'</i></p><p>Pour trier tout seul : une colonne dont le titre contient <b>« Amicale »</b> ou <b>« Amicaliste »</b>, avec « oui » pour les amicalistes et vide (ou « non ») pour les autres. Puis réimporte le fichier : les fiches sont mises à jour.</p>',btns:[{label:'Compris',value:1,cls:'pri'}]}),400);
 }
