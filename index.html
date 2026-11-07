@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.65.1';
+const APP_VERSION='2.66.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.66.0',d:'07/11/2026',items:[
+  '<b>Recettes partagées : la photo suit</b> : quand tu partages tes recettes en famille connectée (ou entre tes appareils), la photo de chaque recette part aussi, en version réduite, et s’affiche chez l’autre personne. Une recette sans photo chez toi n’en reçoit pas ; une photo déjà choisie chez l’autre n’est jamais remplacée.'
+ ]},
  {v:'2.65.1',d:'07/11/2026',items:[
   '<b>« Un seul Damien » enfin visible</b> : l’appli relit une fois la liste des appareils de chaque personne du groupe (elle ne la relisait pas, donc les 3 appareils restaient affichés séparément).'
  ]},
@@ -8029,7 +8032,7 @@ function shMerge(P,apply){
     ing:(Array.isArray(r.ing)?r.ing:[]).filter(g=>g&&g.n).map(g=>({q:g.q==null?null:+g.q,u:String(g.u||'').slice(0,20),n:String(g.n).slice(0,60)})).slice(0,80),st:(Array.isArray(r.st)?r.st:[]).map(x=>String(x).slice(0,500)).slice(0,60),src:/^https?:\/\//.test(r.src||'')?String(r.src).slice(0,300):'',m:+r.m||now};
    if(RC_TY.some(x=>x[0]===r.ty))o.ty=r.ty;if(RC_RG.some(x=>x[0]===r.rg))o.rg=r.rg;
    if(r.sr>0&&r.sr<=5)o.sr=Math.round(r.sr);if(r.cm)o.cm=String(r.cm).slice(0,500);
-   if(!loc){if(P.k==='rc')st.add++;if(apply)rcAll().push(Object.assign(o,{fav:false}))}
+   if(!loc){if(P.k==='rc')st.add++;if(apply)rcAll().push(Object.assign(o,{fav:false},S.rcPhGot&&S.rcPhGot[o.id]?{ph:1}:{}))}
    else if((r.m||0)>(loc.m||0)){if(P.k==='rc')st.upd++;if(apply)Object.assign(loc,o)}
   }
  }
@@ -8254,6 +8257,25 @@ const rcTyOf=k=>RC_TY.find(x=>x[0]===k)||RC_TY[1];
 const rcRgOf=k=>RC_RG.find(x=>x[0]===k)||RC_RG[0];
 /* photos de recettes : dans la base photos (comme les anniversaires), clé « rc-<id> » */
 const RCPH={};
+/* photos des recettes partagées en famille : un petit document par photo (le serveur limite chaque document à 400 Ko) */
+async function photoThumb(d,max){try{const img=await loadImg(d),k=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.6)}catch(e){return ''}}
+const rcPhKey=id=>'rp-'+String(id).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,24);
+async function famPhPush(f,put,key){
+ if(!Object.keys(f.mb||{}).some(i=>!f.mb[i].x&&!f.mb[i].gone))return;
+ let n=0;
+ for(const r of rcAll().filter(r=>r.ph).slice(0,40)){
+  const d=await rcPhGet(r.id);if(!d)continue;
+  const k='ph'+r.id,h=famHash({i:r.id,l:d.length,s:d.slice(-48)});if(f.sent[k]===h)continue;
+  const th=await photoThumb(d,360);if(!th||th.length>150000){f.sent[k]=h;continue}
+  await put(rcPhKey(r.id),{app:'agd',v:2,k:'rp',id:String(r.id).slice(0,40),d:th},key);f.sent[k]=h;if(++n>=8)break;
+ }
+}
+async function rcPhStore(id,d){
+ const r=rcOf(id);if(r&&r.ph)return false;
+ await PH.put('rc-'+id,d);RCPH[id]=d;
+ if(r){r.ph=1;r.m=Math.max(r.m||0,0)}else{if(!S.rcPhGot)S.rcPhGot={};S.rcPhGot[id]=1}
+ saveSet();return true;
+}
 async function rcPhGet(id){if(RCPH[id]!==undefined)return RCPH[id];const d=await PH.get('rc-'+id);RCPH[id]=d||null;return RCPH[id]}
 function rcPhFill(){document.querySelectorAll('[data-rph]').forEach(el=>{const id=el.dataset.rph;rcPhGet(id).then(d=>{if(d){el.style.backgroundImage='url("'+d+'")';el.classList.add('has')}})})}
 async function rcPhSet(id,data){const r=rcOf(id);if(!r)return;if(data){await PH.put('rc-'+id,data);r.ph=1;RCPH[id]=data}else{await PH.del('rc-'+id);delete r.ph;RCPH[id]=null}r.m=Date.now();saveSet()}
@@ -10040,6 +10062,7 @@ async function famPushG(f){
  const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
  const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x&&!famNameClash(f.mb[i])),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
+ try{await famPhPush(f,put,FK.key)}catch(e){}
  try{famGrMirror(f)}catch(e){}
  if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
  for(const id of famMembers(f)){
@@ -10104,6 +10127,13 @@ async function famPullG(f,out,J){
   FG=f;const mbx=f.mb[m[1]]||{};if(P&&P.g&&P.g.self&&(!mbx.self||famNameClash(mbx)))continue;const res=jrWrap(P.from||famName(m[1]),mbx.d||'',mbx.self?'s':'r',()=>famApply(m[1],P));if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
   if(res.n)out.got.push({by:P.from||famName(m[1]),c:res.cats,n:res.n,det:res.det});
   if(res.newG.length)out.granted.push({id:m[1],by:P.from||famName(m[1]),l:res.newG});
+ }
+ for(const d of docs){
+  if(!/^rp-[a-z0-9]{1,24}$/.test(d.doc)||(f.seen&&f.seen[d.doc]===d.at))continue;
+  let P;try{P=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
+  if(!P||P.k!=='rp'||!P.id||typeof P.d!=='string'||P.d.indexOf('data:image/jpeg;base64,')!==0||P.d.length>200000)continue;
+  try{await rcPhStore(String(P.id).slice(0,40),P.d)}catch(e){continue}
+  if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
  }
  for(const d of docs){
   const m=d.doc.match(/^a-([a-z0-9]{6,16})-([a-z0-9]{6,16})$/);if(!m||m[2]!==f.me)continue;
@@ -12874,7 +12904,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet}};
 })();
 
 
