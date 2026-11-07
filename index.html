@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.66.0';
+const APP_VERSION='2.67.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,7 +1407,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
- {v:'2.66.0',d:'07/11/2026',items:[
+ {v:'2.67.0',d:'07/11/2026',items:[
   '<b>Recettes partagées : la photo suit</b> : quand tu partages tes recettes en famille connectée (ou entre tes appareils), la photo de chaque recette part aussi, en version réduite, et s’affiche chez l’autre personne. Une recette sans photo chez toi n’en reçoit pas ; une photo déjà choisie chez l’autre n’est jamais remplacée.'
  ]},
  {v:'2.65.1',d:'07/11/2026',items:[
@@ -7248,6 +7248,7 @@ async function act(a,el,e){
   case 'am-it':amItemOpen(ds_.id);break;
   case 'am-tick':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amItemSave(Object.assign({},it,{x:it.x?0:1}));break}
   case 'am-clear':{const a=amc();if(a){for(const it of amItems(ds_.k).filter(i=>i.x&&(!ds_.l||(i.l||'Courses')===ds_.l))){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}amSave();render();amFlush()}break}
+  case 'loi-script':ficheCopy(loiScript(),'Script copié : colle-le dans une IA');break;
   case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
   case 'fam-rm':famRemove(ds_.id);break;
@@ -12792,6 +12793,28 @@ function amItemsHTML(kind){
  if(done.length){h+='<h4 class="am-h">'+(kind==='tk'?'Faites':'Achetés')+' · '+done.length+'</h4>'+done.slice(0,30).map(row).join('')+'<button class="btn blk" data-act="am-clear" data-k="'+kind+'" style="margin-top:.5rem">🧹 Vider '+(kind==='tk'?'les tâches faites':'les articles achetés')+'</button>'}
  return h;
 }
+
+const LOI_DATE='07/11/2026';
+const LOI_SRC={sp:['Service-public.fr – Associations','https://www.service-public.gouv.fr/associations'],lt:['Service-public – Loterie, tombola, loto (fiche F21565)','https://www.service-public.gouv.fr/associations/vosdroits/F21565'],lf:['Légifrance – loi du 1er juillet 1901','https://www.legifrance.gouv.fr/loda/id/LEGITEXT000006069570/'],cn:['CNIL – Associations','https://cnil.fr/fr/mon-quotidien/associations']};
+const LOI_F=[
+{t:'🤝 Une amicale, c’est quoi ?',b:'Une amicale du personnel est une <b>association loi 1901</b> (loi de 1908 en Alsace-Moselle) qui réunit des collègues : fêtes, sorties, voyages, entraide, remises chez des partenaires grâce à la cotisation.<br><b>Elle ne représente pas le personnel</b> : c’est le rôle du CSE (comité social et économique). L’amicale peut proposer des avantages là où il n’y a pas de CSE.',s:['sp','lf']},
+{t:'🗓 L’assemblée générale (AG) : quand ?',b:'La loi de 1901 <b>n’impose pas</b> d’AG chaque année (sauf cas particuliers : association reconnue d’utilité publique, agréée, avec commissaire aux comptes…). En pratique, une AG par an est prévue par les <b>statuts</b> pour approuver les comptes et le budget.<br>Convocation, quorum, majorités, procuration, vote à distance : c’est aux <b>statuts</b> de les fixer. Délai de convocation habituel : 8 à 15 jours (un usage, pas la loi).',s:['sp','lf']},
+{t:'✍️ Qui signe quoi ?',b:'• <b>Feuille de présence</b> : signée par les présents, elle prouve que le quorum est atteint.<br>• <b>Procès-verbal (PV)</b> : rédigé par le secrétaire de séance et signé par lui et le président. Les statuts doivent prévoir qui signe si le président est absent.<br>• Une violation des statuts engage la <b>responsabilité personnelle</b> des dirigeants.',s:['sp']},
+{t:'🏛 Changer le bureau ou les statuts',b:'Après l’AG, il faut <b>déclarer le changement à la préfecture dans les 3 mois</b> : cerfa 13971 (ou papier libre), copie du PV, et nom, prénom, profession, nationalité et adresse des nouveaux dirigeants. Envoi en recommandé ou télédéclaration ; en principe signé par les nouveaux dirigeants. Le récépissé rend le changement opposable aux tiers (banque…). Les sortants cessent d’agir et rendent comptes, chéquiers et documents.',s:['sp','lf']},
+{t:'📝 Le bulletin d’adhésion',b:'La loi ne l’impose pas, mais il est <b>vivement recommandé</b> : nom et siège de l’amicale, montant de la cotisation, identité de l’adhérent, <b>mention RGPD</b> (usage des données, droits d’accès, de correction et d’effacement, pas de revente), signature de l’adhérent et d’un représentant, un exemplaire chacun. Le reçu fiscal (cerfa 11580) concerne les dons, pas les cotisations.<br><span class="mut">Utilise ton modèle dans ⚙️ Groupe › Bulletin d’adhésion.</span>',s:['cn','sp']},
+{t:'🎟 Tombola, loto, buvette',b:'<b>Tombola</b> : autorisation du maire (cerfa 11823) ; frais ≤ 15 % ; lots = objets, jamais d’argent ; exceptionnelle ; interdite en ligne ; les bénéfices ne servent pas au fonctionnement.<br><b>Loto traditionnel</b> : sans autorisation si but non lucratif, cercle restreint, mise inférieure à 20 €, lots non remboursables et jamais en argent.<br><b>Impôts</b> : exonération pour 6 manifestations de bienfaisance par an (gestion désintéressée). <b>Buvette</b> : déclaration au service des impôts au plus tard 24 h avant.<br>Sanction en cas de non-respect : jusqu’à 90 000 € et 3 ans de prison.',s:['lt']}
+];
+const loiTxt=h=>String(h).replace(/<br>/g,'\n').replace(/<[^>]+>/g,'');
+function loiScript(){
+ const src=Object.values(LOI_SRC).map(x=>'- '+x[0]+' : '+x[1]).join('\n');
+ const body=LOI_F.map(f=>'## '+f.t.replace(/^\S+\s/,'')+'\n'+loiTxt(f.b)).join('\n\n');
+ return 'Tu es un assistant qui vérifie des informations juridiques sur les associations françaises (loi 1901, amicales du personnel).\nMission : compare le texte ci-dessous (écrit le '+LOI_DATE+') avec le contenu ACTUEL des sources officielles listées. Utilise ta recherche web sur ces sites officiels uniquement.\nRéponds en français, simplement :\n1. Ce qui est toujours exact.\n2. Ce qui a changé (ancienne règle → nouvelle règle, avec la date et le lien officiel).\n3. Ce que tu n’as pas pu vérifier.\nN’invente rien. Si une source est inaccessible, dis-le.\n\nSOURCES OFFICIELLES :\n'+src+'\n\nTEXTE À VÉRIFIER :\n\n'+body+'\n\nRappel : information générale, pas un conseil juridique.';
+}
+function amLoiHTML(){
+ return '<div class="card"><h3>📖 Amicale pour les nuls</h3><p style="margin:.2rem 0;font-size:.92rem;line-height:1.45">Une amicale, c’est une association entre collègues : sorties, fêtes, entraide. Ces fiches donnent les règles de base, avec les sources officielles. <b>Information générale, pas un conseil juridique.</b> Dernière vérification : '+LOI_DATE+'.</p></div>'+
+ LOI_F.map(f=>'<details class="card" style="padding:.6rem .8rem"><summary style="font-weight:600;cursor:pointer">'+f.t+'</summary><p style="margin:.5rem 0 .3rem;font-size:.92rem;line-height:1.45">'+f.b+'</p><p class="mut" style="margin:.3rem 0 0;font-size:.8rem">Sources : '+f.s.map(k=>'<a href="'+LOI_SRC[k][1]+'" target="_blank" rel="noopener">'+esc(LOI_SRC[k][0])+'</a>').join(' · ')+'</p></details>').join('')+
+ '<div class="card"><h3>🔎 Et si la loi change ?</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Pour être sûr que rien n’a changé, touche le bouton : tu reçois un script à coller dans une IA. Les sources officielles sont dedans.</p><button class="btn pri blk" data-act="loi-script">📋 Copier le script de vérification</button></div>';
+}
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
@@ -12800,11 +12823,12 @@ function amView(){
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
  if((AMC_TAB==='nt'||AMC_TAB==='am'||AMC_TAB==='ad')&&!a.kB)AMC_TAB='mb';
  const n4=amItems('ee').filter(i=>(i.d||'')>=td).length;
- const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['gr','⚙️ Groupe']]);
+ const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
  const side=S.amSide!==0;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  let h=AMC_TAB==='am'?'':amAnBanner();
  if(['tk','co','ev','nt','ee'].includes(AMC_TAB))h+=amItemsHTML(AMC_TAB);
+ else if(AMC_TAB==='lo')h+=amLoiHTML();
  else if(AMC_TAB==='am')h+=amAmHTML();
  else if(AMC_TAB==='ad')h+=amAdHTML();
  else if(AMC_TAB==='gr'){
