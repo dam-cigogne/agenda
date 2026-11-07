@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.63.0';
+const APP_VERSION='2.63.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.63.1',d:'07/11/2026',items:[
+  '<b>RDV commun supprimé par l’autre personne qui revenait</b> : quand Nora retirait un RDV d’une catégorie commune, il disparaissait sur un de tes appareils puis revenait depuis tes autres appareils liés. La suppression est maintenant transmise à tous tes appareils.'
+ ]},
  {v:'2.63.0',d:'07/11/2026',items:[
   '<b>🕘 Historique : qui a fait quoi</b> (Réglages › Famille) : chaque ajout, modification, suppression ou import dans l’agenda, les tâches, les courses, les repas, les voyages et les anniversaires, avec l’heure et <b>quel appareil</b> (iPhone, iPad, ordinateur) ou <b>quelle personne</b> de la famille l’a fait. Un import compte pour une ligne (« a importé 47 RDV ») avec un bouton « ↩ Annuler » qui les retire tous. Le même historique sur tous tes appareils liés ; gardé 3 mois ; « 🧹 Effacer l’historique » quand tu veux.'
  ]},
@@ -9918,7 +9921,7 @@ function agMerge(from,A){
  for(const c of (A.cats||[])){if(!c||!c.id)continue;const id=px+String(c.id).slice(0,40);keep.add(id);const loc=S.cats.find(x=>x.id===id);if(loc)delete loc.vs;const o={id,name:(String(c.n||'Catégorie').slice(0,24)+' ('+String(famName(from)||'').split(' ')[0].slice(0,12)+')'),color:/^#[0-9a-f]{6}$/i.test(c.c)?c.c:'#64748b',sh:from};if(c.i)o.icon=iconClean(c.i);
   if(!loc){S.cats.push(o);n++}else if(loc.name!==o.name||loc.color!==o.color||(loc.icon||'')!==(o.icon||'')){Object.assign(loc,o);if(!o.icon)delete loc.icon}}
  const gone=S.cats.filter(c=>c.sh===from&&!c.vs&&!keep.has(c.id)).map(c=>c.id);
- if(gone.length){S.cats=S.cats.filter(c=>!gone.includes(c.id));const b=EV.length;EV=EV.filter(e=>!gone.includes(e.cat));if(EV.length!==b){chE=true;n++}}
+ if(gone.length){S.cats=S.cats.filter(c=>!gone.includes(c.id));const b=EV.length,T=agTrim(S.evDel),now=Date.now();EV.filter(e=>gone.includes(e.cat)).forEach(e=>{if(!T.some(t=>t.id===e.id))T.push({id:e.id,m:now})});S.evDel=agTrim(T);EV=EV.filter(e=>!gone.includes(e.cat));if(EV.length!==b){chE=true;n++}}
  const tomb=agTrim(S.evDel);
  for(const x of (A.ev||[])){if(!x||!x.id)continue;
   const cat=x.ow==='you'?String(x.cat):px+String(x.cat);
@@ -9928,7 +9931,7 @@ function agMerge(from,A){
   if(!loc){const ev=cleanEvent(Object.assign({},x,{cat,alarm:null,note:''}));if(!ev)continue;ev.mt=x.mt||0;EV.push(ev);H[ev.id]=agH(ev);n++;chE=true}
   else if((x.mt||0)>(loc.mt||0)){const ev=cleanEvent(Object.assign({},loc,x,{cat,id:loc.id,note:loc.note,alarm:loc.alarm}));if(!ev)continue;AGF.concat(['cat']).forEach(k=>{loc[k]=ev[k]});if(!x.ex)loc.ex=[];if(!x.rec)loc.rec=null;loc.mt=x.mt;H[loc.id]=agH(loc);n++;chE=true}
  }
- for(const d of (A.del||[])){const loc=EV.find(e=>e.id===d.id);if(!loc||(loc.mt||0)>d.m)continue;if(!(own.has(loc.cat)||String(loc.cat).indexOf(px)===0))continue;EV=EV.filter(e=>e.id!==d.id);delete H[d.id];n++;chE=true}
+ {const T=agTrim(S.evDel);for(const d of (A.del||[])){const loc=EV.find(e=>e.id===d.id);if(!loc||(loc.mt||0)>d.m)continue;if(!(own.has(loc.cat)||String(loc.cat).indexOf(px)===0))continue;EV=EV.filter(e=>e.id!==d.id);delete H[d.id];if(!T.some(t=>t.id===d.id))T.push({id:d.id,m:Math.max(+d.m||0,Date.now())});n++;chE=true}S.evDel=agTrim(T)}
  if(chE&&!demo)ls.set(K.data,{v:1,events:EV});
  return n;
 }
