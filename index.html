@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.63.1';
+const APP_VERSION='2.64.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.64.0',d:'07/11/2026',items:[
+  '<b>Un appareil qui n’est pas à toi ne peut plus être pris pour le tien</b> : si le téléphone de Nora était marqué « autre appareil à moi » (par elle ou par erreur), toutes ses catégories, ses anniversaires et son historique arrivaient chez toi, et tes catégories partagées revenaient en double « ETHAN (Damien) ». Maintenant un appareil au prénom différent du tien n’est jamais relié tout seul, rien n’est échangé avec lui, et une confirmation est demandée si tu le coches toi-même.',
+  '<b>Réparation automatique</b> : les catégories « (Damien) » en double sont supprimées toutes seules et tes rendez-vous retrouvent leur vraie catégorie. Dans Famille, un appareil relié par erreur affiche un avertissement avec le bouton « Ce n’est pas à moi ».'
+ ]},
  {v:'2.63.1',d:'07/11/2026',items:[
   '<b>RDV commun supprimé par l’autre personne qui revenait</b> : quand Nora retirait un RDV d’une catégorie commune, il disparaissait sur un de tes appareils puis revenait depuis tes autres appareils liés. La suppression est maintenant transmise à tous tes appareils.'
  ]},
@@ -7238,6 +7242,7 @@ async function act(a,el,e){
   case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
   case 'fam-rm':famRemove(ds_.id);break;
+  case 'fam-unself':{const g=grpOf(ds_.id),m=g&&g.mb[ds_.id];if(m){delete m.self;g.sent.m='';saveSet();render();toast('✔ '+m.n+' n’est plus un de tes appareils',4000)}break}
   case 'fam-readd':famReadd(ds_.id);break;
   case 'fam-sync':famPull(true);break;
   case 'jr-open':jrOpen();break;case 'jr-undo':jrUndo(ds_.id);break;case 'jr-clr':jrClear();break;
@@ -9716,6 +9721,9 @@ function famAgOn(){return S.cats.some(c=>c.sh)||famAll().some(f=>Object.values(f
 const AGF=['title','allDay','start','end','startTime','endTime','place','icon','rec','ex','hi'];
 const agCore=e=>famHash({c:e.cat,f:AGF.map(k=>e[k])});
 /* agenda entre mes propres appareils (iPhone, iPad…) */
+const famFirst=s=>norm(String(s||'')).trim().split(/\s+/)[0]||'';
+/* un « autre appareil à moi » porte mon prénom : « Nora » ne peut pas être un de mes appareils si je suis « Damien » */
+const famNameClash=m=>{const a=famFirst(m&&m.n),b=famFirst(meName());return !!a&&!!b&&a!=='?'&&b!=='?'&&a!==b};
 const selfOn=()=>famAll().some(f=>Object.keys(f.mb||{}).some(id=>f.mb[id].self&&!f.mb[id].x));
 const agFull=e=>{const o={};Object.keys(e).sort().forEach(k=>{if(k!=='mt')o[k]=e[k]});return famHash({e:o})};
 const agH=e=>selfOn()?agFull(e):agCore(e);
@@ -9794,7 +9802,8 @@ function agSelfMerge(A){
   for(const d of catDelTrim(A.cdel)){const id=String(d.id).slice(0,80);if(!have.has(id)){S.catDel.push({id,m:+d.m||Date.now()});have.add(id)}
    const i=S.cats.findIndex(x=>x.id===id&&!x.sh);if(i>=0&&S.cats.length>1){S.cats.splice(i,1);chC=true;n++}}}
  const cdl=new Set(S.catDel.map(d=>d.id));
- for(const c of (A.cats||[])){if(!c||!c.id||cdl.has(String(c.id)))continue;const loc=S.cats.find(x=>x.id===c.id);
+ const mine=agMine();
+ for(const c of (A.cats||[])){if(!c||!c.id||cdl.has(String(c.id))||(c.sh&&mine.has(String(c.sh))))continue;const loc=S.cats.find(x=>x.id===c.id);
   if(!loc){const o={id:String(c.id).slice(0,80),name:String(c.name||'Catégorie').slice(0,40),color:/^#[0-9a-f]{6}$/i.test(c.color)?c.color:'#64748b'};if(c.icon)o.icon=iconClean(c.icon);if(c.sh){o.sh=String(c.sh).slice(0,16);o.vs=1}S.cats.push(o);chC=true;n++}
   else if(!loc.sh&&(loc.name!==c.name||loc.color!==c.color||(loc.icon||'')!==(c.icon||''))){loc.name=String(c.name||loc.name).slice(0,40);if(/^#[0-9a-f]{6}$/i.test(c.color))loc.color=c.color;if(c.icon)loc.icon=iconClean(c.icon);else delete loc.icon;chC=true}}
  const shc=new Set(Array.isArray(A.shc)?A.shc:[]);
@@ -9816,7 +9825,18 @@ const agTrim=a=>(Array.isArray(a)?a:[]).filter(d=>d&&d.id&&Date.now()-(d.m||0)<1
 function agOwnShared(g){if(!g||!g.ag||g.removed||g.agb)return new Set();return new Set(S.cats.filter(c=>!c.sh&&(g.ag===2||(g.agc||[]).includes(c.id))).map(c=>c.id))}
 function agWin(e){const from=add(today(),-30),to=add(today(),400);return e.rec?(e.start<=to&&(!e.rec.until||e.rec.until>=from)):(e.end>=from&&e.start<=to)}
 /* avant chaque envoi : date de modification et suppressions détectées toutes seules */
+/* mes propres identifiants (cet appareil + mes autres appareils) */
+function agMine(){const m=new Set();for(const g of famAll()){m.add(g.me);for(const i of Object.keys(g.mb||{}))if(g.mb[i].self&&!g.mb[i].x)m.add(i)}return m}
+/* répare les catégories « (Damien) » en double chez Damien : une catégorie qui m'appartient ne peut pas m'être « partagée par moi » */
+function agLoopClean(){
+ const mine=agMine(),bad=S.cats.filter(c=>c.sh&&mine.has(c.sh));if(!bad.length)return false;
+ const ids=new Set(bad.map(c=>c.id)),own=S.cats.find(c=>!c.sh&&!ids.has(c.id)),now=Date.now();let chE=false;
+ for(const e of EV){if(!ids.has(e.cat))continue;const c=bad.find(x=>x.id===e.cat),orig=String(e.cat).slice(('x-'+c.sh+'-').length);e.cat=S.cats.some(x=>x.id===orig&&!x.sh)?orig:(own?own.id:e.cat);e.mt=now;chE=true}
+ S.cats=S.cats.filter(c=>!ids.has(c.id));if(!S.cats.length)S.cats.push({id:'perso',name:'Perso',color:'#2f6fb3'});
+ if(chE&&!demo)ls.set(K.data,{v:1,events:EV});if(!demo)ls.set(K.set,S);FEV_C=null;return true;
+}
 function agPrep(){
+ try{agLoopClean()}catch(e){}
  const U=new Set();
  if(selfOn())for(const e of EV)U.add(e.id);
  for(const f of famAll())for(const id of famMembers(f)){const m=f.mb[id];if(!m||m.x||m.self)continue;const own=agOwnShared(famGrant(id)),px='x-'+id+'-';
@@ -9858,7 +9878,7 @@ function famChanSelf(id){
   vy:{k:'vy',vy:vyAll().map(v=>JSON.parse(JSON.stringify(v))),del:shTrim(S.vyDel),mn:{},rc:[],ppl:pp}};
 }
 function famChan(id){
- const f=FG;if(f.mb[id]&&f.mb[id].self&&!f.mb[id].x)return famChanSelf(id);
+ const f=FG;if(f.mb[id]&&f.mb[id].self&&!f.mb[id].x&&!famNameClash(f.mb[id]))return famChanSelf(id);
  const me=f.me,g=famGrant(id),cid=famCid(id),rm={tk:[],rc:[],bd:[],vy:[]},og={};
  const mySelf=o=>o===me||(f.mb[o]&&f.mb[o].self&&!f.mb[o].x);
  const mine=x=>mySelf(famOrg(x)),his=x=>famOrg(x)===id;
@@ -9979,7 +9999,7 @@ async function famPush(){
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
  const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
- const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
+ const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x&&!famNameClash(f.mb[i])),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  if(!f.v2){for(const d of ['taches','repas','anniv','voyages'])await put(d,{app:'agd',v:2,k:'old',old:1},FK.key);f.v2=1}
  for(const id of famMembers(f)){
@@ -9988,7 +10008,7 @@ async function famPushG(f){
   FG=f;const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
   await put('c-'+f.me+'-'+id,P,key);f.sent['c'+id]=f.mb[id].gone?'gone':h;
  }
- for(const id of famMembers(f)){const m=f.mb[id];if(!m||!m.self||m.x)continue;
+ for(const id of famMembers(f)){const m=f.mb[id];if(!m||!m.self||m.x||famNameClash(m))continue;
   const key=await famPair(f,id);if(!key)continue;
   const A=famSelfAg(),h=famHash(A);if(f.sent['a'+id]===h)continue;
   await put('a-'+f.me+'-'+id,A,key);f.sent['a'+id]=h;
@@ -10031,7 +10051,7 @@ async function famPullG(f,out,J){
   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
   const was=f.mb[M.id];
   if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||String(was.jt)!==String(M.jt==null?null:+M.jt)||JSON.stringify(was.dr||[])!==JSON.stringify(Array.isArray(M.dr)?M.dr.slice(0,50):[])){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),jt:M.jt==null?null:+M.jt,dr:Array.isArray(M.dr)?M.dr.slice(0,50).map(String):[],pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
-  if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
+  if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x&&!famNameClash(f.mb[M.id])){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
   if(M.lt&&(S.famLinkT||[]).some(x=>x.t===M.lt)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
  }
  for(const d of docs){
@@ -10040,14 +10060,14 @@ async function famPullG(f,out,J){
   const mb=f.mb[m[1]];if(mb&&mb.x)continue;
   const key=await famPair(f,m[1]);if(!key){hold=true;continue}
   let P;try{P=await famDecK(JSON.parse(d.data),key)}catch(e){continue}
-  FG=f;const mbx=f.mb[m[1]]||{};const res=jrWrap(P.from||famName(m[1]),mbx.d||'',mbx.self?'s':'r',()=>famApply(m[1],P));if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
+  FG=f;const mbx=f.mb[m[1]]||{};if(P&&P.g&&P.g.self&&(!mbx.self||famNameClash(mbx)))continue;const res=jrWrap(P.from||famName(m[1]),mbx.d||'',mbx.self?'s':'r',()=>famApply(m[1],P));if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
   if(res.n)out.got.push({by:P.from||famName(m[1]),c:res.cats,n:res.n,det:res.det});
   if(res.newG.length)out.granted.push({id:m[1],by:P.from||famName(m[1]),l:res.newG});
  }
  for(const d of docs){
   const m=d.doc.match(/^a-([a-z0-9]{6,16})-([a-z0-9]{6,16})$/);if(!m||m[2]!==f.me)continue;
   if(f.seen&&f.seen[d.doc]===d.at)continue;
-  const mb=f.mb[m[1]];if(!mb||!mb.self||mb.x)continue;
+  const mb=f.mb[m[1]];if(!mb||!mb.self||mb.x||famNameClash(mb))continue;
   const key=await famPair(f,m[1]);if(!key){hold=true;continue}
   let A;try{A=await famDecK(JSON.parse(d.data),key)}catch(e){continue}
   const k=jrWrap('', '', 's',()=>agSelfMerge(A));if(!f.seen)f.seen={};f.seen[d.doc]=d.at;out.chg=true;
@@ -10088,6 +10108,7 @@ async function famGrantEdit(id){
  const root=$('#dlg');root.onchange=e=>{const t=e.target;if(!t.id||t.id.indexOf('fg-')!==0)return;const k=t.id.slice(3);if(k.indexOf('co-')===0){t.checked?cos.add(k.slice(3)):cos.delete(k.slice(3));return}if(k==='tk')g.tk=+t.value;else if(k==='bd')g.bd=+t.value;else if(k==='ag')g.ag=+t.value;else if(k==='self'){self=t.checked;const o=$('#fg-opts'),w=$('#fg-selfw');if(o)o.classList.toggle('fg-dis',self);if(w)w.style.display=self?'':'none'}else if(k==='cid')cid=t.value;else g[k]=t.checked?1:0};
  const r=await pr;root.onchange=null;if(r!=='ok')return;
  if(g.tk===1&&!cid){toast('Choisis '+m.n+' dans tes contacts pour « Seulement les siennes »',5000)}
+if(self&&!m.self&&famNameClash(m)){const ok=await ask({title:'⚠️ Vraiment à toi ?',html:'<p>Cet appareil s’appelle <b>'+esc(m.n)+'</b>, et toi tu es <b>'+esc(meName())+'</b>. Un autre appareil à toi porte normalement ton nom.</p><p>Si c’est le téléphone de quelqu’un d’autre, <b>tout ce que tu as</b> (agenda, tâches, anniversaires…) lui serait envoyé, et inversement.</p>',btns:[{label:'Non, ce n’est pas à moi',value:'n',cls:'pri'},{label:'Oui, c’est bien à moi',value:'y'}]});if(ok!=='y')return}
  if(self){m.self=1;f.sent.m='';saveSet();render();toast('📱 Appareil relié : tout se synchronise',4500);return}
  if(m.self){delete m.self;f.sent.m=''}
  g.cos=[...cos];g.co=g.cos.length?1:0;f.gr[id]=g;g.t=Date.now();m.cid=cid;saveSet();render();f.grAt=Date.now();
@@ -10163,6 +10184,7 @@ async function famJoin(k,by,viaCode,nm,ic){
 }
 function famMbRow(id,g){
  const m=g.mb[id],gr=famGrant(id),rg=g.rg[id]||{},dv=m.d?' <small style="display:inline;font-weight:400">· '+esc(m.d)+'</small>':'';
+ if(m.self&&famNameClash(m))return '<div class="fam-mb"><div class="fam-mb-t"><b>⚠️ '+esc(famName(id))+dv+'</b><small style="color:var(--danger,#c0392b)">Marqué « autre appareil à moi » mais il porte un autre nom que toi : <b>rien n’est échangé</b>. Ce n’est sûrement pas un de tes appareils.</small></div><div class="fam-mb-b"><button class="btn pri" data-act="fam-unself" data-id="'+esc(id)+'">Ce n’est pas à moi</button><button class="btn" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button></div></div>';
  if(m.self)return '<div class="fam-mb"><div class="fam-mb-t"><b>📱 '+esc(famName(id))+dv+'</b><small>Ton autre appareil : <b>tout se synchronise</b></small></div><div class="fam-mb-b"><button class="btn" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>';
  return '<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+dv+'</b><small>Tu lui partages : <b>'+esc(famGSum(gr))+'</b></small><small>Te partage : '+esc(rg.x?'rien':famGSum(rg))+'</small></div><div class="fam-mb-b"><button class="btn pri" data-act="fam-gr" data-id="'+esc(id)+'">Choisir</button><button class="btn" data-act="fam-rm" data-id="'+esc(id)+'">Retirer</button></div></div>';
 }
