@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.65.0';
+const APP_VERSION='2.65.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.65.1',d:'07/11/2026',items:[
+  '<b>« Un seul Damien » enfin visible</b> : l’appli relit une fois la liste des appareils de chaque personne du groupe (elle ne la relisait pas, donc les 3 appareils restaient affichés séparément).'
+ ]},
  {v:'2.65.0',d:'07/11/2026',items:[
   '<b>Un seul « Damien » pour les autres</b> : quand quelqu’un utilise AgenDam sur plusieurs appareils (iPhone, iPad, ordinateur), les autres personnes ne voient plus qu’<b>une seule personne</b> : un seul bloc dans Famille (« 3 pers. » devient « 2 pers. »), un seul bouton « Damien » dans « Partager avec ». Le choix de partage est recopié tout seul sur tous ses appareils. Ce qui avait déjà été donné à chaque appareil est regroupé sans rien enlever.'
  ]},
@@ -10079,15 +10082,16 @@ async function famPull(manual){
 async function famPullG(f,out,J){
  await famMe(f);const FK=await famKeys(f);
  let j;
- if(J&&J.r&&J.r[FK.space])j={now:J.now,docs:J.r[FK.space]};
- else{const r=await fetch(famUrl()+'/s/'+FK.space+'?since='+Math.floor(f.last||0),{cache:'no-store'});if(!r.ok)throw new Error('Serveur : '+r.status);j=await r.json()}
+ const needSf=Object.values(f.mb||{}).some(m=>m&&m.sf===undefined&&!m.gone);
+ if(J&&J.r&&J.r[FK.space]&&!needSf)j={now:J.now,docs:J.r[FK.space]};
+ else{const r=await fetch(famUrl()+'/s/'+FK.space+'?since='+(needSf?0:Math.floor(f.last||0)),{cache:'no-store'});if(!r.ok)throw new Error('Serveur : '+r.status);j=await r.json()}
  const docs=j.docs||[];let hold=false;
  for(const d of docs){
   const m=d.doc.match(/^m-([a-z0-9]{6,16})$/);if(!m||m[1]===f.me)continue;
   let M;try{M=await famDecK(JSON.parse(d.data),FK.key)}catch(e){continue}
   if(!M||M.id!==m[1]||!M.pub||!M.pub.x)continue;
   const was=f.mb[M.id];
-  if(!was||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||JSON.stringify(was.sf||[])!==JSON.stringify(Array.isArray(M.self)?M.self.slice(0,20):[])||String(was.jt)!==String(M.jt==null?null:+M.jt)||JSON.stringify(was.dr||[])!==JSON.stringify(Array.isArray(M.dr)?M.dr.slice(0,50):[])){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),sf:Array.isArray(M.self)?M.self.slice(0,20).map(String):[],jt:M.jt==null?null:+M.jt,dr:Array.isArray(M.dr)?M.dr.slice(0,50).map(String):[],pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
+  if(!was||was.sf===undefined||was.n!==M.n||was.pub.x!==M.pub.x||was.d!==M.d||JSON.stringify(was.sf||[])!==JSON.stringify(Array.isArray(M.self)?M.self.slice(0,20):[])||String(was.jt)!==String(M.jt==null?null:+M.jt)||JSON.stringify(was.dr||[])!==JSON.stringify(Array.isArray(M.dr)?M.dr.slice(0,50):[])){f.mb[M.id]=Object.assign(was||{},{n:String(M.n||'?').slice(0,30),d:String(M.d||'').slice(0,12),sf:Array.isArray(M.self)?M.self.slice(0,20).map(String):[],jt:M.jt==null?null:+M.jt,dr:Array.isArray(M.dr)?M.dr.slice(0,50).map(String):[],pub:{x:M.pub.x,y:M.pub.y},at:d.at});out.chg=true;if(!was)out.joined.push([M.id,f])}
   if(Array.isArray(M.self)&&M.self.includes(f.me)&&!f.mb[M.id].self&&!f.mb[M.id].x&&!famNameClash(f.mb[M.id])){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
   if(M.lt&&(S.famLinkT||[]).some(x=>x.t===M.lt)&&!f.mb[M.id].self&&!f.mb[M.id].x){f.mb[M.id].self=1;out.chg=true;out.selfNew.push(M.id)}
  }
