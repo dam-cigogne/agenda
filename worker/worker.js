@@ -53,7 +53,7 @@ async function notify(env,space,o){
     if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
-    await sendOne(env,x,{t:LBT[o.kind]||'🔔 Du nouveau',b:tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
+    await sendOne(env,x,{t:LBT[o.kind]||'🔔 Du nouveau',b:tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
 }
 const LBT = { a: '📅 Agenda partagé mis à jour', c: '🛒 Listes mises à jour', i: '📣 Du nouveau dans le groupe' };
@@ -66,7 +66,7 @@ function cors(req) {
   return {
     'Access-Control-Allow-Origin': ORIGINS.includes(o) ? o : ORIGINS[0],
     'Access-Control-Allow-Methods': 'GET,PUT,POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self, X-Push-Skip',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self, X-Push-Skip, X-Push-Quiet',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
@@ -248,7 +248,7 @@ export default {
       if (env.DB && env.VAPID_PRIVATE) {
         const mm = doc.match(/^([ac])-([a-z0-9]+)-([a-z0-9]+)$/), skip = (req.headers.get('X-Push-Skip') || '').split(',').filter(Boolean);
         const kind = mm ? mm[1] : (/^i-/.test(doc) ? 'i' : null);
-        if (kind) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', skip, selfEp: req.headers.get('X-Push-Self') || null }));
+        if (kind && !req.headers.get('X-Push-Quiet')) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', skip, selfEp: req.headers.get('X-Push-Self') || null }));
       }
       return json(req, { ok: true, at });
     }
