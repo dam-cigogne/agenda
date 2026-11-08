@@ -1459,7 +1459,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.73.2';
+const APP_VERSION='2.73.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1467,6 +1467,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.73.3',d:'08/11/2026',items:[
+  '<b>Verrou</b> : Face ID / empreinte se relance tout seul à l’ouverture, comme avant. Si Face ID ne répond pas au bout de 8 secondes, le clavier du code s’affiche (l’appli ne reste plus jamais bloquée).'
+ ]},
  {v:'2.73.2',d:'08/11/2026',items:[
   '<b>Amicale : surnom ou prénom court</b> (Ma fiche › Surnom, facultatif) : il s’affiche dans le rond coloré (la première lettre), sous le rond et dans « Bonjour … » du nouveau style. Sans surnom, c’est le prénom comme avant.',
   '<b>Réglages de l’Amicale en images</b> : le style (Classique / Nouveau) et la place des onglets (bas, côté, haut) se choisissent en touchant une petite image qui montre le résultat. Le style Nouveau reprend la « Couleur de l’Amicale » choisie plus haut.'
@@ -5762,7 +5765,7 @@ async function bdBioEnable(f){f=f||'bdBio';
 async function bdBioCheck(f){f=f||'bdBio';
  if(!S[f])return false;
  try{
-  const r=await Promise.race([navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S[f])}],userVerification:'required',timeout:20000}}),new Promise((_,j)=>setTimeout(()=>j(0),f==='amlBio'?15000:60000))]);
+  const r=await Promise.race([navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S[f])}],userVerification:'required',timeout:20000}}),new Promise((_,j)=>setTimeout(()=>j(0),f==='amlBio'?8000:60000))]);
   return !!r;
  }catch(e){return false}
 }
@@ -10694,7 +10697,7 @@ function amlUnlock(){AML_OK=true;amlCover(0);if(V.view==='amicale')render()}
 document.addEventListener('visibilitychange',()=>{if(!S.amlPin)return;if(document.hidden){AML_H=Date.now()}else if(AML_H&&Date.now()-AML_H>amlDelay()*1000){amlRelock();if(!amlScopeAm())amlGate().then(ok=>{if(ok)amlCover(0)})}});
 async function amlGate(tap){
  if(!S.amlPin||AML_OK)return true;let msg='';
- if(tap&&S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
+ if(S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
  for(;;){
   const {r,a}=await bdAskPin('Appli verrouillée',msg,0,!!S.amlBio);
   if(r==='bio'){if(await bdBioCheck('amlBio')){amlUnlock();render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
