@@ -394,6 +394,37 @@ body.am2on .am2-bn{display:flex;align-items:center;gap:.85rem;border-radius:1.5r
 body.am2on .am2-bn i{font-style:normal;font-size:1.7rem;width:3.2rem;height:3.2rem;border-radius:1.1rem;background:rgba(255,255,255,.25);display:grid;place-items:center;flex:none}
 body.am2on .am2-bn b{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
 body.am2on .am2-bn small{display:block;font-weight:700;opacity:.92;margin-top:.2rem;font-size:.82rem}
+/* Page Jour J : style Nouveau */
+body.am2on .sh.jj .sh-h{background:linear-gradient(135deg,#ff5c6c,#ff9a5c);color:#fff;border-radius:1.3rem;padding:.7rem .9rem;margin:0 0 .6rem;box-shadow:0 .6rem 1.4rem rgba(255,92,108,.28)}
+body.am2on .sh.jj .sh-h b{font-family:inherit!important;font-style:normal!important;font-weight:800;color:#fff;letter-spacing:-.01em}
+body.am2on .sh.jj .sh-h .x{color:#fff;background:rgba(255,255,255,.22);border-radius:50%}
+body.am2on .jj-st{display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;font-size:.8rem}
+body.am2on .jj-cn{display:block;border-radius:1rem;padding:.5rem .65rem;background:color-mix(in srgb,var(--k-am) 12%,var(--surface));font-weight:700;line-height:1.25}
+body.am2on .jj-cn b{display:block;font-size:1.3rem;letter-spacing:-.02em}
+body.am2on .jj-cn small{font-weight:600;color:var(--muted)}
+body.am2on .jj-cn.ok{background:color-mix(in srgb,#12B5A0 16%,var(--surface))}
+body.am2on .jj-cn.ok b{color:#0d9488}
+body.am2on .jj-r{border-radius:1.25rem;border:1px solid var(--line);background:var(--surface);box-shadow:0 .35rem 1.1rem rgba(24,27,52,.08);padding:.75rem .8rem;margin:.55rem 0}
+body.am2on .jj-r.ok{background:color-mix(in srgb,#12B5A0 12%,var(--surface));border-color:color-mix(in srgb,#12B5A0 45%,var(--line))}
+body.am2on .jj-r.rg{border-left:1px solid var(--line);background:color-mix(in srgb,#f59e0b 12%,var(--surface))}
+body.am2on .jj-c{width:2.5rem;height:2.5rem;border-radius:50%;border:3px solid var(--k-am);font-weight:800;color:#fff;background:transparent}
+body.am2on .jj-r.ok .jj-c{background:#12B5A0;border-color:#12B5A0}
+body.am2on .jj-n b{font-size:1.1rem;letter-spacing:-.01em}
+body.am2on .jj-tk{border:2px solid color-mix(in srgb,var(--k-am) 55%,var(--line));border-radius:99px;background:var(--surface);font-weight:700;padding:.5rem .85rem}
+body.am2on .jj-r .jj-tk.on{background:#12B5A0!important;border-color:#12B5A0!important;color:#fff!important;box-shadow:0 .3rem .8rem rgba(18,181,160,.3)}
+/* Page Jour J : vue d'ensemble (dézoom) */
+.sh.jj.jjcp .jj-st{display:flex;flex-wrap:wrap;gap:.25rem;font-size:.72rem}
+.sh.jj.jjcp .jj-cn{display:inline-block;padding:.2rem .5rem;border-radius:.7rem}
+.sh.jj.jjcp .jj-cn b{display:inline;font-size:.85rem}
+.sh.jj.jjcp .jj-cn small{display:none}
+.sh.jj.jjcp .jj-r{display:flex;align-items:center;gap:.4rem;padding:.25rem .45rem;margin:.18rem 0;border-radius:.7rem;box-shadow:none}
+.sh.jj.jjcp .jj-n small{display:none}
+.sh.jj.jjcp .jj-n{flex:1 1 7rem;min-width:0}
+.sh.jj.jjcp .jj-n b{font-size:.85rem;line-height:1.15}
+.sh.jj.jjcp .jj-r{flex-wrap:nowrap}
+.sh.jj.jjcp .jj-q{display:flex;flex-wrap:nowrap;flex:0 0 auto;width:auto;gap:.2rem;justify-content:flex-end;margin:0}
+.sh.jj.jjcp .jj-tk{font-size:.66rem;padding:.15rem .4rem;border-width:1.5px;min-height:0;line-height:1.2}
+.sh.jj.jjcp .jj-c{width:1.6rem;height:1.6rem;border-width:2px;font-size:.8rem;flex:none}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1491,7 +1522,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.74.5';
+const APP_VERSION='2.74.7';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1499,6 +1530,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.7',d:'08/11/2026',items:[
+  '<b>Jour J : vue d’ensemble</b> : un bouton « 🔍 Vue d’ensemble » (à côté de Amicalistes / Non-amicalistes / Terminés) réduit tout : compteurs en ligne, une seule ligne fine par personne avec ses tickets en petit, pour voir beaucoup de monde d’un coup. « Voir en grand » revient à l’affichage normal.'
+ ]},
+ {v:'2.74.6',d:'08/11/2026',items:[
+  '<b>Page Jour J en style Nouveau</b> : en-tête coloré, compteurs en tuiles (Arrivé, Repas, Boisson, Payé…), cartes de personnes arrondies qui passent au vert quand tout est fait, pastilles de tickets plus lisibles.'
+ ]},
  {v:'2.74.5',d:'08/11/2026',items:[
   '<b>Style Nouveau : chaque onglet a sa couleur</b> : un grand bandeau coloré en haut (Agenda bleu, Événements rouge, Tâches vert, Courses jaune…), et les boutons, pastilles et cases de la page prennent cette couleur.'
  ]},
@@ -7382,6 +7419,7 @@ async function act(a,el,e){
   case 'ee-ty1':amTy1(ds_.k);break;
   case 'jj-g':amEeMut(o=>{const c=o.pt[+ds_.i];if(c){c.gv=c.gv||{};const u=+ds_.u||0,n=c.gv[ds_.k]||0;c.gv[ds_.k]=u<n?u:u+1}});amJjList();break;
   case 'jj-open':amJjOpen();break;
+  case 'jj-zoom':{S.jjCp=S.jjCp?0:1;saveSet();const sh=document.querySelector('.sh.jj');if(sh)sh.classList.toggle('jjcp',!!S.jjCp);const z=$('#jj-zm');if(z)z.textContent=S.jjCp?'🔍 Voir en grand':'🔍 Vue d’ensemble';amJjList();break}
   case 'jj-pay':amPtPay(+ds_.i).then(()=>amJjList());break;
   case 'jj-sv':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)amJjSet(c,amTy(o),!amDone(c,amTy(o)))});amJjList();break;
   case 'jj-tab':JJ.tab=ds_.v;amJjOpen();break;
@@ -13134,7 +13172,7 @@ function amJjList(){
  const cnt=t=>PT.filter((p,i)=>t==='s'?dn(p):(!dn(p)&&(t==='a'?A0.some(x=>x.i===i):N0.some(x=>x.i===i)))).length;
  const st=$('#jj-st');if(st)st.innerHTML=TY.map(t=>{const T=PT.reduce((n,p)=>n+amQ(p,t.k),0),G=PT.reduce((n,p)=>n+Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0),0);return T?'<span class="jj-cn'+(G===T?' ok':'')+'">'+esc(t.e||'')+' '+esc(t.l)+' <b>'+G+'/'+T+'</b> <small>reste '+(T-G)+'</small></span>':''}).join('')+'<span class="jj-cn">✅ Personnes terminées <b>'+sv+'/'+tot+'</b></span>'+(it.pr&&it.pr.on?(()=>{const P=amPayTot(it);return '<span class="jj-cn'+(P.re?'':' ok')+'">💶 Payé <b>'+P.ok+'/'+tot+'</b> <small>reste '+esc(amEur(P.re))+'</small></span>'})():'')+amRgBar(it,A0.concat(N0));
  ['a','n','s'].forEach(t=>{const b=$('#jj-t-'+t);if(b)b.querySelector('i').textContent=cnt(t)});
- box.innerHTML=L.length?L.map(x=>{const o=(x.m&&x.m.o)||{},rg=amRgOf(x),d=dn(x.p),ch=TY.filter(t=>amQ(x.p,t.k)>0).map(t=>{const q=amQ(x.p,t.k),g=Math.min(q,(x.p.gv||{})[t.k]||0);let o='';for(let u=0;u<q;u++){const on=u<g;o+='<button class="jj-tk'+(on?' on':'')+'" data-act="jj-g" data-i="'+x.i+'" data-k="'+t.k+'" data-u="'+u+'">'+(on?'✓ ':'')+esc(t.e||'')+' '+esc(t.l)+(q>1?' '+(u+1)+'/'+q:'')+'</button>'}return o}).join('')||'<span class="mut">aucun ticket</span>';const pb=amJjPayBtn(it,x);
+ box.innerHTML=L.length?L.map(x=>{const o=(x.m&&x.m.o)||{},rg=amRgOf(x),d=dn(x.p),ch=TY.filter(t=>amQ(x.p,t.k)>0).map(t=>{const q=amQ(x.p,t.k),g=Math.min(q,(x.p.gv||{})[t.k]||0);let o='';for(let u=0;u<q;u++){const on=u<g;o+='<button class="jj-tk'+(on?' on':'')+'" data-act="jj-g" data-i="'+x.i+'" data-k="'+t.k+'" data-u="'+u+'" title="'+esc(t.l)+'">'+(S.jjCp?(on?'✓':'')+esc(t.e||t.l.slice(0,2))+(q>1?' '+(u+1)+'/'+q:''):(on?'✓ ':'')+esc(t.e||'')+' '+esc(t.l)+(q>1?' '+(u+1)+'/'+q:''))+'</button>'}return o}).join('')||'<span class="mut">aucun ticket</span>';const pb=amJjPayBtn(it,x);
   return '<div class="jj-r'+(d?' ok':'')+(rg?' rg':'')+'"><button class="jj-c" data-act="jj-sv" data-i="'+x.i+'" aria-label="Tout marquer">'+(d?'✓':'')+'</button><span class="jj-n"><b>'+esc(x.p.n)+'</b><small>'+[o.gr?esc(o.gr):'',x.isA?'':'non-amicaliste',rg?'<span class="rg-b">🥗 '+esc(amRgCat(rg)===rg?rg:amRgCat(rg)+' ('+rg+')')+'</span>':'',x.p.by?'✍️ '+esc(x.p.by)+(x.p.bt?' · '+esc(amHM(x.p.bt)):''):''].filter(Boolean).join(' · ')+'</small></span><span class="jj-q">'+ch+pb+'</span></div>'}).join(''):'<p class="empty">'+(JJ.tab==='s'?'Personne n’est encore terminé.':(JJ.q||JJ.gr?'Aucun résultat.':'Tout est fait 🎉'))+'</p>';
  const ab=$('#jj-all');if(ab){ab.style.display=L.length?'':'none';ab.textContent=JJ.tab==='s'?'↩ Tout remettre à faire ('+L.length+')':'✓ Tout marquer terminé ('+L.length+')'}
 }
@@ -13143,10 +13181,10 @@ function amJjOpen(){
  const grs=[...new Set(amPtGroups(it)[0].map(x=>(x.m.o||{}).gr).filter(Boolean))].sort((p,q)=>amGrRank(p)-amGrRank(q));
  const rgs=amRgCount(it,amPtGroups(it).flat()).map(r=>r.k);const tb=(t,l)=>'<button class="chip'+(JJ.tab===t?' on':'')+'" id="jj-t-'+t+'" data-act="jj-tab" data-v="'+t+'">'+l+' <i>0</i></button>';
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎟 '+esc(it.tx)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 Amicalistes')+tb('n','👤 Non-amicalistes')+tb('s','✅ Terminés')+'</div>';
+ h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 Amicalistes')+tb('n','👤 Non-amicalistes')+tb('s','✅ Terminés')+'<button class="chip" id="jj-zm" data-act="jj-zoom">'+(S.jjCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button></div>';
  h+='<div class="jj-f"><input class="in" id="jj-q" type="search" placeholder="🔍 Chercher un nom…" value="'+esc(JJ.q)+'" autocomplete="off"><select class="in" id="jj-gr"><option value="">Tous les grades</option>'+grs.map(g=>'<option'+(JJ.gr===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select>'+(rgs.length?'<select class="in" id="jj-rg"><option value="">Tous les régimes</option>'+rgs.map(g=>'<option'+(JJ.rg===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select>':'')+'</div>';
  h+='<div id="jj-list" class="jj-l"></div><button class="btn blk" id="jj-all" data-act="jj-all" style="margin-top:.4rem"></button>';
- const r=openSheet(h,'jj');
+ const r=openSheet(h,'jj'+(S.jjCp?' jjcp':''));
  const q=$('#jj-q'),g=$('#jj-gr');q.oninput=()=>{JJ.q=q.value;amJjList()};g.onchange=()=>{JJ.gr=g.value;amJjList()};const rs=$('#jj-rg');if(rs)rs.onchange=()=>{JJ.rg=rs.value;amJjList()};
  amJjList();
 }
