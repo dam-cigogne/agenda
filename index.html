@@ -319,6 +319,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
  body.am-printing #amprint .pst{margin:0 auto;transform-origin:top left}
 }
 
+.co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
 .am-h{margin:.9rem 0 .3rem;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -1415,7 +1416,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.72.6';
+const APP_VERSION='2.72.7';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1423,9 +1424,15 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.72.7',d:'08/11/2026',items:[
+  '<b>Enregistrer un fichier sur iPhone</b> : un message t’indique quoi toucher (« Enregistrer dans Fichiers ») dans la fenêtre de partage. iOS ne permet pas à une appli d’écrire directement dans Fichiers.',
+  '<b>Délai du verrou au choix</b> : l’appli se reverrouille tout de suite, après 30 secondes, 1, 5, 15 minutes ou 1 heure hors de l’appli (5 minutes par défaut).',
+  '<b>Onglets de droite qui se bloquaient</b> : quand il y a plus d’onglets que la hauteur de l’écran, la colonne ne défile plus toute seule (c’est là que ça bloquait) : elle suit le défilement de la page.',
+  '<b>Verrou au choix dans AgenDam</b> : verrouiller toute l’appli ou seulement l’onglet Amicale.',
+ ]},
  {v:'2.72.6',d:'08/11/2026',items:[
   '<b>2e administrateur</b> : fiche d’un membre du bureau › « 👑 Nommer administrateur ». Elle ou il peut alors gérer le groupe sans toi (titres, niveaux d’accès, retraits, invitations, modèle de bulletin). Ça ne peut pas se défaire.',
-  '<b>Verrou de l’appli</b> : code (et Face ID / empreinte) demandé à l’ouverture de toute l’appli, sur l’appareil de ton choix (Réglages › Verrouiller l’appli). Se reverrouille quand tu quittes l’appli plus de 30 secondes.',
+  '<b>Verrou de l’appli</b> : code (et Face ID / empreinte) demandé à l’ouverture de toute l’appli, sur l’appareil de ton choix (Réglages › Verrouiller l’appli). Dans AgenDam, tu peux ne verrouiller que l’onglet Amicale. Se reverrouille quand tu quittes l’appli plus de 30 secondes.',
   '<b>Titres au féminin</b> : Présidente, Vice-présidente et Trésorière sont proposées en plus (Secrétaire est identique).',
   '<b>Notifications des courses</b> : elles indiquent le nom de la liste (« a modifié la liste « Buvette » »). Demande la dernière version du serveur (worker).'
  ]},
@@ -2999,6 +3006,7 @@ function bannerHTML(){
 
 /* ---------- Rendu principal ---------- */
 function render(){
+ setTimeout(amSnFit,80);
  FEV_C=null;
  OCC.length=0;VAC_IDX=null;
  const main=$('#main'),body=$('#body');
@@ -7180,6 +7188,8 @@ async function act(a,el,e){
   case 'aml-open':await amlGate();break;
   case 'aml-pin':await amlSetPin();render();break;
   case 'aml-lock':amlRelock();break;
+  case 'aml-delay':S.amlDelay=+ds_.v;saveSet();render();break;
+  case 'aml-scope':{S.amlScope=ds_.v==='am'?'am':'all';saveSet();amlCover(0);AML_OK=true;render();toast(S.amlScope==='am'?'Seul l’onglet Amicale sera verrouillé':'Toute l’appli sera verrouillée',3500);break}
   case 'aml-bio':{
    if(S.amlBio){S.amlBio='';saveSet();toast('Face ID / empreinte retiré : le code reste actif')}
    else if(!(await bdBioAvail())){await ask({title:'Pas disponible ici',text:'Cet appareil ou ce navigateur ne propose pas Face ID / empreinte pour les sites. Le code reste utilisable.',btns:[{label:'OK',value:1,cls:'pri'}]})}
@@ -10607,14 +10617,21 @@ async function amForm(title,intro,fields,ok){
 }
 let AM_QUIET=0;
 /* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
+/* Colonne d'onglets de droite : si elle est plus haute que l'écran, elle n'a plus de défilement à elle (ça se bloquait sur iPhone/iPad) : elle suit simplement le défilement de la page */
+function amSnFit(){const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
+window.addEventListener('resize',()=>setTimeout(amSnFit,200));window.addEventListener('orientationchange',()=>setTimeout(amSnFit,400));
 let AML_OK=false,AML_H=0;
+const amlDelay=()=>S.amlDelay==null?300:+S.amlDelay;
+const amlScopeAm=()=>!AMI&&S.amlScope==='am'&&!!(S.amc&&S.amc.on);
+const amTabLocked=()=>!!S.amlPin&&amlScopeAm()&&!AML_OK;
+function amLockHTML(){return '<div class="card" style="margin:.8rem 0;text-align:center;padding:1.4rem"><div style="font-size:2.4rem">🔒</div><b>Amicale verrouillée</b><p class="mut" style="margin:.3rem 0 .8rem">Entre ton code ou Face ID / empreinte pour voir l’Amicale.</p><button class="btn pri" data-act="aml-open">🔓 Déverrouiller</button></div>'}
 function amlCover(on){let e=document.getElementById('applock');if(!on){if(e)e.remove();return}
  if(e)return;e=document.createElement('div');e.id='applock';e.style.cssText='position:fixed;inset:0;z-index:70;background:var(--bg,#fff);color:var(--text,#111);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;text-align:center;padding:2rem';
  e.innerHTML='<div style="font-size:3rem">🔒</div><b style="font-size:1.3rem">Appli verrouillée</b><p class="mut" style="margin:0 0 .4rem;max-width:20rem">Touche le bouton pour entrer avec ton code ou Face ID / empreinte.</p><button class="btn pri" id="applock-b" style="min-width:12rem">🔓 Déverrouiller</button>';
  document.body.appendChild(e);document.getElementById('applock-b').onclick=()=>{amlGate().then(ok=>{if(ok)amlCover(0)})}}
-function amlRelock(){AML_OK=false;if(S.amlPin)amlCover(1)}
-function amlUnlock(){AML_OK=true;amlCover(0)}
-document.addEventListener('visibilitychange',()=>{if(!S.amlPin)return;if(document.hidden){AML_H=Date.now()}else if(AML_H&&Date.now()-AML_H>30000){amlRelock();amlGate().then(ok=>{if(ok)amlCover(0)})}});
+function amlRelock(){AML_OK=false;if(!S.amlPin)return;if(amlScopeAm()){if(V.view==='amicale')render()}else amlCover(1)}
+function amlUnlock(){AML_OK=true;amlCover(0);if(V.view==='amicale')render()}
+document.addEventListener('visibilitychange',()=>{if(!S.amlPin)return;if(document.hidden){AML_H=Date.now()}else if(AML_H&&Date.now()-AML_H>amlDelay()*1000){amlRelock();if(!amlScopeAm())amlGate().then(ok=>{if(ok)amlCover(0)})}});
 async function amlGate(){
  if(!S.amlPin||AML_OK)return true;let msg='';
  if(S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
@@ -10642,7 +10659,7 @@ async function amlSetPin(){
  const salt=uid();S.amlPin=salt+':'+await bdHash(a,salt);amlRelock();saveSet();render();toast('🔒 Verrou enregistré')
 }
 function appLockCard(){
- return '<div class="card"><h3>🔒 Verrouiller l’appli</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Se reverrouille quand tu quittes l’appli plus de 30 secondes. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
+ return '<div class="card"><h3>🔒 Verrouiller l’appli</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’appli</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement l’onglet Amicale</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
 }
 async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
@@ -11650,7 +11667,7 @@ async function amSaveBlob(blob,name,mime){
   try{const ext=(name.match(/\.[a-z0-9]+$/i)||['.bin'])[0],h=await window.showSaveFilePicker({suggestedName:name,types:[{description:'Fichier '+ext,accept:{[f.type||'application/octet-stream']:[ext]}}]});const w=await h.createWritable();await w.write(f);await w.close();toast('Enregistré : '+h.name,3500);return}
   catch(e){if(e&&e.name==='AbortError')return}
  }
- if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+ if(navigator.canShare&&navigator.canShare({files:[f]})){if(isIOS())toast('Dans la fenêtre qui s’ouvre : touche « Enregistrer dans Fichiers » (descends dans la liste si besoin)',6000);try{await navigator.share({files:[f],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
  const u=URL.createObjectURL(f),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000);toast('Fichier téléchargé : « '+name+' » (dossier Téléchargements)',4500);
 }
 async function amFileOut(name,text){await amSaveBlob(new Blob(['﻿'+text],{type:'text/csv'}),name,'text/csv')}
@@ -13165,7 +13182,8 @@ function amPendN(){const a=amc();return a?Object.values(a.it||{}).filter(x=>x.di
 function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1){if(!a.kdone)return'';return'<div class="warn" id="am-pend" style="border-color:#16a34a;background:color-mix(in srgb,#16a34a 14%,var(--surface))"><b>✅ Clés à jour : le groupe est prêt</b>Tout a été envoyé, tu peux inviter ou continuer.<div style="margin-top:.4rem"><button class="btn sm" data-act="am-keyok">OK, fermer</button></div></div>'}a.kwait=1;return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> et n’invite personne avant le message « ✅ Clés à jour ».</div>'}
 function amKeyOk(){const a=amc();if(a){a.kdone=0;amSave()}const b=document.getElementById('am-pend');if(b)b.remove()}
 function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.getElementById('am-pend-n');if(n<1){if(a.kwait){a.kwait=0;a.kdone=Date.now();amSave();try{toast('✅ Clés à jour : le groupe est prêt',5000)}catch(e){}try{const v=document.getElementById('am-pend');if(v)v.outerHTML=amKeyBanner()}catch(e){}}}else{a.kwait=1;if(e)e.textContent=n}}
-function amView(){
+function amView(){if(amTabLocked())return{html:amLockHTML(),fixed:false};return amView0()}
+function amView0(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
  if(a.newAdm){a.newAdm=0;amSave();setTimeout(()=>toast('👑 Tu es maintenant administrateur du groupe',5000),400)}
@@ -13289,7 +13307,7 @@ async function init(){
 }
 init();
 window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet}};
-try{if(S&&S.amlPin&&!demo){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
+try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
 
