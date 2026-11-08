@@ -1416,7 +1416,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.72.7';
+const APP_VERSION='2.72.8';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1424,6 +1424,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.72.8',d:'08/11/2026',items:[
+  '<b>Verrou rangé avec la sauvegarde</b> : Réglages › onglet « 💾 &amp; 🔐 », sous la Sauvegarde. Le choix devient « Toute l’application » ou « Seulement le groupe ».'
+ ]},
  {v:'2.72.7',d:'08/11/2026',items:[
   '<b>Enregistrer un fichier sur iPhone</b> : un message t’indique quoi toucher (« Enregistrer dans Fichiers ») dans la fenêtre de partage. iOS ne permet pas à une appli d’écrire directement dans Fichiers.',
   '<b>Délai du verrou au choix</b> : l’appli se reverrouille tout de suite, après 30 secondes, 1, 5, 15 minutes ou 1 heure hors de l’appli (5 minutes par défaut).',
@@ -6448,6 +6451,7 @@ function settingsView(){
   '<p class="mut" style="margin:.5rem 0 .1rem;font-size:.85rem"><b>Seulement l’agenda</b> (tes événements, sans les tâches, courses, recettes…)</p>'+
   pair(pbtn('bk-ev-save',ic('down')+' Agenda seul','Fichier des événements'),pbtn('bk-ev-restore',ic('up')+' Restaurer l’agenda','Depuis ce fichier','alt'))+
   '<details class="bk-more"><summary>Comment ça marche ?</summary><div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Pour retrouver ton agenda sur un autre téléphone : <b>Sauvegarder</b> ici, envoie le fichier « '+BACKUP_FILE+' » (mail, AirDrop, messagerie, cloud…), puis <b>Restaurer</b> sur l’autre appareil.'+(canShareFiles()?'<br><br><b>Sur iPhone</b> : choisis « Enregistrer dans Fichiers » puis ton dossier (iCloud Drive…). Le téléphone te reproposera le même dossier ensuite.':'')+'</div></details></div>';
+ h+=appLockCard();
  h+='\u0001aff\u0001';
  h+='<div class="card"><h3>Affichage</h3>'+
   '<div class="tgl-row"><b>Tâches : afficher la note sous chaque tâche 📝</b><label class="tgl"><input type="checkbox" data-chg="tkNote"'+(S.tkNote===false?'':' checked')+'></label></div>'+
@@ -6477,7 +6481,7 @@ function settingsView(){
  h+=vacH+'\u0001fam\u0001'+famCard()+amSetCard();
  h+='\u0001cal\u0001'+phoneCard();
  if(OL_ON)h+=msCard();
- h+='\u0001fam\u0001'+bdCard()+appLockCard()+'\u0001cal\u0001';
+ h+='\u0001fam\u0001'+bdCard()+'\u0001cal\u0001';
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
@@ -6506,7 +6510,7 @@ h+='<div class="card" id="ics-card">'+
  h+='<div class="card" id="about-card"><h3>À propos</h3><p><b>AgenDam</b> · version '+APP_VERSION+'</p><button class="btn blk" data-act="upd-check">🔄 Rechercher une mise à jour</button>'+sfold('Comment l’appli se met à jour ?',UPD_HOW)+'<p class="mut">Gratuit, sans publicité. Aucune donnée collectée : tout reste sur cet appareil.</p>'+
   '<button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
  h+=devCard()+'<div style="height:2rem"></div>';
- const TABS=[['sauv','Sauvegarde'],['aff','Affichage'],['agenda','Mon agenda'],['fam','Famille'],['cal','Calendriers'],['rap','Rappels'],['aide','Aide'],['about','À propos']];
+ const TABS=[['sauv','💾 & 🔐'],['aff','Affichage'],['agenda','Mon agenda'],['fam','Famille'],['cal','Calendriers'],['rap','Rappels'],['aide','Aide'],['about','À propos']];
  const B={};{const pt=h.split('\u0001');for(let i=1;i<pt.length;i+=2){B[pt[i]]=(B[pt[i]]||'')+(pt[i+1]||'')}}
  const cur=TABS.some(x=>x[0]===V.sset)?V.sset:'sauv';
  const bar='<div class="jump'+(S.setPos==='side'?' jside':'')+'">'+TABS.map(x=>'<button type="button" class="chip'+(x[0]===cur?' on':'')+'" data-act="sset" data-t="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
@@ -10659,7 +10663,7 @@ async function amlSetPin(){
  const salt=uid();S.amlPin=salt+':'+await bdHash(a,salt);amlRelock();saveSet();render();toast('🔒 Verrou enregistré')
 }
 function appLockCard(){
- return '<div class="card"><h3>🔒 Verrouiller l’appli</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’appli</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement l’onglet Amicale</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
+ return '<div class="card"><h3>🔐 Verrouiller l’application</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’application</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement le groupe</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
 }
 async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
@@ -13206,7 +13210,7 @@ function amView0(){
    mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
-  h+=amColCard()+pushCard()+appLockCard();
+  h+=amColCard()+pushCard();
   if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
    h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
     :'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">'+(shm?'✅ Modèle et tarifs réglés par <b>'+esc((itm&&itm.by)||'l’administrateur')+'</b>, reçus automatiquement.':'Modèle de l’appli. L’administrateur du groupe peut le personnaliser : il arrivera ici tout seul.')+'</p>'+mrow('bm-exp','📤 Exporter le modèle','Fichier .json ou Word'))+'</div>'}
@@ -13236,10 +13240,11 @@ function amView0(){
 function amiFromAg(){if(!AMI)return null;try{const o=JSON.parse(localStorage.getItem('agd-settings')||'{}');return o&&o.amc&&o.amc.on&&o.amc.kA?o:null}catch(e){return null}}
 function amiTake(){const o=amiFromAg();if(!o||S.amc)return;S.amc=JSON.parse(JSON.stringify(o.amc));['amCol','amPo','amSg','amSide','amAg','amCoZ'].forEach(k=>{if(o[k]!=null)S[k]=JSON.parse(JSON.stringify(o[k]))});S.amc.last={};S.amc.pullAt=0;saveSet();setTheme();tabsApply();go('amicale');amPull(true);toast('Groupe repris d’AgenDam : tu es '+S.amc.me.n,4000)}
 function amiSettingsView(seg){
- let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard()+appLockCard();
+ let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard();
  h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
  h+=amSetCard();
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">Un fichier de secours avec ton groupe (pour changer de téléphone).'+(META.lastBackup?' Dernière : <b>'+fmtDate(META.lastBackup)+'</b>.':'')+'</p>'+pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+'</div>';
+ h+=appLockCard();
  h+='<div class="card"><h3>Démo</h3>'+(demo?mrow('exitdemo','Quitter le mode démo',''):mrow('demo','Voir le mode démo','Un groupe d’exemple'))+(installEv?'<button class="btn pri blk" data-act="install">Installer l’appli sur cet appareil</button>':'')+'</div>';
  h+='<div class="card" id="about-card"><h3>À propos</h3><p><b>Amicale</b> · version '+APP_VERSION+'</p><p class="mut" style="font-size:.88rem">Fait avec AgenDam : le même groupe s’ouvre aussi dans AgenDam (onglet Groupe). Gratuit, sans publicité. Les échanges du groupe sont chiffrés.</p><a class="btn pri blk" href="visite.html" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">▶ Visite guidée (plein écran)</a><button class="btn blk" data-act="hist">🆕 Nouveautés : ce qui a changé</button><a class="btn blk" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">📖 Guide du bureau à lire</a><button class="btn blk" data-act="upd-check">🔄 Rechercher une mise à jour</button><button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
  return{html:h+'<div style="height:2rem"></div></div>',fixed:false};
