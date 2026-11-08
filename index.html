@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.69.3';
+const APP_VERSION='2.70.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.0',d:'08/11/2026',items:[
+  '<b>Nouveau logo</b> : « Agen » avec « Dam » sur pastille jaune pour AgenDam, « Amicale » avec « Groupe » pour Amicale. Pour voir la nouvelle icône sur l’écran d’accueil, supprime l’appli puis ajoute-la de nouveau (tes données sont gardées).',
+  '<b>Notifications plus jolies</b> : un emoji selon le type (⏰ tâche, 📅 événement, 🛒 listes, 📣 groupe), l’heure dans le titre, et « Dans 15 min · lieu 📍 » pour les événements.'
+ ]},
  {v:'2.69.3',d:'08/11/2026',items:[
   '<b>Rappel de test corrigé</b> : le rappel de test n’était plus effacé du serveur quand l’appli se resynchronisait ; il est maintenant conservé jusqu’à son heure.'
  ]},
@@ -6841,14 +6845,14 @@ function tick(){
   const key=o.ev.id+'|'+o.date;
   if(n>=at&&n-at<30*60000&&n<end&&!fired[key]){
    fired[key]=n;ch=true;
-   notify(o.ev.title,(o.allDay?'Journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place:''),key);
+   {const m=remEvTxt(o,o.ev.alarm);notify(m.t,m.b,key)};
   }
  }
  if(!document.querySelector('#dlg .ov'))for(const k of tkAll()){
   if(!k.al||k.x||k.ar||!k.d||!k.tm)continue;
   const w=tkWho(k);if(w.length&&S.meId&&!w.includes(S.meId))continue;
   const at=atTime(k.d,tmin(k.tm)).getTime(),key=tkAlarmKey(k);
-  if(n>=at&&n-at<12*3600000&&!fired[key]){fired[key]=n;ch=true;ls.set(K.fired,fired);notify('⏰ '+k.t,k.tm,key);tkAlarm(k);break}
+  if(n>=at&&n-at<12*3600000&&!fired[key]){fired[key]=n;ch=true;ls.set(K.fired,fired);notify('⏰ '+k.t+' · '+k.tm,'C’est l’heure ! Ta tâche t’attend 💪',key);tkAlarm(k);break}
  }
  for(const k in fired)if(n-fired[k]>4*864e5){delete fired[k];ch=true}
  if(ch)ls.set(K.fired,fired);
@@ -9702,20 +9706,21 @@ async function remKey(){
  try{const c=await caches.open('agd-rk');await c.put('rk',new Response(k))}catch(e){}
  return crypto.subtle.importKey('raw',Uint8Array.from(atob(k),c=>c.charCodeAt(0)),'AES-GCM',false,['encrypt']);
 }
+const remEvTxt=(o,al)=>{const lead=al>0?'Dans '+(al>=60&&al%60===0?(al/60)+' h':al+' min')+' · ':(o.allDay?'Aujourd’hui · ':'C’est maintenant · ');return{t:(o.ev.icon||'📅')+' '+o.ev.title+(o.allDay?'':' · '+hm(o.s)),b:lead+(o.allDay?'journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place+' 📍':'')}};
 function remList(){
  const out=[],n=Date.now(),t0=today();
  try{for(const o of occsMine(add(t0,-1),add(t0,14))){
   if(o.ev.alarm==null)continue;
   const base=o.allDay?atTime(o.date,540):atTime(o.date,o.s),at=base.getTime()-o.ev.alarm*60000,end=atTime(o.endDate,o.allDay?1440:o.e).getTime();
   if(at<n-60000||at>n+14*864e5||n>=end)continue;
-  out.push({id:o.ev.id+'|'+o.date,at,m:{t:o.ev.title,b:(o.allDay?'Journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place:''),g:o.ev.id+'|'+o.date}});
+  out.push({id:o.ev.id+'|'+o.date,at,m:Object.assign(remEvTxt(o,o.ev.alarm),{g:o.ev.id+'|'+o.date})});
  }}catch(e){}
  try{for(const k of tkAll()){
   if(!k.al||k.x||k.ar||!k.d||!k.tm)continue;
   const w=tkWho(k);if(w.length&&S.meId&&!w.includes(S.meId))continue;
   const at=atTime(k.d,tmin(k.tm)).getTime();
   if(at<n-60000||at>n+14*864e5)continue;
-  out.push({id:tkAlarmKey(k),at,m:{t:'⏰ '+k.t,b:k.tm,g:tkAlarmKey(k)}});
+  out.push({id:tkAlarmKey(k),at,m:{t:'⏰ '+k.t+' · '+k.tm,b:'C’est l’heure ! Ta tâche t’attend 💪',g:tkAlarmKey(k)}});
  }}catch(e){}
  return out.sort((x,y)=>x.at-y.at).slice(0,120);
 }

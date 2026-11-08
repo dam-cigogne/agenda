@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#2f5bea"/>
-  <rect x="96" y="120" width="320" height="296" rx="44" fill="#ffffff"/>
-  <path d="M96 164a44 44 0 0 1 44-44h232a44 44 0 0 1 44 44v52H96z" fill="#1f3fb8"/>
-  <rect x="164" y="84" width="28" height="64" rx="14" fill="#ffffff"/>
-  <rect x="320" y="84" width="28" height="64" rx="14" fill="#ffffff"/>
-  <g fill="#c7d2f4">
-    <rect x="132" y="244" width="48" height="36" rx="10"/><rect x="232" y="244" width="48" height="36" rx="10"/><rect x="332" y="244" width="48" height="36" rx="10"/>
-    <rect x="132" y="310" width="48" height="36" rx="10"/><rect x="332" y="310" width="48" height="36" rx="10"/>
-    <rect x="132" y="372" width="48" height="20" rx="10"/><rect x="232" y="372" width="48" height="20" rx="10"/>
-  </g>
-  <rect x="232" y="310" width="48" height="36" rx="10" fill="#2f5bea"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1d4ed8"/><stop offset="1" stop-color="#4f46e5"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><g transform="rotate(-8 256 200)"><text x="60" y="241" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="160" fill="#1e1b4b" opacity=".35" textLength="400" lengthAdjust="spacingAndGlyphs">Agen</text><text x="56" y="235" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="160" fill="#fff" textLength="400" lengthAdjust="spacingAndGlyphs">Agen</text><rect x="60" y="256" width="392" height="14" rx="7" fill="#fde047"/></g><g transform="rotate(-8 256 380)"><rect x="132" y="318" width="250" height="118" rx="34" fill="#fde047"/><text x="150" y="410" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="112" fill="#1e1b4b" textLength="214" lengthAdjust="spacingAndGlyphs">Dam</text></g></svg>

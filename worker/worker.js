@@ -40,7 +40,7 @@ async function sendOne(env,x,msg){
 // Test : envoyé à tous les téléphones du groupe, sans règle
 async function pushTest(env,space){
   const r=await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE space = ?').bind(space).all();let ok=0;const err=[];
-  for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'Test réussi ✅',b:'Les notifications fonctionnent sur ce téléphone.',g:'agd-test'});if(s==='ok')ok++;else err.push(s)}
+  for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'✅ Test réussi',b:'Les notifications fonctionnent sur ce téléphone 🎉',g:'agd-test'});if(s==='ok')ok++;else err.push(s)}
   return {ok,err};
 }
 // Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, au plus une toutes les 2 minutes
@@ -53,9 +53,10 @@ async function notify(env,space,o){
     if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
-    await sendOne(env,x,{t:tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),b:'Ouvre l’appli pour voir les nouveautés.',g:'agd-'+o.kind});
+    await sendOne(env,x,{t:LBT[o.kind]||'🔔 Du nouveau',b:tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
 }
+const LBT = { a: '📅 Agenda partagé mis à jour', c: '🛒 Listes mises à jour', i: '📣 Du nouveau dans le groupe' };
 const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
 const MAX = 400 * 1024;
