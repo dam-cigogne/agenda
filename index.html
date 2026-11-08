@@ -1400,7 +1400,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.5';
+const APP_VERSION='2.70.7';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1408,6 +1408,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.7',d:'08/11/2026',items:[
+  '<b>Notifications Amicale plus claires</b> : le titre dit ce qui a changé (🛒 Courses, ☑ Tâches, 📅 Agenda, 🎉 Événement, 📝 Notes, 🎖 Amicalistes…) et le message dit qui l’a fait. Nécessite la mise à jour du worker Cloudflare.'
+ ]},
+ {v:'2.70.6',d:'08/11/2026',items:[
+  '<b>Amicale</b> : quand le renouvellement des clés est terminé, un encadré vert « ✅ Clés à jour : le groupe est prêt » s’affiche (à fermer avec OK) ; l’encadré orange demande de ne pas inviter avant.'
+ ]},
  {v:'2.70.5',d:'08/11/2026',items:[
   '<b>Amicale : suivi du renouvellement des clés</b> : quand tu retires quelqu’un ou changes son niveau, un encadré en haut indique combien d’éléments restent à envoyer (garde l’appli ouverte). Une explication est aussi dans Administratif et dans la fenêtre de retrait.'
  ]},
@@ -10508,9 +10514,9 @@ async function amForm(title,intro,fields,ok){
  const r=await pr;root.oninput=root.onchange=null;return r==='ok'?v:null;
 }
 let AM_QUIET=0;
-async function amPut(zone,doc,P,kraw){
+async function amPut(zone,doc,P,kraw,hint){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
- const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{}),body:JSON.stringify(b)});
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
 const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',pub:m.pub||null,at:Date.now()}};
@@ -10800,7 +10806,7 @@ async function amSetTitle(id){
 async function amRemove(id){
  const a=amc();if(!a||!a.apriv||id===a.me.id)return;
  const p=amList().find(x=>x.id===id);if(!p)return;
- const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « Retiré ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « ✅ Clés à jour ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
  const miss=amList().filter(q=>!q.self&&q.id!==id&&!(a.mem&&a.mem[q.id]&&a.mem[q.id].pub));
  if(miss.length){const r2=await ask({title:'Des membres ne sont pas à jour',html:'<p style="margin:.2rem 0 .5rem">'+miss.map(q=>esc(q.n)).join(', ')+' n’ont pas encore ouvert la dernière version d’AgenDam : ils ne peuvent pas recevoir les nouvelles clés et devraient être <b>ré-invités</b> avec un nouveau code.</p>',btns:[{label:'Renouveler quand même',value:'y',cls:'dng'},{label:'Attendre qu’ils se mettent à jour',value:null}]});if(r2!=='y')return}
@@ -10855,7 +10861,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P);if(it.at===P.at)delete it.dirty};
+   await amPut(it.z,'i-'+it.id,P,0,it.kind);if(it.at===P.at)delete it.dirty};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -12947,8 +12953,9 @@ function amLoiHTML(){
  '<div class="card"><h3>🔎 Et si la loi change ?</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Pour être sûr que rien n’a changé, touche le bouton : tu reçois un script à coller dans une IA. Les sources officielles sont dedans.</p><button class="btn pri blk" data-act="loi-script">📋 Copier le script de vérification</button></div>';
 }
 function amPendN(){const a=amc();return a?Object.values(a.it||{}).filter(x=>x.dirty).length+((a.rot&&a.rot.todo&&a.rot.todo.length)||0):0}
-function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1)return'';return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> jusqu’à la fin : les membres retrouvent tout après.</div>'}
-function amPendTick(){const n=amPendN(),e=document.getElementById('am-pend-n');if(e){if(n<1){const b=document.getElementById('am-pend');if(b)b.remove()}else e.textContent=n}}
+function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1){if(!a.kdone)return'';return'<div class="warn" id="am-pend" style="border-color:#16a34a;background:color-mix(in srgb,#16a34a 14%,var(--surface))"><b>✅ Clés à jour : le groupe est prêt</b>Tout a été envoyé, tu peux inviter ou continuer.<div style="margin-top:.4rem"><button class="btn sm" onclick="amKeyOk()">OK, fermer</button></div></div>'}a.kwait=1;return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> et n’invite personne avant le message « ✅ Clés à jour ».</div>'}
+function amKeyOk(){const a=amc();if(a){a.kdone=0;amSave()}const b=document.getElementById('am-pend');if(b)b.remove()}
+function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.getElementById('am-pend-n');if(n<1){if(a.kwait){a.kwait=0;a.kdone=Date.now();amSave();try{toast('✅ Clés à jour : le groupe est prêt',5000)}catch(e){}try{const v=document.getElementById('am-pend');if(v)v.outerHTML=amKeyBanner()}catch(e){}}}else{a.kwait=1;if(e)e.textContent=n}}
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};

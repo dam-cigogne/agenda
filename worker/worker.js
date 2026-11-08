@@ -53,9 +53,10 @@ async function notify(env,space,o){
     if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
-    await sendOne(env,x,{t:LBT[o.kind]||'🔔 Du nouveau',b:tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
+    const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+H[1]):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
 }
+const HINT = { tk:['☑ Tâches mises à jour','a modifié une tâche'], co:['🛒 Courses mises à jour','a modifié la liste de courses'], ev:['📅 Agenda de l’amicale','a modifié l’agenda'], ee:['🎉 Événement','a ajouté ou modifié un événement'], nt:['📝 Notes du bureau','a modifié une note'], am:['🎖 Amicalistes','a modifié la liste des amicalistes'], ad:['📁 Administratif','a ajouté ou modifié un document'], cd:['🎁 Cadeaux','a modifié un cadeau'], ag:['📝 Compte rendu d’AG','a modifié un compte rendu'], bs:['📰 Bulletin','a modifié un bulletin'], bm:['📰 Bulletin','a modifié un modèle de bulletin'], po:['🖼 Affiches','a modifié une affiche'] };
 const LBT = { a: '📅 Agenda partagé mis à jour', c: '🛒 Listes mises à jour', i: '📣 Du nouveau dans le groupe' };
 const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
@@ -66,7 +67,7 @@ function cors(req) {
   return {
     'Access-Control-Allow-Origin': ORIGINS.includes(o) ? o : ORIGINS[0],
     'Access-Control-Allow-Methods': 'GET,PUT,POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self, X-Push-Skip, X-Push-Quiet',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self, X-Push-Skip, X-Push-Quiet, X-Push-Hint',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
@@ -248,7 +249,7 @@ export default {
       if (env.DB && env.VAPID_PRIVATE) {
         const mm = doc.match(/^([ac])-([a-z0-9]+)-([a-z0-9]+)$/), skip = (req.headers.get('X-Push-Skip') || '').split(',').filter(Boolean);
         const kind = mm ? mm[1] : (/^i-/.test(doc) ? 'i' : null);
-        if (kind && !req.headers.get('X-Push-Quiet')) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', skip, selfEp: req.headers.get('X-Push-Self') || null }));
+        if (kind && !req.headers.get('X-Push-Quiet')) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', hint: (req.headers.get('X-Push-Hint') || '').slice(0, 3), skip, selfEp: req.headers.get('X-Push-Self') || null }));
       }
       return json(req, { ok: true, at });
     }
