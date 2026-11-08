@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.68.2';
+const APP_VERSION='2.68.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -6377,13 +6377,14 @@ h+='<div class="card" id="ics-card">'+
  h+='\u0001rap\u0001';
  h+='<div class="card"><h3>Rappels</h3>'+
   '<div class="set-row"><label class="lbl" for="s-alarm">Rappel par défaut des nouveaux événements</label><select class="in" id="s-alarm" data-chg="defAlarm">'+alarmOpts(false,S.defAlarm)+'</select></div>'+
-  '<div class="set-row"><span class="lbl">Notifications système</span>'+
-  (perm==='granted'?'<p><b>Activées.</b> <span class="mut">Elles ne sonnent que si l’appli est ouverte ou récemment utilisée en arrière-plan.</span></p>'
-   :perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
-   :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
-   :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
-  (perm==='granted'&&(famAll().length||amc())?'<p class="mut">Même appli fermée : active l’envoi, puis envoie-toi un test (verrouille ton téléphone avant).</p><div class="pair"><button class="btn alt" data-act="push-on">🔔 Activer l’envoi</button><button class="btn alt" data-act="push-test">🧪 Envoyer un test</button></div><p class="mut" style="margin-top:.6rem">Me prévenir quand quelqu’un d’autre modifie :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div><p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p>':'')+
-  '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
+  '<div class="set-row"><span class="lbl">Notifications</span>'+
+  (perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
+   :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
+   :(famAll().length||amc()?'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(pushIsOn()?' checked':'')+'></label></div>'
+     :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button><p class="mut">Pour être prévenu des modifications du groupe, rejoins d’abord un groupe.</p>'))+
+  (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div><p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button>':'')+
+  '</div>'+
+  '<div class="warn"><b>À savoir</b>Les notifications de modification arrivent même appli fermée (iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Elles peuvent être retardées de quelques minutes, ou masquées par un mode Concentration. Les rappels d’événements à une heure précise, eux, ne sont pas garantis quand l’appli est fermée : pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone.</div></div>';
  h+='\u0001agenda\u0001';
  h+=agCard();
  h+=tplCard();
@@ -6412,7 +6413,7 @@ function openHelp(hist){
  h+=d('Créer un événement','<ul><li><b>Titre, catégorie (couleur), lieu, note.</b> Les catégories se modifient dans Réglages.</li><li><b>Début et fin</b> : n’importe quelle durée, même sur plusieurs jours. Les boutons 30 min / 1 h / 2 h… règlent la fin d’un geste.</li><li><b>Journée entière</b> : pour un anniversaire, un congé, un voyage.</li><li><b>Rappel</b> : voir la section « Rappels ».</li></ul>');
  h+=d('Événements importants','<ul><li>Dans la fiche d’un événement, <b>Mettre en valeur</b> : choisis <b>Contour</b> (cadre épais), <b>Gras</b> et/ou <b>★ Étoile</b>. Tu peux en cocher un, deux ou les trois.</li><li>Ça se voit dans le mois, la semaine, le jour et les listes. Ça reste dans l’appli (pas envoyé à Outlook).</li></ul>');
  h+=d('Répétitions et rotations','<ul><li>Tous les jours, semaines (avec choix des jours), mois, ans, avec un intervalle (ex. toutes les 2 semaines) et une date de fin facultative.</li><li><b>Rotation travail / repos</b> : indique le nombre de jours travaillés puis de repos (ex. 3 puis 2). Le cycle part de la date de début et se répète. Pratique pour des horaires en rotation.</li><li>Modifier ou supprimer un événement répété : tu choisis « cette occurrence », « celle-ci et les suivantes » ou « toute la série ».</li></ul>');
- h+=d('Rappels et notifications','<ul><li><b>À l’ouverture</b> : un écran « À venir aujourd’hui » liste ce qu’il reste à faire dans la journée (désactivable dans Réglages).</li><li><b>Notifications</b> : elles s’affichent quand l’appli est ouverte ou récemment active. <b>Quand l’appli est fermée, aucun rappel ne sonne</b> : une appli web sans serveur ne peut pas le garantir, surtout sur iPhone (notifications possibles seulement depuis l’écran d’accueil, iOS 16.4 minimum).</li><li><b>Solution fiable</b> : exporte en .ics et ouvre le fichier avec l’agenda natif du téléphone, qui gère les alarmes lui-même.</li></ul>');
+ h+=d('Rappels et notifications','<ul><li><b>À l’ouverture</b> : un écran « À venir aujourd’hui » liste ce qu’il reste à faire dans la journée (désactivable dans Réglages).</li><li><b>Notifications de groupe</b> : quand quelqu’un d’autre modifie l’agenda ou une liste partagée, tu es prévenu même appli fermée (interrupteur dans Réglages › Rappels ; iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Jamais pour tes propres changements.</li><li><b>Rappels d’événements</b> : <b>quand l’appli est fermée, l’heure précise n’est pas garantie</b>.</li><li><b>Solution fiable</b> : exporte en .ics et ouvre le fichier avec l’agenda natif du téléphone, qui gère les alarmes lui-même.</li></ul>');
  h+=d('Plusieurs appareils et sauvegarde','<div class="warn"><b>Les appareils ne se synchronisent pas tout seuls.</b>Chaque appareil a sa propre copie de ton agenda.</div><ol><li>Appareil A : Réglages → <b>Sauvegarder (.json)</b>.</li><li>Envoie le fichier « '+BACKUP_FILE+' » à l’appareil B.</li><li>Appareil B : Réglages → <b>Restaurer</b>, puis choisis « Remplacer » ou « Fusionner ».</li></ol><p>Sauvegarde aussi régulièrement par sécurité : si tu vides les données du navigateur ou changes de téléphone, la sauvegarde est la seule copie. Le fichier porte toujours le même nom ; si ton téléphone en garde plusieurs, il ajoute « (1) », « (2) »… à la fin.</p>');
  if(OL_ON)h+=d('Connexion à Outlook','<ul><li>Réglages → <b>Outlook / Microsoft</b> → « Se connecter ». Tu t’identifies sur le site officiel de Microsoft : l’appli ne voit jamais ton mot de passe.</li><li>Elle crée un calendrier <b>« Agenda (appli) »</b> dans ton compte et y envoie tes événements (1 mois en arrière à 1 an en avant). Tes autres calendriers ne sont jamais touchés.</li><li><b>Sens unique</b> : appli → Outlook. Une modification faite dans Outlook sur ces événements est écrasée au prochain envoi.</li><li>Sur l’iPhone, ajoute ton compte Outlook dans Réglages → Calendrier → Comptes pour voir ce calendrier dans Calendrier.</li><li>La connexion expire au bout de quelques jours sans ouvrir l’appli : refais « Se connecter ».</li><li>Tu peux te déconnecter et supprimer ce calendrier à tout moment.</li></ul>');
  h+=d('Vue 2 semaines','<ul><li>L’onglet <b>2 sem.</b> montre deux semaines d’un coup : plus de place pour les titres, les emoji et les bandeaux que dans le mois.</li><li>Les flèches avancent de deux semaines. Touche un jour pour voir ses événements. Tu peux la choisir comme écran de démarrage dans Réglages.</li></ul>');
@@ -7337,7 +7338,7 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
-  case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{await pushOn()}catch(err){}render();break}
+  case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'push-test':{try{const sp=(await pushSpaces())[0];if(!sp)throw new Error('aucun groupe');const r=await fetch(famUrl()+'/push/'+sp.space+'/test',{method:'POST'});const j=await r.json();toast(r.ok?('Test envoyé à '+j.ok+' téléphone(s)'):'Serveur : '+r.status)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'tpl-use':tplUse(+el.dataset.i);break;
@@ -7447,6 +7448,7 @@ document.addEventListener('change',e=>{
  if(t.id&&t.id.indexOf('f-')===0){onEditorChange(e);return}
  if(t.id&&/^rs-(type|all)-/.test(t.id)){rotRead();rotDraw();return}
  if(t.id==='sel-per'){SEL.per=t.value;selRefilter();return}
+ if(t.dataset.chg==='pushTog'){(async()=>{try{if(t.checked){if(Notification.permission!=='granted'){const r=await Notification.requestPermission();S.notif=r==='granted';if(r!=='granted'){t.checked=false;saveSet();toast('Notifications non autorisées');render();return}}S.pushOff=0;saveSet();await pushOn();toast('Notifications activées')}else{S.pushOff=1;saveSet();await pushOff();toast('Notifications désactivées')}}catch(err){t.checked=false;toast('Échec : '+(err&&err.message||err))}render()})();return}
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='tkNote'){S.tkNote=t.checked;saveSet();return}
  if(t.dataset.chg==='coIc'){S.coIc=t.checked;saveSet();if(V.view==='courses')render();return}
@@ -9674,6 +9676,12 @@ async function dupMulti(ev,from){
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
+const pushIsOn=()=>{try{return !!localStorage.getItem('agd-push-ep')&&S.pushOff!==1}catch(e){return false}};
+async function pushOff(){
+ try{const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
+  if(sub){const j=sub.toJSON();for(const x of await pushSpaces()){try{await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf:'-'})})}catch(e){}}await sub.unsubscribe()}}catch(e){}
+ try{localStorage.removeItem('agd-push-ep')}catch(e){}
+}
 const pushSelf=()=>{try{return localStorage.getItem('agd-push-ep')||''}catch(e){return ''}};
 /* Les « espaces » du serveur où ce téléphone veut être prévenu : groupes AgenDam, et les deux zones d'Amicale */
 async function pushSpaces(){
