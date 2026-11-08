@@ -373,6 +373,13 @@ body.am2on .am-dt.now{background:var(--k-am);box-shadow:0 .3rem .8rem color-mix(
 body.am2on h4.am-h{font-size:1.15rem;font-weight:800;letter-spacing:-.01em;margin:1.2rem 0 .3rem}
 body.am2on .btn.pri.blk{border-radius:1.2rem;padding:.85rem;font-weight:800;background:linear-gradient(135deg,var(--k-am),color-mix(in srgb,var(--k-am) 55%,#b25cff));border:0;box-shadow:0 .5rem 1.2rem color-mix(in srgb,var(--k-am) 32%,transparent)}
 body.am2on .am-tabs .chip{border-radius:99px;font-weight:700}
+body.am2on .am-mo .mo-g{border-radius:1.4rem;box-shadow:0 .4rem 1.2rem rgba(24,27,52,.08);overflow:hidden}
+body.am2on .am-mo .mc.today .n,body.am2on .am-mo .mc .n.today{background:var(--k-am);color:#fff}
+body.am2on .am-mo .mbar{background:var(--c);color:#fff;border:0;border-radius:.5rem;font-weight:700}
+body.am2on .seg{border-radius:99px;padding:.2rem}
+body.am2on .seg button{border-radius:99px;font-weight:700}
+body.am2on .seg button.on{background:var(--k-am);color:#fff}
+body.am2on .card{border-radius:1.3rem;box-shadow:0 .35rem 1.1rem rgba(24,27,52,.07)}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1470,7 +1477,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.74.0';
+const APP_VERSION='2.74.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1478,6 +1485,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.1',d:'08/11/2026',items:[
+  '<b>Logo du groupe</b> : on peut le choisir aussi depuis la roue crantée (carte « Logo du groupe »), et en touchant le logo sur l’accueil (administrateur).',
+  '<b>Style Nouveau</b> : calendrier de l’agenda plus soigné (coins arrondis, aujourd’hui coloré, évènements pleins) et cartes de réglages arrondies.'
+ ]},
  {v:'2.74.0',d:'08/11/2026',items:[
   '<b>Logo du groupe</b> (administrateur) : ⚙ › Logo du groupe, choisis une image : elle s’affiche en haut de l’accueil (style Nouveau) chez tous les membres. Tu peux la changer ou la retirer.',
   '<b>Style Nouveau sur tous les onglets</b> : agenda, fêtes, tâches et courses ont des cartes arrondies avec ombre, des dates colorées, des cases plus grandes et des boutons dans la couleur du groupe.'
@@ -13271,7 +13282,7 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 function amHome(a,nTk,nEv){
  const L=amList(),td=new Date().toISOString().slice(0,10),MO=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
  const nxt=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&(i.d||'')>=td).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||'')))[0];
- let h='<div class="am2-id"><div class="am2-logo" style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
+ let h='<div class="am2-id"><div class="am2-logo"'+(a.apriv?' data-act="am-logo" role="button" aria-label="Logo du groupe"':'')+' style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
  h+='<div class="am2-st"><button style="background:'+amAc()+'" data-act="am-tab" data-k="mb"><b>'+L.length+'</b><span>membre'+(L.length>1?'s':'')+'</span></button><button style="background:#12B5A0" data-act="am-tab" data-k="tk"><b>'+nTk+'</b><span>tâche'+(nTk>1?'s':'')+'</span></button><button style="background:#2D8CFF" data-act="am-tab" data-k="ee"><b>'+nEv+'</b><span>à venir</span></button></div>';
  if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
   h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
@@ -13387,6 +13398,7 @@ function amiTake(){const o=amiFromAg();if(!o||S.amc)return;S.amc=JSON.parse(JSON
 function amiSettingsView(seg){
  let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard();
  const nuS=S.amStyle==='new',nvS=S.amSide==null?(nuS?2:1):+S.amSide;
+{const a0=amc();if(a0&&a0.apriv)h+='<div class="card"><h3>🖼 Logo du groupe</h3><p class="mut" style="margin:.1rem 0 .5rem;font-size:.88rem">Une image pour ton groupe : elle s’affiche en haut de l’accueil (style Nouveau) chez tous les membres.</p>'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'" style="width:4rem;height:4rem;border-radius:1.2rem;object-fit:cover;display:block;margin:0 0 .6rem">':'')+'<button class="btn blk" data-act="am-logo">'+(amLogoSrc()?'Changer ou retirer le logo':'Choisir une image…')+'</button></div>'}
  h+='<div class="card"><h3>Affichage</h3>'+amPick(nuS,nvS)+'<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
  h+=amSetCard();
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">Un fichier de secours avec ton groupe (pour changer de téléphone).'+(META.lastBackup?' Dernière : <b>'+fmtDate(META.lastBackup)+'</b>.':'')+'</p>'+pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+'</div>';
