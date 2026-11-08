@@ -1459,7 +1459,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.73.3';
+const APP_VERSION='2.73.4';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1467,6 +1467,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.73.4',d:'08/11/2026',items:[
+  '<b>Verrou</b> : le bouton « Activer Face ID / empreinte » (avant : « Déverrouiller avec… », ce qui prêtait à confusion) lance tout de suite la demande de l’iPhone, et si elle échoue l’appli explique pourquoi au lieu de ne rien faire.'
+ ]},
  {v:'2.73.3',d:'08/11/2026',items:[
   '<b>Verrou</b> : Face ID / empreinte se relance tout seul à l’ouverture, comme avant. Si Face ID ne répond pas au bout de 8 secondes, le clavier du code s’affiche (l’appli ne reste plus jamais bloquée).'
  ]},
@@ -5756,11 +5759,12 @@ async function bdHash(pin,salt){
 /* Face ID / empreinte : WebAuthn en local (le système demande le visage ou l'empreinte) */
 const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
 async function bdBioAvail(){try{return !!(window.PublicKeyCredential&&navigator.credentials&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
-async function bdBioEnable(f){f=f||'bdBio';
+let BIO_ERR='';
+async function bdBioEnable(f){f=f||'bdBio';BIO_ERR='';
  try{
   const cr=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'AgenDam'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'agendam',displayName:'AgenDam'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});
   if(!cr)return false;S[f]=b64u(cr.rawId);saveSet();return true;
- }catch(e){return false}
+ }catch(e){BIO_ERR=(e&&e.name||'erreur')+(e&&e.message?' : '+String(e.message).slice(0,80):'');return false}
 }
 async function bdBioCheck(f){f=f||'bdBio';
  if(!S[f])return false;
@@ -7255,9 +7259,9 @@ async function act(a,el,e){
   case 'aml-scope':{S.amlScope=ds_.v==='am'?'am':'all';saveSet();amlCover(0);AML_OK=true;render();toast(S.amlScope==='am'?'Seul l’onglet Amicale sera verrouillé':'Toute l’appli sera verrouillée',3500);break}
   case 'aml-bio':{
    if(S.amlBio){S.amlBio='';saveSet();toast('Face ID / empreinte retiré : le code reste actif')}
-   else if(!(await bdBioAvail())){await ask({title:'Pas disponible ici',text:'Cet appareil ou ce navigateur ne propose pas Face ID / empreinte pour les sites. Le code reste utilisable.',btns:[{label:'OK',value:1,cls:'pri'}]})}
    else if(await bdBioEnable('amlBio'))toast('✅ Face ID / empreinte activé : le code reste le secours',5000);
-   else toast('Activation annulée ou refusée',5000);
+   else if(!(await bdBioAvail())){await ask({title:'Pas disponible ici',text:'Cet appareil ou ce navigateur ne propose pas Face ID / empreinte pour les sites. Le code reste utilisable.',btns:[{label:'OK',value:1,cls:'pri'}]})}
+   else await ask({title:'Face ID / empreinte non activé',text:'L’activation a été annulée ou refusée'+(BIO_ERR?' ('+BIO_ERR+')':'')+'. Réessaie et valide avec Face ID quand iPhone le demande. Le code reste utilisable.',btns:[{label:'OK',value:1,cls:'pri'}]});
    render();break}
   case 'am-prep':{const a=amc();if(a&&a.apriv&&!demo){toast('Mise à jour de la liste…',2000);await amPrepPull()}amPrepSheet();break}
   case 'pp-add':{const a=amc(),n=($('#pp-n')||{}).value.trim(),t=($('#pp-t')||{}).value.trim(),l=($('#pp-l')||{}).value||'b',f=(($('#pp-f')||{}).value||'').trim().slice(0,30);if(!n){toast('Écris un nom',2500);break}a.prep=a.prep||[];a.prep.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nm:n.slice(0,60),tel:t.slice(0,30),lv:/^fonction \+\+$/i.test(f)?'b':l,t:f});amSave();amPrepSheet();break}
@@ -10722,7 +10726,7 @@ async function amlSetPin(){
  const salt=uid();S.amlPin=salt+':'+await bdHash(a,salt);amlRelock();saveSet();render();toast('🔒 Verrou enregistré')
 }
 function appLockCard(){
- return '<div class="card"><h3>🔐 Verrouiller l’application</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’application</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement le groupe</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
+ return '<div class="card"><h3>🔐 Verrouiller l’application</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’application</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement le groupe</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Activer Face ID / empreinte')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
 }
 async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
