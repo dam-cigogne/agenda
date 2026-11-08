@@ -3,6 +3,27 @@
 // Espace = 32 caractères hexadécimaux dérivés de la clé familiale (la clé, elle, ne quitte jamais les téléphones).
 // Stockage : base D1 (liaison « DB »), beaucoup plus généreuse en gratuit que KV. Les anciennes données KV (liaison « FAM »)
 // sont recopiées une seule fois par espace dans D1. Sans liaison DB, le serveur continue en KV comme avant.
+// --- Notifications (Web Push, sans contenu : le serveur ne lit rien). Secrets : VAPID_PRIVATE (JWK), VAPID_PUBLIC. ---
+const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const enc=s=>new TextEncoder().encode(s);
+async function vapidAuth(env,endpoint){
+  const aud=new URL(endpoint).origin;
+  const h=b64u(enc(JSON.stringify({typ:'JWT',alg:'ES256'}))),p=b64u(enc(JSON.stringify({aud,exp:Math.floor(Date.now()/1000)+43200,sub:'mailto:dam-cigogne@hotmail.fr'})));
+  const key=await crypto.subtle.importKey('jwk',JSON.parse(env.VAPID_PRIVATE),{name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+  const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc(h+'.'+p));
+  return 'vapid t='+h+'.'+p+'.'+b64u(sig)+', k='+env.VAPID_PUBLIC;
+}
+async function pushAll(env,space,exceptEp){
+  const r=await env.DB.prepare('SELECT endpoint FROM push WHERE space = ?').bind(space).all();let ok=0,gone=0;
+  for(const x of (r.results||[])){
+    if(x.endpoint===exceptEp)continue;
+    try{
+      const res=await fetch(x.endpoint,{method:'POST',headers:{Authorization:await vapidAuth(env,x.endpoint),TTL:'86400',Urgency:'normal','Content-Length':'0'}});
+      if(res.status===404||res.status===410){gone++;await env.DB.prepare('DELETE FROM push WHERE endpoint = ?').bind(x.endpoint).run()}else if(res.ok)ok++;
+    }catch(e){}
+  }
+  return {ok,gone};
+}
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
 const MAX = 400 * 1024;
 const DAY = 864e5;
@@ -10,8 +31,8 @@ function cors(req) {
   const o = req.headers.get('Origin') || '';
   return {
     'Access-Control-Allow-Origin': ORIGINS.includes(o) ? o : ORIGINS[0],
-    'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
@@ -25,7 +46,9 @@ function ready(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS docs (space TEXT NOT NULL, doc TEXT NOT NULL, at INTEGER NOT NULL, by TEXT, data TEXT NOT NULL, PRIMARY KEY (space, doc))'),
     env.DB.prepare('CREATE INDEX IF NOT EXISTS docs_at ON docs (space, at)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inv (id TEXT PRIMARY KEY, data TEXT NOT NULL, exp INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS mig (space TEXT PRIMARY KEY)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS mig (space TEXT PRIMARY KEY)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS push (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS push_sp ON push (space)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -71,7 +94,7 @@ async function pull(env, space, since) {
   return out;
 }
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
     const url = new URL(req.url);
     if (env.DB) await ready(env);
@@ -127,6 +150,18 @@ export default {
       const out = {}; for (const x of k) if (rec[x] != null) out[x] = rec[x];
       return json(req, { recipe: out, url: r.url });
     }
+    // Notifications : abonnement d'un téléphone à un groupe, test, et envoi
+    const pm = url.pathname.match(/^\/push\/([0-9a-f]{32})(\/test)?$/);
+    if (pm && env.DB && env.VAPID_PRIVATE) {
+      if (req.method === 'PUT') {
+        let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+        if (!o || !/^https:\/\/[^\s]{10,600}$/.test(o.endpoint || '')) return json(req, { error: 'format' }, 400);
+        await env.DB.prepare('INSERT OR REPLACE INTO push (endpoint, space, at) VALUES (?, ?, ?)').bind(o.endpoint, pm[1], Date.now()).run();
+        return json(req, { ok: true });
+      }
+      if (req.method === 'POST' && pm[2]) return json(req, await pushAll(env, pm[1], null));
+      return json(req, { error: 'methode' }, 405);
+    }
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille', db: env.DB ? 'd1' : 'kv' });
     // Plusieurs groupes en une seule demande : /m?q=espace1.depuis1,espace2.depuis2
     if (url.pathname === '/m' && req.method === 'GET') {
@@ -158,6 +193,7 @@ export default {
         // ménage de temps en temps : documents non modifiés depuis 400 jours, invitations expirées
         if (Math.random() < 0.01) await env.DB.batch([env.DB.prepare('DELETE FROM docs WHERE at < ?').bind(at - 400 * DAY), env.DB.prepare('DELETE FROM inv WHERE exp < ?').bind(at)]);
       } else await env.FAM.put(space + ':' + doc, data, { metadata: { at, by }, expirationTtl: 60 * 60 * 24 * 400 });
+      if (env.DB && env.VAPID_PRIVATE) ctx.waitUntil(pushAll(env, space, req.headers.get('X-Push-Self') || null));
       return json(req, { ok: true, at });
     }
     return json(req, { error: 'methode' }, 405);

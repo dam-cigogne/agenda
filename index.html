@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.67.1';
+const APP_VERSION='2.68.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -6382,6 +6382,7 @@ h+='<div class="card" id="ics-card">'+
    :perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur.</p>'
    :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button>')+
+  (perm==='granted'&&famAll().length?'<p class="mut">Même appli fermée : active l’envoi, puis envoie-toi un test (verrouille ton téléphone avant).</p><div class="pair"><button class="btn alt" data-act="push-on">🔔 Activer l’envoi</button><button class="btn alt" data-act="push-test">🧪 Envoyer un test</button></div>':'')+
   '<div class="warn"><b>À savoir (honnêtement)</b>Sans serveur, une appli web ne peut pas réveiller le téléphone à une heure précise quand elle est fermée. Sur <b>iPhone</b>, les notifications n’existent que si l’appli est ajoutée à l’écran d’accueil (iOS 16.4 minimum) et n’arrivent qu’appli ouverte ou récente. Sur <b>Android</b>, c’est un peu mieux mais pas garanti. Pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone : les rappels y sont inclus.</div></div></div>';
  h+='\u0001agenda\u0001';
  h+=agCard();
@@ -7336,6 +7337,8 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
+  case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
+  case 'push-test':{try{const g=famAll()[0];const FK=await famKeys(g);const r=await fetch(famUrl()+'/push/'+FK.space+'/test',{method:'POST'});const j=await r.json();toast(r.ok?('Test envoyé à '+j.ok+' téléphone(s)'):'Serveur : '+r.status)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'tpl-use':tplUse(+el.dataset.i);break;
   case 'tpl-save':tplSave();break;
   case 'tpl-ren':tplRename(+el.dataset.i);break;
@@ -9669,6 +9672,14 @@ async function dupMulti(ev,from){
    Chaque élément garde son « origine » (S.forg) : on n'envoie que ses propres éléments (selon ce qu'on a autorisé)
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
+const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
+async function pushOn(){
+ const reg=swReg||await navigator.serviceWorker.ready;
+ let sub=await reg.pushManager.getSubscription();
+ if(!sub){const k=Uint8Array.from(atob(VAPID_PUB.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
+ try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
+ for(const g of famAll()){const FK=await famKeys(g);const r=await fetch(famUrl()+'/push/'+FK.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint})});if(!r.ok)throw new Error('Serveur : '+r.status)}
+}
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
 /* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
    L'origine des éléments (S.forg) est commune à tous les groupes : ce qui vient d'un ami n'est jamais renvoyé à la famille. */
@@ -10060,7 +10071,7 @@ async function famPush(){
 }
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
- const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
+ const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json','X-Push-Self':(()=>{try{return localStorage.getItem('agd-push-ep')||''}catch(e){return ''}})()},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
  const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x&&!famNameClash(f.mb[i])),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  try{await famPhPush(f,put,FK.key)}catch(e){}
