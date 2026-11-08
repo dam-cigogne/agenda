@@ -255,15 +255,21 @@ export default {
   },
   // Déclencheur « toutes les minutes » : envoie les rappels arrivés à l'heure
   async scheduled(ev, env, ctx) {
-    if (!env.DB || !env.VAPID_PRIVATE) return;
-    await ready(env);
-    const now = Date.now();
-    const r = await env.DB.prepare('SELECT endpoint, id, c FROM remind WHERE at <= ? AND at > ? ORDER BY at LIMIT 80').bind(now, now - 6 * 3600000).all();
-    for (const x of (r.results || [])) {
-      const s = await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE endpoint = ? LIMIT 1').bind(x.endpoint).first();
-      if (s) await sendOne(env, s, { e: x.c });
-      await env.DB.prepare('DELETE FROM remind WHERE endpoint = ? AND id = ?').bind(x.endpoint, x.id).run();
-    }
-    await env.DB.prepare('DELETE FROM remind WHERE at < ?').bind(now - 6 * 3600000).run();
+    if (!env.DB || !env.VAPID_PRIVATE) { console.log('cron: pas de base ou de clé'); return; }
+    try {
+      await ready(env);
+      const now = Date.now();
+      const r = await env.DB.prepare('SELECT endpoint, id, c FROM remind WHERE at <= ? AND at > ? ORDER BY at LIMIT 80').bind(now, now - 6 * 3600000).all();
+      const rows = r.results || [];
+      const tot = await env.DB.prepare('SELECT COUNT(*) AS n, MIN(at) AS a FROM remind').first();
+      console.log('cron: ' + rows.length + ' rappel(s) à envoyer ; ' + (tot ? tot.n : '?') + ' en attente ; prochain=' + (tot && tot.a ? new Date(tot.a).toISOString() : '-'));
+      for (const x of rows) {
+        const s = await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE endpoint = ? LIMIT 1').bind(x.endpoint).first();
+        const res = s ? await sendOne(env, s, { e: x.c }) : 'abonnement introuvable';
+        console.log('cron: envoi ' + x.id.slice(0, 20) + ' => ' + res);
+        await env.DB.prepare('DELETE FROM remind WHERE endpoint = ? AND id = ?').bind(x.endpoint, x.id).run();
+      }
+      await env.DB.prepare('DELETE FROM remind WHERE at < ?').bind(now - 6 * 3600000).run();
+    } catch (e) { console.log('cron: erreur ' + String(e).slice(0, 200)); }
   }
 };
