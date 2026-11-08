@@ -1415,7 +1415,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.72.5';
+const APP_VERSION='2.72.6';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1423,6 +1423,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.72.6',d:'08/11/2026',items:[
+  '<b>2e administrateur</b> : fiche d’un membre du bureau › « 👑 Nommer administrateur ». Elle ou il peut alors gérer le groupe sans toi (titres, niveaux d’accès, retraits, invitations, modèle de bulletin). Ça ne peut pas se défaire.',
+  '<b>Verrou de l’appli</b> : code (et Face ID / empreinte) demandé à l’ouverture de toute l’appli, sur l’appareil de ton choix (Réglages › Verrouiller l’appli). Se reverrouille quand tu quittes l’appli plus de 30 secondes.',
+  '<b>Titres au féminin</b> : Présidente, Vice-présidente et Trésorière sont proposées en plus (Secrétaire est identique).',
+  '<b>Notifications des courses</b> : elles indiquent le nom de la liste (« a modifié la liste « Buvette » »). Demande la dernière version du serveur (worker).'
+ ]},
  {v:'2.72.5',d:'08/11/2026',items:[
   '<b>Préparatifs synchronisés</b> : la liste (noms, téléphones, cases, codes) se retrouve sur tous les appareils de l’administrateur, par exemple saisie sur PC puis envoi depuis le téléphone. Elle est chiffrée avec une clé que seul l’administrateur possède.'
  ]},
@@ -5681,26 +5687,26 @@ async function bdHash(pin,salt){
 /* Face ID / empreinte : WebAuthn en local (le système demande le visage ou l'empreinte) */
 const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
 async function bdBioAvail(){try{return !!(window.PublicKeyCredential&&navigator.credentials&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
-async function bdBioEnable(){
+async function bdBioEnable(f){f=f||'bdBio';
  try{
   const cr=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'AgenDam'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'agendam',displayName:'AgenDam'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});
-  if(!cr)return false;S.bdBio=b64u(cr.rawId);saveSet();return true;
+  if(!cr)return false;S[f]=b64u(cr.rawId);saveSet();return true;
  }catch(e){return false}
 }
-async function bdBioCheck(){
- if(!S.bdBio)return false;
+async function bdBioCheck(f){f=f||'bdBio';
+ if(!S[f])return false;
  try{
-  const r=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S.bdBio)}],userVerification:'required',timeout:60000}});
+  const r=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S[f])}],userVerification:'required',timeout:60000}});
   return !!r;
  }catch(e){return false}
 }
-async function bdAskPin(title,extra,confirm2){
+async function bdAskPin(title,extra,confirm2,bioOn){bioOn=bioOn===undefined?S.bdBio:bioOn;
  let a='',b='';const root=$('#dlg');
  const inp='style="width:100%;font:inherit;font-size:1.4rem;letter-spacing:.4em;text-align:center;padding:.6rem;border:1px solid var(--line,#8886);border-radius:.6rem;background:var(--bg2,transparent);color:inherit;box-sizing:border-box" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off"';
  const html=(extra||'')+'<input id="bd-p1" '+inp+' placeholder="••••">'+(confirm2?'<p class="mut" style="margin:.5rem 0 .2rem;font-size:.85rem">Retape le code pour confirmer</p><input id="bd-p2" '+inp+' placeholder="••••">':'');
  const h=e=>{const x=e.target.closest('[data-v]');if(x&&x.dataset.v==='0'){a=$('#bd-p1').value;b=confirm2?$('#bd-p2').value:a}};
  root.addEventListener('click',h,true);
- const pr=ask({title,html,btns:[{label:'Valider',value:'ok',cls:'pri'},{label:'Annuler',value:null}].concat(confirm2?[]:(S.bdBio?[{label:'Face ID / empreinte',value:'bio'}]:[]).concat([{label:'Code oublié…',value:'forgot'}]))});
+ const pr=ask({title,html,btns:[{label:'Valider',value:'ok',cls:'pri'},{label:'Annuler',value:null}].concat(confirm2?[]:(bioOn?[{label:'Face ID / empreinte',value:'bio'}]:[]).concat([{label:'Code oublié…',value:'forgot'}]))});
  setTimeout(()=>{const i=$('#bd-p1');if(i)i.focus()},80);
  const r=await pr;root.removeEventListener('click',h,true);
  return {r,a,b};
@@ -6463,7 +6469,7 @@ function settingsView(){
  h+=vacH+'\u0001fam\u0001'+famCard()+amSetCard();
  h+='\u0001cal\u0001'+phoneCard();
  if(OL_ON)h+=msCard();
- h+='\u0001fam\u0001'+bdCard()+'\u0001cal\u0001';
+ h+='\u0001fam\u0001'+bdCard()+appLockCard()+'\u0001cal\u0001';
  h+=importCard();
 h+='<div class="card" id="ics-card">'+
 '<h3>Fichier calendrier (.ics)</h3><p class="mut" style="margin-top:0">Pour échanger avec Google Agenda, Apple Calendrier, Outlook… Les rappels sont inclus.</p>'+
@@ -7171,6 +7177,15 @@ async function act(a,el,e){
   case 'am-keyok':amKeyOk();break;
   case 'am-edit':{const a0=amc();if(a0&&a0.apriv)amFiche(a0.me.id);else amEditMe();break}
   case 'am-inv':amInvite();break;
+  case 'aml-open':await amlGate();break;
+  case 'aml-pin':await amlSetPin();render();break;
+  case 'aml-lock':amlRelock();break;
+  case 'aml-bio':{
+   if(S.amlBio){S.amlBio='';saveSet();toast('Face ID / empreinte retiré : le code reste actif')}
+   else if(!(await bdBioAvail())){await ask({title:'Pas disponible ici',text:'Cet appareil ou ce navigateur ne propose pas Face ID / empreinte pour les sites. Le code reste utilisable.',btns:[{label:'OK',value:1,cls:'pri'}]})}
+   else if(await bdBioEnable('amlBio'))toast('✅ Face ID / empreinte activé : le code reste le secours',5000);
+   else toast('Activation annulée ou refusée',5000);
+   render();break}
   case 'am-prep':{const a=amc();if(a&&a.apriv&&!demo){toast('Mise à jour de la liste…',2000);await amPrepPull()}amPrepSheet();break}
   case 'pp-add':{const a=amc(),n=($('#pp-n')||{}).value.trim(),t=($('#pp-t')||{}).value.trim(),l=($('#pp-l')||{}).value||'b',f=(($('#pp-f')||{}).value||'').trim().slice(0,30);if(!n){toast('Écris un nom',2500);break}a.prep=a.prep||[];a.prep.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nm:n.slice(0,60),tel:t.slice(0,30),lv:/^fonction \+\+$/i.test(f)?'b':l,t:f});amSave();amPrepSheet();break}
   case 'pp-del':{const a=amc();(a.prepDl=a.prepDl||{})[ds_.id]=Date.now();a.prep=(a.prep||[]).filter(p=>p.id!==ds_.id);amSave();amPrepSheet();break}
@@ -10570,7 +10585,8 @@ async function famShowCode(g){
    Les gens du bureau ont les deux clés, les aides extérieurs seulement celle de la zone Aide : le serveur et les aides ne peuvent pas lire la zone Bureau.
    L'administrateur signe la liste des titres (ECDSA) : personne d'autre ne peut se donner un titre.
    Sur le serveur Cloudflare existant (mêmes adresses /s/… et /i/…), sans rien y changer. */
-const AMC_TITLES=['Président','Vice-président','Secrétaire','Trésorier','Membre du bureau','Fonction ++','Aide extérieur'];
+const AMC_TITLES=['Président','Présidente','Vice-président','Vice-présidente','Secrétaire','Trésorier','Trésorière','Membre du bureau','Fonction ++','Aide extérieur'];
+const AMC_TORD=t=>{const i=['Président','Vice-président','Secrétaire','Trésorier','Membre du bureau','Fonction ++','Aide extérieur'].indexOf(String(t||'').replace(/^Présidente$/,'Président').replace(/^Vice-présidente$/,'Vice-président').replace(/^Trésorière$/,'Trésorier'));return i};
 let AMC_CTM=false,AMC_BUSY=false,AMC_TAB='mb',AMC_EE='',AMC_MD='',AMC_DAY='',AMC_CL='Courses',AMC_NT='';
 const amSave=()=>{if(!demo)ls.set(K.set,S)};
 const amc=()=>S.amc&&S.amc.on?S.amc:null;
@@ -10590,9 +10606,47 @@ async function amForm(title,intro,fields,ok){
  const r=await pr;root.oninput=root.onchange=null;return r==='ok'?v:null;
 }
 let AM_QUIET=0;
-async function amPut(zone,doc,P,kraw,hint){
+/* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
+let AML_OK=false,AML_H=0;
+function amlCover(on){let e=document.getElementById('applock');if(!on){if(e)e.remove();return}
+ if(e)return;e=document.createElement('div');e.id='applock';e.style.cssText='position:fixed;inset:0;z-index:70;background:var(--bg,#fff);color:var(--text,#111);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;text-align:center;padding:2rem';
+ e.innerHTML='<div style="font-size:3rem">🔒</div><b style="font-size:1.3rem">Appli verrouillée</b><p class="mut" style="margin:0 0 .4rem;max-width:20rem">Touche le bouton pour entrer avec ton code ou Face ID / empreinte.</p><button class="btn pri" id="applock-b" style="min-width:12rem">🔓 Déverrouiller</button>';
+ document.body.appendChild(e);document.getElementById('applock-b').onclick=()=>{amlGate().then(ok=>{if(ok)amlCover(0)})}}
+function amlRelock(){AML_OK=false;if(S.amlPin)amlCover(1)}
+function amlUnlock(){AML_OK=true;amlCover(0)}
+document.addEventListener('visibilitychange',()=>{if(!S.amlPin)return;if(document.hidden){AML_H=Date.now()}else if(AML_H&&Date.now()-AML_H>30000){amlRelock();amlGate().then(ok=>{if(ok)amlCover(0)})}});
+async function amlGate(){
+ if(!S.amlPin||AML_OK)return true;let msg='';
+ if(S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
+ for(;;){
+  const {r,a}=await bdAskPin('Appli verrouillée',msg,0,!!S.amlBio);
+  if(r==='bio'){if(await bdBioCheck('amlBio')){amlUnlock();render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
+  if(r==='forgot'){await ask({title:'Code oublié',html:'<p style="margin:.2rem 0 .5rem">Le code ne peut pas être retrouvé. Les données du groupe ne sont pas perdues, mais pour retirer le verrou il faut supprimer l’appli de l’écran d’accueil puis la réinstaller, et rejoindre ton groupe avec un nouveau code d’invitation. Sur AgenDam, pense à garder une sauvegarde (.json).</p>',btns:[{label:'OK',value:1,cls:'pri'}]});return false}
+  if(r!=='ok')return false;
+  const salt=String(S.amlPin).split(':')[0];
+  if(a&&await bdHash(a,salt)===String(S.amlPin).split(':')[1]){amlUnlock();render();return true}
+  msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Code incorrect, réessaie.</p>';
+ }
+}
+async function amlSetPin(){
+ if(S.amlPin&&!(await amlGate()))return;
+ if(S.amlPin){
+  const r=await ask({title:'Verrou de l’appli',text:'Un code protège l’appli sur cet appareil.',btns:[{label:'Changer le code',value:'chg',cls:'pri'},{label:'Retirer le verrou',value:'off'},{label:'Annuler',value:null}]});
+  if(r==='off'){S.amlPin='';S.amlBio='';saveSet();amlRelock();render();toast('Verrou retiré');return}
+  if(r!=='chg')return;
+ }
+ const {r,a,b}=await bdAskPin('Choisis un code (4 à 8 chiffres)','<p class="mut" style="margin:.2rem 0 .5rem;font-size:.85rem">Il cache toute l’appli à quelqu’un qui prendrait ton téléphone ouvert. Ce n’est pas un chiffrement. Il ne protège que cet appareil.</p>',1);
+ if(r!=='ok')return;
+ if(!/^\d{4,8}$/.test(a)){toast('Le code doit faire 4 à 8 chiffres');return amlSetPin()}
+ if(a!==b){toast('Les deux codes sont différents');return amlSetPin()}
+ const salt=uid();S.amlPin=salt+':'+await bdHash(a,salt);amlRelock();saveSet();render();toast('🔒 Verrou enregistré')
+}
+function appLockCard(){
+ return '<div class="card"><h3>🔒 Verrouiller l’appli</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Se reverrouille quand tu quittes l’appli plus de 30 secondes. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Déverrouiller avec Face ID / empreinte…')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
+}
+async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
- const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,30)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
 const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',pub:m.pub||null,at:Date.now()}};
@@ -10604,6 +10658,27 @@ async function amDerive(privJwk,pubXY,salt){
  return crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',new Uint8Array([...bits,...new TextEncoder().encode(salt)])),'AES-GCM',false,['encrypt','decrypt']);
 }
 /* Renouvellement des clés : l'administrateur change les deux clés du groupe et les envoie, une par une et signées, aux membres restants (chiffrées avec leur clé publique). Le membre retiré ne les reçoit pas. */
+/* 2e administrateur : la clé d'administration est envoyée, chiffrée pour lui seul et signée, à un membre du bureau */
+async function amMakeAdmin(id){
+ if(demo){toast('Non disponible en mode démo',2500);return}
+ const a=amc();if(!a||!a.apriv)return;
+ const p=amList().find(x=>x.id===id),m=a.mem&&a.mem[id];
+ if(!p||!m||!m.pub){toast('Cette personne doit d’abord ouvrir l’appli une fois (sa clé n’est pas encore arrivée)',5000);return}
+ if(p.l!=='b'){toast('Seul un membre du bureau peut devenir administrateur',4000);return}
+ const ok=await ask({title:'Nommer '+p.n+' administrateur ?',html:'<p style="margin:.2rem 0 .5rem">Elle ou il pourra, comme toi : changer les titres et les niveaux d’accès, retirer des membres, inviter, modifier le modèle de bulletin, et nommer d’autres administrateurs.</p><p style="margin:.2rem 0 .5rem"><b>Ça ne peut pas se défaire</b> : une fois la clé donnée, on ne peut pas la reprendre. Choisis quelqu’un de confiance.</p>',btns:[{label:'Oui, nommer '+String(p.n).split(/\s+/)[0],value:1,cls:'pri'},{label:'Annuler',value:0}]});
+ if(!ok)return;
+ try{
+  const eph=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const ep=await crypto.subtle.exportKey('jwk',eph.publicKey),er=await crypto.subtle.exportKey('jwk',eph.privateKey);
+  const key=await amDerive(er,m.pub,'agendam-ad:'+id),iv=crypto.getRandomValues(new Uint8Array(12));
+  const c=shB64.enc(new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify({apriv:a.apriv,by:a.me.n}))))),ivs=shB64.enc(iv);
+  const sig=await amSign([id,ep.x,ep.y,c,ivs],0,a.apriv);
+  const q=AM_QUIET;AM_QUIET=1;try{await amPut('a','ad-'+id,{app:'agd',k:'amc',v:1,t:'ad',id,e:{x:ep.x,y:ep.y},c,iv:ivs,sig})}finally{AM_QUIET=q}
+  a.admIds=Array.from(new Set((a.admIds||[]).concat([id])));a.rolesDirty=1;amSave();
+  try{await amRolesPut();amSave()}catch(e){}
+  render();toast('👑 '+p.n+' sera administrateur dès qu’elle ou il ouvrira l’appli',5500);
+ }catch(e){toast('Pas de connexion au serveur, réessaie',4000)}
+}
 async function amRotate(){
  const a=amc();if(!a||!a.apriv)return 0;
  const gen=(a.gen||0)+1,kB2=amRand(),kA2=amRand(),todo=[];let n=0;
@@ -10650,7 +10725,7 @@ async function amRolesPut(){
  const rl=a.rl||{},list=[];
  const add=(id,n,l,adm)=>list.push({id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0});
  add(a.me.id,a.me.n,'b',1);
- for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',0)}
+ for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',(a.admIds||[]).includes(id))}
  const at=Date.now(),sig=await amSign(list,at,a.apriv);
  await amPut('a','roles',{app:'agd',k:'amc',v:1,list,at,sig,jz:a.jz||0});
  a.rolesDirty=0;a.roles={list,at};
@@ -10686,7 +10761,7 @@ async function amPull(manual){
     if(!P||P.k!=='amc')continue;
     if(d.doc==='roles'){
      if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
-      if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};chg=true}
+      if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};if(a.apriv)a.admIds=Array.from(new Set(P.list.filter(r=>r.adm).map(r=>r.id).concat([a.me.id])));chg=true}
       if(+P.jz>(a.jz||0)){a.jz=+P.jz;chg=true}}
      continue}
     const mr=d.doc.match(/^rk-([a-z0-9]{6,16})$/);
@@ -10694,6 +10769,12 @@ async function amPull(manual){
      if(mr[1]!==a.me.id||x.z!=='a'||P.t!=='rk'||(P.gen||0)<=(a.gen||0)||!a.me.ek||!P.e||!(await amVerify([P.id,P.gen,P.e.x,P.e.y,P.c,P.iv],0,P.sig,a.apub)))continue;
      try{const key=await amDerive(a.me.ek,P.e,'agendam-rk:'+P.gen+':'+a.me.id),pl=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(P.iv)},key,shB64.dec(P.c))));
       if(pl.kA&&pl.gen===P.gen&&(!rot||pl.gen>rot.gen))rot=pl}catch(e){}
+     continue}
+    const ma=d.doc.match(/^ad-([a-z0-9]{6,16})$/);
+    if(ma){
+     if(ma[1]!==a.me.id||x.z!=='a'||P.t!=='ad'||a.apriv||!a.kB||!a.me.ek||!P.e||!(await amVerify([P.id,P.e.x,P.e.y,P.c,P.iv],0,P.sig,a.apub)))continue;
+     try{const key=await amDerive(a.me.ek,P.e,'agendam-ad:'+a.me.id),pl=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(P.iv)},key,shB64.dec(P.c))));
+      if(pl.apriv&&pl.apriv.d&&pl.apriv.x===a.apub.x&&pl.apriv.y===a.apub.y){a.apriv=pl.apriv;a.admIds=((a.roles&&a.roles.list)||[]).filter(r=>r.adm).map(r=>r.id).concat([a.me.id]);a.rolesDirty=1;a.newAdm=1;chg=true}}catch(e){}
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
@@ -10952,7 +11033,7 @@ async function amFiche(id){
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
- if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'},{label:'Retirer du groupe',value:'rm',cls:'dng'});
+ if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});btns.push({label:'Retirer du groupe',value:'rm',cls:'dng'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
  if(r==='tel')amOpen('tel:'+telN(p.tel));
@@ -10960,6 +11041,7 @@ async function amFiche(id){
  else if(r==='mp')amOpen('mailto:'+p.mp);
  else if(r==='mw')amOpen('mailto:'+p.mw);
  else if(r==='title')amSetTitle(id);
+ else if(r==='adm')amMakeAdmin(id);
  else if(r==='lvl')amSetLevel(id);
  else if(r==='rm')amRemove(id);
 }
@@ -10984,7 +11066,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,it.kind);if(it.at===P.at)delete it.dirty};
+   await amPut(it.z,'i-'+it.id,P,0,it.kind,it.kind==='co'?(it.l||'Courses'):'');if(it.at===P.at)delete it.dirty};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -13086,6 +13168,7 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
+ if(a.newAdm){a.newAdm=0;amSave();setTimeout(()=>toast('👑 Tu es maintenant administrateur du groupe',5000),400)}
  amPull();try{amPrepApply()}catch(e){}amPrepPull().then(c=>{if(c){try{amPrepApply()}catch(e){}}});
  const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
@@ -13105,7 +13188,7 @@ function amView(){
    mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
-  h+=amColCard()+pushCard();
+  h+=amColCard()+pushCard()+appLockCard();
   if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
    h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
     :'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">'+(shm?'✅ Modèle et tarifs réglés par <b>'+esc((itm&&itm.by)||'l’administrateur')+'</b>, reçus automatiquement.':'Modèle de l’appli. L’administrateur du groupe peut le personnaliser : il arrivera ici tout seul.')+'</p>'+mrow('bm-exp','📤 Exporter le modèle','Fichier .json ou Word'))+'</div>'}
@@ -13117,7 +13200,7 @@ function amView(){
   h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
   h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
  }else{
-  const L=amList(),ord=t=>{const i=AMC_TITLES.indexOf(t);return i<0?(t?50:99):i};
+  const L=amList(),ord=t=>{const i=AMC_TORD(t);return i<0?(t?50:99):i};
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    return '<h4 class="am-h">'+lbl+' · '+G.length+'</h4>'+G.map(p=>'<button class="am-c" data-act="am-mb" data-id="'+esc(p.id)+'"><i class="am-av" style="background:'+(p.self?'var(--k-am)':'#8b7d68')+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</i><span class="am-x"><b>'+esc(p.n)+(p.self?' <small class="mut">(toi)</small>':'')+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+'</b><small>'+(p.t?esc(p.t):(a.apriv&&!p.self?'Touche pour donner un titre':p.l==='b'?'Bureau':'Aide'))+'</small></span>'+(p.tel?'<span class="am-ph" aria-hidden="true">📞</span>':'')+'</button>').join('')};
   h+=grp('b','Bureau')+grp('a','Aides extérieurs');
@@ -13135,7 +13218,7 @@ function amView(){
 function amiFromAg(){if(!AMI)return null;try{const o=JSON.parse(localStorage.getItem('agd-settings')||'{}');return o&&o.amc&&o.amc.on&&o.amc.kA?o:null}catch(e){return null}}
 function amiTake(){const o=amiFromAg();if(!o||S.amc)return;S.amc=JSON.parse(JSON.stringify(o.amc));['amCol','amPo','amSg','amSide','amAg','amCoZ'].forEach(k=>{if(o[k]!=null)S[k]=JSON.parse(JSON.stringify(o[k]))});S.amc.last={};S.amc.pullAt=0;saveSet();setTheme();tabsApply();go('amicale');amPull(true);toast('Groupe repris d’AgenDam : tu es '+S.amc.me.n,4000)}
 function amiSettingsView(seg){
- let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard();
+ let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard()+appLockCard();
  h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
  h+=amSetCard();
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">Un fichier de secours avec ton groupe (pour changer de téléphone).'+(META.lastBackup?' Dernière : <b>'+fmtDate(META.lastBackup)+'</b>.':'')+'</p>'+pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+'</div>';
@@ -13206,6 +13289,7 @@ async function init(){
 }
 init();
 window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet}};
+try{if(S&&S.amlPin&&!demo){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
 
