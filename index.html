@@ -1400,7 +1400,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.4';
+const APP_VERSION='2.70.5';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1408,6 +1408,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.5',d:'08/11/2026',items:[
+  '<b>Amicale : suivi du renouvellement des clés</b> : quand tu retires quelqu’un ou changes son niveau, un encadré en haut indique combien d’éléments restent à envoyer (garde l’appli ouverte). Une explication est aussi dans Administratif et dans la fenêtre de retrait.'
+ ]},
  {v:'2.70.4',d:'08/11/2026',items:[
   '<b>Amicale : envoi beaucoup plus rapide</b> : quand le bureau renvoie des centaines d’éléments (renouvellement des clés après un retrait ou un changement de niveau, import d’une liste), ils partent par paquets de 8 au lieu d’un par un.'
  ]},
@@ -10797,7 +10800,7 @@ async function amSetTitle(id){
 async function amRemove(id){
  const a=amc();if(!a||!a.apriv||id===a.me.id)return;
  const p=amList().find(x=>x.id===id);if(!p)return;
- const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « Retiré ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
  const miss=amList().filter(q=>!q.self&&q.id!==id&&!(a.mem&&a.mem[q.id]&&a.mem[q.id].pub));
  if(miss.length){const r2=await ask({title:'Des membres ne sont pas à jour',html:'<p style="margin:.2rem 0 .5rem">'+miss.map(q=>esc(q.n)).join(', ')+' n’ont pas encore ouvert la dernière version d’AgenDam : ils ne peuvent pas recevoir les nouvelles clés et devraient être <b>ré-invités</b> avec un nouveau code.</p>',btns:[{label:'Renouveler quand même',value:'y',cls:'dng'},{label:'Attendre qu’ils se mettent à jour',value:null}]});if(r2!=='y')return}
@@ -10857,10 +10860,10 @@ async function amFlush(){
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
    const res=await Promise.allSettled(todo.slice(k,k+8).map(send));
-   amSave();
+   amSave();amPendTick();
    if(res.some(r=>r.status==='rejected'))break;
   }}
- catch(e){}finally{AMC_FL=0;AM_QUIET=0}
+ catch(e){}finally{AMC_FL=0;AM_QUIET=0;try{amPendTick()}catch(e){}}
 }
 async function amCoNewList(){
  const v=await amForm('Nouvelle liste de courses','Par exemple : Buvette, Pharmacie, Loto…',[{k:'n',l:'Nom',ph:'Buvette'}]);
@@ -12943,6 +12946,9 @@ function amLoiHTML(){
  LOI_F.map(f=>'<details class="card" style="padding:.6rem .8rem"><summary style="font-weight:600;cursor:pointer">'+f.t+'</summary><p style="margin:.5rem 0 .3rem;font-size:.92rem;line-height:1.45">'+f.b+'</p><p class="mut" style="margin:.3rem 0 0;font-size:.8rem">Sources : '+f.s.map(k=>'<a href="'+LOI_SRC[k][1]+'" target="_blank" rel="noopener">'+esc(LOI_SRC[k][0])+'</a>').join(' · ')+'</p></details>').join('')+
  '<div class="card"><h3>🔎 Et si la loi change ?</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Pour être sûr que rien n’a changé, touche le bouton : tu reçois un script à coller dans une IA. Les sources officielles sont dedans.</p><button class="btn pri blk" data-act="loi-script">📋 Copier le script de vérification</button></div>';
 }
+function amPendN(){const a=amc();return a?Object.values(a.it||{}).filter(x=>x.dirty).length+((a.rot&&a.rot.todo&&a.rot.todo.length)||0):0}
+function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1)return'';return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> jusqu’à la fin : les membres retrouvent tout après.</div>'}
+function amPendTick(){const n=amPendN(),e=document.getElementById('am-pend-n');if(e){if(n<1){const b=document.getElementById('am-pend');if(b)b.remove()}else e.textContent=n}}
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
@@ -12954,11 +12960,11 @@ function amView(){
  const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
  const side=S.amSide!==0;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
- let h=AMC_TAB==='am'?'':amAnBanner();
+ let h=amKeyBanner()+(AMC_TAB==='am'?'':amAnBanner());
  if(['tk','co','ev','nt','ee'].includes(AMC_TAB))h+=amItemsHTML(AMC_TAB);
  else if(AMC_TAB==='lo')h+=amLoiHTML();
  else if(AMC_TAB==='am')h+=amAmHTML();
- else if(AMC_TAB==='ad')h+=amAdHTML();
+ else if(AMC_TAB==='ad')h+=(a.apriv?'<div class="warn"><b>ℹ️ Retirer quelqu’un ou changer son niveau</b>Les clés du groupe sont alors renouvelées et tout le contenu est renvoyé : ça peut prendre quelques minutes. Garde l’appli ouverte jusqu’à la fin (un encadré « Mise à jour du groupe en cours » s’affiche en haut). Mieux vaut inviter directement au bon niveau (Bureau ou Aide) que de le changer ensuite.</div>':'')+amAdHTML();
  else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
