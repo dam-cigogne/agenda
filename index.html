@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.69.2';
+const APP_VERSION='2.69.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.69.3',d:'08/11/2026',items:[
+  '<b>Rappel de test corrigé</b> : le rappel de test n’était plus effacé du serveur quand l’appli se resynchronisait ; il est maintenant conservé jusqu’à son heure.'
+ ]},
  {v:'2.69.2',d:'08/11/2026',items:[
   '<b>Rappels : état et test</b> : Réglages › Rappels affiche combien de rappels sont programmés sur le serveur, et un bouton « Tester un rappel dans 1 minute ». Les rappels sont envoyés au serveur dès que tu enregistres une tâche ou un événement.'
  ]},
@@ -9725,7 +9728,8 @@ async function remSync(force,extra){
  const L=remList(),h=JSON.stringify(L.map(x=>[x.id,x.at,x.m.t]));
  if(!force&&!extra&&h===REM_H)return;
  const ep=pushSelf();if(!ep)return;
- const key=await remKey(),list=[],all=extra?L.concat([extra]):L;
+ try{let X=JSON.parse(localStorage.getItem('agd-rem-x')||'[]').filter(x=>x&&x.at>Date.now()-6*3600000);if(extra)X=X.filter(x=>x.id!==extra.id).concat([extra]);localStorage.setItem('agd-rem-x',JSON.stringify(X));extra=X}catch(e){extra=extra?[extra]:[]}
+ const key=await remKey(),list=[],all=L.concat(extra||[]);
  for(const x of all){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(x.m))));const raw=new Uint8Array(12+ct.length);raw.set(iv);raw.set(ct,12);list.push({id:x.id,at:x.at,c:btoa(String.fromCharCode(...raw))})}
  let st;
  try{const r=await fetch(famUrl()+'/remind',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:ep,list})});
