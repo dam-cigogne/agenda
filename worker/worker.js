@@ -13,17 +13,35 @@ async function vapidAuth(env,endpoint){
   const sig=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,enc(h+'.'+p));
   return 'vapid t='+h+'.'+p+'.'+b64u(sig)+', k='+env.VAPID_PUBLIC;
 }
-async function pushAll(env,space,exceptEp){
-  const r=await env.DB.prepare('SELECT endpoint FROM push WHERE space = ?').bind(space).all();let ok=0,gone=0;
+const unb64=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+async function hkdf(salt,ikm,info,len){const k=await crypto.subtle.importKey('raw',ikm,'HKDF',false,['deriveBits']);return new Uint8Array(await crypto.subtle.deriveBits({name:'HKDF',hash:'SHA-256',salt,info},k,len*8))}
+// Chiffrement du message pour le téléphone (RFC 8291, aes128gcm)
+async function encPayload(p256dh,auth,text){
+  const ua=unb64(p256dh),au=unb64(auth),salt=crypto.getRandomValues(new Uint8Array(16));
+  const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const asPub=new Uint8Array(await crypto.subtle.exportKey('raw',kp.publicKey));
+  const uaKey=await crypto.subtle.importKey('raw',ua,{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const secret=new Uint8Array(await crypto.subtle.deriveBits({name:'ECDH',public:uaKey},kp.privateKey,256));
+  const cat=(...a)=>{const o=new Uint8Array(a.reduce((n,x)=>n+x.length,0));let i=0;for(const x of a){o.set(x,i);i+=x.length}return o};
+  const prk=await hkdf(au,secret,cat(enc('WebPush: info\0'),ua,asPub),32);
+  const cek=await hkdf(salt,prk,enc('Content-Encoding: aes128gcm\0'),16),nonce=await hkdf(salt,prk,enc('Content-Encoding: nonce\0'),12);
+  const key=await crypto.subtle.importKey('raw',cek,'AES-GCM',false,['encrypt']);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce},key,cat(enc(text),new Uint8Array([2]))));
+  return cat(salt,new Uint8Array([0,0,16,0,65]),asPub,ct);
+}
+async function pushAll(env,space,exceptEp,msg){
+  const r=await env.DB.prepare('SELECT endpoint, p, a FROM push2 WHERE space = ?').bind(space).all();let ok=0,gone=0,err=[];
   for(const x of (r.results||[])){
     if(x.endpoint===exceptEp)continue;
     try{
-      const res=await fetch(x.endpoint,{method:'POST',headers:{Authorization:await vapidAuth(env,x.endpoint),TTL:'86400',Urgency:'normal','Content-Length':'0'}});
-      if(res.status===404||res.status===410){gone++;await env.DB.prepare('DELETE FROM push WHERE endpoint = ?').bind(x.endpoint).run()}else if(res.ok)ok++;
-    }catch(e){}
+      const body=await encPayload(x.p,x.a,JSON.stringify(msg||{}));
+      const res=await fetch(x.endpoint,{method:'POST',headers:{Authorization:await vapidAuth(env,x.endpoint),TTL:'86400',Urgency:'normal','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'},body});
+      if(res.status===404||res.status===410){gone++;await env.DB.prepare('DELETE FROM push2 WHERE endpoint = ?').bind(x.endpoint).run()}else if(res.ok)ok++;else err.push(res.status);
+    }catch(e){err.push(String(e).slice(0,80))}
   }
-  return {ok,gone};
+  return {ok,gone,err};
 }
+const LBL = { co: 'les Courses', tk: 'les Tâches', ag: 'l’Agenda', rp: 'les Repas', bd: 'les Anniversaires', vy: 'les Voyages' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
 const MAX = 400 * 1024;
 const DAY = 864e5;
@@ -48,7 +66,8 @@ function ready(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inv (id TEXT PRIMARY KEY, data TEXT NOT NULL, exp INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS mig (space TEXT PRIMARY KEY)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS push (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE INDEX IF NOT EXISTS push_sp ON push (space)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS push2 (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL, p TEXT NOT NULL, a TEXT NOT NULL)'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS push2_sp ON push2 (space)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -156,10 +175,11 @@ export default {
       if (req.method === 'PUT') {
         let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
         if (!o || !/^https:\/\/[^\s]{10,600}$/.test(o.endpoint || '')) return json(req, { error: 'format' }, 400);
-        await env.DB.prepare('INSERT OR REPLACE INTO push (endpoint, space, at) VALUES (?, ?, ?)').bind(o.endpoint, pm[1], Date.now()).run();
+        if (!o.keys || typeof o.keys.p256dh !== 'string' || typeof o.keys.auth !== 'string') return json(req, { error: 'clés' }, 400);
+        await env.DB.prepare('INSERT OR REPLACE INTO push2 (endpoint, space, at, p, a) VALUES (?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], Date.now(), o.keys.p256dh, o.keys.auth).run();
         return json(req, { ok: true });
       }
-      if (req.method === 'POST' && pm[2]) return json(req, await pushAll(env, pm[1], null));
+      if (req.method === 'POST' && pm[2]) return json(req, await pushAll(env, pm[1], null, { t: 'Test réussi ✅', b: 'Les notifications fonctionnent sur ce téléphone.', g: 'agd-test' }));
       return json(req, { error: 'methode' }, 405);
     }
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille', db: env.DB ? 'd1' : 'kv' });
@@ -193,7 +213,7 @@ export default {
         // ménage de temps en temps : documents non modifiés depuis 400 jours, invitations expirées
         if (Math.random() < 0.01) await env.DB.batch([env.DB.prepare('DELETE FROM docs WHERE at < ?').bind(at - 400 * DAY), env.DB.prepare('DELETE FROM inv WHERE exp < ?').bind(at)]);
       } else await env.FAM.put(space + ':' + doc, data, { metadata: { at, by }, expirationTtl: 60 * 60 * 24 * 400 });
-      if (env.DB && env.VAPID_PRIVATE) ctx.waitUntil(pushAll(env, space, req.headers.get('X-Push-Self') || null));
+      if (env.DB && env.VAPID_PRIVATE) ctx.waitUntil(pushAll(env, space, req.headers.get('X-Push-Self') || null, { t: (by || 'Quelqu’un') + ' a modifié ' + (LBL[doc] || 'une liste'), b: 'Ouvre l’appli pour voir les nouveautés.', g: 'agd-' + doc }));
       return json(req, { ok: true, at });
     }
     return json(req, { error: 'methode' }, 405);

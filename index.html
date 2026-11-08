@@ -9678,7 +9678,7 @@ async function pushOn(){
  let sub=await reg.pushManager.getSubscription();
  if(!sub){const k=Uint8Array.from(atob(VAPID_PUB.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
- for(const g of famAll()){const FK=await famKeys(g);const r=await fetch(famUrl()+'/push/'+FK.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint})});if(!r.ok)throw new Error('Serveur : '+r.status)}
+ for(const g of famAll()){const FK=await famKeys(g);const r=await fetch(famUrl()+'/push/'+FK.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(sub.toJSON())});if(!r.ok)throw new Error('Serveur : '+r.status)}
 }
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
 /* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
