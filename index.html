@@ -319,6 +319,40 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
  body.am-printing #amprint .pst{margin:0 auto;transform-origin:top left}
 }
 
+
+/* Amicale 2.73 : accueil coloré, grille de membres, barre d'onglets en bas */
+.am2-id{display:flex;align-items:center;gap:.85rem;margin:.2rem 0 .2rem}
+.am2-logo{flex:none;width:3.5rem;height:3.5rem;border-radius:1.15rem;background:linear-gradient(145deg,var(--k-am),#b25cff);display:grid;place-items:center;color:#fff;font:800 1.65rem/1 var(--sans,inherit);box-shadow:0 .5rem 1.2rem color-mix(in srgb,var(--k-am) 35%,transparent);position:relative;overflow:hidden}
+.am2-logo img{width:100%;height:100%;object-fit:cover}
+.am2-id h2{margin:0;font-size:1.45rem;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+.am2-id small{display:block;color:var(--muted);font-weight:600;margin-top:.25rem;font-size:.8rem}
+.am2-st{display:flex;gap:.5rem;margin:.9rem 0 0}
+.am2-st button{flex:1;border-radius:1.1rem;padding:.7rem .75rem .6rem;color:#fff;text-align:left}
+.am2-st b{display:block;font-size:1.6rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.am2-st span{font-size:.75rem;font-weight:700;opacity:.92}
+.am2-hero{display:flex;gap:.85rem;align-items:center;margin:.9rem 0 0;border-radius:1.5rem;padding:1rem;background:linear-gradient(135deg,#ff5c6c,#ff9a5c);color:#fff;box-shadow:0 .8rem 1.8rem rgba(255,92,108,.28);width:100%;text-align:left}
+.am2-date{flex:none;background:#fff;color:#181b34;border-radius:1.1rem;width:3.9rem;padding:.5rem 0;text-align:center}
+.am2-date i{display:block;font-style:normal;font-size:.68rem;font-weight:800;color:#ff5c6c;text-transform:uppercase}
+.am2-date b{display:block;font-size:1.65rem;line-height:1;font-weight:800}
+.am2-hero h3{margin:0;font-size:1.15rem;font-weight:800;line-height:1.15;letter-spacing:-.01em;color:#fff}
+.am2-hero p{margin:.25rem 0 0;font-size:.82rem;font-weight:600;opacity:.95}
+.am2-sec{display:flex;align-items:baseline;margin:1.3rem 0 .4rem}
+.am2-sec h3{margin:0;font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
+.am2-sec span{margin-left:auto;color:var(--k-am);font-weight:700;font-size:.8rem}
+.am2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem .3rem}
+.am2-mb{text-align:center;min-width:0;padding:0 .1rem}
+.am2-ring{width:4.7rem;height:4.7rem;border-radius:50%;margin:0 auto;padding:.2rem;position:relative}
+.am2-av{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.6rem;font-weight:800;border:.2rem solid var(--bg)}
+.am2-crown{position:absolute;right:-.15rem;bottom:-.1rem;font-size:.95rem;background:var(--bg);border-radius:50%;width:1.35rem;height:1.35rem;display:grid;place-items:center}
+.am2-mb b{display:block;font-size:.85rem;font-weight:700;margin-top:.45rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am2-mb b small{font-weight:600;color:var(--muted)}
+.am2-pill{display:inline-block;max-width:100%;font-size:.66rem;font-weight:700;border-radius:99px;padding:.15rem .5rem;margin-top:.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.am2-dock{position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 1.6rem),32rem);bottom:calc(.8rem + env(safe-area-inset-bottom,0px) + var(--tbh,0px));z-index:30;height:4.1rem;border-radius:1.6rem;background:var(--surface);box-shadow:0 .8rem 2.4rem rgba(24,27,52,.22);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 .25rem}
+.am2-dk{width:3.6rem;text-align:center;font-size:.6rem;font-weight:700;color:var(--muted);position:relative}
+.am2-dk i{display:grid;place-items:center;font-style:normal;width:2.35rem;height:2.35rem;border-radius:.9rem;margin:0 auto .1rem;font-size:1.15rem}
+.am2-dk.on{color:var(--text)}
+.am2-dk em{position:absolute;top:-.15rem;right:.3rem;font-style:normal;background:#ff5c6c;color:#fff;border-radius:99px;font-size:.58rem;font-weight:800;min-width:1.05rem;padding:0 .25rem;line-height:1.05rem}
+.am2-pad{height:6.5rem}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1416,7 +1450,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.72.8';
+const APP_VERSION='2.73.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1424,6 +1458,11 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.73.0',d:'08/11/2026',items:[
+  '<b>Amicale : nouveau style au choix</b> (Réglages › Affichage › Style de l’Amicale : « Classique » comme avant, ou « Nouveau »). Le style Nouveau a un accueil coloré : l’en-tête affiche le logo du groupe (la première lettre pour l’instant), trois grosses tuiles (membres, tâches, à venir) et une grande carte pour le prochain événement.',
+  '<b>Membres en grille</b> : des ronds colorés avec le prénom et la fonction en pastille, le bureau et les aides séparés. Touche un rond pour ouvrir la fiche.',
+  '<b>Barre d’onglets en bas</b> (par défaut) : Membres, Agenda, Fêtes, Tâches, Courses avec leurs pastilles de couleur, et « Plus » pour le reste. On peut revenir aux onglets sur le côté ou en haut dans Réglages du groupe › Onglets du groupe.'
+ ]},
  {v:'2.72.8',d:'08/11/2026',items:[
   '<b>Verrou rangé avec la sauvegarde</b> : Réglages › onglet « 💾 &amp; 🔐 », sous la Sauvegarde. Le choix devient « Toute l’application » ou « Seulement le groupe ».'
  ]},
@@ -7186,6 +7225,7 @@ async function act(a,el,e){
   case 'am-join':amJoinCode();break;
   case 'am-mb':amFiche(ds_.id);break;
   case 'am-tab':AMC_TAB=ds_.k;render();break;
+  case 'am-more':await amMore();break;
   case 'am-keyok':amKeyOk();break;
   case 'am-edit':{const a0=amc();if(a0&&a0.apriv)amFiche(a0.me.id);else amEditMe();break}
   case 'am-inv':amInvite();break;
@@ -10622,7 +10662,7 @@ async function amForm(title,intro,fields,ok){
 let AM_QUIET=0;
 /* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
 /* Colonne d'onglets de droite : si elle est plus haute que l'écran, elle n'a plus de défilement à elle (ça se bloquait sur iPhone/iPad) : elle suit simplement le défilement de la page */
-function amSnFit(){const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
+function amSnFit(){amDockFit();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
 window.addEventListener('resize',()=>setTimeout(amSnFit,200));window.addEventListener('orientationchange',()=>setTimeout(amSnFit,400));
 let AML_OK=false,AML_H=0;
 const amlDelay=()=>S.amlDelay==null?300:+S.amlDelay;
@@ -13186,6 +13226,36 @@ function amPendN(){const a=amc();return a?Object.values(a.it||{}).filter(x=>x.di
 function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1){if(!a.kdone)return'';return'<div class="warn" id="am-pend" style="border-color:#16a34a;background:color-mix(in srgb,#16a34a 14%,var(--surface))"><b>✅ Clés à jour : le groupe est prêt</b>Tout a été envoyé, tu peux inviter ou continuer.<div style="margin-top:.4rem"><button class="btn sm" data-act="am-keyok">OK, fermer</button></div></div>'}a.kwait=1;return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> et n’invite personne avant le message « ✅ Clés à jour ».</div>'}
 function amKeyOk(){const a=amc();if(a){a.kdone=0;amSave()}const b=document.getElementById('am-pend');if(b)b.remove()}
 function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.getElementById('am-pend-n');if(n<1){if(a.kwait){a.kwait=0;a.kdone=Date.now();amSave();try{toast('✅ Clés à jour : le groupe est prêt',5000)}catch(e){}try{const v=document.getElementById('am-pend');if(v)v.outerHTML=amKeyBanner()}catch(e){}}}else{a.kwait=1;if(e)e.textContent=n}}
+
+/* Amicale 2.73 : en-tête coloré de l'accueil (logo, chiffres, prochain événement) et barre d'onglets du bas */
+function amHome(a,nTk,nEv){
+ const L=amList(),td=new Date().toISOString().slice(0,10),MO=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+ const nxt=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&(i.d||'')>=td).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||'')))[0];
+ let h='<div class="am2-id"><div class="am2-logo">'+esc(String(a.nm||'A').trim().charAt(0).toUpperCase())+'</div><div><h2>Bonjour '+esc(String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
+ h+='<div class="am2-st"><button style="background:#6B4EFF" data-act="am-tab" data-k="mb"><b>'+L.length+'</b><span>membre'+(L.length>1?'s':'')+'</span></button><button style="background:#12B5A0" data-act="am-tab" data-k="tk"><b>'+nTk+'</b><span>tâche'+(nTk>1?'s':'')+'</span></button><button style="background:#2D8CFF" data-act="am-tab" data-k="ee"><b>'+nEv+'</b><span>à venir</span></button></div>';
+ if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
+  h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
+ return h;
+}
+const AM_DOCK=[['mb','👥','Membres','#6B4EFF'],['ev','📅','Agenda','#2D8CFF'],['ee','🎉','Fêtes','#FF5C6C'],['tk','✅','Tâches','#12B5A0'],['co','🛒','Courses','#FFB020']];
+function amDockHTML(tabs){
+ const cnt=k=>{const t=tabs.find(x=>x[0]===k);const m=t&&String(t[1]).match(/ (\d+)$/);return m?m[1]:''};
+ const main=AM_DOCK.map(x=>x[0]);
+ let h='<nav class="am2-dock" aria-label="Onglets du groupe">'+AM_DOCK.map(([k,ic,l,c])=>{const on=AMC_TAB===k,n=(k==='ev'||k==='ee'||k==='tk'||k==='co')?cnt(k):'';return '<button class="am2-dk'+(on?' on':'')+'" data-act="am-tab" data-k="'+k+'"><i style="background:'+(on?c:'color-mix(in srgb,'+c+' 16%,transparent)')+';'+(on?'box-shadow:0 .4rem .9rem '+c+'66':'')+'">'+ic+'</i>'+l+(n?'<em>'+n+'</em>':'')+'</button>'}).join('');
+ const moreOn=!main.includes(AMC_TAB);
+ h+='<button class="am2-dk'+(moreOn?' on':'')+'" data-act="am-more"><i style="background:'+(moreOn?'var(--k-am)':'color-mix(in srgb,var(--k-am) 16%,transparent)')+';'+(moreOn?'color:#fff':'')+'">⋯</i>Plus</button></nav>';
+ return h;
+}
+async function amMore(){
+ const a=amc();if(!a)return;
+ const main=AM_DOCK.map(x=>x[0]),n=k=>amItems(k).filter(i=>!i.x).length;
+ const L=[];if(a.kB)L.push(['am','🎖 Amicalistes']);if(a.kB)L.push(['nt','📝 Notes du bureau']);if(a.kB)L.push(['ad','📁 Administratif']);L.push(['lo','📖 Pour les nuls'],['sy','🔄 Actualiser'],['gr','⚙️ Réglages du groupe']);
+ const r=await ask({title:'Plus',btns:L.map(([k,l])=>({label:l,value:k})).concat([{label:'Fermer',value:null}])});
+ if(!r)return;
+ if(r==='sy'){const b=document.querySelector('[data-act=am-sync]');try{await amPull(true)}catch(e){}toast('Mis à jour',1800);render();return}
+ AMC_TAB=r;render();
+}
+function amDockFit(){const d=document.querySelector('.am2-dock');if(!d)return;const t=document.getElementById('tabs');let h=0;try{if(t&&getComputedStyle(t).display!=='none'){const r=t.getBoundingClientRect();if(r.top>innerHeight/2)h=t.offsetHeight}}catch(e){}document.documentElement.style.setProperty('--tbh',h+'px')}
 function amView(){if(amTabLocked())return{html:amLockHTML(),fixed:false};return amView0()}
 function amView0(){
  const a=amc();
@@ -13197,7 +13267,7 @@ function amView0(){
  if((AMC_TAB==='nt'||AMC_TAB==='am'||AMC_TAB==='ad')&&!a.kB)AMC_TAB='mb';
  const n4=amItems('ee').filter(i=>(i.d||'')>=td).length;
  const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
- const side=S.amSide!==0;
+ const nu=S.amStyle==='new',navm=S.amSide==null?(nu?2:1):+S.amSide,side=navm===1,dock=navm===2;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  let h=(AMC_TAB==='am'?'':amAnBanner());
  if(['tk','co','ev','nt','ee'].includes(AMC_TAB))h+=amItemsHTML(AMC_TAB);
@@ -13218,14 +13288,18 @@ function amView0(){
   if(a.kB)h+=amSafeCard();
   if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
   h+=amJournalHTML();
-  h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Onglets du groupe</span>'+seg('amSide',[[1,'Sur le côté'],[0,'En haut']],side?1:0)+'</div></div>';
+  h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Style de l’Amicale</span>'+seg('amStyle',[['','Classique'],['new','Nouveau']],nu?'new':'')+'</div><div class="set-row"><span class="lbl">Onglets du groupe</span>'+seg('amSide',[[2,'Barre du bas'],[1,'Sur le côté'],[0,'En haut']],navm)+'</div></div>';
   h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
   h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
  }else{
   const L=amList(),ord=t=>{const i=AMC_TORD(t);return i<0?(t?50:99):i};
-  const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
+  const grpC=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    return '<h4 class="am-h">'+lbl+' · '+G.length+'</h4>'+G.map(p=>'<button class="am-c" data-act="am-mb" data-id="'+esc(p.id)+'"><i class="am-av" style="background:'+(p.self?'var(--k-am)':'#8b7d68')+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</i><span class="am-x"><b>'+esc(p.n)+(p.self?' <small class="mut">(toi)</small>':'')+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+'</b><small>'+(p.t?esc(p.t):(a.apriv&&!p.self?'Touche pour donner un titre':p.l==='b'?'Bureau':'Aide'))+'</small></span>'+(p.tel?'<span class="am-ph" aria-hidden="true">📞</span>':'')+'</button>').join('')};
-  h+=grp('b','Bureau')+grp('a','Aides extérieurs');
+  const RC=['#6B4EFF','#FF5C6C','#12B5A0','#2D8CFF','#FFB020','#B25CFF','#FF7A45','#0EA5B7','#7C8CFF'],hs=t=>{let x=0;for(const c of String(t))x=(x*31+c.charCodeAt(0))>>>0;return x};
+  const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
+   return '<div class="am2-sec"><h3>'+lbl+'</h3><span>'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=lv==='a'?'#12B5A0':RC[k%RC.length],c2=lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length],lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
+    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="am2-av" style="background:'+c1+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</div>'+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span></button>'}).join('')+'</div>'};
+  h+=nu?amHome(a,n1,n3+n4)+grp('b','Le bureau')+grp('a','Les aides'):grpC('b','Bureau')+grpC('a','Aides extérieurs');
   if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>';
@@ -13234,6 +13308,7 @@ function amView0(){
   const nav='<nav class="co-tabs am-sn" aria-label="Onglets du groupe">'+tabs.map(([k,l])=>'<button class="co-tab'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'" style="--tc:var(--k-am)"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'><span class="co-tn">'+l.replace(/^\S+\s/,'').replace(/ \d+$/,'')+'</span>'+(/ (\d+)$/.test(l)?'<b class="co-tc">'+l.match(/ (\d+)$/)[1]+'</b>':'')+'</button>').join('')+'<button class="co-tab co-tadd" data-act="am-sync" title="Actualiser" aria-label="Actualiser">🔄</button></nav>';
   return{html:'<div class="tk-wrap"><div class="co-book" style="--tcur:var(--k-am)"><div class="co-page">'+h+'</div>'+nav+'</div></div>',fixed:false};
  }
+ if(dock)return{html:'<div class="rp-wrap">'+h+'<div class="am2-pad"></div>'+amDockHTML(tabs)+'</div>',fixed:false};
  return{html:'<div class="rp-wrap"><div class="am-tabs">'+tabs.map(([k,l])=>'<button class="chip'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'>'+(k==='gr'?'⚙️':l)+'</button>').join('')+'<button class="chip" data-act="am-sync" aria-label="Actualiser">🔄</button></div>'+h+'</div>',fixed:false};
 }
 /* même appareil (Android, ordinateur) : AgenDam et Amicale partagent l'adresse, on peut reprendre le groupe directement. Sur iPhone chaque appli de l'écran d'accueil a sa mémoire : passer par « Lier un autre appareil ». */
@@ -13241,7 +13316,8 @@ function amiFromAg(){if(!AMI)return null;try{const o=JSON.parse(localStorage.get
 function amiTake(){const o=amiFromAg();if(!o||S.amc)return;S.amc=JSON.parse(JSON.stringify(o.amc));['amCol','amPo','amSg','amSide','amAg','amCoZ'].forEach(k=>{if(o[k]!=null)S[k]=JSON.parse(JSON.stringify(o[k]))});S.amc.last={};S.amc.pullAt=0;saveSet();setTheme();tabsApply();go('amicale');amPull(true);toast('Groupe repris d’AgenDam : tu es '+S.amc.me.n,4000)}
 function amiSettingsView(seg){
  let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard();
- h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
+ const nuS=S.amStyle==='new',nvS=S.amSide==null?(nuS?2:1):+S.amSide;
+ h+='<div class="card"><h3>Affichage</h3><div class="set-row"><span class="lbl">Style de l’Amicale</span>'+seg('amStyle',[['','Classique'],['new','Nouveau']],nuS?'new':'')+'</div><div class="set-row"><span class="lbl">Onglets du groupe</span>'+seg('amSide',[[2,'Barre du bas'],[1,'Sur le côté'],[0,'En haut']],nvS)+'</div><div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
  h+=amSetCard();
  h+='<div class="card" id="data-card"><h3>💾 Sauvegarde</h3><p class="mut" style="margin:.1rem 0 .4rem;font-size:.88rem">Un fichier de secours avec ton groupe (pour changer de téléphone).'+(META.lastBackup?' Dernière : <b>'+fmtDate(META.lastBackup)+'</b>.':'')+'</p>'+pair(pbtn('bk-save',ic('down')+' Sauvegarder','Fichier de secours'),pbtn('bk-restore',ic('up')+' Restaurer','Depuis un fichier','alt'))+'</div>';
  h+=appLockCard();

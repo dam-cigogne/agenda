@@ -53,7 +53,7 @@ async function notify(env,space,o){
     if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
-    const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+H[1]):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
+    const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):H[1])):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
 }
 const HINT = { tk:['☑ Amicale · Tâches','a modifié une tâche'], co:['🛒 Amicale · Courses','a modifié la liste de courses'], ev:['📅 Amicale · Agenda','a modifié l’agenda'], ee:['🎉 Amicale · Événement','a ajouté ou modifié un événement'], nt:['📝 Amicale · Notes','a modifié une note'], am:['🎖 Amicale · Membres','a modifié la liste des amicalistes'], ad:['📁 Amicale · Administratif','a ajouté ou modifié un document'], cd:['🎁 Amicale · Cadeaux','a modifié un cadeau'], ag:['📝 Amicale · Compte rendu AG','a modifié un compte rendu'], bs:['📰 Amicale · Bulletin','a modifié un bulletin'], bm:['📰 Amicale · Bulletin','a modifié un modèle de bulletin'], po:['🖼 Amicale · Affiches','a modifié une affiche'] };
@@ -249,7 +249,7 @@ export default {
       if (env.DB && env.VAPID_PRIVATE) {
         const mm = doc.match(/^([ac])-([a-z0-9]+)-([a-z0-9]+)$/), skip = (req.headers.get('X-Push-Skip') || '').split(',').filter(Boolean);
         const kind = mm ? mm[1] : (/^i-/.test(doc) ? 'i' : null);
-        if (kind && !req.headers.get('X-Push-Quiet')) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', hint: (req.headers.get('X-Push-Hint') || '').slice(0, 3), skip, selfEp: req.headers.get('X-Push-Self') || null }));
+        if (kind && !req.headers.get('X-Push-Quiet')) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', hint: (req.headers.get('X-Push-Hint') || '').slice(0, 3), det: (() => { try { return decodeURIComponent(url.searchParams.get('d') || '').replace(/[\r\n]+/g, ' ').slice(0, 30) } catch (e) { return '' } })(), skip, selfEp: req.headers.get('X-Push-Self') || null }));
       }
       return json(req, { ok: true, at });
     }
