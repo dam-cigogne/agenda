@@ -29,19 +29,34 @@ async function encPayload(p256dh,auth,text){
   const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:nonce},key,cat(enc(text),new Uint8Array([2]))));
   return cat(salt,new Uint8Array([0,0,16,0,65]),asPub,ct);
 }
-async function pushAll(env,space,exceptEp,msg){
-  const r=await env.DB.prepare('SELECT endpoint, p, a FROM push2 WHERE space = ?').bind(space).all();let ok=0,gone=0,err=[];
-  for(const x of (r.results||[])){
-    if(x.endpoint===exceptEp)continue;
-    try{
-      const body=await encPayload(x.p,x.a,JSON.stringify(msg||{}));
-      const res=await fetch(x.endpoint,{method:'POST',headers:{Authorization:await vapidAuth(env,x.endpoint),TTL:'86400',Urgency:'normal','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'},body});
-      if(res.status===404||res.status===410){gone++;await env.DB.prepare('DELETE FROM push2 WHERE endpoint = ?').bind(x.endpoint).run()}else if(res.ok)ok++;else err.push(res.status);
-    }catch(e){err.push(String(e).slice(0,80))}
-  }
-  return {ok,gone,err};
+async function sendOne(env,x,msg){
+  try{
+    const body=await encPayload(x.p,x.a,JSON.stringify(msg));
+    const res=await fetch(x.endpoint,{method:'POST',headers:{Authorization:await vapidAuth(env,x.endpoint),TTL:'86400',Urgency:'normal','Content-Encoding':'aes128gcm','Content-Type':'application/octet-stream'},body});
+    if(res.status===404||res.status===410){await env.DB.prepare('DELETE FROM push3 WHERE endpoint = ?').bind(x.endpoint).run();return 'gone'}
+    return res.ok?'ok':String(res.status);
+  }catch(e){return String(e).slice(0,80)}
 }
-const LBL = { co: 'les Courses', tk: 'les Tâches', ag: 'l’Agenda', rp: 'les Repas', bd: 'les Anniversaires', vy: 'les Voyages' };
+// Test : envoyé à tous les téléphones du groupe, sans règle
+async function pushTest(env,space){
+  const r=await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE space = ?').bind(space).all();let ok=0;const err=[];
+  for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'Test réussi ✅',b:'Les notifications fonctionnent sur ce téléphone.',g:'agd-test'});if(s==='ok')ok++;else err.push(s)}
+  return {ok,err};
+}
+// Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, au plus une toutes les 2 minutes
+async function notify(env,space,o){
+  const r=await env.DB.prepare('SELECT endpoint, me, pf, p, a, last, n FROM push3 WHERE space = ?').bind(space).all();const now=Date.now();
+  for(const x of (r.results||[])){
+    if(x.endpoint===o.selfEp||o.skip.includes(x.me))continue;
+    if(o.to&&x.me!==o.to)continue;
+    if(x.pf&&!x.pf.includes(o.kind))continue;
+    if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
+    const tot=x.n+1;
+    await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
+    await sendOne(env,x,{t:tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),b:'Ouvre l’appli pour voir les nouveautés.',g:'agd-'+o.kind});
+  }
+}
+const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
 const MAX = 400 * 1024;
 const DAY = 864e5;
@@ -50,7 +65,7 @@ function cors(req) {
   return {
     'Access-Control-Allow-Origin': ORIGINS.includes(o) ? o : ORIGINS[0],
     'Access-Control-Allow-Methods': 'GET,PUT,POST,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Push-Self, X-Push-Skip',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
@@ -66,8 +81,8 @@ function ready(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inv (id TEXT PRIMARY KEY, data TEXT NOT NULL, exp INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS mig (space TEXT PRIMARY KEY)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS push (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS push2 (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL, p TEXT NOT NULL, a TEXT NOT NULL)'),
-    env.DB.prepare('CREATE INDEX IF NOT EXISTS push2_sp ON push2 (space)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS push3 (endpoint TEXT NOT NULL, space TEXT NOT NULL, me TEXT NOT NULL DEFAULT \'\', pf TEXT NOT NULL DEFAULT \'\', at INTEGER NOT NULL, p TEXT NOT NULL, a TEXT NOT NULL, last INTEGER NOT NULL DEFAULT 0, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (endpoint, space))'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS push3_sp ON push3 (space)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -176,10 +191,10 @@ export default {
         let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
         if (!o || !/^https:\/\/[^\s]{10,600}$/.test(o.endpoint || '')) return json(req, { error: 'format' }, 400);
         if (!o.keys || typeof o.keys.p256dh !== 'string' || typeof o.keys.auth !== 'string') return json(req, { error: 'clés' }, 400);
-        await env.DB.prepare('INSERT OR REPLACE INTO push2 (endpoint, space, at, p, a) VALUES (?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], Date.now(), o.keys.p256dh, o.keys.auth).run();
+        await env.DB.prepare('INSERT OR REPLACE INTO push3 (endpoint, space, me, pf, at, p, a) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], String(o.me || '').slice(0, 20), String(o.pf || '').slice(0, 8), Date.now(), o.keys.p256dh, o.keys.auth).run();
         return json(req, { ok: true });
       }
-      if (req.method === 'POST' && pm[2]) return json(req, await pushAll(env, pm[1], null, { t: 'Test réussi ✅', b: 'Les notifications fonctionnent sur ce téléphone.', g: 'agd-test' }));
+      if (req.method === 'POST' && pm[2]) return json(req, await pushTest(env, pm[1]));
       return json(req, { error: 'methode' }, 405);
     }
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille', db: env.DB ? 'd1' : 'kv' });
@@ -213,7 +228,11 @@ export default {
         // ménage de temps en temps : documents non modifiés depuis 400 jours, invitations expirées
         if (Math.random() < 0.01) await env.DB.batch([env.DB.prepare('DELETE FROM docs WHERE at < ?').bind(at - 400 * DAY), env.DB.prepare('DELETE FROM inv WHERE exp < ?').bind(at)]);
       } else await env.FAM.put(space + ':' + doc, data, { metadata: { at, by }, expirationTtl: 60 * 60 * 24 * 400 });
-      if (env.DB && env.VAPID_PRIVATE) ctx.waitUntil(pushAll(env, space, req.headers.get('X-Push-Self') || null, { t: (by || 'Quelqu’un') + ' a modifié ' + (LBL[doc] || 'une liste'), b: 'Ouvre l’appli pour voir les nouveautés.', g: 'agd-' + doc }));
+      if (env.DB && env.VAPID_PRIVATE) {
+        const mm = doc.match(/^([ac])-([a-z0-9]+)-([a-z0-9]+)$/), skip = (req.headers.get('X-Push-Skip') || '').split(',').filter(Boolean);
+        const kind = mm ? mm[1] : (/^i-/.test(doc) ? 'i' : null);
+        if (kind) ctx.waitUntil(notify(env, space, { kind, to: mm ? mm[3] : null, by: by || 'Quelqu’un', skip, selfEp: req.headers.get('X-Push-Self') || null }));
+      }
       return json(req, { ok: true, at });
     }
     return json(req, { error: 'methode' }, 405);
