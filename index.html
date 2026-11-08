@@ -380,6 +380,16 @@ body.am2on .seg{border-radius:99px;padding:.2rem}
 body.am2on .seg button{border-radius:99px;font-weight:700}
 body.am2on .seg button.on{background:var(--k-am);color:#fff}
 body.am2on .card{border-radius:1.3rem;box-shadow:0 .35rem 1.1rem rgba(24,27,52,.07)}
+.tlogo{width:1.35em;height:1.35em;border-radius:.38em;object-fit:cover;vertical-align:-.25em;margin-right:.3em}
+body.am2on h4.am-h{text-transform:none;letter-spacing:-.01em;color:var(--text)}
+body.am2on .btn:not(.pri):not(.dng){border:0;border-radius:1.15rem;background:var(--surface);box-shadow:0 .3rem 1rem rgba(24,27,52,.09),inset 0 0 0 1px var(--line);font-weight:700;padding-top:.8rem;padding-bottom:.8rem}
+body.am2on .btn.pri{border-radius:1.15rem}
+body.am2on .btn.dng{border-radius:1.15rem;font-weight:700}
+body.am2on .chip{border:0;border-radius:99px;background:color-mix(in srgb,var(--k-am) 11%,var(--surface));color:var(--text);font-weight:700;padding:.5rem .85rem}
+body.am2on .chip.on{background:var(--k-am);color:#fff;box-shadow:0 .3rem .8rem color-mix(in srgb,var(--k-am) 35%,transparent)}
+body.am2on .in{border:0;border-radius:1rem;background:var(--surface2,#f2efe8);padding:.75rem .9rem}
+body.am2on .hlp-q{box-shadow:0 .2rem .5rem color-mix(in srgb,var(--k-am) 40%,transparent)}
+body.am2on .am-it.am-nt,body.am2on .am-it.am-ev{border-left:1px solid var(--line)}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1477,7 +1487,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.74.1';
+const APP_VERSION='2.74.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1485,6 +1495,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.3',d:'08/11/2026',items:[
+  '<b>Style Nouveau sur les pages détaillées</b> (fiche d’un événement, Amicalistes, notes, administratif…) : boutons arrondis avec ombre, titres de sections lisibles (plus de petites majuscules), pastilles de filtre colorées, champs de saisie arrondis.'
+ ]},
+ {v:'2.74.2',d:'08/11/2026',items:[
+  '<b>Logo du groupe en haut</b> : s’il y a un logo, il remplace les deux petites silhouettes devant le nom du groupe dans la barre du haut (quel que soit le style).'
+ ]},
  {v:'2.74.1',d:'08/11/2026',items:[
   '<b>Logo du groupe</b> : on peut le choisir aussi depuis la roue crantée (carte « Logo du groupe »), et en touchant le logo sur l’accueil (administrateur).',
   '<b>Style Nouveau</b> : calendrier de l’agenda plus soigné (coins arrondis, aujourd’hui coloré, évènements pleins) et cartes de réglages arrondies.'
@@ -3126,7 +3142,7 @@ function render(){
   const w=$('#tgw');if(w&&prevTg){w.scrollTop=prevTg.t;w.scrollLeft=prevTg.l}
  }else if(!r.fixed)main.scrollTop=0;
  lastKey=key;
- const [t1,t2]=titles();$('#t1').textContent=t1;{const j=$('#jumpd');if(j&&document.activeElement!==j)j.value=V.date}$('#t2').textContent=t2;{const fl=$('#focuslbl');if(fl)fl.textContent=t1+(t2?' · '+t2:'')}
+ const [t1,t2]=titles();$('#t1').textContent=t1;try{if(V.view==='amicale'&&typeof amLogoSrc==='function'){const lg=amLogoSrc(),a0=amc();if(lg&&a0)$('#t1').innerHTML='<img class="tlogo" alt="" src="'+lg+'">'+esc(a0.nm)}}catch(e){}{const j=$('#jumpd');if(j&&document.activeElement!==j)j.value=V.date}$('#t2').textContent=t2;{const fl=$('#focuslbl');if(fl)fl.textContent=t1+(t2?' · '+t2:'')}
  const nav=['day','week','month','fort'].includes(V.view);
  $('#nav').style.display=nav?'':'none';
  $$('#tabs button,#gearbtn,#srchbtn').forEach(b=>b.classList.toggle('on',b.dataset.v===V.view||(b.dataset.v==='agenda'&&nav)));
