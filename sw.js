@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '2.68.4';
+const VERSION = '2.69.0';
 const CACHE = 'agd-cache-v' + VERSION;
 const ASSETS = [
   './',
@@ -75,8 +75,21 @@ self.addEventListener('notificationclick', e => {
   );
 });
 
+async function agdDec(b64) {
+  const c = await caches.open('agd-rk'), r = await c.match('rk');
+  if (!r) return null;
+  const kb = Uint8Array.from(atob(await r.text()), x => x.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', kb, 'AES-GCM', false, ['decrypt']);
+  const raw = Uint8Array.from(atob(b64), x => x.charCodeAt(0));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, key, raw.slice(12));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
 self.addEventListener('push', e => {
-  let d = {};
-  try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
-  e.waitUntil(self.registration.showNotification(d.t || 'Nouveau dans l’appli', { body: d.b || 'Ouvre l’appli pour voir les nouveautés.', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.g || 'agd-push', renotify: true }));
+  e.waitUntil((async () => {
+    let d = {};
+    try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
+    let rem = false;
+    if (d.e) { rem = true; try { d = (await agdDec(d.e)) || { t: '⏰ Rappel', b: 'Ouvre l’appli pour voir.' }; } catch (x) { d = { t: '⏰ Rappel', b: 'Ouvre l’appli pour voir.' }; } }
+    return self.registration.showNotification(d.t || 'Nouveau dans l’appli', { body: d.b || 'Ouvre l’appli pour voir les nouveautés.', icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: d.g || 'agd-push', renotify: !rem });
+  })());
 });

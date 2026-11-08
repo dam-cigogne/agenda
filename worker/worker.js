@@ -82,7 +82,9 @@ function ready(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS mig (space TEXT PRIMARY KEY)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS push (endpoint TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS push3 (endpoint TEXT NOT NULL, space TEXT NOT NULL, me TEXT NOT NULL DEFAULT \'\', pf TEXT NOT NULL DEFAULT \'\', at INTEGER NOT NULL, p TEXT NOT NULL, a TEXT NOT NULL, last INTEGER NOT NULL DEFAULT 0, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (endpoint, space))'),
-    env.DB.prepare('CREATE INDEX IF NOT EXISTS push3_sp ON push3 (space)')
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS push3_sp ON push3 (space)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS remind (endpoint TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, c TEXT NOT NULL, PRIMARY KEY (endpoint, id))'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS remind_at ON remind (at)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -184,6 +186,20 @@ export default {
       const out = {}; for (const x of k) if (rec[x] != null) out[x] = rec[x];
       return json(req, { recipe: out, url: r.url });
     }
+    // Rappels à l'heure : l'appli envoie l'heure et un message CHIFFRÉ (le serveur ne lit que l'heure)
+    if (url.pathname === '/remind' && req.method === 'PUT' && env.DB && env.VAPID_PRIVATE) {
+      let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+      if (!o || !/^https:\/\/[^\s]{10,600}$/.test(o.endpoint || '') || !Array.isArray(o.list)) return json(req, { error: 'format' }, 400);
+      const known = await env.DB.prepare('SELECT 1 AS x FROM push3 WHERE endpoint = ? LIMIT 1').bind(o.endpoint).first();
+      if (!known) return json(req, { error: 'inconnu' }, 404);
+      const st = [env.DB.prepare('DELETE FROM remind WHERE endpoint = ?').bind(o.endpoint)];
+      for (const r of o.list.slice(0, 150)) {
+        if (!r || typeof r.id !== 'string' || typeof r.c !== 'string' || !(r.at > 0) || r.id.length > 120 || r.c.length > 2000) continue;
+        st.push(env.DB.prepare('INSERT OR REPLACE INTO remind (endpoint, id, at, c) VALUES (?, ?, ?, ?)').bind(o.endpoint, r.id, Math.floor(r.at), r.c));
+      }
+      await env.DB.batch(st);
+      return json(req, { ok: true, n: st.length - 1 });
+    }
     // Notifications : abonnement d'un téléphone à un groupe, test, et envoi
     const pm = url.pathname.match(/^\/push\/([0-9a-f]{32})(\/test)?$/);
     if (pm && env.DB && env.VAPID_PRIVATE) {
@@ -236,5 +252,18 @@ export default {
       return json(req, { ok: true, at });
     }
     return json(req, { error: 'methode' }, 405);
+  },
+  // Déclencheur « toutes les minutes » : envoie les rappels arrivés à l'heure
+  async scheduled(ev, env, ctx) {
+    if (!env.DB || !env.VAPID_PRIVATE) return;
+    await ready(env);
+    const now = Date.now();
+    const r = await env.DB.prepare('SELECT endpoint, id, c FROM remind WHERE at <= ? AND at > ? ORDER BY at LIMIT 80').bind(now, now - 6 * 3600000).all();
+    for (const x of (r.results || [])) {
+      const s = await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE endpoint = ? LIMIT 1').bind(x.endpoint).first();
+      if (s) await sendOne(env, s, { e: x.c });
+      await env.DB.prepare('DELETE FROM remind WHERE endpoint = ? AND id = ?').bind(x.endpoint, x.id).run();
+    }
+    await env.DB.prepare('DELETE FROM remind WHERE at < ?').bind(now - 6 * 3600000).run();
   }
 };

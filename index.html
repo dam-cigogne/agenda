@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.68.4';
+const APP_VERSION='2.69.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -7340,7 +7340,7 @@ async function act(a,el,e){
    render();break}
   case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
-  case 'push-test':{try{const sp=(await pushSpaces())[0];if(!sp)throw new Error('aucun groupe');const r=await fetch(famUrl()+'/push/'+sp.space+'/test',{method:'POST'});const j=await r.json();toast(r.ok?('Test envoyé à '+j.ok+' téléphone(s)'):'Serveur : '+r.status)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
+  case 'push-test':{try{await pushOn();const sp=(await pushSpaces())[0];if(!sp)throw new Error('aucun groupe');const r=await fetch(famUrl()+'/push/'+sp.space+'/test',{method:'POST'});const j=await r.json();toast(r.ok?('Test envoyé à '+j.ok+' téléphone(s)'):'Serveur : '+r.status)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'tpl-use':tplUse(+el.dataset.i);break;
   case 'tpl-save':tplSave();break;
   case 'tpl-ren':tplRename(+el.dataset.i);break;
@@ -7685,7 +7685,7 @@ async function tkEdit(id,pre){
   '<div class="tk-2"><div><label class="lbl" for="tk-d">Date (facultatif)</label><div class="dclr"><input class="in" type="date" id="tk-d" value="'+esc(v.d)+'"><button type="button" class="dclr-x" data-tdclr="1" aria-label="Retirer la date">✕</button></div></div>'+
   '<div><label class="lbl" for="tk-r">Revient</label><select class="in" id="tk-r">'+opt(TK_REP,v.r)+'</select></div></div>'+
   '<div class="tk-2"><div><label class="lbl" for="tk-tm">Heure (facultatif)</label><div class="dclr"><input class="in" type="time" id="tk-tm" value="'+esc(v.tm||'')+'"><button type="button" class="dclr-x" data-tmclr="1" aria-label="Retirer l’heure">✕</button></div></div><div></div></div>'+
-  '<div class="tgl-row"><b>⏰ M’alerter à l’heure<small style="display:block;font-weight:500;color:var(--muted)">Une fenêtre propose Fait / Reporter quand AgenDam est ouvert.</small></b><label class="tgl"><input type="checkbox" id="tk-al"'+(v.al?' checked':'')+'></label></div>'+
+  '<div class="tgl-row"><b>⏰ M’alerter à l’heure<small style="display:block;font-weight:500;color:var(--muted)">Notification à l’heure, même appli fermée (si les notifications sont activées dans Réglages › Rappels). Quand l’appli est ouverte, une fenêtre propose Fait / Reporter.</small></b><label class="tgl"><input type="checkbox" id="tk-al"'+(v.al?' checked':'')+'></label></div>'+
   '<label class="lbl" for="tk-n">Note</label><textarea class="in" id="tk-n" rows="2" maxlength="500">'+esc(v.n)+'</textarea>'+
   (ppl().length?'':'<p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Astuce : ajoute les prénoms de la famille avec « 👪 Famille » pour répartir les tâches.</p>');
  const btns=[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'📱 Enregistrer + calendrier du téléphone',value:'okcal'}];if(k0)btns.push({label:'Supprimer',value:'del',cls:'dng'});btns.push({label:'Annuler',value:null});
@@ -9679,9 +9679,46 @@ const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp
 const pushIsOn=()=>{try{return !!localStorage.getItem('agd-push-ep')&&S.pushOff!==1}catch(e){return false}};
 async function pushOff(){
  try{const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
-  if(sub){const j=sub.toJSON();for(const x of await pushSpaces()){try{await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf:'-'})})}catch(e){}}await sub.unsubscribe()}}catch(e){}
+  if(sub){try{await fetch(famUrl()+'/remind',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint,list:[]})})}catch(e){}const j=sub.toJSON();for(const x of await pushSpaces()){try{await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf:'-'})})}catch(e){}}await sub.unsubscribe()}}catch(e){}
  try{localStorage.removeItem('agd-push-ep')}catch(e){}
 }
+/* Rappels à l'heure, même appli fermée : l'appli envoie au serveur l'heure + un message chiffré (clé gardée sur ce téléphone seulement) */
+async function remKey(){
+ let k=null;try{k=localStorage.getItem('agd-rk')}catch(e){}
+ if(!k){k=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));try{localStorage.setItem('agd-rk',k)}catch(e){}}
+ try{const c=await caches.open('agd-rk');await c.put('rk',new Response(k))}catch(e){}
+ return crypto.subtle.importKey('raw',Uint8Array.from(atob(k),c=>c.charCodeAt(0)),'AES-GCM',false,['encrypt']);
+}
+function remList(){
+ const out=[],n=Date.now(),t0=today();
+ try{for(const o of occsMine(add(t0,-1),add(t0,14))){
+  if(o.ev.alarm==null)continue;
+  const base=o.allDay?atTime(o.date,540):atTime(o.date,o.s),at=base.getTime()-o.ev.alarm*60000,end=atTime(o.endDate,o.allDay?1440:o.e).getTime();
+  if(at<n-60000||at>n+14*864e5||n>=end)continue;
+  out.push({id:o.ev.id+'|'+o.date,at,m:{t:o.ev.title,b:(o.allDay?'Journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place:''),g:o.ev.id+'|'+o.date}});
+ }}catch(e){}
+ try{for(const k of tkAll()){
+  if(!k.al||k.x||k.ar||!k.d||!k.tm)continue;
+  const w=tkWho(k);if(w.length&&S.meId&&!w.includes(S.meId))continue;
+  const at=atTime(k.d,tmin(k.tm)).getTime();
+  if(at<n-60000||at>n+14*864e5)continue;
+  out.push({id:tkAlarmKey(k),at,m:{t:'⏰ '+k.t,b:k.tm,g:tkAlarmKey(k)}});
+ }}catch(e){}
+ return out.sort((x,y)=>x.at-y.at).slice(0,120);
+}
+let REM_H='';
+async function remSync(force){
+ if(demo||!pushIsOn())return;
+ const L=remList(),h=JSON.stringify(L.map(x=>[x.id,x.at,x.m.t]));
+ if(!force&&h===REM_H)return;
+ const ep=pushSelf();if(!ep)return;
+ const key=await remKey(),list=[];
+ for(const x of L){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(x.m))));const raw=new Uint8Array(12+ct.length);raw.set(iv);raw.set(ct,12);list.push({id:x.id,at:x.at,c:btoa(String.fromCharCode(...raw))})}
+ const r=await fetch(famUrl()+'/remind',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:ep,list})});
+ if(r.ok)REM_H=h;
+}
+setInterval(()=>{remSync(false).catch(()=>{})},45000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)remSync(false).catch(()=>{})});
 const pushSelf=()=>{try{return localStorage.getItem('agd-push-ep')||''}catch(e){return ''}};
 /* Les « espaces » du serveur où ce téléphone veut être prévenu : groupes AgenDam, et les deux zones d'Amicale */
 async function pushSpaces(){
@@ -9698,6 +9735,7 @@ async function pushOn(){
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
  const pf=S.pushPf==null?'aci':S.pushPf,j=sub.toJSON();
  for(const x of await pushSpaces()){const r=await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})});if(!r.ok)throw new Error('Serveur : '+r.status)}
+ try{await remSync(true)}catch(e){}
 }
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
 /* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
@@ -12927,7 +12965,7 @@ function registerSW(){
  if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))return;
  const hadController=!!navigator.serviceWorker.controller;
  navigator.serviceWorker.register('sw.js').then(reg=>{
-  swReg=reg;
+  swReg=reg;setTimeout(()=>{try{if(pushIsOn()&&localStorage.getItem('agd-push-reg')!==APP_VERSION)pushOn().then(()=>localStorage.setItem('agd-push-reg',APP_VERSION)).catch(()=>{})}catch(e){}},5000);
   const watch=w=>{w&&w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)toast('Nouvelle version disponible',15000,{label:'Mettre à jour',fn:()=>w.postMessage('skipWaiting')})})};
   if(reg.waiting&&navigator.serviceWorker.controller)toast('Nouvelle version disponible',15000,{label:'Mettre à jour',fn:()=>reg.waiting.postMessage('skipWaiting')});
   reg.addEventListener('updatefound',()=>watch(reg.installing));
