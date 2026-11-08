@@ -1522,7 +1522,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.74.7';
+const APP_VERSION='2.74.8';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1530,6 +1530,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.8',d:'08/11/2026',items:[
+  '<b>Courses : la liste reste visible</b> : « ⭐ Mes habituels » est maintenant replié (une seule ligne, avec le nombre d’articles). Touche-le pour déplier les habituels, retouche pour replier. La liste de courses remonte tout de suite sous le champ d’ajout.'
+ ]},
  {v:'2.74.7',d:'08/11/2026',items:[
   '<b>Jour J : vue d’ensemble</b> : un bouton « 🔍 Vue d’ensemble » (à côté de Amicalistes / Non-amicalistes / Terminés) réduit tout : compteurs en ligne, une seule ligne fine par personne avec ses tickets en petit, pour voir beaucoup de monde d’un coup. « Voir en grand » revient à l’affichage normal.'
  ]},
@@ -7457,6 +7460,7 @@ async function act(a,el,e){
   case 'amco-cq':amCqTap(ds_.id);break;
   case 'amco-cqadd':amCqAdd();break;
   case 'amco-cqman':AMC_CTM=!AMC_CTM;render();break;
+  case 'amco-cqt':AMC_CQO=!AMC_CQO;render();break;
   case 'amco-q':amCoQty(ds_.id,+ds_.n);break;
   case 'am-ntopen':AMC_NT=ds_.id;render();break;
   case 'ad-add':amAdAdd(ds_.e||'');break;
@@ -10755,7 +10759,7 @@ async function famShowCode(g){
    Sur le serveur Cloudflare existant (mêmes adresses /s/… et /i/…), sans rien y changer. */
 const AMC_TITLES=['Président','Présidente','Vice-président','Vice-présidente','Secrétaire','Trésorier','Trésorière','Membre du bureau','Fonction ++','Aide extérieur'];
 const AMC_TORD=t=>{const i=['Président','Vice-président','Secrétaire','Trésorier','Membre du bureau','Fonction ++','Aide extérieur'].indexOf(String(t||'').replace(/^Présidente$/,'Président').replace(/^Vice-présidente$/,'Vice-président').replace(/^Trésorière$/,'Trésorier'));return i};
-let AMC_CTM=false,AMC_BUSY=false,AMC_TAB='mb',AMC_EE='',AMC_MD='',AMC_DAY='',AMC_CL='Courses',AMC_NT='';
+let AMC_CQO=false,AMC_CTM=false,AMC_BUSY=false,AMC_TAB='mb',AMC_EE='',AMC_MD='',AMC_DAY='',AMC_CL='Courses',AMC_NT='';
 const amSave=()=>{if(!demo)ls.set(K.set,S)};
 const amc=()=>S.amc&&S.amc.on?S.amc:null;
 const amName=()=>(amc()&&amc().nm)||'Groupe';
@@ -13260,7 +13264,10 @@ function amEeHTML(){
 }
 function amCqHTML(){
  const a=amc(),Q=amItems('cq').slice().sort((p,q)=>(p.l||'').localeCompare(q.l||'','fr')||p.tx.localeCompare(q.tx,'fr')),pend=amItems('co').filter(i=>!i.x&&(i.l||'Courses')===AMC_CL);
- let h='<h4 class="am-h">⭐ Mes habituels · un appui ajoute, un second retire</h4>';
+ const op=AMC_CQO||AMC_CTM,nOn=Q.filter(i=>pend.some(x=>norm(x.tx)===norm(i.tx))).length;
+ let h='<button class="btn blk am-cqh" data-act="amco-cqt" aria-expanded="'+(op?'true':'false')+'" style="display:flex;align-items:center;gap:.5rem;text-align:left;margin:.5rem 0 .3rem"><span style="flex:1"><b>⭐ Mes habituels</b> <small class="mut">'+(Q.length?Q.length+' article'+(Q.length>1?'s':'')+(nOn?' · '+nOn+' dans la liste':''):'aucun pour l’instant')+'</small></span><span aria-hidden="true">'+(op?'▴':'▾')+'</span></button>';
+ if(!op)return h;
+ h+='<p class="mut" style="margin:.1rem 0 .2rem;font-size:.85rem">Un appui ajoute à la liste, un second appui retire.</p>';
  if(!Q.length)h+='<p class="empty">Pas encore d’habituels. '+(a.kB?'Ajoute les articles que vous rachetez souvent (coca, glace, gobelets…).':'Le bureau peut en ajouter.')+'</p>';
  const G={};Q.forEach(i=>{(G[i.l||'Habituels']=G[i.l||'Habituels']||[]).push(i)});
  for(const g in G)h+='<small class="mut" style="display:block;margin:.3rem 0 .1rem">'+esc(g)+'</small><div class="chips tk-chips" style="margin:0 0 .2rem">'+G[g].map(i=>{const on=pend.some(x=>norm(x.tx)===norm(i.tx));return '<button class="chip'+(on&&!AMC_CTM?' on':'')+'" data-act="amco-cq" data-id="'+esc(i.id)+'">'+(AMC_CTM?'✕ ':on?'✓ ':'')+esc(i.tx)+'</button>'}).join('')+'</div>';
