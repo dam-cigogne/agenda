@@ -1399,7 +1399,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.69.0';
+const APP_VERSION='2.69.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1407,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.69.1',d:'08/11/2026',items:[
+  '<b>Rappels à l’heure, même appli fermée</b> : un événement avec rappel, ou une tâche avec date, heure et « ⏰ M’alerter à l’heure », te prévient par notification à l’heure dite, appli fermée et téléphone verrouillé. Le titre est chiffré : le serveur ne connaît que l’heure.',
+  '<b>Notifications de groupe</b> : quand quelqu’un d’autre modifie l’agenda partagé, les listes ou l’Amicale, tu es prévenu même appli fermée. Jamais pour tes propres changements (même depuis un autre de tes appareils), au plus une notification toutes les 2 minutes. Interrupteur et choix dans Réglages › Rappels (AgenDam) et dans les réglages d’Amicale.',
+  '<b>Correction importante</b> : « ⏰ M’alerter à l’heure » d’une tâche se décochait tout seul à l’enregistrement, donc aucune alerte n’était programmée. C’est réparé : refais-le sur tes tâches.',
+  '<b>Historique des nouveautés</b> : les mises en gras s’affichent correctement et les nouvelles versions apparaissent bien à chaque mise à jour.'
+ ]},
  {v:'2.67.1',d:'07/11/2026',items:[
   '<b>Recettes partagées : la photo suit</b> : quand tu partages tes recettes en famille connectée (ou entre tes appareils), la photo de chaque recette part aussi, en version réduite, et s’affiche chez l’autre personne. Une recette sans photo chez toi n’en reçoit pas ; une photo déjà choisie chez l’autre n’est jamais remplacée.'
  ]},
@@ -3588,7 +3594,7 @@ function devCard(){
   '<button class="btn blk" data-act="force-update">Forcer la mise à jour de l’appli</button>'+
   '<p class="mut" style="margin:.2rem 0 0;font-size:.85rem">Version '+APP_VERSION+' · cache « agd-cache-v'+APP_VERSION+' »</p></details>';
 }
-const histHTML=list=>list.map(c=>'<div class="ver"><b>Version '+esc(c.v)+' · '+esc(c.d)+'</b><ul>'+c.items.map(i=>'<li>'+esc(i)+'</li>').join('')+'</ul></div>').join('');
+const histHTML=list=>list.map(c=>'<div class="ver"><b>Version '+esc(c.v)+' · '+esc(c.d)+'</b><ul>'+c.items.map(i=>'<li>'+esc(i).replace(/&lt;(\/?)b&gt;/g,'<$1b>')+'</li>').join('')+'</ul></div>').join('');
 function openHistory(all){
  const list=all?CHANGELOG:CHANGELOG.slice(0,5);
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">'+(all?'Historique complet':'Dernières mises à jour')+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
@@ -7707,7 +7713,7 @@ async function tkEdit(id,pre){
  const rr=rk?{f:rk[0],i:+rk.slice(1)}:null;if(rr&&rr.f==='m')rr.md=pd(d).getDate();
  const k=k0||{id:uid(),ca:Date.now()};
  const ws=v.ws.filter(x=>pplOf(x));
- Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,al:d&&!v.al&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?0:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
+ Object.assign(k,{t,tm:d&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?v.tm:undefined,al:d&&v.al&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v.tm||'')?1:undefined,l:tkLists().some(l=>l.id===v.l)?v.l:tkLists()[0].id,d,w:ws[0]||'',ws,r:rr,n:String(v.n||'').trim().slice(0,500),m:Date.now()});
  if(rr)k.x=false;
  if(!k0)tkAll().push(k);
  saveSet();render();toast(k0?'Tâche modifiée':'Tâche ajoutée');
