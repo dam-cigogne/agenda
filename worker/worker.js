@@ -56,9 +56,9 @@ async function notify(env,space,o){
     const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+H[1]):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
 }
-const HINT = { tk:['☑ Tâches mises à jour','a modifié une tâche'], co:['🛒 Courses mises à jour','a modifié la liste de courses'], ev:['📅 Agenda de l’amicale','a modifié l’agenda'], ee:['🎉 Événement','a ajouté ou modifié un événement'], nt:['📝 Notes du bureau','a modifié une note'], am:['🎖 Amicalistes','a modifié la liste des amicalistes'], ad:['📁 Administratif','a ajouté ou modifié un document'], cd:['🎁 Cadeaux','a modifié un cadeau'], ag:['📝 Compte rendu d’AG','a modifié un compte rendu'], bs:['📰 Bulletin','a modifié un bulletin'], bm:['📰 Bulletin','a modifié un modèle de bulletin'], po:['🖼 Affiches','a modifié une affiche'] };
-const LBT = { a: '📅 Agenda partagé mis à jour', c: '🛒 Listes mises à jour', i: '📣 Du nouveau dans le groupe' };
-const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe' };
+const HINT = { tk:['☑ Amicale · Tâches','a modifié une tâche'], co:['🛒 Amicale · Courses','a modifié la liste de courses'], ev:['📅 Amicale · Agenda','a modifié l’agenda'], ee:['🎉 Amicale · Événement','a ajouté ou modifié un événement'], nt:['📝 Amicale · Notes','a modifié une note'], am:['🎖 Amicale · Membres','a modifié la liste des amicalistes'], ad:['📁 Amicale · Administratif','a ajouté ou modifié un document'], cd:['🎁 Amicale · Cadeaux','a modifié un cadeau'], ag:['📝 Amicale · Compte rendu AG','a modifié un compte rendu'], bs:['📰 Amicale · Bulletin','a modifié un bulletin'], bm:['📰 Amicale · Bulletin','a modifié un modèle de bulletin'], po:['🖼 Amicale · Affiches','a modifié une affiche'] };
+const LBT = { a: '🏠 Famille · Agenda', c: '🏠 Famille · Listes', i: '🏛️ Amicale · Du nouveau' };
+const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe Amicale' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
 const MAX = 400 * 1024;
 const DAY = 864e5;

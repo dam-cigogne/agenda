@@ -1275,6 +1275,19 @@ em.bd{font-style:normal;font-size:.7em;margin-left:.1em;vertical-align:baseline}
 .mband.hio{outline-offset:-2px}
 /* aujourd'hui toujours bien lisible, même quand il tombe dans le mois voisin */
 .mn.today,.mn.today.out{color:var(--on-accent);opacity:1;font-weight:900}
+
+/* Amicale : agenda du mois plus lisible (libellés dans les cases, comme AgenDam) */
+.am-mo .mo-g{border-radius:1rem}
+.am-mo .mc{min-height:5.6rem;padding:.2rem .12rem;gap:.15rem}
+.am-mo .mc .n{width:1.7rem;height:1.7rem;font-size:.86rem}
+.am-mo .mc.we{background:color-mix(in srgb,var(--warn) 7%,var(--surface))}
+.am-mo .mc.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.am-mo .mbars{gap:2px;padding:0}
+.am-mo .mbar{font-style:normal;height:auto;background:color-mix(in srgb,var(--c) 16%,var(--surface));border:1.5px solid var(--c);border-radius:.35rem;padding:.04rem .18rem;font-size:.6rem;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;text-align:left}
+.am-mo .mbar span{display:inline}
+.am-mo .mmore{font-size:.62rem;text-align:center;background:var(--accent-soft);border-radius:.6rem;padding:0 .25rem}
+.am-leg{display:flex;flex-wrap:wrap;gap:.3rem .8rem;justify-content:center;font-size:.76rem;color:var(--muted);margin:.35rem 0 .1rem}
+.am-leg i{display:inline-block;width:.7rem;height:.7rem;border-radius:.2rem;margin-right:.3rem;vertical-align:-1px}
 .mc.today.out{opacity:1}
 
 
@@ -1400,7 +1413,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.7';
+const APP_VERSION='2.70.9';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1408,6 +1421,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.9',d:'08/11/2026',items:[
+  '<b>Amicale : agenda du mois plus lisible</b> — les titres s’affichent dans les cases (comme dans AgenDam), heure devant le titre, week-ends teintés, jour sélectionné encadré, légende des couleurs.'
+ ]},
+ {v:'2.70.8',d:'08/11/2026',items:[
+  '<b>Amicale</b> : le suivi des clés (en cours / « Clés à jour ») s’affiche uniquement en haut de l’onglet Administratif, et le bouton OK fonctionne.'
+ ]},
  {v:'2.70.7',d:'08/11/2026',items:[
   '<b>Notifications Amicale plus claires</b> : le titre dit ce qui a changé (🛒 Courses, ☑ Tâches, 📅 Agenda, 🎉 Événement, 📝 Notes, 🎖 Amicalistes…) et le message dit qui l’a fait. Nécessite la mise à jour du worker Cloudflare.'
  ]},
@@ -7114,6 +7133,7 @@ async function act(a,el,e){
   case 'am-join':amJoinCode();break;
   case 'am-mb':amFiche(ds_.id);break;
   case 'am-tab':AMC_TAB=ds_.k;render();break;
+  case 'am-keyok':amKeyOk();break;
   case 'am-edit':{const a0=amc();if(a0&&a0.apriv)amFiche(a0.me.id);else amEditMe();break}
   case 'am-inv':amInvite();break;
   case 'am-link':amLinkOut();break;
@@ -10928,20 +10948,20 @@ async function amItemOpen(id){
  const a=amc(),t=today();if(!AMC_MD)AMC_MD=t;if(!AMC_DAY)AMC_DAY=t;
  const {gs,rows,month}=monthCells(AMC_MD),end=add(gs,rows*7-1),M={};
  const put=(d,o)=>{if(d&&d>=gs&&d<=end)(M[d]=M[d]||[]).push(o)};
- amItems('ev').forEach(i=>put(i.d,{c:'var(--k-am)',tx:i.tx,id:i.id,k:'ev',tm:i.tm,pl:i.pl,z:i.z}));
+ amItems('ev').forEach(i=>put(i.d,{c:'var(--k-am)',tx:(i.tm?i.tm.replace(':','h').replace(/h00$/,'h')+' ':'')+i.tx,id:i.id,k:'ev',tm:i.tm,pl:i.pl,z:i.z}));
  amItems('ee').forEach(i=>put(i.d,{c:'#ea580c',tx:'🎉 '+i.tx,id:i.id,k:'ee',pl:i.pl,z:i.z}));
  amItems('tk').filter(i=>!i.x&&i.d).forEach(i=>put(i.d,{c:'#6b7280',tx:'✅ '+i.tx,id:i.id,k:'tk',z:i.z}));
  const T=(AMC_MD.slice(0,8)+'01'),lab=pd(T).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
  let h='<div style="display:flex;align-items:center;gap:.4rem;margin:.2rem 0 .4rem"><button class="btn sm" data-act="am-mnav" data-n="-1" aria-label="Mois précédent">‹</button><b style="flex:1;text-align:center;text-transform:capitalize">'+lab+'</b><button class="btn sm" data-act="am-mnav" data-n="0">Aujourd’hui</button><button class="btn sm" data-act="am-mnav" data-n="1" aria-label="Mois suivant">›</button></div>';
- h+='<div class="mo"><div class="mo-h">'+weekHead().map(d=>'<span>'+DS[d].replace('.','')+'</span>').join('')+'</div><div class="mo-g">';
+ h+='<div class="mo am-mo"><div class="mo-h">'+weekHead().map(d=>'<span>'+DS[d].replace('.','')+'</span>').join('')+'</div><div class="mo-g">';
  for(let i=0;i<rows*7;i++){
   const d=add(gs,i),all=M[d]||[],shown=all.slice(0,3),more=all.length-shown.length;
   h+='<button class="mc'+(d===t?' today':'')+(d===AMC_DAY?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="am-day" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+o.c+'"><span>'+esc(o.tx)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
  }
- h+='</div></div>';
+ h+='</div></div><div class="am-leg"><span><i style="background:var(--k-am)"></i>Agenda</span><span><i style="background:#ea580c"></i>Événement</span><span><i style="background:#6b7280"></i>Tâche</span></div>';
  const day=(M[AMC_DAY]||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1);
  h+='<h4 class="am-h">'+pd(AMC_DAY).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</h4>';
- h+=day.length?day.map(o=>'<button class="am-it am-ev" data-act="'+(o.k==='ee'?'am-eeopen':'am-it')+'" data-id="'+esc(o.id)+'"><span class="am-dt" style="background:'+o.c+';color:#fff"><b>'+(o.k==='ev'?(o.tm||'📅'):o.k==='ee'?'🎉':'✅')+'</b></span><span class="am-itx"><b>'+esc(o.tx.replace(/^(🎉|✅) /,''))+'</b><small>'+[o.k==='ee'?'Événement de l’année':o.k==='tk'?'Tâche à faire':'',o.pl?'📍 '+esc(o.pl):'',a.kB&&o.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">Rien ce jour-là.</p>';
+ h+=day.length?day.map(o=>'<button class="am-it am-ev" data-act="'+(o.k==='ee'?'am-eeopen':'am-it')+'" data-id="'+esc(o.id)+'"><span class="am-dt" style="background:'+o.c+';color:#fff"><b>'+(o.k==='ev'?(o.tm||'📅'):o.k==='ee'?'🎉':'✅')+'</b></span><span class="am-itx"><b>'+esc(o.tx.replace(/^(🎉|✅) /,'').replace(/^\d{1,2}h(\d\d)? /,''))+'</b><small>'+[o.k==='ee'?'Événement de l’année':o.k==='tk'?'Tâche à faire':'',o.pl?'📍 '+esc(o.pl):'',a.kB&&o.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">Rien ce jour-là.</p>';
  h+='<button class="btn pri blk" data-act="am-add" data-k="ev" data-d="'+AMC_DAY+'" style="margin-top:.5rem">'+ic('plus')+' Nouvel événement ce jour</button>';
  return h;
 }
@@ -12953,7 +12973,7 @@ function amLoiHTML(){
  '<div class="card"><h3>🔎 Et si la loi change ?</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Pour être sûr que rien n’a changé, touche le bouton : tu reçois un script à coller dans une IA. Les sources officielles sont dedans.</p><button class="btn pri blk" data-act="loi-script">📋 Copier le script de vérification</button></div>';
 }
 function amPendN(){const a=amc();return a?Object.values(a.it||{}).filter(x=>x.dirty).length+((a.rot&&a.rot.todo&&a.rot.todo.length)||0):0}
-function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1){if(!a.kdone)return'';return'<div class="warn" id="am-pend" style="border-color:#16a34a;background:color-mix(in srgb,#16a34a 14%,var(--surface))"><b>✅ Clés à jour : le groupe est prêt</b>Tout a été envoyé, tu peux inviter ou continuer.<div style="margin-top:.4rem"><button class="btn sm" onclick="amKeyOk()">OK, fermer</button></div></div>'}a.kwait=1;return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> et n’invite personne avant le message « ✅ Clés à jour ».</div>'}
+function amKeyBanner(){const a=amc();if(!a||!a.apriv)return'';const n=amPendN();if(n<1){if(!a.kdone)return'';return'<div class="warn" id="am-pend" style="border-color:#16a34a;background:color-mix(in srgb,#16a34a 14%,var(--surface))"><b>✅ Clés à jour : le groupe est prêt</b>Tout a été envoyé, tu peux inviter ou continuer.<div style="margin-top:.4rem"><button class="btn sm" data-act="am-keyok">OK, fermer</button></div></div>'}a.kwait=1;return'<div class="warn" id="am-pend"><b>🔑 Mise à jour du groupe en cours</b>Il reste <b id="am-pend-n">'+n+'</b> élément'+(n>1?'s':'')+' à envoyer aux autres membres (renouvellement des clés, import…). <b>Garde l’appli ouverte</b> et n’invite personne avant le message « ✅ Clés à jour ».</div>'}
 function amKeyOk(){const a=amc();if(a){a.kdone=0;amSave()}const b=document.getElementById('am-pend');if(b)b.remove()}
 function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.getElementById('am-pend-n');if(n<1){if(a.kwait){a.kwait=0;a.kdone=Date.now();amSave();try{toast('✅ Clés à jour : le groupe est prêt',5000)}catch(e){}try{const v=document.getElementById('am-pend');if(v)v.outerHTML=amKeyBanner()}catch(e){}}}else{a.kwait=1;if(e)e.textContent=n}}
 function amView(){
@@ -12967,11 +12987,11 @@ function amView(){
  const tabs=[['mb','👤 Membres']].concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
  const side=S.amSide!==0;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
- let h=amKeyBanner()+(AMC_TAB==='am'?'':amAnBanner());
+ let h=(AMC_TAB==='am'?'':amAnBanner());
  if(['tk','co','ev','nt','ee'].includes(AMC_TAB))h+=amItemsHTML(AMC_TAB);
  else if(AMC_TAB==='lo')h+=amLoiHTML();
  else if(AMC_TAB==='am')h+=amAmHTML();
- else if(AMC_TAB==='ad')h+=(a.apriv?'<div class="warn"><b>ℹ️ Retirer quelqu’un ou changer son niveau</b>Les clés du groupe sont alors renouvelées et tout le contenu est renvoyé : ça peut prendre quelques minutes. Garde l’appli ouverte jusqu’à la fin (un encadré « Mise à jour du groupe en cours » s’affiche en haut). Mieux vaut inviter directement au bon niveau (Bureau ou Aide) que de le changer ensuite.</div>':'')+amAdHTML();
+ else if(AMC_TAB==='ad')h+=amKeyBanner()+(a.apriv?'<div class="warn"><b>ℹ️ Retirer quelqu’un ou changer son niveau</b>Les clés du groupe sont alors renouvelées et tout le contenu est renvoyé : ça peut prendre quelques minutes. Garde l’appli ouverte jusqu’à la fin (un encadré « Mise à jour du groupe en cours » s’affiche en haut). Mieux vaut inviter directement au bon niveau (Bureau ou Aide) que de le changer ensuite.</div>':'')+amAdHTML();
  else if(AMC_TAB==='gr'){
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
