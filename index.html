@@ -1413,7 +1413,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.9';
+const APP_VERSION='2.70.10';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1421,6 +1421,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.10',d:'08/11/2026',items:[
+  '<b>Amicale : l’agenda du mois reprend le rendu d’AgenDam</b> (numéros de semaine, étiquettes colorées avec titres, week-ends et jours fériés). Il ne montre que les éléments de l’Amicale.'
+ ]},
  {v:'2.70.9',d:'08/11/2026',items:[
   '<b>Amicale : agenda du mois plus lisible</b> — les titres s’affichent dans les cases (comme dans AgenDam), heure devant le titre, week-ends teintés, jour sélectionné encadré, légende des couleurs.'
  ]},
@@ -2359,7 +2362,8 @@ function occsOf(ev,from,to){
 }
 function occsMine(from,to){const out=[];for(const ev of EV)out.push(...occsOf(ev,from,to));return out}
 const agOK=ev=>!S.agw||(S.agw==='w'?ev.ag==='w':ev.ag!=='w');
-function occs(from,to){let out=occsMine(from,to);if(!S.fevHide&&!demo)for(const ev of fevAll())out.push(...occsOf(ev,from,to));if(S.agw)out=out.filter(o=>agOK(o.ev));return out}
+let AMX=null;
+function occs(from,to){if(AMX)return AMX(from,to);let out=occsMine(from,to);if(!S.fevHide&&!demo)for(const ev of fevAll())out.push(...occsOf(ev,from,to));if(S.agw)out=out.filter(o=>agOK(o.ev));return out}
 /* rendez-vous partagés par la famille connectée (lecture seule) : S.fev[id] = {n, at, busy, ev:[…]} */
 let FEV_C=null;
 function fevAll(){
@@ -5704,7 +5708,7 @@ async function bdSetPin(){
  const salt=uid();S.bdPin=salt+':'+await bdHash(a,salt);bdRelock();saveSet();render();toast('🔒 Code enregistré');
 }
 
-function bdMark(date){const l=bdOn(date);return (l.length?'<em class="bd" title="'+esc('Anniversaire : '+l.map(b=>bdHide(b)?'protégé':b.n).join(', '))+'">🎂</em>':'')+tkMark(date)}
+function bdMark(date){if(AMX)return '';const l=bdOn(date);return (l.length?'<em class="bd" title="'+esc('Anniversaire : '+l.map(b=>bdHide(b)?'protégé':b.n).join(', '))+'">🎂</em>':'')+tkMark(date)}
 function bdDayHTML(date){
  const l=bdOn(date);if(!l.length)return '';
  return '<button class="bdb" data-act="bd-open">🎂 '+l.map(b=>bdHide(b)?'🔒 Anniversaire protégé':esc(b.n)+(b.nn?' <small>('+esc(b.nn)+')</small>':'')+(bdAgeTxt(b,date)?' ('+bdAgeTxt(b,date)+')':'')).join(' · ')+'</button>'+(date===today()?l.filter(b=>!bdHide(b)).map(b=>'<button class="bdb wishb" data-act="wish-open" data-id="'+esc(b.id)+'">🎉 Souhaiter à '+esc(wishFirst(b))+(b.ws&&b.ws.y===new Date().getFullYear()?' ✓':'')+'</button>').join(''):'');
@@ -7330,7 +7334,7 @@ async function act(a,el,e){
   case 'newon':openEditor({date:ds_.date});break;
   case 'open':openDetail(getOcc(+ds_.o));break;
   case 'goday':closeSheet();V.date=ds_.date;V.view='day';render();break;
-  case 'selday':V.date=ds_.date;render();if((V.view==='fort'||V.view==='month'&&S.monthMode!=='dots')&&(!isWide()||S.side===0))openDaySheet(ds_.date);break;
+  case 'selday':if(V.view==='amicale'){AMC_DAY=ds_.date;AMC_MD=ds_.date;render();break}V.date=ds_.date;render();if((V.view==='fort'||V.view==='month'&&S.monthMode!=='dots')&&(!isWide()||S.side===0))openDaySheet(ds_.date);break;
   case 'minimonth':V.date=addMonths(V.date,+ds_.n);render();break;
   case 'close':closeSheet();break;
   case 'edit':{const ev=findEv(CUR.id);if(ev)openEditor({ev,occDate:CUR.date});break}
@@ -10944,6 +10948,14 @@ async function amItemOpen(id){
  if(r==='ed')amItemForm(it.kind,it);
  else if(r==='del')amItemSave(Object.assign({},it,{del:1}));
 }
+function amOccs(from,to){
+ const out=[],add1=t=>{const m=tmin(t)+60;return String(Math.floor(Math.min(m,1439)/60)).padStart(2,'0')+':'+String(Math.min(m,1439)%60).padStart(2,'0')};
+ const mk=(i,o)=>{if(!i.d)return;const ev=Object.assign({id:'am-'+i.id,title:i.tx||'',start:i.d,end:i.d,cat:'-',place:i.pl||'',note:'',icon:'',_sh:'am',allDay:true,startTime:'09:00',endTime:'10:00'},o);out.push(...occsOf(ev,from,to))};
+ amItems('ev').forEach(i=>mk(i,{allDay:!i.tm,startTime:i.tm||'09:00',endTime:i.tm?add1(i.tm):'10:00',_c:'#7c3aed'}));
+ amItems('ee').forEach(i=>mk(i,{icon:'🎉',_c:'#ea580c'}));
+ amItems('tk').filter(i=>!i.x).forEach(i=>mk(i,{icon:'✅',_c:'#6b7280'}));
+ return out;
+}
  function amMonthHTML(){
  const a=amc(),t=today();if(!AMC_MD)AMC_MD=t;if(!AMC_DAY)AMC_DAY=t;
  const {gs,rows,month}=monthCells(AMC_MD),end=add(gs,rows*7-1),M={};
@@ -10953,12 +10965,8 @@ async function amItemOpen(id){
  amItems('tk').filter(i=>!i.x&&i.d).forEach(i=>put(i.d,{c:'#6b7280',tx:'✅ '+i.tx,id:i.id,k:'tk',z:i.z}));
  const T=(AMC_MD.slice(0,8)+'01'),lab=pd(T).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
  let h='<div style="display:flex;align-items:center;gap:.4rem;margin:.2rem 0 .4rem"><button class="btn sm" data-act="am-mnav" data-n="-1" aria-label="Mois précédent">‹</button><b style="flex:1;text-align:center;text-transform:capitalize">'+lab+'</b><button class="btn sm" data-act="am-mnav" data-n="0">Aujourd’hui</button><button class="btn sm" data-act="am-mnav" data-n="1" aria-label="Mois suivant">›</button></div>';
- h+='<div class="mo am-mo"><div class="mo-h">'+weekHead().map(d=>'<span>'+DS[d].replace('.','')+'</span>').join('')+'</div><div class="mo-g">';
- for(let i=0;i<rows*7;i++){
-  const d=add(gs,i),all=M[d]||[],shown=all.slice(0,3),more=all.length-shown.length;
-  h+='<button class="mc'+(d===t?' today':'')+(d===AMC_DAY?' sel':'')+(pd(d).getMonth()!==month?' out':'')+dayCls(d)+'" data-act="am-day" data-date="'+d+'"><span class="n">'+pd(d).getDate()+'</span><span class="mbars">'+shown.map(o=>'<i class="mbar" style="--c:'+o.c+'"><span>'+esc(o.tx)+'</span></i>').join('')+(more>0?'<span class="mmore">+'+more+'</span>':'')+'</span></button>';
- }
- h+='</div></div><div class="am-leg"><span><i style="background:var(--k-am)"></i>Agenda</span><span><i style="background:#ea580c"></i>Événement</span><span><i style="background:#6b7280"></i>Tâche</span></div>';
+ const vd=V.date;V.date=AMC_MD;AMX=amOccs;let r;try{r=monthViewTitles()}finally{AMX=null;V.date=vd}
+ h+=r.html+'<div class="am-leg"><span><i style="background:#7c3aed"></i>Agenda</span><span><i style="background:#ea580c"></i>Événement</span><span><i style="background:#6b7280"></i>Tâche</span></div>';
  const day=(M[AMC_DAY]||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1);
  h+='<h4 class="am-h">'+pd(AMC_DAY).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</h4>';
  h+=day.length?day.map(o=>'<button class="am-it am-ev" data-act="'+(o.k==='ee'?'am-eeopen':'am-it')+'" data-id="'+esc(o.id)+'"><span class="am-dt" style="background:'+o.c+';color:#fff"><b>'+(o.k==='ev'?(o.tm||'📅'):o.k==='ee'?'🎉':'✅')+'</b></span><span class="am-itx"><b>'+esc(o.tx.replace(/^(🎉|✅) /,'').replace(/^\d{1,2}h(\d\d)? /,''))+'</b><small>'+[o.k==='ee'?'Événement de l’année':o.k==='tk'?'Tâche à faire':'',o.pl?'📍 '+esc(o.pl):'',a.kB&&o.z==='b'?'🔒 bureau':''].filter(Boolean).join(' · ')+'</small></span></button>').join(''):'<p class="empty">Rien ce jour-là.</p>';
