@@ -362,6 +362,17 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .pc{display:flex;gap:.45rem;flex-wrap:wrap;margin:.3rem 0}
 .pc>button{width:2.3rem;height:2.3rem;border-radius:50%;border:3px solid var(--bg);box-shadow:0 0 0 2px var(--line)}
 .pc>button.on{box-shadow:0 0 0 3px var(--text)}
+/* style Nouveau sur les autres onglets */
+body.am2on .am-it{border:1px solid var(--line);border-left:1px solid var(--line);border-radius:1.2rem;padding:.65rem .75rem;margin:.5rem 0;box-shadow:0 .35rem 1.1rem rgba(24,27,52,.08)}
+body.am2on .am-ck{width:2.2rem;height:2.2rem;border-width:3px;border-color:var(--k-am)}
+body.am2on .am-it.done{opacity:.6}
+body.am2on .am-itx b{font-size:1.02rem}
+body.am2on .am-ev .am-dt{width:3.3rem;border-radius:1rem;padding:.35rem 0;background:linear-gradient(135deg,#ff5c6c,#ff9a5c);color:#fff;box-shadow:0 .3rem .8rem rgba(255,92,108,.3)}
+body.am2on .am-ev .am-dt b{color:#fff;font-size:1.4rem}
+body.am2on .am-dt.now{background:var(--k-am);box-shadow:0 .3rem .8rem color-mix(in srgb,var(--k-am) 40%,transparent)}
+body.am2on h4.am-h{font-size:1.15rem;font-weight:800;letter-spacing:-.01em;margin:1.2rem 0 .3rem}
+body.am2on .btn.pri.blk{border-radius:1.2rem;padding:.85rem;font-weight:800;background:linear-gradient(135deg,var(--k-am),color-mix(in srgb,var(--k-am) 55%,#b25cff));border:0;box-shadow:0 .5rem 1.2rem color-mix(in srgb,var(--k-am) 32%,transparent)}
+body.am2on .am-tabs .chip{border-radius:99px;font-weight:700}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1459,7 +1470,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.73.4';
+const APP_VERSION='2.74.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1467,6 +1478,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.0',d:'08/11/2026',items:[
+  '<b>Logo du groupe</b> (administrateur) : ⚙ › Logo du groupe, choisis une image : elle s’affiche en haut de l’accueil (style Nouveau) chez tous les membres. Tu peux la changer ou la retirer.',
+  '<b>Style Nouveau sur tous les onglets</b> : agenda, fêtes, tâches et courses ont des cartes arrondies avec ombre, des dates colorées, des cases plus grandes et des boutons dans la couleur du groupe.'
+ ]},
  {v:'2.73.4',d:'08/11/2026',items:[
   '<b>Verrou</b> : le bouton « Activer Face ID / empreinte » (avant : « Déverrouiller avec… », ce qui prêtait à confusion) lance tout de suite la demande de l’iPhone, et si elle échoue l’appli explique pourquoi au lieu de ne rien faire.'
  ]},
@@ -7284,6 +7299,7 @@ async function act(a,el,e){
   case 'ami-take':amiTake();break;
   case 'am-col':S.amCol=ds_.v||'';saveSet();applyLook(document.documentElement.getAttribute('data-theme')==='dark');render();break;
   case 'am-ren':amRename();break;
+  case 'am-logo':await amLogo();break;
   case 'am-leave':amLeave();break;
   case 'am-add':amItemForm(ds_.k,null,ds_.d);break;
   case 'am-amadd':amAmEdit(null);break;
@@ -10862,14 +10878,15 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an'].includes(P.kind))continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an','lg'].includes(P.kind))continue;
+     if(P.kind==='lg'&&!/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{0,30000}$/.test(String(P.bd||''))&&!P.del)continue;
      if(['nt','am','bs','bm','ad','ac','ag','cd'].includes(P.kind)&&x.z!=='b')continue;
      if(P.kind==='ag'){if(String(P.bd||'').length>150000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='ac'&&!/^[A-Za-z0-9+\/=]*$/.test(String(P.bd||'')))continue;
      if(P.kind==='po'){if(String(P.bd||'').length>400000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='bm'&&((P.id!==AM_BM_ID&&!/^bm[0-9]{4,12}$/.test(P.id))||String(P.bd||'').length>150000||!(await amVerify([String(P.bd||''),P.del?1:0],P.at,P.sg,a.apub))))continue;
      a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
-     a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');
+     a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:P.kind==='lg'?30000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');
      if(P.kind==='co'||P.kind==='cq'||P.kind==='ad'||P.kind==='cd')a.it[P.id].l=String(P.l||'').slice(0,P.kind==='cd'?60:30);
      if(P.kind==='ac'){const c=a.it[P.id];if(c.del||!c.bd)await PH.del('adc-'+P.id);else await PH.put('adc-'+P.id,c.bd);c.bd=''}
      if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.rp=amRpClean(P.rp);o2.pr=amPrClean(P.pr);o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({rg:S2(c&&c.rg).slice(0,40),by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3),du:c&&c.du!=null&&c.du!==''&&isFinite(+c.du)?Math.max(0,Math.min(9999,+c.du)):null,eb:S2(c&&c.eb).slice(0,30),et:Math.max(0,+(c&&c.et)||0)}))}
@@ -13254,11 +13271,27 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 function amHome(a,nTk,nEv){
  const L=amList(),td=new Date().toISOString().slice(0,10),MO=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
  const nxt=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&(i.d||'')>=td).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||'')))[0];
- let h='<div class="am2-id"><div class="am2-logo" style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+esc(String(a.nm||'A').trim().charAt(0).toUpperCase())+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
+ let h='<div class="am2-id"><div class="am2-logo" style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
  h+='<div class="am2-st"><button style="background:'+amAc()+'" data-act="am-tab" data-k="mb"><b>'+L.length+'</b><span>membre'+(L.length>1?'s':'')+'</span></button><button style="background:#12B5A0" data-act="am-tab" data-k="tk"><b>'+nTk+'</b><span>tâche'+(nTk>1?'s':'')+'</span></button><button style="background:#2D8CFF" data-act="am-tab" data-k="ee"><b>'+nEv+'</b><span>à venir</span></button></div>';
  if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
   h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
  return h;
+}
+const AM_LGID='logogroup';
+const amLogoSrc=()=>{try{const a=amc(),i=a&&a.it&&a.it[AM_LGID];return i&&!i.del&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{20,30000}$/.test(i.bd||'')?i.bd:''}catch(e){return ''}};
+async function amLogo(){
+ const a=amc();if(!a||!a.apriv)return;
+ if(amLogoSrc()){const r=await ask({title:'Logo du groupe',text:'Un logo est déjà en place.',btns:[{label:'Choisir une autre image',value:'new',cls:'pri'},{label:'Retirer le logo',value:'del'},{label:'Annuler',value:null}]});if(r==='del'){amItemSave(Object.assign({},a.it[AM_LGID],{del:1,bd:''}));toast('Logo retiré',2500);return}if(r!=='new')return}
+ const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
+  try{const url=URL.createObjectURL(f),im=await new Promise((ok,ko)=>{const x=new Image();x.onload=()=>ok(x);x.onerror=ko;x.src=url});
+   const N=128,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,N,N);
+   const m=Math.min(im.width,im.height),sx=(im.width-m)/2,sy=(im.height-m)/2;g.drawImage(im,sx,sy,m,m,0,0,N,N);URL.revokeObjectURL(url);
+   let q=.85,d=c.toDataURL('image/jpeg',q);while(d.length>28000&&q>.3){q-=.1;d=c.toDataURL('image/jpeg',q)}
+   if(d.length>30000){toast('Image trop lourde',3000);return}
+   amItemSave({id:AM_LGID,kind:'lg',tx:'Logo',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:d,del:0,z:'a'});toast('Logo enregistré, envoi aux membres…',3000)}
+  catch(e){toast('Image illisible',3000)}};
+ inp.click();
 }
 const AM_DOCK=[['mb','👥','Membres','#6B4EFF'],['ev','📅','Agenda','#2D8CFF'],['ee','🎉','Fêtes','#FF5C6C'],['tk','✅','Tâches','#12B5A0'],['co','🛒','Courses','#FFB020']];
 function amDockHTML(tabs){
@@ -13293,7 +13326,7 @@ function amPick(nu,nv){
  return h;
 }
 function amDockFit(){const d=document.querySelector('.am2-dock');if(!d)return;const t=document.getElementById('tabs');let h=0;try{if(t&&getComputedStyle(t).display!=='none'){const r=t.getBoundingClientRect();if(r.top>innerHeight/2)h=t.offsetHeight}}catch(e){}document.documentElement.style.setProperty('--tbh',h+'px')}
-function amView(){if(amTabLocked())return{html:amLockHTML(),fixed:false};return amView0()}
+function amView(){try{document.body.classList.toggle('am2on',S.amStyle==='new'&&!amTabLocked())}catch(e){}if(amTabLocked())return{html:amLockHTML(),fixed:false};return amView0()}
 function amView0(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
@@ -13316,7 +13349,7 @@ function amView0(){
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
    mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
-   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+'</div>';
+   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.apriv?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
   h+=amColCard()+pushCard();
   if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
    h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
