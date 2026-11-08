@@ -1413,7 +1413,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.10';
+const APP_VERSION='2.71.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1421,6 +1421,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.71.0',d:'08/11/2026',items:[
+  '<b>Notifications Amicale au choix</b> : dans Réglages → Notifications, tu coches les rubriques qui te préviennent (Tâches, Courses, Agenda, Événements, et pour le bureau : Notes, Amicalistes, Administratif, Cadeaux, AG et bulletins). Réglage propre à chaque téléphone. Nécessite le worker à jour.'
+ ]},
  {v:'2.70.10',d:'08/11/2026',items:[
   '<b>Amicale : l’agenda du mois reprend le rendu d’AgenDam</b> (numéros de semaine, étiquettes colorées avec titres, week-ends et jours fériés). Il ne montre que les éléments de l’Amicale.'
  ]},
@@ -6445,7 +6448,7 @@ h+='<div class="card" id="ics-card">'+
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
    :(famAll().length||amc()?'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(pushIsOn()?' checked':'')+'></label></div>'
      :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button><p class="mut">Pour être prévenu des modifications du groupe, rejoins d’abord un groupe.</p>'))+
-  (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div><p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'')+
+  (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div>'+pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'')+
   '</div>'+
   '<div class="warn"><b>À savoir</b>Les notifications de modification arrivent même appli fermée (iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Elles peuvent être retardées de quelques minutes, ou masquées par un mode Concentration. Les rappels à l’heure (tâches avec « M’alerter à l’heure », événements avec rappel) arrivent aussi appli fermée et téléphone verrouillé, à la minute près en général. Pour une alarme absolument sûre, tu peux en plus exporter tes événements en .ics vers l’agenda natif du téléphone.</div></div>';
  h+='\u0001agenda\u0001';
@@ -7402,6 +7405,7 @@ async function act(a,el,e){
   case 'notif':{
    try{const r=await Notification.requestPermission();S.notif=r==='granted';saveSet();toast(r==='granted'?'Notifications activées':'Notifications non autorisées')}catch(err){toast('Notifications indisponibles')}
    render();break}
+  case 'push-sec':{const k=ds_.v,ex=pushEx().slice();const i=ex.indexOf(k);if(i>=0)ex.splice(i,1);else ex.push(k);S.pushEx=ex;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'rem-test':{try{await pushOn();await remSync(true,{id:'test-'+Date.now(),at:Date.now()+60000,m:{t:'🧪 Test de rappel',b:'Ça marche, même appli fermée.',g:'agd-rtest'}});toast('Rappel de test programmé : ferme l’appli et verrouille ton téléphone')}catch(err){toast('Échec : '+(err&&err.message||err),6000)}render();break}
@@ -9741,6 +9745,9 @@ async function dupMulti(ev,from){
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
+const PUSH_SEC=[['tk','☑ Tâches','tk'],['co','🛒 Courses','co'],['ev','📅 Agenda','ev'],['ee','🎉 Événements','ee'],['nt','📝 Notes du bureau','nt',1],['am','🎖 Amicalistes','am',1],['ad','📁 Administratif','ad',1],['cd','🎁 Cadeaux','cd',1],['ag','📰 AG et bulletins','ag,bs,bm',1]];
+const pushEx=()=>Array.isArray(S.pushEx)?S.pushEx:[];
+function pushPfStr(){const base=S.pushPf==null?'aci':S.pushPf,ex=PUSH_SEC.filter(x=>pushEx().includes(x[0])).map(x=>x[2]).join(',');return base+(ex?'!'+ex:'')}
 const pushIsOn=()=>{try{return !!localStorage.getItem('agd-push-ep')&&S.pushOff!==1}catch(e){return false}};
 async function pushOff(){
  try{const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
@@ -9818,7 +9825,7 @@ async function pushOn(){
  let sub=await reg.pushManager.getSubscription();
  if(!sub){const k=Uint8Array.from(atob(VAPID_PUB.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
- const pf=S.pushPf==null?'aci':S.pushPf,j=sub.toJSON();
+ const pf=pushPfStr(),j=sub.toJSON();
  for(const x of await pushSpaces()){const r=await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})});if(!r.ok)throw new Error('Serveur : '+r.status)}
  try{await remSync(true)}catch(e){}
 }
@@ -13043,11 +13050,13 @@ function amiSettingsView(seg){
  h+='<div class="card" id="about-card"><h3>À propos</h3><p><b>Amicale</b> · version '+APP_VERSION+'</p><p class="mut" style="font-size:.88rem">Fait avec AgenDam : le même groupe s’ouvre aussi dans AgenDam (onglet Groupe). Gratuit, sans publicité. Les échanges du groupe sont chiffrés.</p><a class="btn pri blk" href="visite.html" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">▶ Visite guidée (plein écran)</a><a class="btn blk" href="guide.html" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">📖 Guide du bureau à lire</a><button class="btn blk" data-act="upd-check">🔄 Rechercher une mise à jour</button><button class="btn dng blk" data-act="wipe">'+ic('trash')+' Effacer toutes mes données</button></div>';
  return{html:h+'<div style="height:2rem"></div></div>',fixed:false};
 }
+function pushSecHTML(){const a=amc();if(!a||(S.pushPf==null?'aci':S.pushPf).indexOf('i')<0)return'';const bur=!!a.kB;
+ return '<p class="mut" style="margin-top:.6rem">👥 Dans l’Amicale, me prévenir pour :</p><div class="chips">'+PUSH_SEC.filter(x=>bur||!x[3]).map(x=>'<button type="button" class="chip'+(pushEx().includes(x[0])?'':' on')+'" data-act="push-sec" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
 function pushCard(){
  const perm=('Notification' in window)?Notification.permission:'indisponible',on=pushIsOn();
  return '<div class="card"><h3>🔔 Notifications</h3>'+(perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
   :perm==='indisponible'?'<p class="mut">Non disponibles ici (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
-  :'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(on?' checked':'')+'></label></div>'+(on?'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'<p class="mut">iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum.</p>'))+'</div>';
+  :'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(on?' checked':'')+'></label></div>'+(on?pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'<p class="mut">iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum.</p>'))+'</div>';
 }
 function amColCard(){return '<div class="card"><h3>🎨 Couleur de l’Amicale</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Sur cet appareil seulement. Touche une couleur.</p><div class="chips">'+[['','Violet (défaut)'],['#2f6fb3','Encre'],['#0d9488','Turquoise'],['#16a34a','Vert'],['#db2777','Rose'],['#ea580c','Orange'],['#dc2626','Rouge'],['#475569','Graphite']].map(([c,l])=>'<button class="chip'+((S.amCol||'')===c?' on':'')+'" data-act="am-col" data-v="'+c+'" style="'+(c?'border-left:1.1rem solid '+c:'border-left:1.1rem solid #7c3aed')+'">'+esc(l)+'</button>').join('')+'</div></div>'}
 function amSetCard(){

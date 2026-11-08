@@ -49,7 +49,7 @@ async function notify(env,space,o){
   for(const x of (r.results||[])){
     if(x.endpoint===o.selfEp||o.skip.includes(x.me))continue;
     if(o.to&&x.me!==o.to)continue;
-    if(x.pf&&!x.pf.includes(o.kind))continue;
+    if(x.pf){const pq=x.pf.split('!');if(!pq[0].includes(o.kind))continue;if(o.kind==='i'&&o.hint&&pq[1]&&pq[1].split(',').includes(o.hint))continue}
     if(now-x.last<120000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
@@ -209,7 +209,7 @@ export default {
         let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
         if (!o || !/^https:\/\/[^\s]{10,600}$/.test(o.endpoint || '')) return json(req, { error: 'format' }, 400);
         if (!o.keys || typeof o.keys.p256dh !== 'string' || typeof o.keys.auth !== 'string') return json(req, { error: 'clés' }, 400);
-        await env.DB.prepare('INSERT OR REPLACE INTO push3 (endpoint, space, me, pf, at, p, a) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], String(o.me || '').slice(0, 20), String(o.pf || '').slice(0, 8), Date.now(), o.keys.p256dh, o.keys.auth).run();
+        await env.DB.prepare('INSERT OR REPLACE INTO push3 (endpoint, space, me, pf, at, p, a) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], String(o.me || '').slice(0, 20), String(o.pf || '').slice(0, 60), Date.now(), o.keys.p256dh, o.keys.auth).run();
         return json(req, { ok: true });
       }
       if (req.method === 'POST' && pm[2]) return json(req, await pushTest(env, pm[1]));
