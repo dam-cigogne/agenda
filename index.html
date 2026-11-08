@@ -390,6 +390,10 @@ body.am2on .chip.on{background:var(--k-am);color:#fff;box-shadow:0 .3rem .8rem c
 body.am2on .in{border:0;border-radius:1rem;background:var(--surface2,#f2efe8);padding:.75rem .9rem}
 body.am2on .hlp-q{box-shadow:0 .2rem .5rem color-mix(in srgb,var(--k-am) 40%,transparent)}
 body.am2on .am-it.am-nt,body.am2on .am-it.am-ev{border-left:1px solid var(--line)}
+body.am2on .am2-bn{display:flex;align-items:center;gap:.85rem;border-radius:1.5rem;padding:1rem 1.1rem;color:#fff;margin:.2rem 0 .7rem;box-shadow:0 .7rem 1.6rem rgba(24,27,52,.18)}
+body.am2on .am2-bn i{font-style:normal;font-size:1.7rem;width:3.2rem;height:3.2rem;border-radius:1.1rem;background:rgba(255,255,255,.25);display:grid;place-items:center;flex:none}
+body.am2on .am2-bn b{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+body.am2on .am2-bn small{display:block;font-weight:700;opacity:.92;margin-top:.2rem;font-size:.82rem}
 .co-tabs.am-sn.am-snl{position:relative;top:auto;overflow:visible;max-height:none;min-height:0}
 .co-tabs.am-sn{position:sticky;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:.1rem;max-height:calc(100vh - 11.5rem);max-height:calc(100dvh - 11.5rem);min-height:14rem}.co-tabs.am-sn .co-tab{min-height:0;max-height:none;overflow:visible;padding:.2rem .1rem;font-size:.7rem;text-overflow:clip;flex:none}.co-tabs.am-sn .co-tn{overflow:visible;text-overflow:clip;white-space:nowrap}.co-tabs.am-sn .co-tc{font-size:.58rem;padding:0 .2rem;min-width:.9rem;line-height:1.3}
 .co-tab{max-height:14rem}
@@ -1487,7 +1491,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.74.3';
+const APP_VERSION='2.74.5';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1495,6 +1499,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.74.5',d:'08/11/2026',items:[
+  '<b>Style Nouveau : chaque onglet a sa couleur</b> : un grand bandeau coloré en haut (Agenda bleu, Événements rouge, Tâches vert, Courses jaune…), et les boutons, pastilles et cases de la page prennent cette couleur.'
+ ]},
+ {v:'2.74.4',d:'08/11/2026',items:[
+  '<b>Menu « Plus » allégé</b> : « Actualiser » est retiré, et « Réglages du groupe » aussi dans l’appli Amicale (déjà en haut). La roue crantée regroupe maintenant tout : ta fiche, inviter, logo, bulletin, sauvegarde du groupe, « Qui a fait quoi », puis les réglages de l’appli.'
+ ]},
  {v:'2.74.3',d:'08/11/2026',items:[
   '<b>Style Nouveau sur les pages détaillées</b> (fiche d’un événement, Amicalistes, notes, administratif…) : boutons arrondis avec ombre, titres de sections lisibles (plus de petites majuscules), pastilles de filtre colorées, champs de saisie arrondis.'
  ]},
@@ -13332,7 +13342,7 @@ function amDockHTML(tabs){
 async function amMore(){
  const a=amc();if(!a)return;
  const main=AM_DOCK.map(x=>x[0]),n=k=>amItems(k).filter(i=>!i.x).length;
- const L=[];if(a.kB)L.push(['am','🎖 Amicalistes']);if(a.kB)L.push(['nt','📝 Notes du bureau']);if(a.kB)L.push(['ad','📁 Administratif']);L.push(['lo','📖 Pour les nuls'],['sy','🔄 Actualiser'],['gr','⚙️ Réglages du groupe']);
+ const L=[];if(a.kB)L.push(['am','🎖 Amicalistes']);if(a.kB)L.push(['nt','📝 Notes du bureau']);if(a.kB)L.push(['ad','📁 Administratif']);L.push(['lo','📖 Pour les nuls']);if(!AMI)L.push(['gr','⚙️ Réglages du groupe']);
  const r=await ask({title:'Plus',btns:L.map(([k,l])=>({label:l,value:k})).concat([{label:'Fermer',value:null}])});
  if(!r)return;
  if(r==='sy'){const b=document.querySelector('[data-act=am-sync]');try{await amPull(true)}catch(e){}toast('Mis à jour',1800);render();return}
@@ -13372,22 +13382,7 @@ function amView0(){
  else if(AMC_TAB==='am')h+=amAmHTML();
  else if(AMC_TAB==='ad')h+=amKeyBanner()+(a.apriv?'<div class="warn"><b>ℹ️ Retirer quelqu’un ou changer son niveau</b>Les clés du groupe sont alors renouvelées et tout le contenu est renvoyé : ça peut prendre quelques minutes. Garde l’appli ouverte jusqu’à la fin (un encadré « Mise à jour du groupe en cours » s’affiche en haut). Mieux vaut inviter directement au bon niveau (Bureau ou Aide) que de le changer ensuite.</div>':'')+amAdHTML();
  else if(AMC_TAB==='gr'){
-  h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
-   mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
-   mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
-   mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
-   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.apriv?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
-  h+=amColCard()+pushCard();
-  if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
-   h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
-    :'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">'+(shm?'✅ Modèle et tarifs réglés par <b>'+esc((itm&&itm.by)||'l’administrateur')+'</b>, reçus automatiquement.':'Modèle de l’appli. L’administrateur du groupe peut le personnaliser : il arrivera ici tout seul.')+'</p>'+mrow('bm-exp','📤 Exporter le modèle','Fichier .json ou Word'))+'</div>'}
-  h+=amSyncCard();
-  if(a.kB)h+=amSafeCard();
-  if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
-  h+=amJournalHTML();
-  h+='<div class="card"><h3>Affichage</h3>'+amPick(nu,navm)+'</div>';
-  h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';
-  h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
+  h+=amGrHTML(a,nu,navm,0);
  }else{
   const L=amList(),ord=t=>{const i=AMC_TORD(t);return i<0?(t?50:99):i};
   const grpC=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
@@ -13401,6 +13396,10 @@ function amView0(){
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>';
  }
+ if(nu&&AMC_TAB!=='mb'&&AMC_TAB!=='gr'){
+  const BN={ev:['📅','Agenda','#2D8CFF',n3+' à venir'],ee:['🎉','Événements','#FF5C6C',n4+' à venir'],tk:['✅','Tâches','#12B5A0',n1+' à faire'],co:['🛒','Courses','#FFB020',n2+' à acheter'],am:['🎖','Amicalistes','#6B4EFF',(amAms().length)+' inscrits'],nt:['📝','Notes du bureau','#B25CFF','Réservé au bureau'],ad:['📁','Administratif','#0EA5B7','Documents et clés'],lo:['📖','Pour les nuls','#FF7A45','Le guide pas à pas']}[AMC_TAB];
+  if(BN)h='<div class="am2t" style="--k-am:'+BN[2]+'"><div class="am2-bn" style="background:linear-gradient(135deg,'+BN[2]+','+'color-mix(in srgb,'+BN[2]+' 65%,#b25cff))"><i>'+BN[0]+'</i><div><b>'+BN[1]+'</b><small>'+BN[3]+'</small></div></div>'+h+'</div>';
+ }
  if(side){
   const nav='<nav class="co-tabs am-sn" aria-label="Onglets du groupe">'+tabs.map(([k,l])=>'<button class="co-tab'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'" style="--tc:var(--k-am)"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'><span class="co-tn">'+l.replace(/^\S+\s/,'').replace(/ \d+$/,'')+'</span>'+(/ (\d+)$/.test(l)?'<b class="co-tc">'+l.match(/ (\d+)$/)[1]+'</b>':'')+'</button>').join('')+'<button class="co-tab co-tadd" data-act="am-sync" title="Actualiser" aria-label="Actualiser">🔄</button></nav>';
   return{html:'<div class="tk-wrap"><div class="co-book" style="--tcur:var(--k-am)"><div class="co-page">'+h+'</div>'+nav+'</div></div>',fixed:false};
@@ -13411,8 +13410,28 @@ function amView0(){
 /* même appareil (Android, ordinateur) : AgenDam et Amicale partagent l'adresse, on peut reprendre le groupe directement. Sur iPhone chaque appli de l'écran d'accueil a sa mémoire : passer par « Lier un autre appareil ». */
 function amiFromAg(){if(!AMI)return null;try{const o=JSON.parse(localStorage.getItem('agd-settings')||'{}');return o&&o.amc&&o.amc.on&&o.amc.kA?o:null}catch(e){return null}}
 function amiTake(){const o=amiFromAg();if(!o||S.amc)return;S.amc=JSON.parse(JSON.stringify(o.amc));['amCol','amPo','amSg','amSide','amAg','amCoZ'].forEach(k=>{if(o[k]!=null)S[k]=JSON.parse(JSON.stringify(o[k]))});S.amc.last={};S.amc.pullAt=0;saveSet();setTheme();tabsApply();go('amicale');amPull(true);toast('Groupe repris d’AgenDam : tu es '+S.amc.me.n,4000)}
+function amGrHTML(a,nu,navm,ami){
+ let h='';
+  h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
+   mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
+   mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
+   mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
+   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.apriv&&!ami?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
+  if(!ami)h+=amColCard()+pushCard();
+  if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
+   h+='<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
+    :'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">'+(shm?'✅ Modèle et tarifs réglés par <b>'+esc((itm&&itm.by)||'l’administrateur')+'</b>, reçus automatiquement.':'Modèle de l’appli. L’administrateur du groupe peut le personnaliser : il arrivera ici tout seul.')+'</p>'+mrow('bm-exp','📤 Exporter le modèle','Fichier .json ou Word'))+'</div>'}
+  h+=amSyncCard();
+  if(a.kB)h+=amSafeCard();
+  if(a.kB)h+='<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
+  h+=amJournalHTML();
+  if(!ami){  h+='<div class="card"><h3>Affichage</h3>'+amPick(nu,navm)+'</div>';
+  h+='<div class="card"><h3>Onglet</h3><div class="tgl-row"><b>Afficher l’onglet « '+esc(a.nm)+' »</b><label class="tgl"><input type="checkbox" data-chg="tabshow" data-v="amicale"'+((S.tabsHide||[]).includes('amicale')?'':' checked')+'></label></div></div>';}
+  h+='<div class="card"><button class="btn blk dng" data-act="am-leave">Quitter le groupe</button></div>';
+ return h;
+}
 function amiSettingsView(seg){
- let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+amColCard()+pushCard();
+ let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+(amc()?amGrHTML(amc(),S.amStyle==='new',S.amSide==null?(S.amStyle==='new'?2:1):+S.amSide,1):'')+amColCard()+pushCard();
  const nuS=S.amStyle==='new',nvS=S.amSide==null?(nuS?2:1):+S.amSide;
 {const a0=amc();if(a0&&a0.apriv)h+='<div class="card"><h3>🖼 Logo du groupe</h3><p class="mut" style="margin:.1rem 0 .5rem;font-size:.88rem">Une image pour ton groupe : elle s’affiche en haut de l’accueil (style Nouveau) chez tous les membres.</p>'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'" style="width:4rem;height:4rem;border-radius:1.2rem;object-fit:cover;display:block;margin:0 0 .6rem">':'')+'<button class="btn blk" data-act="am-logo">'+(amLogoSrc()?'Changer ou retirer le logo':'Choisir une image…')+'</button></div>'}
  h+='<div class="card"><h3>Affichage</h3>'+amPick(nuS,nvS)+'<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
