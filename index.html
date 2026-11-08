@@ -1450,7 +1450,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.73.0';
+const APP_VERSION='2.73.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1458,6 +1458,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.73.1',d:'08/11/2026',items:[
+  '<b>Verrou</b> : si Face ID ne répond pas, l’appli ne reste plus bloquée : après 15 secondes (ou si tu l’annules) le clavier du code s’affiche. Au démarrage, l’appli demande d’abord le code ; Face ID se lance quand tu touches « Déverrouiller » ou le bouton Face ID.'
+ ]},
  {v:'2.73.0',d:'08/11/2026',items:[
   '<b>Amicale : nouveau style au choix</b> (Réglages › Affichage › Style de l’Amicale : « Classique » comme avant, ou « Nouveau »). Le style Nouveau a un accueil coloré : l’en-tête affiche le logo du groupe (la première lettre pour l’instant), trois grosses tuiles (membres, tâches, à venir) et une grande carte pour le prochain événement.',
   '<b>Membres en grille</b> : des ronds colorés avec le prénom et la fonction en pastille, le bureau et les aides séparés. Touche un rond pour ouvrir la fiche.',
@@ -5746,7 +5749,7 @@ async function bdBioEnable(f){f=f||'bdBio';
 async function bdBioCheck(f){f=f||'bdBio';
  if(!S[f])return false;
  try{
-  const r=await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S[f])}],userVerification:'required',timeout:60000}});
+  const r=await Promise.race([navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64u(S[f])}],userVerification:'required',timeout:20000}}),new Promise((_,j)=>setTimeout(()=>j(0),f==='amlBio'?15000:60000))]);
   return !!r;
  }catch(e){return false}
 }
@@ -7229,7 +7232,7 @@ async function act(a,el,e){
   case 'am-keyok':amKeyOk();break;
   case 'am-edit':{const a0=amc();if(a0&&a0.apriv)amFiche(a0.me.id);else amEditMe();break}
   case 'am-inv':amInvite();break;
-  case 'aml-open':await amlGate();break;
+  case 'aml-open':await amlGate(1);break;
   case 'aml-pin':await amlSetPin();render();break;
   case 'aml-lock':amlRelock();break;
   case 'aml-delay':S.amlDelay=+ds_.v;saveSet();render();break;
@@ -10672,13 +10675,13 @@ function amLockHTML(){return '<div class="card" style="margin:.8rem 0;text-align
 function amlCover(on){let e=document.getElementById('applock');if(!on){if(e)e.remove();return}
  if(e)return;e=document.createElement('div');e.id='applock';e.style.cssText='position:fixed;inset:0;z-index:70;background:var(--bg,#fff);color:var(--text,#111);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;text-align:center;padding:2rem';
  e.innerHTML='<div style="font-size:3rem">🔒</div><b style="font-size:1.3rem">Appli verrouillée</b><p class="mut" style="margin:0 0 .4rem;max-width:20rem">Touche le bouton pour entrer avec ton code ou Face ID / empreinte.</p><button class="btn pri" id="applock-b" style="min-width:12rem">🔓 Déverrouiller</button>';
- document.body.appendChild(e);document.getElementById('applock-b').onclick=()=>{amlGate().then(ok=>{if(ok)amlCover(0)})}}
+ document.body.appendChild(e);document.getElementById('applock-b').onclick=()=>{amlGate(1).then(ok=>{if(ok)amlCover(0)})}}
 function amlRelock(){AML_OK=false;if(!S.amlPin)return;if(amlScopeAm()){if(V.view==='amicale')render()}else amlCover(1)}
 function amlUnlock(){AML_OK=true;amlCover(0);if(V.view==='amicale')render()}
 document.addEventListener('visibilitychange',()=>{if(!S.amlPin)return;if(document.hidden){AML_H=Date.now()}else if(AML_H&&Date.now()-AML_H>amlDelay()*1000){amlRelock();if(!amlScopeAm())amlGate().then(ok=>{if(ok)amlCover(0)})}});
-async function amlGate(){
+async function amlGate(tap){
  if(!S.amlPin||AML_OK)return true;let msg='';
- if(S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
+ if(tap&&S.amlBio&&await bdBioCheck('amlBio')){amlUnlock();render();return true}
  for(;;){
   const {r,a}=await bdAskPin('Appli verrouillée',msg,0,!!S.amlBio);
   if(r==='bio'){if(await bdBioCheck('amlBio')){amlUnlock();render();return true}msg='<p style="margin:.2rem 0 .5rem;color:#c0392b;font-weight:650">Face ID / empreinte non reconnu, utilise le code.</p>';continue}
