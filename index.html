@@ -1415,7 +1415,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.72.4';
+const APP_VERSION='2.72.5';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1423,6 +1423,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.72.5',d:'08/11/2026',items:[
+  '<b>Préparatifs synchronisés</b> : la liste (noms, téléphones, cases, codes) se retrouve sur tous les appareils de l’administrateur, par exemple saisie sur PC puis envoi depuis le téléphone. Elle est chiffrée avec une clé que seul l’administrateur possède.'
+ ]},
  {v:'2.72.4',d:'08/11/2026',items:[
   '<b>Préparatifs</b> : une case ☑ par personne (on décoche ceux qui ne viennent pas à la réunion) et un bouton « Créer seulement son code » pour inviter quelqu’un à part.',
   'Nouvelle fonction <b>Fonction ++</b> : accès Bureau uniquement (dans Préparatifs, elle met automatiquement la personne au niveau Bureau).'
@@ -7168,14 +7171,14 @@ async function act(a,el,e){
   case 'am-keyok':amKeyOk();break;
   case 'am-edit':{const a0=amc();if(a0&&a0.apriv)amFiche(a0.me.id);else amEditMe();break}
   case 'am-inv':amInvite();break;
-  case 'am-prep':amPrepSheet();break;
+  case 'am-prep':{const a=amc();if(a&&a.apriv&&!demo){toast('Mise à jour de la liste…',2000);await amPrepPull()}amPrepSheet();break}
   case 'pp-add':{const a=amc(),n=($('#pp-n')||{}).value.trim(),t=($('#pp-t')||{}).value.trim(),l=($('#pp-l')||{}).value||'b',f=(($('#pp-f')||{}).value||'').trim().slice(0,30);if(!n){toast('Écris un nom',2500);break}a.prep=a.prep||[];a.prep.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),nm:n.slice(0,60),tel:t.slice(0,30),lv:/^fonction \+\+$/i.test(f)?'b':l,t:f});amSave();amPrepSheet();break}
-  case 'pp-del':{const a=amc();a.prep=(a.prep||[]).filter(p=>p.id!==ds_.id);amSave();amPrepSheet();break}
+  case 'pp-del':{const a=amc();(a.prepDl=a.prepDl||{})[ds_.id]=Date.now();a.prep=(a.prep||[]).filter(p=>p.id!==ds_.id);amSave();amPrepSheet();break}
   case 'pp-lv':{const p=((amc()||{}).prep||[]).find(x=>x.id===ds_.id);if(p){p.lv=p.lv==='b'?'a':'b';amSave();amPrepSheet()}break}
   case 'pp-unsent':{const p=((amc()||{}).prep||[]).find(x=>x.id===ds_.id);if(p){p.sent=0;amSave();amPrepSheet()}break}
   case 'pp-sel':{const p=((amc()||{}).prep||[]).find(x=>x.id===ds_.id);if(p){p.off=!p.off;amSave();amPrepSheet()}break}
   case 'pp-one':{const a=amc(),p=(a.prep||[]).find(x=>x.id===ds_.id);if(!p)break;toast('Création du code…',8000);try{p.code=await amMakeCode(p.lv);p.cat=Date.now();p.sent=0;p.off=false;amSave()}catch(e){toast('Pas de connexion au serveur',4000)}amPrepSheet();break}
-  case 'pp-clr':{if(await ask({title:'Vider la liste ?',text:'Les personnes saisies seront retirées de ce téléphone. Les codes déjà créés restent valables jusqu’à leur expiration.',btns:[{label:'Vider',value:1,cls:'pri'},{label:'Annuler',value:0}]})){amc().prep=[];amSave();amPrepSheet()}break}
+  case 'pp-clr':{if(await ask({title:'Vider la liste ?',text:'Les personnes saisies seront retirées de ce téléphone. Les codes déjà créés restent valables jusqu’à leur expiration.',btns:[{label:'Vider',value:1,cls:'pri'},{label:'Annuler',value:0}]})){const a=amc();a.prepDl=a.prepDl||{};(a.prep||[]).forEach(p=>a.prepDl[p.id]=Date.now());a.prep=[];amSave();amPrepSheet()}break}
   case 'pp-go':{const a=amc(),now=Date.now();let n=0;toast('Création des codes…',20000);for(const p of a.prep||[]){if(p.off||(p.code&&now-p.cat<=7*864e5))continue;try{p.code=await amMakeCode(p.lv);p.cat=Date.now();p.sent=0;n++}catch(e){toast('Pas de connexion au serveur',4000);break}}amSave();toast(n+' code'+(n>1?'s':'')+' créé'+(n>1?'s':''),3000);amPrepSheet();break}
   case 'pp-sms':case 'pp-wa':{const a=amc(),p=(a.prep||[]).find(x=>x.id===ds_.id);if(!p||!p.code)break;const msg=amInvMsg(p.code,p.nm);p.sent=Date.now();amSave();
    if(ds_.act==='pp-sms')famSms(p,msg);else{const u=p.tel?'https://wa.me/'+waNum(p.tel)+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg);window.open(u,'_blank')}
@@ -10757,6 +10760,17 @@ function amInvMsg(code,nom){const a=amc(),amiU=new URL(AMI?'./':'../amicale/',lo
 /* ===== Préparatifs : liste de futurs membres, codes créés d'un coup, envoi un par un ===== */
 const waNum=t=>{let d=String(t||'').replace(/[^\d+]/g,'');if(d[0]==='+')return d.slice(1);if(d.slice(0,2)==='00')return d.slice(2);if(d[0]==='0')return '33'+d.slice(1);return d};
 const amNorm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(Boolean).sort().join(' ');
+/* Préparatifs synchronisés entre les appareils de l'administrateur : chiffrés avec une clé tirée de sa clé privée (les autres membres du bureau ne peuvent pas les lire) */
+let AMP_FK=null,AMP_BUSY=0;
+async function amPrepFK(){const a=amc();if(!a||!a.apriv||!a.apriv.d)return null;if(AMP_FK&&AMP_FK.d===a.apriv.d)return AMP_FK;const h=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amicale-prep:'+a.apriv.d)));const FK=await famKeys({k:shB64.enc(h)});return AMP_FK={d:a.apriv.d,FK}}
+function amPrepStamp(){const a=amc(),sg=a.prepSig=a.prepSig||{};let ch=0;for(const p of a.prep||[]){const t=JSON.stringify(Object.assign({},p,{u:0}));if(sg[p.id]!==t){p.u=Date.now();sg[p.id]=JSON.stringify(Object.assign({},p,{u:0}));ch=1}}return ch}
+function amPrepMerge(R){const a=amc();let ch=0;a.prep=a.prep||[];a.prepDl=a.prepDl||{};const L=new Map(a.prep.map(p=>[p.id,p]));
+ for(const id of Object.keys(R.dl||{})){const ts=R.dl[id];if((a.prepDl[id]||0)<ts){a.prepDl[id]=ts;ch=1}}
+ for(const r of R.l||[]){if(!r||!r.id)continue;const l=L.get(r.id);if(a.prepDl[r.id]&&a.prepDl[r.id]>=(r.u||0))continue;if(!l||(r.u||0)>(l.u||0)){L.set(r.id,r);ch=1}}
+ for(const id of Object.keys(a.prepDl)){const l=L.get(id);if(l&&(l.u||0)<=a.prepDl[id]){L.delete(id);ch=1}if(Date.now()-a.prepDl[id]>60*864e5)delete a.prepDl[id]}
+ a.prep=[...L.values()];a.prepSig={};for(const p of a.prep)a.prepSig[p.id]=JSON.stringify(Object.assign({},p,{u:0}));return ch}
+async function amPrepPull(){const a=amc();if(!a||!a.apriv||demo||!famUrl()||AMP_BUSY)return 0;AMP_BUSY=1;try{const K=await amPrepFK();if(!K)return 0;const r=await fetch(famUrl()+'/s/'+K.FK.space+'?since=0',{cache:'no-store'});if(!r.ok)return 0;const j=await r.json();let ch=0;for(const d of j.docs||[]){if(d.doc!=='prep')continue;try{const P=await famDecK(JSON.parse(d.data),K.FK.key);if(P&&P.t==='pp')ch|=amPrepMerge(P)}catch(e){}}if(ch)amSave();return ch}catch(e){return 0}finally{AMP_BUSY=0}}
+async function amPrepPush(){const a=amc();if(!a||!a.apriv||demo||!famUrl())return;try{const K=await amPrepFK();if(!K)return;const ch=amPrepStamp();if(!ch&&a.prepSent)return;const b=await famEncK({app:'agd',k:'amc',v:1,t:'pp',l:a.prep||[],dl:a.prepDl||{},at:Date.now()},K.FK.key);const r=await fetch(famUrl()+'/s/'+K.FK.space+'/prep',{method:'PUT',headers:{'Content-Type':'application/json','X-Push-Quiet':'1'},body:JSON.stringify(b)});if(r.ok){a.prepSent=1;amSave()}}catch(e){}}
 function amPrepApply(){
  const a=amc();if(!a||!a.apriv||!a.prep)return;let did=0;
  for(const p of a.prep){if(!p.t||p.applied)continue;
@@ -10766,10 +10780,10 @@ function amPrepApply(){
  if(did){amSave();amRolesPut().then(()=>amSave()).catch(()=>{})}
 }
 function amPrepSheet(){
- const a=amc();if(!a||!a.apriv)return;a.prep=a.prep||[];const P=a.prep,now=Date.now(),old=p=>p.code&&now-p.cat>7*864e5;
+ const a=amc();if(!a||!a.apriv)return;a.prep=a.prep||[];amPrepPush();const P=a.prep,now=Date.now(),old=p=>p.code&&now-p.cat>7*864e5;
  const todo=P.filter(p=>!p.off&&(!p.code||old(p))).length,ready=P.filter(p=>p.code&&!old(p));
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">📋 Préparatifs des invitations</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+='<p class="mut" style="margin:.2rem 0 .6rem;font-size:.9rem">Saisis à l’avance les personnes à inviter. Indique aussi sa <b>fonction</b> : elle lui est attribuée toute seule dès qu’elle a rejoint le groupe. Décoche ☐ ceux qui ne viennent pas (ils restent dans la liste). Le jour de la réunion, touche « Créer les codes » : seuls les ☑ cochés reçoivent un code. Puis envoie à chacune en un appui (SMS ou WhatsApp). Cette liste reste <b>sur ce téléphone</b>.</p>';
+ h+='<p class="mut" style="margin:.2rem 0 .6rem;font-size:.9rem">Saisis à l’avance les personnes à inviter. Indique aussi sa <b>fonction</b> : elle lui est attribuée toute seule dès qu’elle a rejoint le groupe. Décoche ☐ ceux qui ne viennent pas (ils restent dans la liste). Le jour de la réunion, touche « Créer les codes » : seuls les ☑ cochés reçoivent un code. Puis envoie à chacune en un appui (SMS ou WhatsApp). Cette liste est <b>synchronisée (chiffrée) entre tes appareils</b> : toi seul, administrateur, peux la lire.</p>';
  if(!P.length)h+='<p class="empty">Aucune personne pour l’instant.</p>';
  h+=P.map(p=>'<div class="card" style="margin:.35rem 0;padding:.55rem .7rem'+(p.off&&!(p.code&&!old(p))?';opacity:.6':'')+'"><div style="display:flex;align-items:center;gap:.5rem">'+(p.code&&!old(p)?'':'<button class="btn sm" data-act="pp-sel" data-id="'+p.id+'" aria-label="Inviter cette personne">'+(p.off?'☐':'☑')+'</button>')+'<div style="flex:1;min-width:0"><b>'+esc(p.nm)+'</b><br><small class="mut">'+esc(p.tel||'pas de numéro')+' · '+(p.lv==='b'?'🏛️ Bureau':'🤝 Aide')+(p.t?' · 🎖 '+esc(p.t)+(p.applied?' ✅':''):'')+(p.sent?' · ✅ envoyé':p.code&&!old(p)?' · 🔑 code prêt':old(p)?' · ⌛ code expiré':'')+'</small></div>'+(p.code&&!old(p)?'':'<button class="btn sm" data-act="pp-lv" data-id="'+p.id+'">'+(p.lv==='b'?'→ Aide':'→ Bureau')+'</button>')+'<button class="btn sm" data-act="pp-del" data-id="'+p.id+'" aria-label="Retirer">✕</button></div>'+(!p.code||old(p)?'<button class="btn sm blk" data-act="pp-one" data-id="'+p.id+'" style="margin-top:.4rem">🔑 Créer seulement son code</button>':'')+(p.code&&!old(p)?'<div style="display:flex;gap:.4rem;margin-top:.45rem"><button class="btn pri grow" data-act="pp-sms" data-id="'+p.id+'">💬 SMS</button><button class="btn grow" data-act="pp-wa" data-id="'+p.id+'">🟢 WhatsApp</button></div>'+(p.sent?'<button class="btn sm blk" data-act="pp-unsent" data-id="'+p.id+'" style="margin-top:.35rem">↩︎ Je ne l’ai pas envoyé</button>':''):'')+'</div>').join('');
  h+='<div class="card" style="margin:.5rem 0"><b>＋ Ajouter une personne</b><input id="pp-n" class="in" placeholder="Prénom et nom" style="margin:.4rem 0 .3rem"><input id="pp-t" class="in" type="tel" placeholder="Téléphone (06 12 34 56 78)" style="margin:0 0 .3rem"><input id="pp-f" class="in" list="pp-dl" maxlength="30" placeholder="Fonction (Président, Trésorier…) – facultatif" style="margin:0 0 .3rem"><datalist id="pp-dl">'+AMC_TITLES.map(t=>'<option value="'+esc(t)+'">').join('')+'</datalist><select id="pp-l" class="in" style="margin:0 0 .4rem"><option value="b">🏛️ Bureau (voit tout)</option><option value="a">🤝 Aide extérieur</option></select><button class="btn blk" data-act="pp-add">Ajouter à la liste</button></div>';
@@ -13072,7 +13086,7 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 function amView(){
  const a=amc();
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
- amPull();try{amPrepApply()}catch(e){}
+ amPull();try{amPrepApply()}catch(e){}amPrepPull().then(c=>{if(c){try{amPrepApply()}catch(e){}}});
  const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
  if((AMC_TAB==='nt'||AMC_TAB==='am'||AMC_TAB==='ad')&&!a.kB)AMC_TAB='mb';
