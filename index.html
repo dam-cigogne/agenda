@@ -1365,6 +1365,8 @@ html.evup .ml,html.evup .mband,html.evup .ev b{text-transform:uppercase;letter-s
 /* appli Amicale seule */
 html.ami #tabs,html.ami #srchbtn{display:none!important}
 html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
+/* iPad / grand écran : plus de colonne vide à gauche (la barre d’onglets n’existe pas dans Amicale seule) */
+@media(min-width:1000px) and (min-height:560px){html.ami #app{grid-template-columns:minmax(0,1fr)}html.ami #top,html.ami #banner,html.ami #body{grid-column:1}}
 </style>
 </head>
 <body>
@@ -1413,7 +1415,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.71.0';
+const APP_VERSION='2.71.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1421,6 +1423,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.71.1',d:'08/11/2026',items:[
+  '<b>Amicale sur iPad</b> : l’écran occupe maintenant toute la largeur (la bande vide à gauche, réservée à une barre d’onglets absente dans Amicale, est supprimée).'
+ ]},
  {v:'2.71.0',d:'08/11/2026',items:[
   '<b>Notifications Amicale au choix</b> : dans Réglages → Notifications, tu coches les rubriques qui te préviennent (Tâches, Courses, Agenda, Événements, et pour le bureau : Notes, Amicalistes, Administratif, Cadeaux, AG et bulletins). Réglage propre à chaque téléphone. Nécessite le worker à jour.'
  ]},
