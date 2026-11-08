@@ -1091,6 +1091,7 @@ html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb
 .co-book{display:flex;align-items:flex-start;margin-right:-.7rem}
 .co-page{flex:1;min-width:0;padding-right:.55rem;border-right:3px solid var(--tcur);min-height:70vh}
 .co-tabs{position:sticky;top:.4rem;display:flex;flex-direction:column;gap:.3rem;width:2.35rem;flex:none;padding:.3rem 0 1rem;max-height:calc(100vh - 9rem);overflow-y:auto;scrollbar-width:none}
+.co-tabs{max-height:calc(100dvh - 9rem);-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .co-tab{writing-mode:vertical-rl;display:flex;align-items:center;gap:.3rem;background:color-mix(in srgb,var(--tc) 22%,var(--surface));color:var(--text);border:1px solid color-mix(in srgb,var(--tc) 45%,transparent);border-left:0;border-radius:0 .7rem .7rem 0;padding:.55rem .1rem;min-height:4.8rem;max-height:11rem;overflow:hidden;font:inherit;font-size:.78rem;font-weight:800;white-space:nowrap;text-overflow:ellipsis;width:2.05rem;cursor:pointer}
 .co-tab.on{background:var(--tc);color:#fff;width:2.35rem;border-color:var(--tc)}
 .co-tn{overflow:hidden;text-overflow:ellipsis}.co-tw{font-weight:600;font-size:.68rem;opacity:.85;overflow:hidden;text-overflow:ellipsis}
@@ -1399,7 +1400,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.70.0';
+const APP_VERSION='2.70.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1407,6 +1408,11 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.70.1',d:'08/11/2026',items:[
+  '<b>Notifications après un changement de rôle</b> : quand tu passes quelqu’un d’aide à bureau (ou qu’il rejoint un groupe), son téléphone est réenregistré tout seul, sans avoir à rouvrir l’appli.',
+  '<b>Petits onglets à droite</b> : le défilement ne reste plus bloqué.',
+  '<b>Texte « À savoir »</b> des notifications mis à jour : les rappels à l’heure arrivent aussi appli fermée.'
+ ]},
  {v:'2.70.0',d:'08/11/2026',items:[
   '<b>Nouveau logo</b> : « Agen » avec « Dam » sur pastille jaune pour AgenDam, « Amicale » avec « Groupe » pour Amicale. Pour voir la nouvelle icône sur l’écran d’accueil, supprime l’appli puis ajoute-la de nouveau (tes données sont gardées).',
   '<b>Notifications plus jolies</b> : un emoji selon le type (⏰ tâche, 📅 événement, 🛒 listes, 📣 groupe), l’heure dans le titre, et « Dans 15 min · lieu 📍 » pour les événements.'
@@ -6400,7 +6406,7 @@ h+='<div class="card" id="ics-card">'+
      :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button><p class="mut">Pour être prévenu des modifications du groupe, rejoins d’abord un groupe.</p>'))+
   (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div><p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'')+
   '</div>'+
-  '<div class="warn"><b>À savoir</b>Les notifications de modification arrivent même appli fermée (iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Elles peuvent être retardées de quelques minutes, ou masquées par un mode Concentration. Les rappels d’événements à une heure précise, eux, ne sont pas garantis quand l’appli est fermée : pour des alarmes fiables, exporte tes événements en .ics et ouvre-les dans l’agenda natif du téléphone.</div></div>';
+  '<div class="warn"><b>À savoir</b>Les notifications de modification arrivent même appli fermée (iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Elles peuvent être retardées de quelques minutes, ou masquées par un mode Concentration. Les rappels à l’heure (tâches avec « M’alerter à l’heure », événements avec rappel) arrivent aussi appli fermée et téléphone verrouillé, à la minute près en général. Pour une alarme absolument sûre, tu peux en plus exporter tes événements en .ics vers l’agenda natif du téléphone.</div></div>';
  h+='\u0001agenda\u0001';
  h+=agCard();
  h+=tplCard();
@@ -9744,6 +9750,17 @@ async function remSync(force,extra){
  if(st.err)throw new Error(st.err)
 }
 setInterval(()=>{remSync(false).catch(()=>{})},45000);
+/* Nouveau groupe ou changement de rôle (aide → bureau) : on réenregistre le téléphone pour les nouveaux espaces */
+async function pushWatch(){
+ if(demo||!pushIsOn())return;
+ const sig=(await pushSpaces()).map(x=>x.space+':'+x.me).sort().join(',');
+ let old='';try{old=localStorage.getItem('agd-push-sig')||''}catch(e){}
+ if(sig===old)return;
+ await pushOn();
+ try{localStorage.setItem('agd-push-sig',sig)}catch(e){}
+}
+setInterval(()=>{pushWatch().catch(()=>{})},60000);
+setTimeout(()=>{pushWatch().catch(()=>{})},8000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)remSync(false).catch(()=>{})});
 const pushSelf=()=>{try{return localStorage.getItem('agd-push-ep')||''}catch(e){return ''}};
 /* Les « espaces » du serveur où ce téléphone veut être prévenu : groupes AgenDam, et les deux zones d'Amicale */
