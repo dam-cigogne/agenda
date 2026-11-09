@@ -43,14 +43,14 @@ async function pushTest(env,space){
   for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'✅ Test réussi',b:'Les notifications fonctionnent sur ce téléphone 🎉',g:'agd-test'});if(s==='ok')ok++;else err.push(s)}
   return {ok,err};
 }
-// Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, au plus une toutes les 15 secondes
+// Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, une pour chaque modification
 async function notify(env,space,o){
   const r=await env.DB.prepare('SELECT endpoint, me, pf, p, a, last, n FROM push3 WHERE space = ?').bind(space).all();const now=Date.now();
   for(const x of (r.results||[])){
     if(x.endpoint===o.selfEp||o.skip.includes(x.me))continue;
     if(o.to&&x.me!==o.to)continue;
     if(x.pf){const pq=x.pf.split('!');if(!pq[0].includes(o.kind))continue;if(o.kind==='i'&&o.hint&&pq[1]&&pq[1].split(',').includes(o.hint))continue}
-    if(now-x.last<15000){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
+    if(now-x.last<0){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
     const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):(/^fe[amd]$/.test(o.hint)&&o.det)?evTxt(o.hint,o.det):H[1])):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});

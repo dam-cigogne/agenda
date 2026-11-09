@@ -1531,7 +1531,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.4';
+const APP_VERSION='2.75.5';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1539,6 +1539,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.5',d:'09/11/2026',items:[
+  '<b>Fin des fausses notifications d’événements</b> : quand tu ouvres l’appli et que tu reçois la suppression ou la modification d’un événement de ton conjoint, il n’est plus prévenu que <b>c’est toi</b> qui l’as fait. Seuls tes propres événements déclenchent une notification.'
+ ]},
  {v:'2.75.4',d:'09/11/2026',items:[
   '<b>Notification d’événement plus claire</b> : elle indique maintenant lequel et ce qui a changé, par exemple « Damien a modifié « RDV coiffeur » (heure) ». <i>Nécessite la dernière version du serveur (worker.js).</i>',
  ]},
@@ -10477,8 +10480,8 @@ function famEvDet(o,m,a,u,d){const n=(x)=>String(x||'').split('\u0001')[0];let i
 function famDiffHint(f,id,P){
  try{
   const me=f.me,mine=i=>{const o=famOrg(i);return o===me||!!(f.mb[o]&&f.mb[o].self)};
-  const cats=[['e',P.ag&&P.ag.ev,x=>!String(x.cat||'').startsWith('x-')],['t',P.tk&&P.tk.tk,x=>mine(x.id)],['b',P.bd&&P.bd.bd,x=>mine(x.id)],['v',P.vy&&P.vy.vy,x=>mine(x.id)],['r',P.rc&&P.rc.rc,x=>mine(x.id)]];
-  f.hp=f.hp||{};const old=f.hp[id],cur={},res=[];
+  const cats=[['e',P.ag&&P.ag.ev,x=>x.ow!=='you'&&!String(x.cat||'').startsWith('x-')],['t',P.tk&&P.tk.tk,x=>mine(x.id)],['b',P.bd&&P.bd.bd,x=>mine(x.id)],['v',P.vy&&P.vy.vy,x=>mine(x.id)],['r',P.rc&&P.rc.rc,x=>mine(x.id)]];
+  if(f.hpv!==2){f.hpv=2;f.hp={}}f.hp=f.hp||{};const old=f.hp[id],cur={},res=[];
   for(const [c,arr,ok] of cats){const m={};(Array.isArray(arr)?arr:[]).forEach(x=>{if(x&&x.id&&ok(x))m[x.id]=c==='e'?famEvSig(x):famHash(x)});cur[c]=m;
    if(old){const o=old[c]||{};let a=0,d=0,u=0;for(const i in m){if(!(i in o))a++;else if(o[i]!==m[i])u++}for(const i in o)if(!(i in m))d++;if(a+d+u)res.push([c,a,u,d])}}
   FAM_HPN[f.me+'|'+id]=cur;FAM_HPN[f.me+'|'+id+'|d']=(old&&res.length===1&&res[0][0]==='e')?famEvDet(old.e||{},cur.e||{},res[0][1],res[0][2],res[0][3]):'';
