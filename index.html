@@ -326,7 +326,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am2-logo img{width:100%;height:100%;object-fit:cover}
 .am2-id h2{margin:0;font-size:1.45rem;font-weight:800;letter-spacing:-.02em;line-height:1.05}
 .am2-id small{display:block;color:var(--muted);font-weight:600;margin-top:.25rem;font-size:.8rem}
-.am2-st{display:flex;gap:.5rem;margin:.9rem 0 0}
+.am2-st{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.9rem 0 0}
 .am2-st button{flex:1;border-radius:1.1rem;padding:.7rem .75rem .6rem;color:#fff;text-align:left}
 .am2-st b{display:block;font-size:1.6rem;font-weight:800;line-height:1;letter-spacing:-.02em}
 .am2-st span{font-size:.75rem;font-weight:700;opacity:.92}
@@ -336,6 +336,8 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am2-date b{display:block;font-size:1.65rem;line-height:1;font-weight:800}
 .am2-hero h3{margin:0;font-size:1.15rem;font-weight:800;line-height:1.15;letter-spacing:-.01em;color:#fff}
 .am2-hero p{margin:.25rem 0 0;font-size:.82rem;font-weight:600;opacity:.95}
+.am2-box{margin:1rem 0;padding:.2rem .85rem .9rem;border:1.5px solid var(--bx);border-top-width:5px;border-radius:18px;background:var(--card,transparent);background:color-mix(in srgb,var(--bx) 6%,var(--card,transparent))}
+.am2-box .am2-sec{margin:.8rem 0 .5rem}
 .am2-sec{display:flex;align-items:baseline;margin:1.3rem 0 .4rem}
 .am2-sec h3{margin:0;font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
 .am2-sec span{margin-left:auto;color:var(--k-am);font-weight:700;font-size:.8rem}
@@ -1533,7 +1535,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.16';
+const APP_VERSION='2.75.17';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1541,6 +1543,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.17',d:'09/11/2026',items:['Amicale (nouveau style) : « Le bureau » et « Les aides » sont maintenant dans deux encadrés distincts','Amicale : l’accueil ajoute des tuiles cliquables Courses, Amicalistes et Administratif (ces deux-là pour le bureau)']},
  {v:'2.75.16',d:'09/11/2026',items:['Notifications Famille : quand plusieurs articles ou tâches sont ajoutés, retirés ou modifiés d’un coup, la notification donne leurs noms (ex. « a ajouté « Coca », « Ice tea » aux courses »)']},
  {v:'2.75.15',d:'09/11/2026',items:['Amicale : les notifications disent maintenant qui a fait quoi (ex. « Nora a retiré « Lait », « Pain » des courses »)','Amicale : plusieurs modifications d’un coup = une seule notification groupée']},
  {v:'2.75.14',d:'09/11/2026',items:[
@@ -13502,7 +13505,9 @@ function amHome(a,nTk,nEv){
  const L=amList(),td=new Date().toISOString().slice(0,10),MO=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
  const nxt=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&(i.d||'')>=td).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||'')))[0];
  let h='<div class="am2-id"><div class="am2-logo"'+(a.apriv?' data-act="am-logo" role="button" aria-label="Logo du groupe"':'')+' style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
- h+='<div class="am2-st"><button style="background:'+amAc()+'" data-act="am-tab" data-k="mb"><b>'+L.length+'</b><span>membre'+(L.length>1?'s':'')+'</span></button><button style="background:#12B5A0" data-act="am-tab" data-k="tk"><b>'+nTk+'</b><span>tâche'+(nTk>1?'s':'')+'</span></button><button style="background:#2D8CFF" data-act="am-tab" data-k="ee"><b>'+nEv+'</b><span>à venir</span></button></div>';
+ {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],['#FFB020','co',nCo,'courses']];
+  if(a.kB){T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':'')]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
+  h+='<div class="am2-st">'+T.map(t=>'<button style="background:'+t[0]+'" data-act="am-tab" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span></button>').join('')+'</div>'}
  if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
   h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
  return h;
@@ -13582,8 +13587,8 @@ function amView0(){
    return '<h4 class="am-h">'+lbl+' · '+G.length+'</h4>'+G.map(p=>'<button class="am-c" data-act="am-mb" data-id="'+esc(p.id)+'"><i class="am-av" style="background:'+(p.self?'var(--k-am)':'#8b7d68')+'">'+esc(String(p.n||'?').trim().charAt(0).toUpperCase())+'</i><span class="am-x"><b>'+esc(p.n)+(p.self?' <small class="mut">(toi)</small>':'')+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+'</b><small>'+(p.t?esc(p.t):(a.apriv&&!p.self?'Touche pour donner un titre':p.l==='b'?'Bureau':'Aide'))+'</small></span>'+(p.tel?'<span class="am-ph" aria-hidden="true">📞</span>':'')+'</button>').join('')};
   const RC=['#6B4EFF','#FF5C6C','#12B5A0','#2D8CFF','#FFB020','#B25CFF','#FF7A45','#0EA5B7','#7C8CFF'],hs=t=>{let x=0;for(const c of String(t))x=(x*31+c.charCodeAt(0))>>>0;return x};
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
-   return '<div class="am2-sec"><h3>'+lbl+'</h3><span style="color:'+amAc()+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=lv==='a'?'#12B5A0':RC[k%RC.length],c2=lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length],lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
-    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="am2-av" style="background:'+c1+'">'+esc(String(p.sn||p.n||'?').trim().charAt(0).toUpperCase())+'</div>'+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span></button>'}).join('')+'</div>'};
+   const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=lv==='a'?'#12B5A0':RC[k%RC.length],c2=lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length],lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
+    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')"><div class="am2-av" style="background:'+c1+'">'+esc(String(p.sn||p.n||'?').trim().charAt(0).toUpperCase())+'</div>'+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span></button>'}).join('')+'</div></section>'};
   h+=nu?amHome(a,n1,n3+n4)+grp('b','Le bureau')+grp('a','Les aides'):grpC('b','Bureau')+grpC('a','Aides extérieurs');
   if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
