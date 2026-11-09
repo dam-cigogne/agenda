@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.20';
+const APP_VERSION='2.75.21';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.21',d:'09/11/2026',items:['Amicale : la photo du rond se recadre (on la déplace et on zoome) avant d’être enregistrée en petit']},
  {v:'2.75.20',d:'09/11/2026',items:['Amicale (nouveau style) : les membres (Bureau et Aides) sont maintenant dans l’Accueil, avec le nombre de tâches de chacun ; l’onglet Membres disparaît']},
  {v:'2.75.19',d:'09/11/2026',items:['Amicale (nouveau style) : nouvel onglet 🏠 Accueil (ce qui t’attend, du nouveau, prochain rendez-vous, tuiles) ; Membres passe dans « Plus » et sur la tuile Membres','Amicale : personnalise ton rond (touche ta fiche › 🎨 Mon rond) : couleur au choix, emoji à la place de la lettre, ou petite photo']},
  {v:'2.75.18',d:'09/11/2026',items:['Amicale : tuiles de l’accueil plus petites (surtout sur grand écran)']},
@@ -13532,6 +13533,26 @@ const amAvIn=(p,c1)=>{const ph=p.ph&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{2
  if(ph)return '<div class="am2-av" style="background:#ddd url('+p.ph+') center/cover no-repeat"></div>';
  if(p.ic)return '<div class="am2-av" style="background:'+c1+';font-size:1.9rem">'+esc(p.ic)+'</div>';
  return '<div class="am2-av" style="background:'+c1+'">'+esc(String(p.sn||p.n||'?').trim().charAt(0).toUpperCase())+'</div>'};
+async function amCrop(im){
+ const W=240,st={z:1,ox:0,oy:0},base=W/Math.min(im.width,im.height);
+ const root=$('#dlg');
+ const h='<p style="margin:.2rem 0 .5rem">Fais glisser la photo pour la placer et utilise le curseur pour zoomer. Le rond montre ce qui sera gardé.</p><div style="display:grid;place-items:center"><canvas id="crp" width="'+W+'" height="'+W+'" style="width:'+W+'px;height:'+W+'px;max-width:100%;border-radius:50%;touch-action:none;background:#ddd;cursor:grab"></canvas></div><input id="crz" type="range" min="1" max="5" step="0.01" value="1" style="width:100%;margin-top:.7rem" aria-label="Zoom">';
+ const pr=ask({title:'📷 Recadrer la photo',html:h,btns:[{label:'Valider',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ const cv=$('#crp'),g=cv.getContext('2d'),zs=$('#crz');
+ const lim=()=>{const dw=im.width*base*st.z,dh=im.height*base*st.z;st.ox=Math.max(-(dw-W)/2,Math.min((dw-W)/2,st.ox));st.oy=Math.max(-(dh-W)/2,Math.min((dh-W)/2,st.oy))};
+ const draw=(ctx,k)=>{const sc=base*st.z*k,dw=im.width*sc,dh=im.height*sc;ctx.fillStyle='#fff';ctx.fillRect(0,0,W*k,W*k);ctx.drawImage(im,W*k/2-dw/2+st.ox*k,W*k/2-dh/2+st.oy*k,dw,dh)};
+ const paint=()=>{lim();draw(g,1)};paint();
+ let px=null,py=null;
+ cv.onpointerdown=e=>{px=e.clientX;py=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}};
+ cv.onpointermove=e=>{if(px==null)return;const r=cv.getBoundingClientRect(),f=W/r.width;st.ox+=(e.clientX-px)*f;st.oy+=(e.clientY-py)*f;px=e.clientX;py=e.clientY;paint()};
+ cv.onpointerup=cv.onpointercancel=()=>{px=null};
+ cv.onwheel=e=>{e.preventDefault();zs.value=Math.max(1,Math.min(5,+zs.value+(e.deltaY<0?.15:-.15)));st.z=+zs.value;paint()};
+ zs.oninput=()=>{st.z=+zs.value;paint()};
+ const r=await pr;if(r!=='ok')return null;
+ const N=96,out=document.createElement('canvas');out.width=out.height=N;const o=out.getContext('2d');
+ const sc=base*st.z*N/W,dw=im.width*sc,dh=im.height*sc;o.fillStyle='#fff';o.fillRect(0,0,N,N);o.drawImage(im,N/2-dw/2+st.ox*N/W,N/2-dh/2+st.oy*N/W,dw,dh);
+ return out;
+}
 async function amEditRing(){
  const a=amc();if(!a)return;const m=a.me;
  const r=await ask({title:'🎨 Mon rond',html:'<p style="margin:.2rem 0 .5rem">Comment tu apparais dans le groupe. Les membres qui voient ta fiche le voient aussi.</p>',btns:[{label:'🎨 Couleur et emoji',value:'ce',cls:'pri'},{label:'📷 Mettre une photo',value:'ph'},{label:'↩️ Revenir à la lettre',value:'rz'},{label:'Fermer',value:null}]});
@@ -13545,8 +13566,7 @@ async function amEditRing(){
   const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
   inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
    try{const url=URL.createObjectURL(f),im=await new Promise((ok,ko)=>{const x=new Image();x.onload=()=>ok(x);x.onerror=ko;x.src=url});
-    const N=96,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,N,N);
-    const q0=Math.min(im.width,im.height),sx=(im.width-q0)/2,sy=(im.height-q0)/2;g.drawImage(im,sx,sy,q0,q0,0,0,N,N);URL.revokeObjectURL(url);
+    const c=await amCrop(im);URL.revokeObjectURL(url);if(!c)return;
     let q=.8,d=c.toDataURL('image/jpeg',q);while(d.length>11000&&q>.3){q-=.1;d=c.toDataURL('image/jpeg',q)}
     if(d.length>12000){toast('Photo trop lourde',3000);return}
     m.ph=d;m.ic='';await done('Photo enregistrée, envoi aux membres…')}
