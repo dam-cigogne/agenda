@@ -669,6 +669,7 @@ textarea.in{min-height:5rem;resize:vertical}
 .tgl input:checked{background:var(--accent)}
 .tgl:after{content:"";position:absolute;left:.2rem;top:.2rem;width:1.45rem;height:1.45rem;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.15s;pointer-events:none}
 .tgl:has(input:checked):after{left:1.45rem}
+.am-back{position:sticky;top:.35rem;z-index:8;margin-bottom:.6rem;box-shadow:0 3px 10px rgba(0,0,0,.18)}
 .sticky-save{position:sticky;bottom:calc(-1rem - env(safe-area-inset-bottom,0px));background:var(--surface);padding:.7rem 0 .2rem;margin-top:1rem;display:flex;gap:.5rem;border-top:1px solid var(--line2)}
 
 /* settings */
@@ -1532,7 +1533,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.12';
+const APP_VERSION='2.75.13';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1540,6 +1541,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.13',d:'09/11/2026',items:[
+  '<b>Amicale › Réglages : retour au groupe plus facile</b> : le bouton « ‹ Retour au groupe » reste affiché en haut pendant que tu fais défiler les réglages, et sur téléphone ou tablette il suffit de <b>glisser le doigt vers la droite</b> pour revenir au groupe.',
+  '<b>Hors connexion</b> : tes modifications faites sans réseau restent sur l’appareil et sont envoyées toutes seules dès que la connexion revient (sans rien toucher).'
+ ]},
  {v:'2.75.12',d:'09/11/2026',items:[
   '<b>Anciens Mac (Safari 15) : le groupe se synchronise enfin</b> : les documents du groupe, compressés par les téléphones récents, étaient illisibles pour un vieux Safari (donc 0 membre, 0 élément). L’appli sait maintenant les décompresser elle-même.'
  ]},
@@ -7853,6 +7858,13 @@ document.addEventListener('touchend',e=>{
  if(DRAGGING||Date.now()-lastDrag<900)return;
  if(Math.abs(dx)>70&&Math.abs(dy)<45&&Date.now()-tt<600)shift(dx<0?1:-1);
 },{passive:true});
+/* réglages d'Amicale : glisser vers la droite = retour au groupe */
+document.addEventListener('touchend',e=>{
+ if(!AMI||V.view!=='settings'||SHEET_OPEN||(($('#dlg')||{}).innerHTML||'').trim())return;
+ if(e.target.closest&&e.target.closest('input,textarea,select,canvas,.seg,.chips,.tg-wrap'))return;
+ const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+ if(dx>90&&Math.abs(dy)<45&&Date.now()-tt<600&&tx<window.innerWidth*0.7)go('amicale');
+},{passive:true});
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(render,150)});
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible'){
@@ -13598,7 +13610,7 @@ function amGrHTML(a,nu,navm,ami){
  return h;
 }
 function amiSettingsView(seg){
- let h='<div class="sgrid"><button class="btn pri blk" data-act="view" data-v="amicale" style="margin-bottom:.6rem">‹ Retour au groupe</button>'+(amc()?amGrHTML(amc(),S.amStyle==='new',S.amSide==null?(S.amStyle==='new'?2:1):+S.amSide,1):'')+amColCard()+pushCard();
+ let h='<div class="sgrid"><button class="btn pri blk am-back" data-act="view" data-v="amicale">‹ Retour au groupe</button>'+(amc()?amGrHTML(amc(),S.amStyle==='new',S.amSide==null?(S.amStyle==='new'?2:1):+S.amSide,1):'')+amColCard()+pushCard();
  const nuS=S.amStyle==='new',nvS=S.amSide==null?(nuS?2:1):+S.amSide;
 {const a0=amc();if(a0&&a0.apriv)h+='<div class="card"><h3>🖼 Logo du groupe</h3><p class="mut" style="margin:.1rem 0 .5rem;font-size:.88rem">Une image pour ton groupe : elle s’affiche en haut de l’accueil (style Nouveau) chez tous les membres.</p>'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'" style="width:4rem;height:4rem;border-radius:1.2rem;object-fit:cover;display:block;margin:0 0 .6rem">':'')+'<button class="btn blk" data-act="am-logo">'+(amLogoSrc()?'Changer ou retirer le logo':'Choisir une image…')+'</button></div>'}
  h+='<div class="card"><h3>Affichage</h3>'+amPick(nuS,nvS)+'<div class="set-row"><span class="lbl">Thème</span>'+seg('theme',[['auto','Auto'],['light','Clair'],['dark','Sombre']],S.theme)+'</div><div class="set-row"><span class="lbl">Taille du texte</span>'+seg('scale',[[1,'Normal'],[1.15,'Grand'],[1.3,'Très grand']],S.scale)+'</div></div>';
@@ -13659,6 +13671,7 @@ async function init(){
  window.addEventListener('hashchange',()=>{if(!cvCheckHash()&&!famHash2())shareCheckHash()});
  setTimeout(()=>famPull(false),1800);
  setInterval(()=>{if(document.visibilityState==='visible')famPull(false)},150000);
+ window.addEventListener('online',()=>{if(demo)return;setTimeout(()=>{try{if(amc())amPull(true).then(()=>amFlush()).then(()=>render()).catch(()=>{});famPull(false);if(V.view!=='settings')toast('Connexion retrouvée : mise à jour…',2500)}catch(e){}},1200)});
  setInterval(tick,30000);tick();
  setTimeout(()=>{if(!demo&&!S.mergeDone){S.mergeDone=1;saveSet();const n=mergeLocal();if(n)toast(n+' jour'+(n>1?'s':'')+' identique'+(n>1?'s':'')+' regroupé'+(n>1?'s':'')+' (événements importés)',5000)}},1200);
  if(!AMI){setTimeout(olAuto,1500);setTimeout(vacAutoRefresh,2500)}
