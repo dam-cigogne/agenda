@@ -1533,7 +1533,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.14';
+const APP_VERSION='2.75.15';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1541,6 +1541,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.15',d:'09/11/2026',items:['Amicale : les notifications disent maintenant qui a fait quoi (ex. « Nora a retiré « Lait », « Pain » des courses »)','Amicale : plusieurs modifications d’un coup = une seule notification groupée']},
  {v:'2.75.14',d:'09/11/2026',items:[
   '<b>Changer le niveau d’un membre (Bureau ↔ Aide) : tes autres appareils suivent</b> : ton Mac, ta tablette ou ton PC liés à toi reçoivent maintenant les nouvelles clés. Avant, seul l’appareil qui faisait le changement restait à jour, les autres ne voyaient plus rien de nouveau. <i>Si un de tes appareils est déjà resté bloqué : touche « Quitter le groupe » dessus et relie-le avec un nouveau code (« Lier un autre appareil »).</i>'
  ]},
@@ -10954,7 +10955,7 @@ function appLockCard(){
 }
 async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
- const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,30)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
 const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,sn:m.sn||'',tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',pub:m.pub||null,at:Date.now()}};
@@ -11390,7 +11391,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,it.kind,it.kind==='co'?(it.l||'Courses'):'');if(it.at===P.at)delete it.dirty};
+   await amPut(it.z,'i-'+it.id,P,0,it.kind,(it.ac||'m')+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -11423,7 +11424,7 @@ function amCoQty(id,dir){
  if(q<=0){amItemSave(Object.assign({},it,{del:1}));return}
  amItemSave(Object.assign({},it,{qt:fmtQ(q)+(u?' '+u:'')}));
 }
-function amItemSave(it){const a=amc();a.it=a.it||{};it.at=Math.max(Date.now(),(a.it[it.id]&&a.it[it.id].at||0)+1);it.by=a.me.n;it.dirty=1;a.it[it.id]=it;amSave();render();amFlush()}
+function amItemSave(it){const a=amc();a.it=a.it||{};{const pv=a.it[it.id];it.ac=!pv?'a':it.del?'d':(pv.ac==='a'&&pv.dirty)?'a':(it.x&&!pv.x)?'x':(!it.x&&pv.x)?'u':'m'}it.at=Math.max(Date.now(),(a.it[it.id]&&a.it[it.id].at||0)+1);it.by=a.me.n;it.dirty=1;a.it[it.id]=it;amSave();render();amFlush()}
 const amItems=kind=>{const a=amc();return Object.values(a&&a.it||{}).filter(i=>i&&i.kind===kind&&!i.del)};
 async function amItemForm(kind,it,def){
  const a=amc();if(!a)return;

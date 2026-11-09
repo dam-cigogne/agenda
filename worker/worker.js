@@ -50,13 +50,15 @@ async function notify(env,space,o){
     if(x.endpoint===o.selfEp||o.skip.includes(x.me))continue;
     if(o.to&&x.me!==o.to)continue;
     if(x.pf){const pq=x.pf.split('!');if(!pq[0].includes(o.kind))continue;if(o.kind==='i'&&o.hint&&pq[1]&&pq[1].split(',').includes(o.hint))continue}
+    if(o.kind==='i'&&!o.hint)continue;
     if(o.kind==='i'){jobs.push((async()=>{
-      await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();
+      if(!PEND_OK){await env.DB.prepare('CREATE TABLE IF NOT EXISTS pend (endpoint TEXT, space TEXT, by TEXT, h TEXT, d TEXT)').run();PEND_OK=1}
+      await env.DB.prepare('INSERT INTO pend (endpoint, space, by, h, d) VALUES (?, ?, ?, ?, ?)').bind(x.endpoint,space,o.by,o.hint,o.det||'').run();
       await new Promise(rs=>setTimeout(rs,6000));
-      const c=await env.DB.prepare('UPDATE push3 SET n = 0, last = ? WHERE endpoint = ? AND space = ? AND n > 0 RETURNING n').bind(Date.now(),x.endpoint,space).first();
-      if(!c)return;const k=c.n;
-      const H=k===1&&o.hint&&HINT[o.hint];
-      await sendOne(env,x,{t:H?H[0]:LBT.i,b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):H[1])):k>1?(o.by+' : '+k+' modifications'):(o.by+' a modifié '+LBL.i),g:'agd-i'});
+      const c=await env.DB.prepare('DELETE FROM pend WHERE endpoint = ? AND space = ? RETURNING by, h, d').bind(x.endpoint,space).all();
+      const rows=c.results||[];if(!rows.length)return;
+      await env.DB.prepare('UPDATE push3 SET last = ? WHERE endpoint = ? AND space = ?').bind(Date.now(),x.endpoint,space).run();
+      const m=amMsg(rows);await sendOne(env,x,{t:m.t,b:m.b,g:'agd-i'});
     })());continue}
     if(now-x.last<0){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
@@ -64,6 +66,23 @@ async function notify(env,space,o){
     const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):(/^fe[amd]$/.test(o.hint)&&o.det)?evTxt(o.hint,o.det):(/^f[tc][amd]$/.test(o.hint)&&o.det)?itTxt(o.hint,o.det):H[1])):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
   if(jobs.length)await Promise.all(jobs);
+}
+let PEND_OK=0;
+const AMV={co:{a:['a ajouté','aux courses'],d:['a retiré','des courses'],x:['a coché','dans les courses'],u:['a décoché','dans les courses'],m:['a modifié','dans les courses'],N:'article'},
+ tk:{a:['a ajouté','aux tâches'],d:['a supprimé','des tâches'],x:['a terminé','parmi les tâches'],u:['a rouvert','parmi les tâches'],m:['a modifié','dans les tâches'],N:'tâche'},
+ ev:{a:['a ajouté','à l’agenda'],d:['a supprimé','de l’agenda'],x:['a modifié','dans l’agenda'],u:['a modifié','dans l’agenda'],m:['a modifié','dans l’agenda'],N:'rendez-vous'},
+ ee:{a:['a ajouté','aux événements'],d:['a supprimé','des événements'],x:['a modifié','dans les événements'],u:['a modifié','dans les événements'],m:['a modifié','dans les événements'],N:'événement'},
+ nt:{a:['a ajouté','aux notes'],d:['a supprimé','des notes'],x:['a modifié','dans les notes'],u:['a modifié','dans les notes'],m:['a modifié','dans les notes'],N:'note'}};
+function amMsg(rows){
+  const by=[...new Set(rows.map(r=>r.by))],hs=[...new Set(rows.map(r=>r.h))];
+  const t=hs.length===1&&HINT[hs[0]]?HINT[hs[0]][0]:LBT.i,who=by.length===1?by[0]:'Plusieurs membres';
+  const G={};rows.forEach(r=>{const p=(r.d||'').split('|'),ac=p[0]&&p[0].length===1?p[0]:'m',tx=p.length>1?p[1]:'',k=r.h+'|'+ac;(G[k]=G[k]||{h:r.h,ac,n:[]}).n.push(tx)});
+  const ph=Object.values(G).map(g=>{const V=AMV[g.h];if(!V)return null;const [vb,suf]=V[g.ac]||V.m,nm=g.n.filter(Boolean);
+    const what=(nm.length===g.n.length&&nm.length<=3)?nm.map(x=>'« '+x+' »').join(', '):g.n.length+' '+V.N+(g.n.length>1?'s':'');
+    return vb+' '+what+' '+suf});
+  let b=ph.every(Boolean)?(who+' '+ph.join(', ')):(who+' : '+rows.length+' modification'+(rows.length>1?'s':''));
+  if(b.length>150)b=who+' : '+rows.length+' modifications';
+  return {t,b};
 }
 const evTxt=(h,d)=>{const p=d.split('|');return (h==='fea'?'a ajouté':h==='fed'?'a supprimé':'a modifié')+' l’événement « '+p[0]+' »'+(p[1]?' ('+p[1]+')':'')};
 const itTxt=(h,d)=>{const co=h[1]==='c',v=h[2]==='a'?'a ajouté':h[2]==='d'?(co?'a retiré':'a supprimé'):'a modifié';if(d[0]==='#')return v+' '+d.slice(1)+(co?' articles aux courses':' tâches');return v+(co?' « '+d+' »'+(h[2]==='a'?' aux courses':h[2]==='d'?' des courses':''):(h[2]==='a'?' la tâche « ':h[2]==='d'?' la tâche « ':' la tâche « ')+d+' »')};
