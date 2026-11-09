@@ -1531,7 +1531,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.0';
+const APP_VERSION='2.75.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1539,6 +1539,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.1',d:'09/11/2026',items:[
+  '<b>Notifications Famille plus précises</b> : au lieu de « a modifié les listes partagées », tu vois par exemple « Damien a ajouté un événement », « a supprimé une tâche », « a modifié un anniversaire », « a ajouté un voyage », ou « a fait plusieurs modifications ». (Nécessite la mise à jour du serveur, voir la note envoyée avec la version.)'
+ ]},
  {v:'2.75.0',d:'08/11/2026',items:[
   '<b>Courses : vue d’ensemble</b> : un bouton « 🔍 Vue d’ensemble » (à côté de « ＋ Liste ») affiche les articles sur deux colonnes, une ligne fine chacun avec la quantité à côté du nom, pour voir toute la liste d’un coup d’œil. « Voir en grand » revient à l’affichage normal.'
  ]},
@@ -10457,6 +10460,20 @@ function famApply(from,P){
  const newG=P.g&&!P.g.x&&!P.g.self?FAM_G.filter(([k])=>P.g[k]&&!prev[k]).map(([k,l])=>k==='tk'&&P.g.tk===1?'tes tâches':k==='co'&&Array.isArray(P.g.cos)&&P.g.cos.length?'🛒 '+P.g.cos.join(', 🛒 '):l.replace(/^\S+ /,'')):[];
  return{n,cats:[...cats],newG,det};
 }
+function famDiffHint(f,id,P){
+ try{
+  const me=f.me,mine=i=>{const o=famOrg(i);return o===me||!!(f.mb[o]&&f.mb[o].self)};
+  const cats=[['e',P.ag&&P.ag.ev,x=>!String(x.cat||'').startsWith('x-')],['t',P.tk&&P.tk.tk,x=>mine(x.id)],['b',P.bd&&P.bd.bd,x=>mine(x.id)],['v',P.vy&&P.vy.vy,x=>mine(x.id)]];
+  f.hp=f.hp||{};const old=f.hp[id],cur={},res=[];
+  for(const [c,arr,ok] of cats){const m={};(Array.isArray(arr)?arr:[]).forEach(x=>{if(x&&x.id&&ok(x))m[x.id]=famHash(x)});cur[c]=m;
+   if(old){const o=old[c]||{};let a=0,d=0,u=0;for(const i in m){if(!(i in o))a++;else if(o[i]!==m[i])u++}for(const i in o)if(!(i in m))d++;if(a+d+u)res.push([c,a,u,d])}}
+  f.hp[id]=cur;
+  if(!old||!res.length)return '';
+  if(res.length>1)return 'fmu';
+  const [c,a,u,d]=res[0],n=(a?1:0)+(u?1:0)+(d?1:0);
+  return 'f'+c+(n>1?'m':a?'a':d?'d':'m');
+ }catch(e){return ''}
+}
 const famHash=o=>{const s=JSON.stringify(Object.assign({},o,{at:0,from:''}));let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h)};
 function famSchedule(){if(!fam()||!famUrl()||demo)return;clearTimeout(FAM_T);FAM_T=setTimeout(()=>famPush(),6000)}
 async function famPush(){
@@ -10468,7 +10485,7 @@ async function famPush(){
 }
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
- const put=async(doc,P,key)=>{const b=await famEncK(P,key);b.by=meName();const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:{'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':[f.me].concat(Object.keys(f.mb).filter(i=>f.mb[i].self)).join(',')},body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
+ const put=async(doc,P,key,hint)=>{const b=await famEncK(P,key);b.by=meName();const hd={'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':[f.me].concat(Object.keys(f.mb).filter(i=>f.mb[i].self)).join(',')};if(hint)hd['X-Push-Hint']=hint;const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc,{method:'PUT',headers:hd,body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
  const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x&&!famNameClash(f.mb[i])),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  try{await famPhPush(f,put,FK.key)}catch(e){}
@@ -10478,7 +10495,7 @@ async function famPushG(f){
   if(f.mb[id].gone&&f.sent['c'+id]==='gone')continue;
   const key=await famPair(f,id);if(!key)continue;
   FG=f;const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
-  await put('c-'+f.me+'-'+id,P,key);f.sent['c'+id]=f.mb[id].gone?'gone':h;
+  await put('c-'+f.me+'-'+id,P,key,famDiffHint(f,id,P));f.sent['c'+id]=f.mb[id].gone?'gone':h;
  }
  for(const id of famMembers(f)){const m=f.mb[id];if(!m||!m.self||m.x||famNameClash(m))continue;
   const key=await famPair(f,id);if(!key)continue;
