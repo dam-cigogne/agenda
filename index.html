@@ -336,6 +336,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am2-date b{display:block;font-size:1.65rem;line-height:1;font-weight:800}
 .am2-hero h3{margin:0;font-size:1.15rem;font-weight:800;line-height:1.15;letter-spacing:-.01em;color:#fff}
 .am2-hero p{margin:.25rem 0 0;font-size:.82rem;font-weight:600;opacity:.95}
+.am2-nt{display:block;margin-top:.25rem;font-size:.72rem;font-weight:700;color:var(--muted)}
 .am2-card{margin:1rem 0;padding:.3rem .9rem .5rem;border:1px solid var(--line);border-radius:18px;background:var(--surface,transparent)}
 .am2-card h3{margin:.7rem 0 .3rem;font-size:1.05rem;font-weight:800}
 .am2-row{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;padding:.55rem 0;border-top:1px solid var(--line)}
@@ -1542,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.19';
+const APP_VERSION='2.75.20';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1550,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.20',d:'09/11/2026',items:['Amicale (nouveau style) : les membres (Bureau et Aides) sont maintenant dans l’Accueil, avec le nombre de tâches de chacun ; l’onglet Membres disparaît']},
  {v:'2.75.19',d:'09/11/2026',items:['Amicale (nouveau style) : nouvel onglet 🏠 Accueil (ce qui t’attend, du nouveau, prochain rendez-vous, tuiles) ; Membres passe dans « Plus » et sur la tuile Membres','Amicale : personnalise ton rond (touche ta fiche › 🎨 Mon rond) : couleur au choix, emoji à la place de la lettre, ou petite photo']},
  {v:'2.75.18',d:'09/11/2026',items:['Amicale : tuiles de l’accueil plus petites (surtout sur grand écran)']},
  {v:'2.75.17',d:'09/11/2026',items:['Amicale (nouveau style) : « Le bureau » et « Les aides » sont maintenant dans deux encadrés distincts','Amicale : l’accueil ajoute des tuiles cliquables Courses, Amicalistes et Administratif (ces deux-là pour le bureau)']},
@@ -7414,6 +7416,7 @@ async function act(a,el,e){
   case 'am-new':amCreate();break;
   case 'am-join':amJoinCode();break;
   case 'am-mb':amFiche(ds_.id);break;
+  case 'am-mbs':{const e=document.getElementById('am-mbs');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'am-tab':AMC_TAB=ds_.k;AMC_MB=ds_.k==='mb'?1:0;render();break;
   case 'am-more':await amMore();break;
   case 'am-keyok':amKeyOk();break;
@@ -13556,7 +13559,7 @@ function amHome(a,nTk,nEv){
  let h='<div class="am2-id"><div class="am2-logo"'+(a.apriv?' data-act="am-logo" role="button" aria-label="Logo du groupe"':'')+' style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
  {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],['#FFB020','co',nCo,'courses']];
   if(a.kB){T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':'')]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
-  h+='<div class="am2-st">'+T.map(t=>'<button style="background:'+t[0]+'" data-act="am-tab" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span></button>').join('')+'</div>'}
+  h+='<div class="am2-st">'+T.map(t=>'<button style="background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span></button>').join('')+'</div>'}
  if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
   h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
  return h;
@@ -13589,7 +13592,7 @@ function amDockHTML(tabs){
 async function amMore(){
  const a=amc();if(!a)return;
  const main=AM_DOCK.map(x=>x[0]),n=k=>amItems(k).filter(i=>!i.x).length;
- const L=[['mb','👥 Membres']];if(a.kB)L.push(['am','🎖 Amicalistes']);if(a.kB)L.push(['nt','📝 Notes du bureau']);if(a.kB)L.push(['ad','📁 Administratif']);L.push(['lo','📖 Pour les nuls']);if(!AMI)L.push(['gr','⚙️ Réglages du groupe']);
+ const L=[];if(a.kB)L.push(['am','🎖 Amicalistes']);if(a.kB)L.push(['nt','📝 Notes du bureau']);if(a.kB)L.push(['ad','📁 Administratif']);L.push(['lo','📖 Pour les nuls']);if(!AMI)L.push(['gr','⚙️ Réglages du groupe']);
  const r=await ask({title:'Plus',btns:L.map(([k,l])=>({label:l,value:k})).concat([{label:'Fermer',value:null}])});
  if(!r)return;
  if(r==='sy'){const b=document.querySelector('[data-act=am-sync]');try{await amPull(true)}catch(e){}toast('Mis à jour',1800);render();return}
@@ -13620,8 +13623,8 @@ function amView0(){
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
  if((AMC_TAB==='nt'||AMC_TAB==='am'||AMC_TAB==='ad')&&!a.kB)AMC_TAB='mb';
  const n4=amItems('ee').filter(i=>(i.d||'')>=td).length;
- const nu0=S.amStyle==='new';const tabs=(nu0?[['ac','🏠 Accueil']]:[]).concat([['mb','👤 Membres']],a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
- const nu=S.amStyle==='new';if(nu&&AMC_TAB==='mb'&&!AMC_MB)AMC_TAB='ac';if(!nu&&AMC_TAB==='ac')AMC_TAB='mb';
+ const nu0=S.amStyle==='new';const tabs=(nu0?[['ac','🏠 Accueil']]:[['mb','👤 Membres']]).concat(a.kB?[['am','🎖 Amicalistes'+(amAms().length?' '+amAms().length:'')]]:[],[['ev','📅 Agenda'+(n3?' '+n3:'')],['ee','🎉 Événements'+(n4?' '+n4:'')],['tk','✅ Tâches'+(n1?' '+n1:'')],['co','🛒 Courses'+(n2?' '+n2:'')]],a.kB?[['nt','📝 Notes'],['ad','📁 Administratif'+(amItems('ad').length?' '+amItems('ad').length:'')]]:[],[['lo','📖 Pour les nuls'],['gr','⚙️ Groupe']]);
+ const nu=S.amStyle==='new';if(nu&&AMC_TAB==='mb')AMC_TAB='ac';if(!nu&&AMC_TAB==='ac')AMC_TAB='mb';
  const navm=S.amSide==null?(nu?2:1):+S.amSide,side=navm===1,dock=navm===2;
  const seg=(k,opts,val)=>'<div class="seg">'+opts.map(o=>'<button data-act="set" data-k="'+k+'" data-v="'+o[0]+'" class="'+(String(val)===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
  let h=(AMC_TAB==='am'?'':amAnBanner());
@@ -13638,10 +13641,10 @@ function amView0(){
   const RC=['#6B4EFF','#FF5C6C','#12B5A0','#2D8CFF','#FFB020','#B25CFF','#FF7A45','#0EA5B7','#7C8CFF'],hs=t=>{let x=0;for(const c of String(t))x=(x*31+c.charCodeAt(0))>>>0;return x};
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
-    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span></button>'}).join('')+'</div></section>'};
+    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amItems('tk').filter(i=>!i.x&&i.w&&i.w===p.n).length;return nt?'<small class="am2-nt">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
-  h+=isAc?amHome(a,n1,n3+n4)+amAcHTML(a):nu?grp('b','Le bureau')+grp('a','Les aides'):grpC('b','Bureau')+grpC('a','Aides extérieurs');
-  if(!isAc){if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
+  h+=isAc?amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem">'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
+  {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>'}
  }
