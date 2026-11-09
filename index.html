@@ -1531,7 +1531,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.2';
+const APP_VERSION='2.75.3';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1539,6 +1539,10 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.3',d:'09/11/2026',items:[
+  '<b>Notifications Famille plus fiables</b> : si un envoi échouait (réseau coupé, « Load failed »), la notification de la modification était perdue ensuite. Elle est maintenant envoyée au renvoi suivant.',
+  '<b>Réglages › Famille › « ⤵ Tout recharger »</b> : relit tout depuis le serveur et renvoie tout ce que tu partages, sans rien effacer. Utile si deux téléphones ne montrent pas les mêmes listes.'
+ ]},
  {v:'2.75.2',d:'09/11/2026',items:[
   '<b>Notifications Famille : plus de fausses alertes</b> : ton conjoint n’est prévenu que si <b>tu</b> as vraiment ajouté, modifié ou supprimé quelque chose (événement, tâche, anniversaire, voyage, recette). Ouvrir l’appli ou lire son agenda n’envoie plus rien.'
  ]},
@@ -7578,6 +7582,7 @@ async function act(a,el,e){
   case 'fam-unself':{const g=grpOf(ds_.id),m=g&&g.mb[ds_.id];if(m){delete m.self;g.sent.m='';saveSet();render();toast('✔ '+m.n+' n’est plus un de tes appareils',4000)}break}
   case 'fam-readd':famReadd(ds_.id);break;
   case 'fam-sync':famPull(true);break;
+  case 'fam-full':famFullReload();break;
   case 'jr-open':jrOpen();break;case 'jr-undo':jrUndo(ds_.id);break;case 'jr-clr':jrClear();break;
   case 'fam-quit':{const g=(S.fams||[])[+ds_.g];if(!g)break;const ok=await ask({title:'Quitter « '+(g.nm||'ce groupe')+' » ?',text:'Tes listes restent sur ce téléphone, mais elles ne se mettront plus à jour avec ce groupe. Tes autres groupes ne changent pas.',btns:[{label:'Quitter',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok==='y'){S.fams=S.fams.filter(x=>x!==g);saveSet();render()}break}
   case 'fam-ren':{const g=(S.fams||[])[+ds_.g];if(!g)break;const v={t:g.nm||''};const pr=ask({title:'✏️ Nom du groupe',html:'<input class="in" id="gn-in" maxlength="24" value="'+esc(g.nm||'')+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='gn-in')v.t=e.target.value};const r=await pr;root.oninput=null;if(r==='ok'&&String(v.t).trim()){g.nm=String(v.t).trim().slice(0,24);saveSet();render()}break}
@@ -10463,6 +10468,7 @@ function famApply(from,P){
  const newG=P.g&&!P.g.x&&!P.g.self?FAM_G.filter(([k])=>P.g[k]&&!prev[k]).map(([k,l])=>k==='tk'&&P.g.tk===1?'tes tâches':k==='co'&&Array.isArray(P.g.cos)&&P.g.cos.length?'🛒 '+P.g.cos.join(', 🛒 '):l.replace(/^\S+ /,'')):[];
  return{n,cats:[...cats],newG,det};
 }
+const FAM_HPN={};
 function famDiffHint(f,id,P){
  try{
   const me=f.me,mine=i=>{const o=famOrg(i);return o===me||!!(f.mb[o]&&f.mb[o].self)};
@@ -10470,7 +10476,7 @@ function famDiffHint(f,id,P){
   f.hp=f.hp||{};const old=f.hp[id],cur={},res=[];
   for(const [c,arr,ok] of cats){const m={};(Array.isArray(arr)?arr:[]).forEach(x=>{if(x&&x.id&&ok(x))m[x.id]=famHash(x)});cur[c]=m;
    if(old){const o=old[c]||{};let a=0,d=0,u=0;for(const i in m){if(!(i in o))a++;else if(o[i]!==m[i])u++}for(const i in o)if(!(i in m))d++;if(a+d+u)res.push([c,a,u,d])}}
-  f.hp[id]=cur;
+  FAM_HPN[f.me+'|'+id]=cur;
   if(!old||!res.length)return 'q';
   if(res.length>1)return 'fmu';
   const [c,a,u,d]=res[0],n=(a?1:0)+(u?1:0)+(d?1:0);
@@ -10498,7 +10504,7 @@ async function famPushG(f){
   if(f.mb[id].gone&&f.sent['c'+id]==='gone')continue;
   const key=await famPair(f,id);if(!key)continue;
   FG=f;const P=famChan(id),h=famHash(P);if(f.sent['c'+id]===h)continue;
-  await put('c-'+f.me+'-'+id,P,key,famDiffHint(f,id,P));f.sent['c'+id]=f.mb[id].gone?'gone':h;
+  const hk=f.me+'|'+id;await put('c-'+f.me+'-'+id,P,key,famDiffHint(f,id,P));f.sent['c'+id]=f.mb[id].gone?'gone':h;if(FAM_HPN[hk]){f.hp=f.hp||{};f.hp[id]=FAM_HPN[hk];delete FAM_HPN[hk]}
  }
  for(const id of famMembers(f)){const m=f.mb[id];if(!m||!m.self||m.x||famNameClash(m))continue;
   const key=await famPair(f,id);if(!key)continue;
@@ -10507,6 +10513,7 @@ async function famPushG(f){
  }
  f.pushAt=Date.now();ls.set(K.set,S);
 }
+async function famFullReload(){const r=await ask({title:'⤵ Tout recharger ?',text:'L’appli relit tout depuis le serveur et renvoie tout ce que tu partages (sans rien effacer ici). À faire si cet appareil ne montre pas les mêmes choses que les autres.',btns:[{label:'Tout recharger',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;for(const g of famAll()){g.last=0;g.seen={};g.sent={}}saveSet();toast('Rechargement…',3000);await famPull(true)}
 async function famPull(manual){
  if(!famUrl()||demo||!famAll().length)return;
  const out={got:[],joined:[],granted:[],selfNew:[],chg:false};
@@ -10711,7 +10718,7 @@ function famCard(){
    if(out.length)h+='<details class="fam-out"><summary>Personnes retirées ('+out.length+')</summary>'+out.map(id=>'<div class="fam-mb"><div class="fam-mb-t"><b>'+esc(famName(id))+'</b><small>Ne reçoit plus rien</small></div><div class="fam-mb-b"><button class="btn" data-act="fam-readd" data-id="'+esc(id)+'">Réintégrer</button><button class="btn" data-act="fam-forget" data-id="'+esc(id)+'" aria-label="Supprimer définitivement">🗑</button></div></div>').join('')+'</details>';
    h+='<button class="fam-quit" data-act="fam-quit" data-g="'+gi+'">Quitter « '+esc(g.nm||'ce groupe')+' »</button></div>';
   }
-  h+='<div class="chips" style="margin:.6rem 0 .2rem"><button class="chip" data-act="fam-create">＋ Nouveau groupe (amis…)</button><button class="chip" data-act="fam-code-join">🔢 J’ai reçu un code</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour</button></div>';
+  h+='<div class="chips" style="margin:.6rem 0 .2rem"><button class="chip" data-act="fam-create">＋ Nouveau groupe (amis…)</button><button class="chip" data-act="fam-code-join">🔢 J’ai reçu un code</button><button class="chip" data-act="fam-sync">🔄 Mettre à jour</button><button class="chip" data-act="fam-full">⤵ Tout recharger</button></div>';
  }
  h+='<div style="height:.4rem"></div>'+mrow('fam-inv','📨 Faire installer l’appli','Le lien et les 3 étapes, par SMS')+mrow('sh-recv','📥 Recevoir un partage','Coller un lien reçu par SMS, WhatsApp ou mail')+
   sfold('Comment ça marche ?','<b>Groupes connectés</b> (Famille, Amis…) : chaque personne que tu invites avec un code apparaît dans le groupe. Avec « Choisir », tu décides ce que tu lui partages (courses, tâches, repas, anniversaires, voyages) ; au départ, rien. Les mises à jour arrivent toutes seules, chiffrées de bout en bout. Ce qui vient d’un groupe n’est jamais renvoyé à un autre groupe.<br><b>Retirer</b> une personne : elle ne reçoit plus rien et ce que tu lui avais partagé disparaît de chez elle. 🗑 la supprime définitivement de ta liste.<br><b>Mes contacts</b> servent à dire qui fait quoi (tâches, repas). <b>📥 Recevoir un partage</b> sert aux liens envoyés par SMS, sans groupe.')+'</div>';
