@@ -1533,7 +1533,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.15';
+const APP_VERSION='2.75.16';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1541,6 +1541,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.16',d:'09/11/2026',items:['Notifications Famille : quand plusieurs articles ou tâches sont ajoutés, retirés ou modifiés d’un coup, la notification donne leurs noms (ex. « a ajouté « Coca », « Ice tea » aux courses »)']},
  {v:'2.75.15',d:'09/11/2026',items:['Amicale : les notifications disent maintenant qui a fait quoi (ex. « Nora a retiré « Lait », « Pain » des courses »)','Amicale : plusieurs modifications d’un coup = une seule notification groupée']},
  {v:'2.75.14',d:'09/11/2026',items:[
   '<b>Changer le niveau d’un membre (Bureau ↔ Aide) : tes autres appareils suivent</b> : ton Mac, ta tablette ou ton PC liés à toi reçoivent maintenant les nouvelles clés. Avant, seul l’appareil qui faisait le changement restait à jour, les autres ne voyaient plus rien de nouveau. <i>Si un de tes appareils est déjà resté bloqué : touche « Quitter le groupe » dessus et relie-le avec un nouveau code (« Lier un autre appareil »).</i>'
@@ -10542,7 +10543,7 @@ function famApply(from,P){
 }
 const FAM_HPN={};
 const famEvSig=x=>{const h=o=>famHash({o}),t=String(x.title||'').replace(/[\u0001|]/g,' ').slice(0,40);return t+'\u0001'+[h([x.start,x.end,x.rec,x.ex]),h([x.allDay,x.startTime,x.endTime]),h(x.place),h(x.title),h([x.icon,x.hi])].join('.')};
-function famItDet(o,m,a,u,d){const n=x=>String(x||'').split('\u0001')[0];if(a+u+d===1){let id;if(a)id=Object.keys(m).find(i=>!(i in o));else if(d)id=Object.keys(o).find(i=>!(i in m));else id=Object.keys(m).find(i=>o[i]!==m[i]);return n((a||u)?m[id]:o[id])}if(a>1&&!u&&!d)return '#'+a;return ''}
+function famItDet(o,m,a,u,d){const n=x=>String(x||'').split('\u0001')[0];if(a+u+d===1){let id;if(a)id=Object.keys(m).find(i=>!(i in o));else if(d)id=Object.keys(o).find(i=>!(i in m));else id=Object.keys(m).find(i=>o[i]!==m[i]);return n((a||u)?m[id]:o[id])}const k=(a>1&&!u&&!d)?1:(d>1&&!a&&!u)?2:(u>1&&!a&&!d)?3:0;if(k){const ids=(k===2?Object.keys(o).filter(i=>!(i in m)):k===1?Object.keys(m).filter(i=>!(i in o)):Object.keys(m).filter(i=>i in o&&o[i]!==m[i])),nm=ids.slice(0,3).map(i=>n(k===2?o[i]:m[i]).replace(/[|#]/g,' ').trim().slice(0,18)).filter(Boolean);return '#'+ids.length+(nm.length?'|'+nm.join('|'):'')}return ''}
 function famEvDet(o,m,a,u,d){const n=(x)=>String(x||'').split('\u0001')[0];let id=null,L='';if(a+u+d!==1)return '';if(a){id=Object.keys(m).find(i=>!(i in o));return n(m[id])}if(d){id=Object.keys(o).find(i=>!(i in m));return n(o[id])}id=Object.keys(m).find(i=>o[i]!==m[i]);const x=String(o[id]).split('\u0001')[1]||'',y=String(m[id]).split('\u0001')[1]||'';const A=x.split('.'),B=y.split('.'),W=['date','heure','lieu','titre','icône'];const ch=W.filter((w,i)=>A[i]!==B[i]);return n(m[id])+'|'+ch.join(', ')}
 function famHpSigs(P){
  const cats=[['e',P.ag&&P.ag.ev,x=>!String(x.cat||'').startsWith('x-')],['c',P.tk&&P.tk.tk,x=>isCoL(x.l)],['t',P.tk&&P.tk.tk,x=>!isCoL(x.l)],['b',P.bd&&P.bd.bd,()=>true],['v',P.vy&&P.vy.vy,()=>true],['r',P.rc&&P.rc.rc,()=>true]],cur={};
