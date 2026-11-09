@@ -1532,7 +1532,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.10';
+const APP_VERSION='2.75.11';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1540,6 +1540,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.11',d:'09/11/2026',items:[
+  '<b>Synchronisation : diagnostic</b> (Amicale › ⚙ › Synchronisation) : si des documents du groupe reçus ne peuvent pas être lus sur un appareil (navigateur ancien, clé qui ne correspond pas), l’appli l’écrit maintenant au lieu de rester muette.'
+ ]},
  {v:'2.75.10',d:'09/11/2026',items:[
   '<b>Compatible avec les anciens Mac</b> (Safari 15, macOS Catalina) : une écriture trop récente dans la lecture des dates empêchait toute l’appli de démarrer (page blanche). Corrigé, et un message clair s’affiche désormais si un navigateur est trop ancien.'
  ]},
@@ -11007,7 +11010,7 @@ async function amPull(manual){
  if(!manual&&Date.now()-(a.pullAt||0)<20000)return;
  AMC_BUSY=true;a.pullAt=Date.now();
  try{
-  a.last=a.last||{};a.mem=a.mem||{};
+  a.last=a.last||{};a.mem=a.mem||{};let dgN=0,dgF=0,dgE='';
   const ks=[];for(const [z,k] of [['b',a.kB],['a',a.kA]]){if(!k)continue;const FK=await famKeys({k});ks.push({z,FK,since:Math.max(0,Math.floor(a.last[z]||0))})}
   const r=await fetch(famUrl()+'/m?q='+ks.map(x=>x.FK.space+'.'+x.since).join(','),{cache:'no-store'});
   if(!r.ok)throw new Error('Serveur : '+r.status);
@@ -11016,7 +11019,7 @@ async function amPull(manual){
    const docs=(J.r&&J.r[x.FK.space])||[];
    for(const d of docs){try{
     a.last[x.z]=Math.max(a.last[x.z]||0,d.at||0);
-    let P;try{P=await famDecK(JSON.parse(d.data),x.FK.key)}catch(e){continue}
+    let P;dgN++;try{P=await famDecK(JSON.parse(d.data),x.FK.key)}catch(e){dgF++;dgE=String(e&&(e.name||e.message)||e).slice(0,50);continue}
     if(!P||P.k!=='amc')continue;
     if(d.doc==='roles'){
      if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
@@ -11065,7 +11068,7 @@ async function amPull(manual){
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
-  a.syncOk=Date.now();amSave();
+  a.syncOk=Date.now();a.dg={n:dgN,f:dgF,e:dgE};amSave();
   amFlush();
   if(chg&&V.view==='amicale')render();
  }catch(e){a.syncErr='serveur : '+String(e&&e.message||e).slice(0,100);if(manual)toast('Pas de connexion au serveur : '+(e.message||''),4000)}
@@ -12399,7 +12402,7 @@ function amFileRestore(){
 function amSyncCard(){
  const a=amc();if(!a)return '';const ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
- return '<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+'</p>'+
+ return '<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+(a.dg&&a.dg.f?'<br><span class="pay-no">'+a.dg.f+' document'+(a.dg.f>1?'s':'')+' sur '+a.dg.n+' illisible'+(a.dg.f>1?'s':'')+' sur cet appareil'+(a.dg.e?' ('+esc(a.dg.e)+')':'')+'</span>':'')+'</p>'+
   mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+'</div>';
 }
 async function amFullReload(){const a=amc();if(!a)return;const r=await ask({title:'⤵ Tout recharger ?',text:'L’appli relit tout le groupe depuis le serveur (sans rien effacer ici). À faire si cet appareil ne montre pas les mêmes choses que les autres.',btns:[{label:'Tout recharger',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;
