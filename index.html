@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.22';
+const APP_VERSION='2.75.23';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.23',d:'09/11/2026',items:['Amicale : une liste de courses vide reste visible par tout le groupe (elle ne disparaît plus quand tout est acheté) ; on peut la supprimer depuis ✏️ quand elle est vide']},
  {v:'2.75.22',d:'09/11/2026',items:['Amicale : les listes de courses se renomment (y compris la première) et peuvent être réservées au bureau (bouton ✏️ sous les listes)']},
  {v:'2.75.21',d:'09/11/2026',items:['Amicale : la photo du rond se recadre (on la déplace et on zoome) avant d’être enregistrée en petit']},
  {v:'2.75.20',d:'09/11/2026',items:['Amicale (nouveau style) : les membres (Bureau et Aides) sont maintenant dans l’Accueil, avec le nombre de tâches de chacun ; l’onglet Membres disparaît']},
@@ -11423,7 +11424,7 @@ async function amFlush(){
 async function amCoNewList(){
  const v=await amForm('Nouvelle liste de courses','Par exemple : Buvette, Pharmacie, Loto…',[{k:'n',l:'Nom',ph:'Buvette'}]);
  if(!v||!String(v.n||'').trim())return;const n=v.n.trim().slice(0,24),a=amc();
- a.cl=a.cl||[];if(!amCoLists().includes(n))a.cl.push(n);AMC_CL=n;amSave();render();
+ if(!amCoLists().includes(n))amCfgPut(c=>{if(!c.l.includes(n))c.l.push(n)});AMC_CL=n;amSave();render();
 }
 function amCoAdd(){
  const a=amc(),i=$('#amco-in'),g=i&&ingParse(i.value);if(!g){toast('Écris un article');return}
@@ -13456,13 +13457,16 @@ function amCqTap(id){
 }
 const amDLc=()=>{try{const a=amc(),i=a&&a.it&&a.it.cfgdl;return i&&!i.del?(JSON.parse(i.bd||'{}')||{}):{}}catch(e){return {}}};
 const amDL=()=>amDLc().n||'Courses',amListB=n=>(amDLc().b||[]).includes(n);
-const amCoLists=()=>{const a=amc(),L=[amDL()];amItems('co').forEach(i=>{const n=i.l||amDL();if(!L.includes(n))L.push(n)});((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return a&&!a.kB?L.filter(n=>!amListB(n)):L};
+function amCfgPut(mut){const c=amDLc(),o={n:c.n||'',b:(c.b||[]).slice(),l:(c.l||[]).slice()};mut(o);if(o.n==='Courses')o.n='';amItemSave({id:'cfgdl',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(o),del:0,z:'a'})}
+const amCoLists=()=>{const a=amc(),L=[amDL()];amItems('co').forEach(i=>{const n=i.l||amDL();if(!L.includes(n))L.push(n)});(amDLc().l||[]).concat((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return a&&!a.kB?L.filter(n=>!amListB(n)):L};
 async function amCoEdit(){
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a||!a.kB)return;
  const old=AMC_CL,isDef=old===amDL(),B0=amListB(old);
- const v=await amForm('✏️ Liste « '+old+' »','Le changement vaut pour tout le groupe.',[{k:'n',l:'Nom de la liste',v:old},{k:'b',l:'Qui la voit',t:'select',v:B0?'1':'0',o:[['0','👥 Tout le monde (bureau et aides)'],['1','🔒 Le bureau seulement']]}]);
+ const v=await amForm('✏️ Liste « '+old+' »','Le changement vaut pour tout le groupe.',[{k:'n',l:'Nom de la liste',v:old},{k:'b',l:'Qui la voit',t:'select',v:B0?'1':'0',o:[['0','👥 Tout le monde (bureau et aides)'],['1','🔒 Le bureau seulement']]}].concat(isDef?[]:[{k:'dl',l:'Supprimer cette liste',t:'select',v:'0',o:[['0','Non, la garder'],['1','🗑 Oui, la supprimer (elle doit être vide)']]}]));
  if(!v)return;
+ if(v.dl==='1'){if(amItems('co').some(i=>(i.l||amDL())===old)){toast('Vide d’abord la liste (ou renomme-la)',3500);return}
+  amCfgPut(c=>{c.l=c.l.filter(n=>n!==old);c.b=c.b.filter(n=>n!==old)});if(a.cl)a.cl=a.cl.filter(n=>n!==old);AMC_CL=amDL();amSave();render();toast('Liste supprimée',2500);return}
  const nn=String(v.n||'').trim().slice(0,24);if(!nn){toast('Il faut un nom',2500);return}
  const bb=v.b==='1';
  if(nn!==old&&amCoLists().includes(nn)){toast('Une liste porte déjà ce nom',3000);return}
@@ -13470,8 +13474,7 @@ async function amCoEdit(){
  const now=Date.now();let k=0;const zt=bb?'b':'a';
  Object.values(a.it||{}).filter(i=>i&&i.kind==='co'&&!i.del&&(i.l||amDL())===old).forEach(i=>{const u=Object.assign({},i,{l:nn,at:Math.max(now+k,(i.at||0)+1),by:a.me.n,dirty:1});if(bb!==B0){u.tz=i.z;u.z=zt}a.it[i.id]=u;k++});
  if(a.cl)a.cl=a.cl.map(n=>n===old?nn:n);
- const c=amDLc(),cfg={n:isDef?nn:(c.n||''),b:(c.b||[]).filter(n=>n!==old&&n!==nn)};if(bb)cfg.b.push(nn);if(cfg.n==='Courses')cfg.n='';
- amItemSave({id:'cfgdl',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(cfg),del:0,z:'a'});
+ amCfgPut(c=>{if(isDef)c.n=nn;c.b=c.b.filter(n=>n!==old&&n!==nn);if(bb)c.b.push(nn);c.l=c.l.map(n=>n===old?nn:n);if(!isDef&&!c.l.includes(nn))c.l.push(nn)});
  AMC_CL=nn;amSave();render();toast('Liste enregistrée',2500);
 }
 function amCoRow(i){
