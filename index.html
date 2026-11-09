@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.24';
+const APP_VERSION='2.76.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.76.0',d:'09/11/2026',items:['Nouveau : visite guidée d’AgenDam en images (agenda, tâches, courses, repas, anniversaires, voyages, partage famille, sauvegarde) : Réglages › Mode d’emploi › « Visite guidée », ou la page visite.html']},
  {v:'2.75.24',d:'09/11/2026',items:['Amicale : correction des listes de courses (noms, liste réservée au bureau, listes vides) qui ne se synchronisaient pas vers les aides']},
  {v:'2.75.23',d:'09/11/2026',items:['Amicale : une liste de courses vide reste visible par tout le groupe (elle ne disparaît plus quand tout est acheté) ; on peut la supprimer depuis ✏️ quand elle est vide']},
  {v:'2.75.22',d:'09/11/2026',items:['Amicale : les listes de courses se renomment (y compris la première) et peuvent être réservées au bureau (bouton ✏️ sous les listes)']},
@@ -6756,6 +6757,7 @@ h+='<div class="card" id="ics-card">'+
 function openHelp(hist){
  const d=(t,body,open)=>'<details'+(open?' open':'')+'><summary>'+t+'</summary>'+body+'</details>';
  let h='<div class="sh-h"><b style="font-size:1.2rem;color:var(--text)">Mode d’emploi</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
+ if(!AMI)h+='<p style="margin:.4rem 0 .6rem"><a class="btn pri blk" href="visite.html" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">▶ Visite guidée en images</a></p>';
  h+=d('Démarrer','<ul><li><b>Les onglets en bas</b> sont les intercalaires du carnet : 📅 <b>Agenda</b>, ☑ <b>Tâches</b>, 🎂 <b>Anniversaires</b>, 🍽 <b>Repas</b>, 🧳 <b>Voyages</b>.</li><li>Dans <b>Agenda</b>, touche le <b>titre</b> (la date) pour aller directement à un jour. Choisis l’affichage juste sous le titre : <b>Jour</b>, <b>Semaine</b>, <b>2 sem.</b> ou <b>Mois</b>. L’appli s’en souvient.</li><li>Les flèches ‹ › et « Aujourd’hui » font avancer ou revenir. Tu peux aussi glisser le doigt à gauche ou à droite.</li><li>La <b>loupe</b> en haut cherche dans tout l’agenda, la <b>roue crantée</b> ouvre les Réglages.</li><li>Le bouton rond <b>+</b> ajoute un événement, une tâche ou un anniversaire selon l’onglet.</li></ul>');
  h+=d('Créer un événement','<ul><li><b>Titre, catégorie (couleur), lieu, note.</b> Les catégories se modifient dans Réglages.</li><li><b>Début et fin</b> : n’importe quelle durée, même sur plusieurs jours. Les boutons 30 min / 1 h / 2 h… règlent la fin d’un geste.</li><li><b>Journée entière</b> : pour un anniversaire, un congé, un voyage.</li><li><b>Rappel</b> : voir la section « Rappels ».</li></ul>');
  h+=d('Événements importants','<ul><li>Dans la fiche d’un événement, <b>Mettre en valeur</b> : choisis <b>Contour</b> (cadre épais), <b>Gras</b> et/ou <b>★ Étoile</b>. Tu peux en cocher un, deux ou les trois.</li><li>Ça se voit dans le mois, la semaine, le jour et les listes. Ça reste dans l’appli (pas envoyé à Outlook).</li></ul>');
