@@ -1532,7 +1532,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.11';
+const APP_VERSION='2.75.12';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1540,6 +1540,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.12',d:'09/11/2026',items:[
+  '<b>Anciens Mac (Safari 15) : le groupe se synchronise enfin</b> : les documents du groupe, compressés par les téléphones récents, étaient illisibles pour un vieux Safari (donc 0 membre, 0 élément). L’appli sait maintenant les décompresser elle-même.'
+ ]},
  {v:'2.75.11',d:'09/11/2026',items:[
   '<b>Synchronisation : diagnostic</b> (Amicale › ⚙ › Synchronisation) : si des documents du groupe reçus ne peuvent pas être lus sur un appareil (navigateur ancien, clé qui ne correspond pas), l’appli l’écrit maintenant au lieu de rester muette.'
  ]},
@@ -8284,9 +8287,37 @@ async function shZip(obj){
  if(window.CompressionStream){try{const buf=await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();return 'z'+shB64.enc(new Uint8Array(buf))}catch(e){}}
  return 'j'+shB64.enc(raw);
 }
+/* décompression « deflate » en pur JavaScript, pour les navigateurs sans DecompressionStream (Safari < 16.4) */
+function infRaw(src){
+ const LB=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258],LE=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0],
+ DB=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577],DE=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13],
+ CL=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+ let pos=0,bb=0,bc=0,out=new Uint8Array(Math.max(1024,src.length*4)),op=0;
+ const need=n=>{if(op+n>out.length){const o=new Uint8Array(Math.max(out.length*2,op+n));o.set(out);out=o}};
+ const bits=n=>{while(bc<n){if(pos>=src.length)throw new Error('flux incomplet');bb|=src[pos++]<<bc;bc+=8}const v=bb&((1<<n)-1);bb>>>=n;bc-=n;return v};
+ const mk=lens=>{const cnt=new Uint16Array(16),off=new Uint16Array(16),sym=new Uint16Array(lens.length);for(const l of lens)cnt[l]++;cnt[0]=0;for(let i=1;i<16;i++)off[i]=off[i-1]+cnt[i-1];for(let i=0;i<lens.length;i++)if(lens[i])sym[off[lens[i]]++]=i;return{cnt,sym}};
+ const dec=h=>{let code=0,first=0,idx=0;for(let l=1;l<16;l++){code|=bits(1);const c=h.cnt[l];if(code-c<first)return h.sym[idx+(code-first)];idx+=c;first+=c;first<<=1;code<<=1}throw new Error('code invalide')};
+ let fl=null,fd=null;
+ const fixed=()=>{if(!fl){const l=new Uint8Array(288);for(let i=0;i<144;i++)l[i]=8;for(let i=144;i<256;i++)l[i]=9;for(let i=256;i<280;i++)l[i]=7;for(let i=280;i<288;i++)l[i]=8;fl=mk(l);fd=mk(new Uint8Array(30).fill(5))}};
+ let last;
+ do{
+  last=bits(1);const t=bits(2);
+  if(t===0){bb=0;bc=0;if(pos+4>src.length)throw new Error('flux incomplet');const len=src[pos]|src[pos+1]<<8;pos+=4;need(len);out.set(src.subarray(pos,pos+len),op);op+=len;pos+=len}
+  else if(t===1||t===2){
+   let lh,dh;
+   if(t===1){fixed();lh=fl;dh=fd}
+   else{const nl=bits(5)+257,nd=bits(5)+1,nc=bits(4)+4,cl=new Uint8Array(19);for(let i=0;i<nc;i++)cl[CL[i]]=bits(3);const ch=mk(cl),ls=new Uint8Array(nl+nd);let i=0;
+    while(i<nl+nd){const s=dec(ch);if(s<16)ls[i++]=s;else{let p=0,r;if(s===16){if(!i)throw new Error('répétition invalide');p=ls[i-1];r=3+bits(2)}else if(s===17)r=3+bits(3);else r=11+bits(7);while(r--)ls[i++]=p}}
+    lh=mk(ls.subarray(0,nl));dh=mk(ls.subarray(nl))}
+   for(;;){const s=dec(lh);if(s<256){need(1);out[op++]=s}else if(s===256)break;else{const si=s-257,len=LB[si]+bits(LE[si]),ds=dec(dh),d=DB[ds]+bits(DE[ds]);if(d>op)throw new Error('distance invalide');need(len);for(let k=0;k<len;k++){out[op]=out[op-d];op++}}}
+  }else throw new Error('bloc invalide');
+ }while(!last);
+ return out.slice(0,op);
+}
 async function shUnzip(code){
  const k=code.charAt(0),u=shB64.dec(code.slice(1));let raw=u;
- if(k==='z'){if(!window.DecompressionStream)throw new Error('Ce téléphone est trop ancien pour lire ce partage (iOS 16.4 minimum)');raw=new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
+ if(k==='z'&&!window.DecompressionStream){raw=infRaw(u)}
+ else if(k==='z'){raw=new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer())}
  else if(k!=='j')throw new Error('Lien non reconnu');
  const o=JSON.parse(new TextDecoder().decode(raw));
  if(!o||o.app!=='agd'||!o.k)throw new Error('Ce lien ne vient pas d’AgenDam');
