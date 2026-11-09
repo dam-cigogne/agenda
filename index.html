@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.21';
+const APP_VERSION='2.75.22';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.22',d:'09/11/2026',items:['Amicale : les listes de courses se renomment (y compris la première) et peuvent être réservées au bureau (bouton ✏️ sous les listes)']},
  {v:'2.75.21',d:'09/11/2026',items:['Amicale : la photo du rond se recadre (on la déplace et on zoome) avant d’être enregistrée en petit']},
  {v:'2.75.20',d:'09/11/2026',items:['Amicale (nouveau style) : les membres (Bureau et Aides) sont maintenant dans l’Accueil, avec le nombre de tâches de chacun ; l’onglet Membres disparaît']},
  {v:'2.75.19',d:'09/11/2026',items:['Amicale (nouveau style) : nouvel onglet 🏠 Accueil (ce qui t’attend, du nouveau, prochain rendez-vous, tuiles) ; Membres passe dans « Plus » et sur la tuile Membres','Amicale : personnalise ton rond (touche ta fiche › 🎨 Mon rond) : couleur au choix, emoji à la place de la lettre, ou petite photo']},
@@ -7535,6 +7536,7 @@ async function act(a,el,e){
   case 'amco-l':AMC_CL=ds_.v;render();break;
   case 'amco-z':S.amCoZ=S.amCoZ==='b'?'a':'b';saveSet();render();break;
   case 'amco-newl':amCoNewList();break;
+  case 'amco-ed':amCoEdit();break;
   case 'amco-add':amCoAdd();break;
   case 'amco-cq':amCqTap(ds_.id);break;
   case 'amco-cqadd':amCqAdd();break;
@@ -7628,7 +7630,7 @@ async function act(a,el,e){
   case 'ee-del':amEeDel();break;
   case 'am-it':amItemOpen(ds_.id);break;
   case 'am-tick':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amItemSave(Object.assign({},it,{x:it.x?0:1}));break}
-  case 'am-clear':{const a=amc();if(a){for(const it of amItems(ds_.k).filter(i=>i.x&&(!ds_.l||(i.l||'Courses')===ds_.l))){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}amSave();render();amFlush()}break}
+  case 'am-clear':{const a=amc();if(a){for(const it of amItems(ds_.k).filter(i=>i.x&&(!ds_.l||(i.l||amDL())===ds_.l))){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}amSave();render();amFlush()}break}
   case 'loi-script':ficheCopy(loiScript(),'Script copié : colle-le dans une IA');break;
   case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
@@ -11113,7 +11115,8 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an','lg'].includes(P.kind))continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an','lg','dl'].includes(P.kind))continue;
+     if(P.kind==='dl'&&!P.del){if(x.z!=='a'||String(P.bd||'').length>2500)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='lg'&&!/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{0,30000}$/.test(String(P.bd||''))&&!P.del)continue;
      if(['nt','am','bs','bm','ad','ac','ag','cd'].includes(P.kind)&&x.z!=='b')continue;
      if(P.kind==='ag'){if(String(P.bd||'').length>150000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
@@ -11407,7 +11410,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,it.kind,(it.ac||'m')+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
+   await amPut(it.z,'i-'+it.id,P,0,it.kind==='dl'?'':it.kind,(it.ac||'m')+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -11425,10 +11428,10 @@ async function amCoNewList(){
 function amCoAdd(){
  const a=amc(),i=$('#amco-in'),g=i&&ingParse(i.value);if(!g){toast('Écris un article');return}
  const nm=String(g.n||'').trim().slice(0,200);if(!nm){toast('Écris un article');return}
- const dup=amItems('co').some(x=>!x.x&&(x.l||'Courses')===AMC_CL&&norm(x.tx)===norm(nm));
+ const dup=amItems('co').some(x=>!x.x&&(x.l||amDL())===AMC_CL&&norm(x.tx)===norm(nm));
  if(dup){toast('Déjà dans la liste');return}
  const qt=g.q!=null?fmtQ(g.q)+(g.u?' '+g.u:''):'';
- amItemSave({id:amId(),kind:'co',x:0,z:a.kB?(S.amCoZ==='b'?'b':'a'):'a',l:AMC_CL,tx:nm,qt});
+ amItemSave({id:amId(),kind:'co',x:0,z:a.kB?((amListB(AMC_CL)||S.amCoZ==='b')?'b':'a'):'a',l:AMC_CL,tx:nm,qt});
  setTimeout(()=>{const j=$('#amco-in');if(j)j.focus()},50);
 }
 function amCoQty(id,dir){
@@ -11446,7 +11449,7 @@ async function amItemForm(kind,it,def){
  const a=amc();if(!a)return;
  const mem=amList().filter(p=>!p.ro||true).map(p=>[p.n,p.n]);
  const F=[{k:'tx',l:kind==='tk'?'Tâche':'Article',v:it?it.tx:'',ph:kind==='tk'?'Ce qu’il faut faire':'Ce qu’il faut acheter'}];
- if(kind==='co'){F.push({k:'qt',l:'Quantité (facultatif)',v:it?it.qt:'',ph:'2 kg, 3 packs…'});F.push({k:'l',l:'Liste',t:'select',v:it?(it.l||'Courses'):AMC_CL,o:amCoLists().map(x=>[x,x])})}
+ if(kind==='co'){F.push({k:'qt',l:'Quantité (facultatif)',v:it?it.qt:'',ph:'2 kg, 3 packs…'});F.push({k:'l',l:'Liste',t:'select',v:it?(it.l||amDL()):AMC_CL,o:amCoLists().map(x=>[x,x])})}
  if(kind==='tk'){F.push({k:'d',l:'Pour le (facultatif)',v:it?it.d:'',t:'date'});F.push({k:'w',l:'Qui s’en occupe',t:'select',v:it?it.w:'',o:[['','Personne en particulier']].concat(mem)})}
  if(kind==='ev'){F[0]={k:'tx',l:'Titre',v:it?it.tx:'',ph:'Réunion, repas, assemblée…'};F.push({k:'d',l:'Date',v:it?it.d:(def||''),t:'date'},{k:'tm',l:'Heure (facultatif)',v:it?it.tm:'',t:'time'},{k:'pl',l:'Lieu (facultatif)',v:it?it.pl:''},{k:'bd',l:'Détails (facultatif)',v:it?it.bd:'',t:'area'})}
  if(kind==='nt'){F[0]={k:'tx',l:'Titre',v:it?it.tx:'',ph:'Compte rendu, idées…'};F.push({k:'bd',l:'Note',v:it?it.bd:'',t:'area'})}
@@ -11457,7 +11460,7 @@ async function amItemForm(kind,it,def){
  if(!v||!String(v.tx||'').trim())return;
  if((kind==='ev'||kind==='ee')&&!v.d){toast('Il faut une date',3000);return}
  const o=it?Object.assign({},it):{id:amId(),kind,x:0,z:kind==='nt'?'b':a.kB?(v.z||'b'):'a'};
- if(kind==='co')o.l=String(v.l||AMC_CL||'Courses').slice(0,24);
+ if(kind==='co')o.l=String(v.l||AMC_CL||amDL()).slice(0,24);
  o.tx=v.tx.trim().slice(0,200);o.qt=(v.qt||'').trim().slice(0,20);o.d=v.d||'';o.w=v.w||'';o.tm=v.tm||'';o.pl=(v.pl||'').trim().slice(0,80);o.bd=(v.bd||'').trim().slice(0,4000);
  if(kind==='ee'){o.ck=o.ck||[];o.pg=o.pg||[];o.pt=o.pt||[];o.sv=v.sv||'';if(it&&v.z&&v.z!==o.z){o.tz=o.z;o.z=v.z}}
  if(kind==='ee'&&!it)AMC_EE=o.id;
@@ -13042,7 +13045,7 @@ async function amRpSend(){
  const L=String(it.tx||'Événement').slice(0,40),items=Object.values(T).map(o=>{const q=o.q!=null?amRpQ({q:o.q,u:o.u},1):null;return{n:o.n,qt:q!=null?amRpFmt(q,o.u).slice(0,20):''}});
  const r=await ask({title:'🛒 Envoyer '+items.length+' article'+(items.length>1?'s':'')+' ?',html:'<p style="margin:.2rem 0 .4rem">Pour <b>'+(nb||'les choix saisis')+(nb?' repas':'')+'</b>, dans la liste de courses « <b>'+esc(L)+'</b> » du groupe :</p><ul style="margin:.2rem 0 .6rem;padding-left:1.2rem;font-size:.9rem;max-height:40vh;overflow:auto">'+items.map(x=>'<li>'+esc((x.qt?x.qt+' ':'')+x.n)+'</li>').join('')+'</ul><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">Si un article y est déjà (pas encore acheté), sa quantité est mise à jour : pas de doublon.</p>',btns:[{label:'Envoyer',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
- const z=it.z==='b'?'b':'a',cur=amItems('co').filter(x=>!x.x&&(x.l||'Courses')===L),now=Date.now();let n=0,u=0;
+ const z=it.z==='b'?'b':'a',cur=amItems('co').filter(x=>!x.x&&(x.l||amDL())===L),now=Date.now();let n=0,u=0;
  items.forEach((x,k)=>{const o=cur.find(c=>norm(c.tx)===norm(x.n));
   if(o){if((o.qt||'')!==x.qt){a.it[o.id]=Object.assign({},o,{qt:x.qt,at:Math.max(now+k,(o.at||0)+1),by:a.me.n,dirty:1});u++}}
   else{const id=amId();a.it[id]={id,kind:'co',x:0,z,l:L,tx:x.n.slice(0,200),qt:x.qt,d:'',w:'',tm:'',pl:'',bd:'',del:0,at:now+k,by:a.me.n,dirty:1};n++}});
@@ -13424,7 +13427,7 @@ function amEeHTML(){
  return h;
 }
 function amCqHTML(){
- const a=amc(),Q=amItems('cq').slice().sort((p,q)=>(p.l||'').localeCompare(q.l||'','fr')||p.tx.localeCompare(q.tx,'fr')),pend=amItems('co').filter(i=>!i.x&&(i.l||'Courses')===AMC_CL);
+ const a=amc(),Q=amItems('cq').slice().sort((p,q)=>(p.l||'').localeCompare(q.l||'','fr')||p.tx.localeCompare(q.tx,'fr')),pend=amItems('co').filter(i=>!i.x&&(i.l||amDL())===AMC_CL);
  const op=AMC_CQO||AMC_CTM,nOn=Q.filter(i=>pend.some(x=>norm(x.tx)===norm(i.tx))).length;
  let h='<button class="btn blk am-cqh" data-act="amco-cqt" aria-expanded="'+(op?'true':'false')+'" style="display:flex;align-items:center;gap:.5rem;text-align:left;margin:.5rem 0 .3rem"><span style="flex:1"><b>⭐ Mes habituels</b> <small class="mut">'+(Q.length?Q.length+' article'+(Q.length>1?'s':'')+(nOn?' · '+nOn+' dans la liste':''):'aucun pour l’instant')+'</small></span><span aria-hidden="true">'+(op?'▴':'▾')+'</span></button>';
  if(!op)return h;
@@ -13447,11 +13450,30 @@ async function amCqAdd(){
 function amCqTap(id){
  const a=amc(),q=a&&a.it&&a.it[id];if(!q)return;
  if(AMC_CTM){if(!a.kB)return;amItemSave(Object.assign({},q,{del:1}));return}
- const ex=amItems('co').find(x=>!x.x&&(x.l||'Courses')===AMC_CL&&norm(x.tx)===norm(q.tx));
+ const ex=amItems('co').find(x=>!x.x&&(x.l||amDL())===AMC_CL&&norm(x.tx)===norm(q.tx));
  if(ex)amItemSave(Object.assign({},ex,{del:1}));
  else amItemSave({id:amId(),kind:'co',x:0,z:q.z==='b'&&a.kB?'b':'a',l:AMC_CL,tx:q.tx,qt:''});
 }
-const amCoLists=()=>{const a=amc(),L=['Courses'];amItems('co').forEach(i=>{const n=i.l||'Courses';if(!L.includes(n))L.push(n)});((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return L};
+const amDLc=()=>{try{const a=amc(),i=a&&a.it&&a.it.cfgdl;return i&&!i.del?(JSON.parse(i.bd||'{}')||{}):{}}catch(e){return {}}};
+const amDL=()=>amDLc().n||'Courses',amListB=n=>(amDLc().b||[]).includes(n);
+const amCoLists=()=>{const a=amc(),L=[amDL()];amItems('co').forEach(i=>{const n=i.l||amDL();if(!L.includes(n))L.push(n)});((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return a&&!a.kB?L.filter(n=>!amListB(n)):L};
+async function amCoEdit(){
+ if(demo){toast('Non disponible en mode démo',2500);return}
+ const a=amc();if(!a||!a.kB)return;
+ const old=AMC_CL,isDef=old===amDL(),B0=amListB(old);
+ const v=await amForm('✏️ Liste « '+old+' »','Le changement vaut pour tout le groupe.',[{k:'n',l:'Nom de la liste',v:old},{k:'b',l:'Qui la voit',t:'select',v:B0?'1':'0',o:[['0','👥 Tout le monde (bureau et aides)'],['1','🔒 Le bureau seulement']]}]);
+ if(!v)return;
+ const nn=String(v.n||'').trim().slice(0,24);if(!nn){toast('Il faut un nom',2500);return}
+ const bb=v.b==='1';
+ if(nn!==old&&amCoLists().includes(nn)){toast('Une liste porte déjà ce nom',3000);return}
+ if(nn===old&&bb===B0)return;
+ const now=Date.now();let k=0;const zt=bb?'b':'a';
+ Object.values(a.it||{}).filter(i=>i&&i.kind==='co'&&!i.del&&(i.l||amDL())===old).forEach(i=>{const u=Object.assign({},i,{l:nn,at:Math.max(now+k,(i.at||0)+1),by:a.me.n,dirty:1});if(bb!==B0){u.tz=i.z;u.z=zt}a.it[i.id]=u;k++});
+ if(a.cl)a.cl=a.cl.map(n=>n===old?nn:n);
+ const c=amDLc(),cfg={n:isDef?nn:(c.n||''),b:(c.b||[]).filter(n=>n!==old&&n!==nn)};if(bb)cfg.b.push(nn);if(cfg.n==='Courses')cfg.n='';
+ amItemSave({id:'cfgdl',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(cfg),del:0,z:'a'});
+ AMC_CL=nn;amSave();render();toast('Liste enregistrée',2500);
+}
 function amCoRow(i){
  const a=amc(),sub=[i.qt?esc(i.qt):'',a.kB&&i.z==='b'?'🔒 bureau':'',i.x&&i.by?'✅ '+esc(i.by):''].filter(Boolean).join(' · ');
  return '<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="'+(i.x?'Décocher':'Cocher')+'">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(S.coCp&&sub?' <small class="mut">· '+sub+'</small>':'')+'</b>'+(sub&&!S.coCp?'<small>'+sub+'</small>':'')+'</button>'+
@@ -13459,12 +13481,12 @@ function amCoRow(i){
 }
 function amCoHTML(){
  const a=amc(),lists=amCoLists();if(!lists.includes(AMC_CL))AMC_CL=lists[0];
- const all=amItems('co'),L=all.filter(i=>(i.l||'Courses')===AMC_CL),pend=L.filter(i=>!i.x),done=L.filter(i=>i.x);
+ const all=amItems('co'),L=all.filter(i=>(i.l||amDL())===AMC_CL),pend=L.filter(i=>!i.x),done=L.filter(i=>i.x);
  const names=[...new Set(all.map(i=>i.tx))].slice(0,150);
- let h='<div class="am-tabs">'+lists.map(n=>{const c=all.filter(i=>(i.l||'Courses')===n&&!i.x).length;return '<button class="chip'+(n===AMC_CL?' on':'')+'" data-act="amco-l" data-v="'+esc(n)+'">'+esc(n)+(c?' <small>'+c+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="amco-newl">＋ Liste</button><button class="chip" data-act="amco-zoom">'+(S.coCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button></div>';
+ let h='<div class="am-tabs">'+lists.map(n=>{const c=all.filter(i=>(i.l||amDL())===n&&!i.x).length;return '<button class="chip'+(n===AMC_CL?' on':'')+'" data-act="amco-l" data-v="'+esc(n)+'">'+esc(n)+(c?' <small>'+c+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="amco-newl">＋ Liste</button><button class="chip" data-act="amco-zoom">'+(S.coCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button></div>';
  h+='<div class="rp-add"><input class="in" id="amco-in" list="amco-dl" placeholder="Ajouter : 2 citrons, gobelets…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="amco-add" aria-label="Ajouter">'+ic('plus')+'</button></div><datalist id="amco-dl">'+names.map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist>';
  h+=amCqHTML();
- if(a.kB)h+='<div style="margin:.2rem 0 .4rem"><button class="chip" data-act="amco-z">'+(S.amCoZ==='b'?'🔒 Nouveaux articles : bureau seulement':'👥 Nouveaux articles : tout le monde')+'</button></div>';
+ if(a.kB)h+='<div style="margin:.2rem 0 .4rem"><button class="chip" data-act="amco-ed">✏️ Renommer / réserver « '+esc(AMC_CL)+' »</button> <button class="chip" data-act="amco-z">'+(S.amCoZ==='b'?'🔒 Nouveaux articles : bureau seulement':'👥 Nouveaux articles : tout le monde')+'</button></div>';
  if(!pend.length&&!done.length)h+='<p class="empty">Rien à acheter dans « '+esc(AMC_CL)+' ». Ajoute un article en haut.</p>';
  h+='<div class="co-l'+(S.coCp?' cp':'')+'">';
  for(const r of RAYONS){const l=pend.filter(i=>rayOf(i.tx)===r[0]).sort((p,q)=>p.tx.localeCompare(q.tx));if(!l.length)continue;h+='<h4 class="am-h">'+r[1].replace(/^\S+\s/,'')+' · '+l.length+'</h4>'+l.map(amCoRow).join('')}
