@@ -1533,7 +1533,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.13';
+const APP_VERSION='2.75.14';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1541,6 +1541,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.14',d:'09/11/2026',items:[
+  '<b>Changer le niveau d’un membre (Bureau ↔ Aide) : tes autres appareils suivent</b> : ton Mac, ta tablette ou ton PC liés à toi reçoivent maintenant les nouvelles clés. Avant, seul l’appareil qui faisait le changement restait à jour, les autres ne voyaient plus rien de nouveau. <i>Si un de tes appareils est déjà resté bloqué : touche « Quitter le groupe » dessus et relie-le avec un nouveau code (« Lier un autre appareil »).</i>'
+ ]},
  {v:'2.75.13',d:'09/11/2026',items:[
   '<b>Amicale › Réglages : retour au groupe plus facile</b> : le bouton « ‹ Retour au groupe » reste affiché en haut pendant que tu fais défiler les réglages, et sur téléphone ou tablette il suffit de <b>glisser le doigt vers la droite</b> pour revenir au groupe.',
   '<b>Hors connexion</b> : tes modifications faites sans réseau restent sur l’appareil et sont envoyées toutes seules dès que la connexion revient (sans rien toucher).'
@@ -10996,6 +10999,15 @@ async function amRotate(){
   const sig=await amSign([p.id,gen,ep.x,ep.y,c,ivs],0,a.apriv);
   todo.push({doc:'rk-'+p.id,P:{app:'agd',k:'amc',v:1,t:'rk',id:p.id,gen,e:{x:ep.x,y:ep.y},c,iv:ivs,sig}});n++;
  }
+ /* mes autres appareils (même identité, mêmes clés) reçoivent aussi les nouvelles clés, sinon ils restent bloqués sur les anciennes */
+ if(a.me.pub&&a.me.pub.x&&a.me.ek){try{
+  const eph=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);
+  const ep=await crypto.subtle.exportKey('jwk',eph.publicKey),er=await crypto.subtle.exportKey('jwk',eph.privateKey);
+  const key=await amDerive(er,a.me.pub,'agendam-rk:'+gen+':'+a.me.id),iv=crypto.getRandomValues(new Uint8Array(12));
+  const c=shB64.enc(new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify({gen,kA:kA2,kB:a.kB?kB2:''}))))),ivs=shB64.enc(iv);
+  const sig=await amSign([a.me.id,gen,ep.x,ep.y,c,ivs],0,a.apriv);
+  todo.push({doc:'rk-'+a.me.id,P:{app:'agd',k:'amc',v:1,t:'rk',id:a.me.id,gen,e:{x:ep.x,y:ep.y},c,iv:ivs,sig}})
+ }catch(e){}}
  const oldA=a.kA;
  a.rot={oldA,todo:(a.rot&&a.rot.oldA===oldA?a.rot.todo:[]).concat(todo)};
  a.kB=kB2;a.kA=kA2;a.gen=gen;a.last={};a.sent={};a.rolesDirty=1;
