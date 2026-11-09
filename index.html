@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.23';
+const APP_VERSION='2.75.24';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.24',d:'09/11/2026',items:['Amicale : correction des listes de courses (noms, liste réservée au bureau, listes vides) qui ne se synchronisaient pas vers les aides']},
  {v:'2.75.23',d:'09/11/2026',items:['Amicale : une liste de courses vide reste visible par tout le groupe (elle ne disparaît plus quand tout est acheté) ; on peut la supprimer depuis ✏️ quand elle est vide']},
  {v:'2.75.22',d:'09/11/2026',items:['Amicale : les listes de courses se renomment (y compris la première) et peuvent être réservées au bureau (bouton ✏️ sous les listes)']},
  {v:'2.75.21',d:'09/11/2026',items:['Amicale : la photo du rond se recadre (on la déplace et on zoome) avant d’être enregistrée en petit']},
@@ -11406,6 +11407,7 @@ async function amLeave(){
 }
 let AMC_FL=0;
 async function amFlush(){
+ try{amCfgMig()}catch(e){}
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
  if(a.rot)amRotFlush();
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
@@ -13455,9 +13457,11 @@ function amCqTap(id){
  if(ex)amItemSave(Object.assign({},ex,{del:1}));
  else amItemSave({id:amId(),kind:'co',x:0,z:q.z==='b'&&a.kB?'b':'a',l:AMC_CL,tx:q.tx,qt:''});
 }
-const amDLc=()=>{try{const a=amc(),i=a&&a.it&&a.it.cfgdl;return i&&!i.del?(JSON.parse(i.bd||'{}')||{}):{}}catch(e){return {}}};
+const amDLc=()=>{try{const a=amc(),i=a&&a.it&&(a.it.cfgdlist||a.it.cfgdl);return i&&!i.del?(JSON.parse(i.bd||'{}')||{}):{}}catch(e){return {}}};
 const amDL=()=>amDLc().n||'Courses',amListB=n=>(amDLc().b||[]).includes(n);
-function amCfgPut(mut){const c=amDLc(),o={n:c.n||'',b:(c.b||[]).slice(),l:(c.l||[]).slice()};mut(o);if(o.n==='Courses')o.n='';amItemSave({id:'cfgdl',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(o),del:0,z:'a'})}
+function amCfgDrop(){const a=amc();if(a&&a.it&&a.it.cfgdl)delete a.it.cfgdl}
+function amCfgMig(){const a=amc();if(!a||!a.kB||!a.it||!a.it.cfgdl)return;const o=a.it.cfgdl;if(!a.it.cfgdlist&&!o.del){a.it.cfgdlist=Object.assign({},o,{id:'cfgdlist',at:Date.now(),by:a.me.n,dirty:1})}delete a.it.cfgdl;amSave()}
+function amCfgPut(mut){const c=amDLc(),o={n:c.n||'',b:(c.b||[]).slice(),l:(c.l||[]).slice()};mut(o);if(o.n==='Courses')o.n='';amCfgDrop();amItemSave({id:'cfgdlist',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(o),del:0,z:'a'})}
 const amCoLists=()=>{const a=amc(),L=[amDL()];amItems('co').forEach(i=>{const n=i.l||amDL();if(!L.includes(n))L.push(n)});(amDLc().l||[]).concat((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return a&&!a.kB?L.filter(n=>!amListB(n)):L};
 async function amCoEdit(){
  if(demo){toast('Non disponible en mode démo',2500);return}
@@ -13664,6 +13668,7 @@ function amView0(){
  if(!a)return{html:'<div class="rp-wrap">'+(AMI?'<div class="card" style="margin:.8rem 0"><h3>👋 Bienvenue dans Amicale</h3><p style="margin:.2rem 0">L’appli de ton groupe (amicale, club, association) : membres, agenda, tâches, courses, événements. Tout est chiffré, sans compte ni publicité.</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as reçu un <b>code d’invitation</b> ? Touche « Rejoindre avec un code ».</p><p class="mut" style="margin:.4rem 0 0;font-size:.9rem">Tu as déjà ce groupe dans <b>AgenDam</b> ? Dans AgenDam : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis entre ici le code de 12 caractères : tu restes la même personne, avec les mêmes droits, et tout est identique dans les deux applis.</p></div>'+(amiFromAg()?'<button class="btn pri blk" data-act="ami-take">📲 Reprendre « '+esc(amiFromAg().nm||'Groupe')+' » d’AgenDam (cet appareil)</button>':''):'<p class="empty">Pas de groupe sur ce téléphone.</p>')+'<button class="btn pri blk" data-act="am-new">👥 Créer un groupe</button><button class="btn blk" data-act="am-join">🔢 Rejoindre avec un code</button></div>',fixed:false};
  if(a.newAdm){a.newAdm=0;amSave();setTimeout(()=>toast('👑 Tu es maintenant administrateur du groupe',5000),400)}
  amPull();try{amPrepApply()}catch(e){}amPrepPull().then(c=>{if(c){try{amPrepApply()}catch(e){}}});
+ if(a.kB&&a.it&&a.it.cfgdl){amCfgMig();setTimeout(amFlush,50)}
  const n1=amItems('tk').filter(i=>!i.x).length,n2=amItems('co').filter(i=>!i.x).length;
  const td=new Date().toISOString().slice(0,10),n3=amItems('ev').filter(i=>(i.d||'')>=td).length;
  if((AMC_TAB==='nt'||AMC_TAB==='am'||AMC_TAB==='ad')&&!a.kB)AMC_TAB='mb';
