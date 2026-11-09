@@ -45,16 +45,25 @@ async function pushTest(env,space){
 }
 // Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, une pour chaque modification
 async function notify(env,space,o){
-  const r=await env.DB.prepare('SELECT endpoint, me, pf, p, a, last, n FROM push3 WHERE space = ?').bind(space).all();const now=Date.now();
+  const r=await env.DB.prepare('SELECT endpoint, me, pf, p, a, last, n FROM push3 WHERE space = ?').bind(space).all();const now=Date.now();const jobs=[];
   for(const x of (r.results||[])){
     if(x.endpoint===o.selfEp||o.skip.includes(x.me))continue;
     if(o.to&&x.me!==o.to)continue;
     if(x.pf){const pq=x.pf.split('!');if(!pq[0].includes(o.kind))continue;if(o.kind==='i'&&o.hint&&pq[1]&&pq[1].split(',').includes(o.hint))continue}
+    if(o.kind==='i'){jobs.push((async()=>{
+      await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();
+      await new Promise(rs=>setTimeout(rs,6000));
+      const c=await env.DB.prepare('UPDATE push3 SET n = 0, last = ? WHERE endpoint = ? AND space = ? AND n > 0 RETURNING n').bind(Date.now(),x.endpoint,space).first();
+      if(!c)return;const k=c.n;
+      const H=k===1&&o.hint&&HINT[o.hint];
+      await sendOne(env,x,{t:H?H[0]:LBT.i,b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):H[1])):k>1?(o.by+' : '+k+' modifications'):(o.by+' a modifié '+LBL.i),g:'agd-i'});
+    })());continue}
     if(now-x.last<0){await env.DB.prepare('UPDATE push3 SET n = n + 1 WHERE endpoint = ? AND space = ?').bind(x.endpoint,space).run();continue}
     const tot=x.n+1;
     await env.DB.prepare('UPDATE push3 SET last = ?, n = 0 WHERE endpoint = ? AND space = ?').bind(now,x.endpoint,space).run();
     const H=tot===1&&o.hint&&HINT[o.hint];await sendOne(env,x,{t:H?H[0]:(LBT[o.kind]||'🔔 Du nouveau'),b:H?(o.by+' '+((o.hint==='co'&&o.det)?('a modifié la liste « '+o.det+' »'):(/^fe[amd]$/.test(o.hint)&&o.det)?evTxt(o.hint,o.det):(/^f[tc][amd]$/.test(o.hint)&&o.det)?itTxt(o.hint,o.det):H[1])):tot>10?(o.by+' a fait plusieurs modifications'):tot>1?(o.by+' : '+tot+' modifications'):(o.by+' a modifié '+LBL[o.kind]),g:'agd-'+o.kind});
   }
+  if(jobs.length)await Promise.all(jobs);
 }
 const evTxt=(h,d)=>{const p=d.split('|');return (h==='fea'?'a ajouté':h==='fed'?'a supprimé':'a modifié')+' l’événement « '+p[0]+' »'+(p[1]?' ('+p[1]+')':'')};
 const itTxt=(h,d)=>{const co=h[1]==='c',v=h[2]==='a'?'a ajouté':h[2]==='d'?(co?'a retiré':'a supprimé'):'a modifié';if(d[0]==='#')return v+' '+d.slice(1)+(co?' articles aux courses':' tâches');return v+(co?' « '+d+' »'+(h[2]==='a'?' aux courses':h[2]==='d'?' des courses':''):(h[2]==='a'?' la tâche « ':h[2]==='d'?' la tâche « ':' la tâche « ')+d+' »')};
