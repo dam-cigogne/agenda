@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '2.75.17';
+const VERSION = '2.75.18';
 const CACHE = 'agd-cache-v' + VERSION;
 const ASSETS = [
   './',

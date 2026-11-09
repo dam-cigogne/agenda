@@ -326,9 +326,9 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am2-logo img{width:100%;height:100%;object-fit:cover}
 .am2-id h2{margin:0;font-size:1.45rem;font-weight:800;letter-spacing:-.02em;line-height:1.05}
 .am2-id small{display:block;color:var(--muted);font-weight:600;margin-top:.25rem;font-size:.8rem}
-.am2-st{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.9rem 0 0}
-.am2-st button{flex:1;border-radius:1.1rem;padding:.7rem .75rem .6rem;color:#fff;text-align:left}
-.am2-st b{display:block;font-size:1.6rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.am2-st{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.9rem 0 0;max-width:400px}
+.am2-st button{border-radius:.95rem;padding:.5rem .65rem .45rem;color:#fff;text-align:left}
+.am2-st b{display:block;font-size:1.35rem;font-weight:800;line-height:1;letter-spacing:-.02em}
 .am2-st span{font-size:.75rem;font-weight:700;opacity:.92}
 .am2-hero{display:flex;gap:.85rem;align-items:center;margin:.9rem 0 0;border-radius:1.5rem;padding:1rem;background:linear-gradient(135deg,#ff5c6c,#ff9a5c);color:#fff;box-shadow:0 .8rem 1.8rem rgba(255,92,108,.28);width:100%;text-align:left}
 .am2-date{flex:none;background:#fff;color:#181b34;border-radius:1.1rem;width:3.9rem;padding:.5rem 0;text-align:center}
@@ -1535,7 +1535,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.17';
+const APP_VERSION='2.75.18';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1543,6 +1543,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.18',d:'09/11/2026',items:['Amicale : tuiles de l’accueil plus petites (surtout sur grand écran)']},
  {v:'2.75.17',d:'09/11/2026',items:['Amicale (nouveau style) : « Le bureau » et « Les aides » sont maintenant dans deux encadrés distincts','Amicale : l’accueil ajoute des tuiles cliquables Courses, Amicalistes et Administratif (ces deux-là pour le bureau)']},
  {v:'2.75.16',d:'09/11/2026',items:['Notifications Famille : quand plusieurs articles ou tâches sont ajoutés, retirés ou modifiés d’un coup, la notification donne leurs noms (ex. « a ajouté « Coca », « Ice tea » aux courses »)']},
  {v:'2.75.15',d:'09/11/2026',items:['Amicale : les notifications disent maintenant qui a fait quoi (ex. « Nora a retiré « Lait », « Pain » des courses »)','Amicale : plusieurs modifications d’un coup = une seule notification groupée']},
