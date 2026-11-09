@@ -1527,11 +1527,12 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 <input type="file" id="fi-ics" accept=".ics,text/calendar" hidden>
 <input type="file" id="fi-vcf" accept=".vcf,text/vcard,text/x-vcard" hidden>
 <input type="file" id="fi-xl" accept=".xlsx,.xls,.ods,.csv,.tsv,.txt,text/csv" hidden>
+<script>window.addEventListener('error',function(e){try{if(!(e.error instanceof SyntaxError)&&!/syntax/i.test(String(e.message)))return;var d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;background:#b00020;color:#fff;padding:12px 16px;font:15px/1.4 -apple-system,sans-serif';d.textContent='L’appli n’a pas pu démarrer : navigateur trop ancien ou incomplet ('+String(e.message).slice(0,90)+'). Mets Safari / Chrome à jour.';(document.body||document.documentElement).appendChild(d)}catch(x){}});</script>
 <script>
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.75.8';
+const APP_VERSION='2.75.10';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1539,6 +1540,12 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.75.10',d:'09/11/2026',items:[
+  '<b>Compatible avec les anciens Mac</b> (Safari 15, macOS Catalina) : une écriture trop récente dans la lecture des dates empêchait toute l’appli de démarrer (page blanche). Corrigé, et un message clair s’affiche désormais si un navigateur est trop ancien.'
+ ]},
+ {v:'2.75.9',d:'09/11/2026',items:[
+  '<b>Quitter le groupe en tant qu’administrateur</b> : si un 2e administrateur est nommé, l’appli te rassure et le groupe continue sans toi ; si tu es le seul, elle te propose d’abord de nommer un administrateur au lieu de laisser le groupe sans responsable.'
+ ]},
  {v:'2.75.8',d:'09/11/2026',items:[
   '<b>Notifications : plus de première modification muette</b> après une mise à jour. L’appli mémorise ce qui est déjà partagé dès le démarrage, et la toute première modification est donc annoncée comme les suivantes.'
  ]},
@@ -9673,7 +9680,7 @@ function bdParseText(txt){
   let d=0,m=0,y=0,hit='';
   let r=l.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
   if(r){y=+r[1];m=+r[2];d=+r[3];hit=r[0]}
-  if(!hit){r=l.match(/(?<![\d])(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?(?![\d])/);if(r){d=+r[1];m=+r[2];if(r[3]){y=+r[3];if(y<100)y+=y>(y0%100)?1900:2000}hit=r[0]}}
+  if(!hit){r=l.match(/(?:^|\D)(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?(?!\d)/);if(r){r[0]=r[0].replace(/^\D/,'');d=+r[1];m=+r[2];if(r[3]){y=+r[3];if(y<100)y+=y>(y0%100)?1900:2000}hit=r[0]}}
   if(!hit){r=l.match(new RegExp('(\\d{1,2})(?:er)?\\s+'+BD_MO_RX+'(?:\\s+(\\d{4}))?','i'));if(r){d=+r[1];m=moNum(r[2]);if(r[3])y=+r[3];hit=r[0]}}
   if(!hit){r=l.match(new RegExp(BD_MO_RX+'\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?','i'));if(r){m=moNum(r[1]);d=+r[2];if(r[3])y=+r[3];hit=r[0]}}
   if(!hit&&curM){r=l.match(/^(\d{1,2})(?:er)?\b|\b(\d{1,2})$/);if(r){d=+(r[1]||r[2]);m=curM;hit=r[0]}}
@@ -11308,7 +11315,13 @@ async function amRename(){
 async function amLeave(){
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a)return;
- const r=await ask({title:'Quitter « '+a.nm+' » ?',text:a.apriv?'Tu es l’administrateur : si tu quittes sans avoir transmis le groupe, plus personne ne pourra changer les titres. Tes données de groupe sont supprimées de ce téléphone.':'Tes données de groupe sont supprimées de ce téléphone. Tu pourras rejoindre à nouveau avec un nouveau code.',btns:[{label:'Quitter le groupe',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ const co=a.apriv?(a.admIds||[]).filter(i=>a.me&&i!==a.me.id).map(i=>{const p=amList().find(x=>x.id===i);return p?p.n:''}).filter(Boolean):[];
+ let text,btns=[{label:'Quitter le groupe',value:'y',cls:'dng'},{label:'Annuler',value:null}];
+ if(a.apriv&&co.length)text='Tu es administrateur, mais '+co.join(' et ')+(co.length>1?' le sont aussi':' l’est aussi')+' : le groupe continue sans toi. Tes données de groupe sont supprimées de ce téléphone.';
+ else if(a.apriv){text='Tu es le seul administrateur : si tu quittes maintenant, plus personne ne pourra changer les titres, les niveaux d’accès ni retirer des membres. Nomme d’abord un membre du bureau administrateur (sa fiche › 👑 Nommer administrateur).';btns=[{label:'Nommer un administrateur d’abord',value:'adm',cls:'pri'},{label:'Quitter quand même',value:'y',cls:'dng'},{label:'Annuler',value:null}]}
+ else text='Tes données de groupe sont supprimées de ce téléphone. Tu pourras rejoindre à nouveau avec un nouveau code.';
+ const r=await ask({title:'Quitter « '+a.nm+' » ?',text,btns});
+ if(r==='adm'){go('amicale');toast('Ouvre la fiche d’un membre du bureau, puis « 👑 Nommer administrateur »',6000);return}
  if(r!=='y')return;
  delete S.amc;amSave();tabsApply();if(V.view==='amicale')go('settings');else render();toast('Tu as quitté le groupe',3000);
 }
