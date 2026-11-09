@@ -1543,7 +1543,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.76.1';
+const APP_VERSION='2.76.2';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1551,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.76.2',d:'09/11/2026',items:['Tâches : quand tu choisis une liste (Maison, Perso, Boulot…), son nom complet s’affiche en haut de l’écran à la place de « Tâches », pour la reconnaître même si l’onglet sur le côté est coupé.']},
  {v:'2.76.1',d:'09/11/2026',items:['Visite guidée complétée (90 écrans) : anniversaires en détail (« Qui c’est ? », nom sur la carte, contact relié, photo, idées cadeaux protégées, souhaiter avec ton, décor, signature et envoi de la carte), voyages (programme, repas du séjour, infos pratiques), repas (ajouter, courses du menu) et impression.','La visite guidée est maintenant accessible dans Réglages › Aide › Guide d’utilisation, et depuis la fiche de présentation.']},
  {v:'2.76.0',d:'09/11/2026',items:['Nouveau : visite guidée d’AgenDam en images (agenda, tâches, courses, repas, anniversaires, voyages, partage famille, sauvegarde) : Réglages › Mode d’emploi › « Visite guidée », ou la page visite.html']},
  {v:'2.75.24',d:'09/11/2026',items:['Amicale : correction des listes de courses (noms, liste réservée au bureau, listes vides) qui ne se synchronisaient pas vers les aides']},
@@ -2938,7 +2939,7 @@ function titles(){
  if(V.view==='repas')return['Repas',RV.tab==='rc'?rcAll().length+' recette'+(rcAll().length>1?'s':''):RV.tab==='co'?'Liste de courses':'Menu de la semaine'];
  if(V.view==='bdays'){const n=bdClean().length;return['Anniversaires',n?n+' personne'+(n>1?'s':''):'Aucun pour l’instant']}
  if(V.view==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}
- if(V.view==='tasks'){if(TKV.l==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}const n=tkAll().filter(k=>!k.x&&!isCoL(k.l)).length;return['Tâches',n?n+' à faire':'Rien à faire']}
+ if(V.view==='tasks'){if(TKV.l==='courses'){const n=tkAll().filter(k=>!k.x&&k.l===coCur()).length;return['Courses',n?n+' à acheter':'Rien à acheter']}if(TKV.l==='__done')return['✓ Terminées','Tâches déjà faites'];const _tl=TKV.l&&tkLists().find(x=>x.id===TKV.l);if(_tl){const m=tkAll().filter(k=>!k.x&&k.l===_tl.id).length;return[(_tl.i?_tl.i+' ':'')+_tl.n,m?m+' à faire':'Rien à faire']}const n=tkAll().filter(k=>!k.x&&!isCoL(k.l)).length;return['Tâches',n?n+' à faire':'Rien à faire']}
  return['Réglages','Version '+APP_VERSION];
 }
 
