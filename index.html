@@ -51,6 +51,7 @@ input,select,textarea{font:inherit;color:inherit}
 .ttl b{display:block;font-family:var(--serif);font-style:italic;font-size:1.45rem;font-weight:700;letter-spacing:-.01em;line-height:1.12}
 .ttl small{display:block;color:var(--muted);font-size:.8rem;font-weight:600}
 .nav{display:flex;align-items:center;gap:.1rem}
+.ib[hidden]{display:none}
 .ib{width:2.7rem;height:2.7rem;border-radius:.8rem;display:grid;place-items:center;font-weight:800;font-size:1.1rem}
 .ib:active,.pill:active{background:var(--surface2)}
 .pill{padding:.45rem .8rem;border:1.5px solid var(--line);border-radius:999px;font-weight:700;font-size:.82rem}
@@ -1255,7 +1256,7 @@ html[data-theme=dark] .rc-ph{background:linear-gradient(135deg,color-mix(in srgb
 .co-habh{font-weight:800;margin:0 0 .4rem;font-family:var(--serif);font-style:italic}.co-habh small{font-family:inherit;font-style:normal;font-weight:600;color:var(--muted);font-size:.78rem;margin-left:.3rem}
 .co-hab .chips{gap:.35rem}.co-hab .chip{font-size:.9rem;padding:.4rem .7rem}.co-hab .chip.on{background:var(--sec);border-color:var(--sec);color:#fff}
 .rp-add .btn.pri{background:var(--sec);border-color:var(--sec)}
-.co-pr{flex:none;background:none;border:0;padding:0 .35rem;font-size:1.15rem;color:var(--muted);line-height:1;cursor:pointer;font-family:inherit;opacity:.8}.co-p1{background:rgba(220,38,38,.10);box-shadow:inset 4px 0 0 #DC2626}.co-p1 .tk-t b{font-weight:900;color:#B91C1C}.co-p3{opacity:.62}.co-p3 .tk-t b{font-weight:500}.co-urg{margin:.4rem 0;padding:.55rem .7rem;border-radius:.7rem;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.4)}.co-urg small{display:block;color:var(--muted);font-size:.78rem;margin-top:.15rem}.co-q{display:flex;gap:.25rem;margin-right:.6rem;flex:none}.co-q button{width:2.1rem;height:2.1rem;border-radius:.6rem;background:var(--surface2);font-weight:900;font-size:1.15rem}
+.ib#bellbtn.on{background:var(--sec);color:#fff}.co-pr{flex:none;background:none;border:0;padding:0 .35rem;font-size:1.15rem;color:var(--muted);line-height:1;cursor:pointer;font-family:inherit;opacity:.8}.co-p1{background:rgba(220,38,38,.10);box-shadow:inset 4px 0 0 #DC2626}.co-p1 .tk-t b{font-weight:900;color:#B91C1C}.co-p3{opacity:.62}.co-p3 .tk-t b{font-weight:500}.co-urg{margin:.4rem 0;padding:.55rem .7rem;border-radius:.7rem;background:rgba(220,38,38,.12);border:1px solid rgba(220,38,38,.4)}.co-urg small{display:block;color:var(--muted);font-size:.78rem;margin-top:.15rem}.co-q{display:flex;gap:.25rem;margin-right:.6rem;flex:none}.co-q button{width:2.1rem;height:2.1rem;border-radius:.6rem;background:var(--surface2);font-weight:900;font-size:1.15rem}
 
 #fam-card .tgl-row b{font-weight:650}
 
@@ -1509,6 +1510,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
     <button class="ib" data-act="focus" aria-label="Plein écran : masquer les boutons" data-ic="eye"></button>
     <button class="ib" data-act="print" aria-label="Imprimer" data-ic="print"></button>
     <button class="ib" data-act="help" aria-label="Mode d’emploi" data-ic="help"></button>
+    <button class="ib" id="bellbtn" data-act="co-bell" aria-label="Couper les notifications des courses pendant 1 heure" hidden>🔔</button>
     <button class="sendbtn" id="sendbtn" data-act="send-cur" aria-label="Envoyer à la famille"><i>📤</i> <span>Envoyer</span></button>
     <button class="ib" id="srchbtn" data-act="view" data-v="search" aria-label="Rechercher" data-ic="search"></button>
     <button class="ib" id="updbtn" data-act="upd-quick" aria-label="Synchroniser et mettre à jour" title="Synchroniser (famille, groupe) et vérifier la version" data-ic="refresh"></button>
@@ -1543,7 +1545,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.77.1';
+const APP_VERSION='2.77.2';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1551,6 +1553,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.77.2',d:'10/11/2026',items:['Courses : une cloche 🔔 en haut. Touche-la avant de faire tes courses : 🔕 les notifications des courses ne sont plus envoyées à la famille pendant 1 heure, puis reviennent toutes seules avec un message « Notifications réactivées ». Retouche la cloche pour réactiver plus tôt.']},
  {v:'2.77.1',d:'10/11/2026',items:['Courses : écris « ! lait » (ou « lait ! ») dans la case d’ajout pour mettre l’article en urgent directement. Le symbole de priorité devient ⚑, plus visible.']},
  {v:'2.77.0',d:'10/11/2026',items:['Courses : priorité sur chaque article. Touche le petit symbole à droite pour choisir ❗ urgent (en gras et surligné en rouge, remonté en haut du rayon), ⚪ normal ou ⏳ peut attendre (estompé). Un bandeau rappelle le nombre d’urgents. La priorité est partagée avec la famille.']},
  {v:'2.76.2',d:'09/11/2026',items:['Tâches : quand tu choisis une liste (Maison, Perso, Boulot…), son nom complet s’affiche en haut de l’écran à la place de « Tâches », pour la reconnaître même si l’onglet sur le côté est coupé.']},
@@ -3292,6 +3295,7 @@ function render(){
  evsApply();
  document.body.classList.toggle('cansend',['tasks','courses','bdays','repas','voyages'].includes(V.view));
  {const sb=$('#sendbtn');if(sb){const L={tasks:'Envoyer',courses:'Envoyer la liste',bdays:'Envoyer',repas:RV.tab==='rc'?'Envoyer':RV.tab==='co'?'Envoyer les courses':'Envoyer le menu',voyages:'Envoyer'};const om=V.view==='courses'||V.view==='repas';sb.dataset.act=V.view==='repas'?'rp-menu':om?'co-menu':'send-cur';sb.classList.toggle('opt',om);sb.setAttribute('aria-label',om?'Options':'Envoyer à la famille');sb.querySelector('i').textContent=om?'⋯':'📤';sb.querySelector('span').textContent=om?'Options':window.innerWidth>560?(L[V.view]||'Envoyer'):'Envoyer'}}
+ {const bb=$('#bellbtn');if(bb){const on=V.view==='courses'&&!AMI&&!!fam();bb.hidden=!on;const q=coQuiet();bb.textContent=q?'🔕':'🔔';bb.classList.toggle('on',q);bb.setAttribute('aria-label',q?'Notifications des courses coupées : toucher pour les réactiver':'Couper les notifications des courses pendant 1 heure')}}
  body.classList.toggle('has-side',nav&&isWide()&&S.side!==0);
  body.classList.toggle('nofab',!nav&&V.view!=='search'&&V.view!=='tasks'&&V.view!=='courses'&&V.view!=='repas'&&V.view!=='voyages');
  {const pk=o=>o==='none'?'':(o||S.ls||'');const lk=V.view==='tasks'?pk(S.lsT):V.view==='courses'?pk(S.lsC):'';if(lk)document.body.dataset.ls=lk;else delete document.body.dataset.ls}
@@ -7169,7 +7173,9 @@ function notify(title,body,tag){
 function updateNow(){
  const n=nowMin();$$('.nowline').forEach(l=>{l.style.top=(n/1440*100)+'%'});
 }
-function tick(){
+const coQuiet=()=>(+S.coQ||0)>Date.now();
+function coBellCheck(){if(S.coQ&&!coQuiet()){delete S.coQ;saveSet();toast('🔔 Notifications des courses réactivées',5000);try{render()}catch(e){}}}
+function tick(){coBellCheck();
  updateNow();
  if(demo)return;
  const n=Date.now(),t0=today();
@@ -7393,6 +7399,7 @@ async function act(a,el,e){
   case 'co-ren':{const tl=tlOf(coCur());const v={t:tl.n};const pr=ask({title:'✏️ Renommer la liste',html:'<input class="in" id="col-n" maxlength="30" value="'+esc(tl.n)+'" style="margin:.3rem 0 .6rem">',btns:[{label:'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});const root=$('#dlg');root.oninput=e=>{if(e.target.id==='col-n')v.t=e.target.value};const r=await pr;root.oninput=null;if(r!=='ok')break;const n=String(v.t||'').trim().slice(0,30);if(n){tl.n=n;tl.m=Date.now();saveSet();render()}break}
   case 'co-del':{const cur=coCur();if(cur==='courses')break;const tl=tlOf(cur);const L=tkAll().filter(t=>t.l===cur);const r=await ask({title:'Supprimer « '+tl.n+' » ?',text:L.length?'Ses '+L.length+' articles seront supprimés aussi.':'La liste est vide.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')break;
    const gone=L.map(t=>t.id);S.tk=tkAll().filter(t=>!gone.includes(t.id));tkTomb(gone);S.tl=tkLists().filter(l=>l.id!==cur);S.coLid='courses';for(const fg of famAll())for(const id of Object.keys(fg.gr||{})){const g=fg.gr[id];if(Array.isArray(g.cos))g.cos=g.cos.filter(x=>x!==cur)}saveSet();render();toast('Liste supprimée');break}
+  case 'co-bell':{if(coQuiet()){delete S.coQ;saveSet();render();toast('🔔 Notifications des courses réactivées',3500)}else{S.coQ=Date.now()+3600000;saveSet();render();toast('🔕 Notifications des courses coupées pendant 1 h. Elles reviennent toutes seules.',5000)}break}
   case 'co-pr':{const k=tkAll().find(t=>t.id===ds_.id);if(!k)break;k.pr=k.pr===1?3:k.pr===3?undefined:1;if(k.pr===undefined)delete k.pr;k.m=Date.now();saveSet();render();toast(k.pr===1?'❗ Urgent : remonté en haut du rayon':k.pr===3?'⏳ Peut attendre':'Priorité normale',1800);break}
   case 'co-q':{const k=tkAll().find(t=>t.id===ds_.id);if(!k)break;if(!k.ig)k.ig={q:null,u:'',n:k.t};let q=k.ig.q==null?1:k.ig.q;const st=k.ig.u&&/^(g|ml|cl)$/.test(k.ig.u)?(q>=500?100:50):k.ig.u==='kg'||k.ig.u==='l'?0.5:1;q=Math.round((q+st*(+ds_.n))*100)/100;if(q<=0){S.tk=tkAll().filter(t=>t.id!==k.id);tkTomb([k.id]);saveSet();render();toast('Retiré : '+k.ig.n,2500);break}k.ig.q=q;k.t=ingTxt(k.ig);k.m=Date.now();saveSet();render();break}
   case 'co-redo':if(S.coLast&&S.coLast.length)coAddLines('🔁 Refaire mes dernières courses',S.coLast,'Ce que tu as acheté la dernière fois.');break;
@@ -10610,7 +10617,7 @@ async function famPush(){
 }
 async function famPushG(f){
  await famMe(f);const FK=await famKeys(f);
- const put=async(doc,P,key,hint,det)=>{const b=await famEncK(P,key);b.by=meName();const hd={'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':[f.me].concat(Object.keys(f.mb).filter(i=>f.mb[i].self)).join(',')};if(hint==='q')hd['X-Push-Quiet']='1';else if(hint)hd['X-Push-Hint']=hint;const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:hd,body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
+ const put=async(doc,P,key,hint,det)=>{const b=await famEncK(P,key);b.by=meName();if(hint&&hint[0]==='f'&&hint[1]==='c'&&coQuiet())hint='q';const hd={'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':[f.me].concat(Object.keys(f.mb).filter(i=>f.mb[i].self)).join(',')};if(hint==='q')hd['X-Push-Quiet']='1';else if(hint)hd['X-Push-Hint']=hint;const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:hd,body:JSON.stringify(b)});if(!r.ok)throw new Error('Serveur : '+r.status)};
  const M={app:'agd',v:2,k:'fm',id:f.me,n:meName()||'?',d:famDev(),self:Object.keys(f.mb).filter(i=>f.mb[i].self&&!f.mb[i].x&&!famNameClash(f.mb[i])),lt:S.famLt||'',jt:+f.jt||0,dr:famDirect(f),pub:{x:f.pub.x,y:f.pub.y}},hm=famHash(M);
  if(f.sent.m!==hm){await put('m-'+f.me,M,FK.key);f.sent.m=hm}
  try{await famPhPush(f,put,FK.key)}catch(e){}
