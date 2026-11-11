@@ -1545,7 +1545,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.77.4';
+const APP_VERSION='2.77.5';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1553,6 +1553,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.77.5',d:'11/11/2026',items:['Amicale, envoi d’un fichier sur iPhone : une petite explication s’affiche avant le menu de partage (l’adresse est copiée, choisis Mail ou Outlook, colle-la dans « À »).']},
  {v:'2.77.4',d:'11/11/2026',items:['Amicale, envoyer une liste à un membre du bureau : sur ordinateur, le bouton télécharge un brouillon qui s’ouvre dans Outlook avec l’adresse, le sujet, le message et l’Excel déjà joints (il reste à envoyer). Sur iPhone, le menu de partage propose Outlook ou Mail avec le fichier et le message, l’adresse étant copiée.']},
  {v:'2.77.3',d:'10/11/2026',items:['Amicale, préparatifs des invitations : un bouton ✏️ sur chaque personne pour modifier son nom, son téléphone, sa fonction et son niveau (Bureau ou Aide).']},
  {v:'2.77.2',d:'10/11/2026',items:['Courses : une cloche 🔔 en haut. Touche-la avant de faire tes courses : 🔕 les notifications des courses ne sont plus envoyées à la famille pendant 1 heure, puis reviennent toutes seules avec un message « Notifications réactivées ». Retouche la cloche pour réactiver plus tôt.']},
@@ -12041,6 +12042,8 @@ async function amMailXlsx(title,rows,em,who){
   toast('Ouvre le fichier « Mail pour… » qui vient d’être téléchargé : Outlook s’ouvre avec l’adresse, le message et l’Excel déjà prêts. Il reste à cliquer sur Envoyer.',9000);return}
  const name=amSlug(title).slice(0,40)+'.xlsx',f=new File([amXlsx(rows,title)],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),txt='Bonjour'+(who?' '+String(who).split(' ')[0]:'')+',\n\nVoici « '+title+' » en fichier Excel.\n\n'+((amc()||{}).nm||'');
  if(navigator.canShare&&navigator.canShare({files:[f]})){
+  const ok=await ask({title:'📎 Envoyer le fichier à '+(who||'cette personne'),html:'<ol style="margin:.2rem 0 .4rem 1.1rem;padding:0;line-height:1.5"><li>Touche « Continuer » : l’adresse de <b>'+esc(who||'la personne')+'</b> est <b>copiée automatiquement</b> ('+esc(em)+').</li><li>Choisis ton mode d’envoi : <b>Mail</b>, <b>Outlook</b>…</li><li>Le message s’ouvre avec le fichier déjà joint. Touche la case <b>« À »</b> (destinataire), garde le doigt appuyé et choisis <b>Coller</b>.</li><li>Envoie.</li></ol>',btns:[{label:'Continuer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  if(ok!=='ok')return;
   try{navigator.clipboard.writeText(em).catch(()=>{})}catch(e){}
   toast('Choisis Outlook ou Mail. Le fichier et le message sont prêts. Adresse copiée : colle-la dans « À : » ('+em+')',7000);
   try{await navigator.share({files:[f],title,text:txt});return}catch(e){if(e&&e.name==='AbortError')return}
