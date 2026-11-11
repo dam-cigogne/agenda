@@ -1545,7 +1545,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.77.5';
+const APP_VERSION='2.77.6';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1553,6 +1553,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.77.6',d:'11/11/2026',items:['Amicale, Courses : une cloche 🔔 pour couper les notifications des courses pendant 1 heure (pratique pendant que tu fais les courses). Elles reviennent toutes seules, avec un message « Notifications réactivées ». Visite guidée : nouvelles diapositives (courses : priorités et cloche, pour AgenDam comme pour Amicale).']},
  {v:'2.77.5',d:'11/11/2026',items:['Amicale, envoi d’un fichier sur iPhone : une petite explication s’affiche avant le menu de partage (l’adresse est copiée, choisis Mail ou Outlook, colle-la dans « À »).']},
  {v:'2.77.4',d:'11/11/2026',items:['Amicale, envoyer une liste à un membre du bureau : sur ordinateur, le bouton télécharge un brouillon qui s’ouvre dans Outlook avec l’adresse, le sujet, le message et l’Excel déjà joints (il reste à envoyer). Sur iPhone, le menu de partage propose Outlook ou Mail avec le fichier et le message, l’adresse étant copiée.']},
  {v:'2.77.3',d:'10/11/2026',items:['Amicale, préparatifs des invitations : un bouton ✏️ sur chaque personne pour modifier son nom, son téléphone, sa fonction et son niveau (Bureau ou Aide).']},
@@ -7558,6 +7559,7 @@ async function act(a,el,e){
   case 'pk-t':if(PK){PK.sel.has(ds_.id)?PK.sel.delete(ds_.id):PK.sel.add(ds_.id);amPkRender()}break;
   case 'pk-all':if(PK){const L=amPkVisible();const all=L.every(m=>PK.sel.has(m.id));L.forEach(m=>all?PK.sel.delete(m.id):PK.sel.add(m.id));amPkRender()}break;
   case 'pk-ok':amPkDone();break;
+  case 'amco-bell':{if(coQuiet()){delete S.coQ;saveSet();render();toast('🔔 Notifications des courses réactivées',3500)}else{S.coQ=Date.now()+3600000;saveSet();render();toast('🔕 Notifications des courses coupées pendant 1 h. Elles reviennent toutes seules.',5000)}break}
   case 'amco-l':AMC_CL=ds_.v;render();break;
   case 'amco-z':S.amCoZ=S.amCoZ==='b'?'a':'b';saveSet();render();break;
   case 'amco-newl':amCoNewList();break;
@@ -11002,7 +11004,7 @@ function appLockCard(){
 }
 async function amPut(zone,doc,P,kraw,hint,det){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
- const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},AM_QUIET?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
 const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,sn:m.sn||'',tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',col:m.col||'',ic:m.ic||'',ph:m.ph||'',pub:m.pub||null,at:Date.now()}};
@@ -13529,6 +13531,7 @@ function amCoHTML(){
  const all=amItems('co'),L=all.filter(i=>(i.l||amDL())===AMC_CL),pend=L.filter(i=>!i.x),done=L.filter(i=>i.x);
  const names=[...new Set(all.map(i=>i.tx))].slice(0,150);
  let h='<div class="am-tabs">'+lists.map(n=>{const c=all.filter(i=>(i.l||amDL())===n&&!i.x).length;return '<button class="chip'+(n===AMC_CL?' on':'')+'" data-act="amco-l" data-v="'+esc(n)+'">'+esc(n)+(c?' <small>'+c+'</small>':'')+'</button>'}).join('')+'<button class="chip" data-act="amco-newl">＋ Liste</button><button class="chip" data-act="amco-zoom">'+(S.coCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button></div>';
+ h+='<div style="margin:.1rem 0 .4rem"><button class="chip'+(coQuiet()?' on':'')+'" data-act="amco-bell">'+(coQuiet()?'🔕 Notifications des courses coupées jusqu’à '+new Date(+S.coQ).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+' · toucher pour réactiver':'🔔 Couper les notifications des courses pendant 1 h')+'</button></div>';
  h+='<div class="rp-add"><input class="in" id="amco-in" list="amco-dl" placeholder="Ajouter : 2 citrons, gobelets…" autocomplete="off" enterkeyhint="done"><button class="btn pri" data-act="amco-add" aria-label="Ajouter">'+ic('plus')+'</button></div><datalist id="amco-dl">'+names.map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist>';
  h+=amCqHTML();
  if(a.kB)h+='<div style="margin:.2rem 0 .4rem"><button class="chip" data-act="amco-ed">✏️ Renommer / réserver « '+esc(AMC_CL)+' »</button> <button class="chip" data-act="amco-z">'+(S.amCoZ==='b'?'🔒 Nouveaux articles : bureau seulement':'👥 Nouveaux articles : tout le monde')+'</button></div>';
