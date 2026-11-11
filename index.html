@@ -1545,7 +1545,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.77.3';
+const APP_VERSION='2.77.4';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1553,6 +1553,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.77.4',d:'11/11/2026',items:['Amicale, envoyer une liste à un membre du bureau : sur ordinateur, le bouton télécharge un brouillon qui s’ouvre dans Outlook avec l’adresse, le sujet, le message et l’Excel déjà joints (il reste à envoyer). Sur iPhone, le menu de partage propose Outlook ou Mail avec le fichier et le message, l’adresse étant copiée.']},
  {v:'2.77.3',d:'10/11/2026',items:['Amicale, préparatifs des invitations : un bouton ✏️ sur chaque personne pour modifier son nom, son téléphone, sa fonction et son niveau (Bureau ou Aide).']},
  {v:'2.77.2',d:'10/11/2026',items:['Courses : une cloche 🔔 en haut. Touche-la avant de faire tes courses : 🔕 les notifications des courses ne sont plus envoyées à la famille pendant 1 heure, puis reviennent toutes seules avec un message « Notifications réactivées ». Retouche la cloche pour réactiver plus tôt.']},
  {v:'2.77.1',d:'10/11/2026',items:['Courses : écris « ! lait » (ou « lait ! ») dans la case d’ajout pour mettre l’article en urgent directement. Le symbole de priorité devient ⚑, plus visible.']},
@@ -12027,11 +12028,21 @@ async function amSaveBlob(blob,name,mime){
 async function amFileOut(name,text){await amSaveBlob(new Blob(['﻿'+text],{type:'text/csv'}),name,'text/csv')}
 /* menu d'export : Excel, Word, PDF ou CSV ; rows = [[titre],[…],['colonnes'…],…] */
 /* mail avec le fichier Excel joint : feuille de partage (Mail) sur iPhone/iPad/Android ; sinon fichier téléchargé + mail préparé */
+function amB64(u8){let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s)}
+async function amEml(em,subject,text,name,blob,mime){
+ const u8=new Uint8Array(await new Response(blob).arrayBuffer()),W=x=>x.replace(/.{1,76}/g,'$&\r\n').replace(/\r\n$/,''),bd='=_Amicale'+Date.now().toString(36),u=t=>btoa(unescape(encodeURIComponent(t))),sn=name.replace(/[^A-Za-z0-9._-]/g,'_');
+ const m=['To: '+em,'Subject: =?UTF-8?B?'+u(subject)+'?=','X-Unsent: 1','MIME-Version: 1.0','Content-Type: multipart/mixed; boundary="'+bd+'"','','--'+bd,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',W(u(text)),'--'+bd,'Content-Type: '+mime+'; name="'+sn+'"','Content-Transfer-Encoding: base64','Content-Disposition: attachment; filename="'+sn+'"','',W(amB64(u8)),'--'+bd+'--',''].join('\r\n');
+ return new Blob([m],{type:'message/rfc822'});
+}
 async function amMailXlsx(title,rows,em,who){
+ if(!amMobile()){
+  const nm=amSlug(title).slice(0,40),X='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',tx='Bonjour'+(who?' '+String(who).split(' ')[0]:'')+',\n\nVoici « '+title+' » en fichier Excel.\n\n'+((amc()||{}).nm||'');
+  const b=await amEml(em,title,tx,nm+'.xlsx',amXlsx(rows,title),X),u=URL.createObjectURL(b),l=document.createElement('a');l.href=u;l.download='Mail pour '+String(who||'destinataire').replace(/[^\wÀ-ÿ -]/g,'')+'.eml';document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000);
+  toast('Ouvre le fichier « Mail pour… » qui vient d’être téléchargé : Outlook s’ouvre avec l’adresse, le message et l’Excel déjà prêts. Il reste à cliquer sur Envoyer.',9000);return}
  const name=amSlug(title).slice(0,40)+'.xlsx',f=new File([amXlsx(rows,title)],name,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),txt='Bonjour'+(who?' '+String(who).split(' ')[0]:'')+',\n\nVoici « '+title+' » en fichier Excel.\n\n'+((amc()||{}).nm||'');
  if(navigator.canShare&&navigator.canShare({files:[f]})){
   try{navigator.clipboard.writeText(em).catch(()=>{})}catch(e){}
-  toast('Choisis « Mail ». Adresse copiée : colle-la dans « À : » ('+em+')',6000);
+  toast('Choisis Outlook ou Mail. Le fichier et le message sont prêts. Adresse copiée : colle-la dans « À : » ('+em+')',7000);
   try{await navigator.share({files:[f],title,text:txt});return}catch(e){if(e&&e.name==='AbortError')return}
  }
  const u=URL.createObjectURL(f),l=document.createElement('a');l.href=u;l.download=name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000);
@@ -12050,7 +12061,7 @@ async function amSendTo(title,rows){
  if(!L.length){toast('Aucun autre membre du bureau n’a de coordonnées (SMS ou mail) dans sa fiche.',5000);return}
  const v=await amForm('📨 Envoyer à…','Choisis la personne du bureau. Ensuite : SMS ou mail avec la liste écrite dans le message, ou mail avec le fichier Excel en pièce jointe.',[{k:'who',l:'Destinataire',t:'select',v:L[0].id,o:L.map(x=>[x.id,x.n+(x.t?' ('+x.t+')':'')])}],'Suivant');
  if(!v)return;const p=L.find(x=>x.id===v.who);if(!p)return;
- const btns=[];if(p.tel)btns.push({label:'💬 SMS ('+p.tel+')',value:'sms',cls:'pri'});if(p.mw)btns.push({label:'💼 Mail pro ('+p.mw+')',value:'mw'});if(p.mp)btns.push({label:'✉️ Mail perso en texte ('+p.mp+')',value:'mp'});const em=p.mw||p.mp;if(em)btns.push({label:'📎 Mail avec le fichier Excel ('+em+')',value:'mx'});btns.push({label:'Annuler',value:null});
+ const btns=[];if(p.tel)btns.push({label:'💬 SMS ('+p.tel+')',value:'sms',cls:'pri'});if(p.mw)btns.push({label:'💼 Mail pro ('+p.mw+')',value:'mw'});if(p.mp)btns.push({label:'✉️ Mail perso en texte ('+p.mp+')',value:'mp'});const em=p.mw||p.mp;if(em)btns.push({label:amMobile()?'📎 Outlook ou Mail avec le fichier Excel ('+em+')':'💼 Outlook : brouillon prêt avec l’Excel ('+em+')',value:'mx'});btns.push({label:'Annuler',value:null});
  if(p.mw)btns.forEach(b=>{if(b.value==='mw')b.label='💼 Mail pro en texte ('+p.mw+')'});
  const r=await ask({title:'Envoyer à '+p.n,text:'Par quel moyen ? « en texte » : la liste est écrite dans le message. « Excel » : le fichier est joint au mail. Tu relis puis tu envoies. Attention : un SMS ou un mail ne sont pas chiffrés.',btns});
  if(!r)return;
