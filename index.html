@@ -1549,7 +1549,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.78.1';
+const APP_VERSION='2.78.2';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1557,6 +1557,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.78.2',d:'12/11/2026',items:['<b>🔍 Qui reçoit les notifications ?</b> : nouveau bouton dans Réglages › Notifications. Pour chaque groupe, il montre les téléphones inscrits et signale un téléphone non inscrit ou une personne vue comme « toi » (elle ne reçoit alors pas tes changements).','<b>🧪 Le test n’est envoyé qu’à ce téléphone</b>, groupe par groupe (Famille ✓ · Amicale ✓). Nécessite le worker à jour.','<b>🔔 Choisir les notifications de la boîte à idées</b> : dans Réglages › Notifications, une nouvelle case « 💡 Boîte à idées » permet d’activer ou de couper ces notifications sur chaque téléphone.']},
  {v:'2.78.1',d:'12/11/2026',items:['<b>🔔 Notifications de la boîte à idées</b> : tout le groupe est prévenu quand quelqu’un propose une idée, pose une question ou signale un problème, et quand l’administrateur répond ou valide (« 💡 Amicale · Boîte à idées »). Les 👍 ne déclenchent pas de notification.']},
  {v:'2.78.0',d:'12/11/2026',items:['<b>💡 Boîte à idées</b> (Amicale, nouvel onglet pour tout le groupe) : chacun propose une idée, pose une question ou signale ce qui ne va pas, avec son nom. Tout le monde peut mettre 👍. L’administrateur valide (✅ Validée, 🛠 En cours, ✔️ Faite, ❌ Pas retenue) et peut répondre. En haut, qui a proposé combien d’idées et combien sont validées ; filtres Nouvelles / Validées / Faites.']},
  {v:'2.77.6',d:'11/11/2026',items:['Amicale, Courses : une cloche 🔔 pour couper les notifications des courses pendant 1 heure (pratique pendant que tu fais les courses). Elles reviennent toutes seules, avec un message « Notifications réactivées ». Visite guidée : nouvelles diapositives (courses : priorités et cloche, pour AgenDam comme pour Amicale).']},
@@ -1717,7 +1718,7 @@ const CHANGELOG=[
   '<b>Amicale sur iPad</b> : l’écran occupe maintenant toute la largeur (la bande vide à gauche, réservée à une barre d’onglets absente dans Amicale, est supprimée).'
  ]},
  {v:'2.71.0',d:'08/11/2026',items:[
-  '<b>Notifications Amicale au choix</b> : dans Réglages → Notifications, tu coches les rubriques qui te préviennent (Tâches, Courses, Agenda, Événements, et pour le bureau : Notes, Amicalistes, Administratif, Cadeaux, AG et bulletins). Réglage propre à chaque téléphone. Nécessite le worker à jour.'
+  '<b>Notifications Amicale au choix</b> : dans Réglages → Notifications, tu coches les rubriques qui te préviennent (Tâches, Courses, Agenda, Événements, Boîte à idées, et pour le bureau : Notes, Amicalistes, Administratif, Cadeaux, AG et bulletins). Le bouton 🔍 <b>Qui reçoit les notifications ?</b> montre les téléphones inscrits de chaque groupe. Réglage propre à chaque téléphone. Nécessite le worker à jour.'
  ]},
  {v:'2.70.10',d:'08/11/2026',items:[
   '<b>Amicale : l’agenda du mois reprend le rendu d’AgenDam</b> (numéros de semaine, étiquettes colorées avec titres, week-ends et jours fériés). Il ne montre que les éléments de l’Amicale.'
@@ -6748,7 +6749,7 @@ h+='<div class="card" id="ics-card">'+
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
    :(famAll().length||amc()?'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(pushIsOn()?' checked':'')+'></label></div>'
      :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button><p class="mut">Pour être prévenu des modifications du groupe, rejoins d’abord un groupe.</p>'))+
-  (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div>'+pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'')+
+  (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div>'+pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button><button class="btn alt blk" data-act="push-who" style="margin-top:.4rem">🔍 Qui reçoit les notifications ?</button>':'')+
   '</div>'+
   '<div class="warn"><b>À savoir</b>Les notifications de modification arrivent même appli fermée (iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum). Elles peuvent être retardées de quelques minutes, ou masquées par un mode Concentration. Les rappels à l’heure (tâches avec « M’alerter à l’heure », événements avec rappel) arrivent aussi appli fermée et téléphone verrouillé, à la minute près en général. Pour une alarme absolument sûre, tu peux en plus exporter tes événements en .ics vers l’agenda natif du téléphone.</div></div>';
  h+='\u0001agenda\u0001';
@@ -7758,7 +7759,8 @@ async function act(a,el,e){
   case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
   case 'rem-test':{try{await pushOn();await remSync(true,{id:'test-'+Date.now(),at:Date.now()+60000,m:{t:'🧪 Test de rappel',b:'Ça marche, même appli fermée.',g:'agd-rtest'}});toast('Rappel de test programmé : ferme l’appli et verrouille ton téléphone')}catch(err){toast('Échec : '+(err&&err.message||err),6000)}render();break}
-  case 'push-test':{try{await pushOn();const sp=(await pushSpaces())[0];if(!sp)throw new Error('aucun groupe');const r=await fetch(famUrl()+'/push/'+sp.space+'/test',{method:'POST'});const j=await r.json();toast(r.ok?('Test envoyé à '+j.ok+' téléphone(s)'):'Serveur : '+r.status)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
+  case 'push-test':{try{await pushOn();const L=await pushSpaces();if(!L.length)throw new Error('aucun groupe');const ep=pushSelf(),out=[];let old=0;for(const x of L){try{const r=await fetch(famUrl()+'/push/'+x.space+'/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:ep,lb:x.lb})});const j=await r.json();if(j.ok>1)old=1;out.push(x.lb+(r.ok&&j.ok>0?' ✓':' ✗'))}catch(e){out.push(x.lb+' ✗')}}toast('Test envoyé à ce téléphone : '+out.join(' · ')+(old?' (worker à mettre à jour : envoyé à tout le groupe)':''),7000)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
+  case 'push-who':{await pushWho();break}
   case 'tpl-use':tplUse(+el.dataset.i);break;
   case 'tpl-save':tplSave();break;
   case 'tpl-ren':tplRename(+el.dataset.i);break;
@@ -10132,7 +10134,7 @@ async function dupMulti(ev,from){
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
-const PUSH_SEC=[['tk','☑ Tâches','tk'],['co','🛒 Courses','co'],['ev','📅 Agenda','ev'],['ee','🎉 Événements','ee'],['nt','📝 Notes du bureau','nt',1],['am','🎖 Amicalistes','am',1],['ad','📁 Administratif','ad',1],['cd','🎁 Cadeaux','cd',1],['ag','📰 AG et bulletins','ag,bs,bm',1]];
+const PUSH_SEC=[['tk','☑ Tâches','tk'],['co','🛒 Courses','co'],['ev','📅 Agenda','ev'],['ee','🎉 Événements','ee'],['id','💡 Boîte à idées','id'],['nt','📝 Notes du bureau','nt',1],['am','🎖 Amicalistes','am',1],['ad','📁 Administratif','ad',1],['cd','🎁 Cadeaux','cd',1],['ag','📰 AG et bulletins','ag,bs,bm',1]];
 const pushEx=()=>Array.isArray(S.pushEx)?S.pushEx:[];
 function pushPfStr(){const base=S.pushPf==null?'aci':S.pushPf,ex=PUSH_SEC.filter(x=>pushEx().includes(x[0])).map(x=>x[2]).join(',');return base+(ex?'!'+ex:'')}
 const pushIsOn=()=>{try{return !!localStorage.getItem('agd-push-ep')&&S.pushOff!==1}catch(e){return false}};
@@ -10199,12 +10201,34 @@ setInterval(()=>{pushWatch().catch(()=>{})},60000);
 setTimeout(()=>{pushWatch().catch(()=>{})},8000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)remSync(false).catch(()=>{})});
 const pushSelf=()=>{try{return localStorage.getItem('agd-push-ep')||''}catch(e){return ''}};
+/* 2.78.2 : qui reçoit les notifications, groupe par groupe (identités seulement, jamais les adresses des téléphones) */
+async function pushWho(){
+ if(demo){toast('Non disponible en mode démo',2500);return}
+ try{await pushOn()}catch(e){}
+ const L=await pushSpaces(),ep=pushSelf();let h='';
+ if(!L.length)h='<p class="mut">Aucun groupe sur ce téléphone.</p>';
+ for(const x of L){
+  let j=null;try{const r=await fetch(famUrl()+'/push/'+x.space+'/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:ep})});if(r.ok)j=await r.json()}catch(e){}
+  h+='<h3 style="margin:.9rem 0 .3rem;font-size:1.05rem">'+esc(x.lb)+'</h3>';
+  if(!j||!Array.isArray(j.list)){h+='<p class="mut">Le worker n’est pas encore à jour : liste impossible à afficher.</p>';continue}
+  const L2=j.list.slice().sort((a,b)=>(b.mine?1:0)-(a.mine?1:0));
+  if(!L2.some(y=>y.mine))h+='<p style="color:#c0392b">⚠️ Ce téléphone n’est pas inscrit dans ce groupe : il ne recevra rien. Coupe puis réactive l’interrupteur des notifications.</p>';
+  h+='<ul style="margin:.2rem 0;padding-left:1.1rem">'+L2.map(y=>{
+   const pf=String(y.pf||'aci'),pq=pf.split('!'),base=pq[0],off=x.k==='i'?base.indexOf('i')<0:(base.indexOf('a')<0&&base.indexOf('c')<0);
+   const ex=x.k==='i'&&pq[1]?PUSH_SEC.filter(s=>pq[1].split(',').includes(s[2].split(',')[0])).map(s=>s[1]):[];
+   const me=!y.mine&&x.skip.includes(y.me);
+   return '<li style="margin:.25rem 0">'+(y.mine?'📱 <b>Ce téléphone</b> · ':'')+esc(x.nm(y.me))+(me?' <b style="color:#c0392b">⚠️ vu comme « toi » : ne reçoit pas tes changements</b>':'')+(off?' 🔕 coupé':'')+(ex.length?' <span class="mut">(sans '+esc(ex.join(', '))+')</span>':'')+'</li>'}).join('')+'</ul>';
+  if(!L2.length)h+='<p class="mut">Aucun téléphone inscrit.</p>';
+ }
+ h+='<p class="mut" style="margin-top:.8rem">Chaque ligne = un téléphone ou ordinateur inscrit. Une personne marquée « vu comme toi » est considérée comme un de tes appareils : elle n’est pas prévenue de ce que tu fais.</p>';
+ await ask({title:'🔍 Qui reçoit les notifications ?',html:'<div style="max-height:60vh;overflow:auto">'+h+'</div>',btns:[{label:'Fermer',value:null,cls:'pri'}]});
+}
 /* Les « espaces » du serveur où ce téléphone veut être prévenu : groupes AgenDam, et les deux zones d'Amicale */
 async function pushSpaces(){
  const L=[];
- for(const g of famAll()){await famMe(g);const FK=await famKeys(g);L.push({space:FK.space,me:g.me})}
+ for(const g of famAll()){await famMe(g);const FK=await famKeys(g);L.push({space:FK.space,me:g.me,lb:grpLbl(g),k:'f',skip:[g.me].concat(Object.keys(g.mb||{}).filter(i=>g.mb[i].self)),nm:id=>id===g.me?meName()+' (toi)':(g.mb&&g.mb[id]&&g.mb[id].n)||'Inconnu ('+String(id).slice(0,4)+')'})}
  const am=amc();
- if(am)for(const z of ['kA','kB']){if(am[z]&&am[z]!=='demo'){const FK=await famKeys({k:am[z]});L.push({space:FK.space,me:am.me.id})}}
+ if(am)for(const z of ['kA','kB']){if(am[z]&&am[z]!=='demo'){const FK=await famKeys({k:am[z]});L.push({space:FK.space,me:am.me.id,lb:z==='kA'?'🏛️ Amicale':'🏛️ Amicale · bureau',k:'i',skip:[am.me.id],nm:id=>{if(id===am.me.id)return (am.me.n||'Moi')+' (toi)';const q=amList().find(y=>y.id===id);return q?q.n:'Inconnu ('+String(id).slice(0,4)+')'}})}}
  return L.filter((x,i)=>L.findIndex(y=>y.space===x.space)===i);
 }
 async function pushOn(){
@@ -13844,7 +13868,7 @@ function pushCard(){
  const perm=('Notification' in window)?Notification.permission:'indisponible',on=pushIsOn();
  return '<div class="card"><h3>🔔 Notifications</h3>'+(perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
   :perm==='indisponible'?'<p class="mut">Non disponibles ici (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
-  :'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(on?' checked':'')+'></label></div>'+(on?pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button>':'<p class="mut">iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum.</p>'))+'</div>';
+  :'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(on?' checked':'')+'></label></div>'+(on?pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-test">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button><button class="btn alt blk" data-act="push-who" style="margin-top:.4rem">🔍 Qui reçoit les notifications ?</button>':'<p class="mut">iPhone : appli ajoutée à l’écran d’accueil, iOS 16.4 minimum.</p>'))+'</div>';
 }
 function amColCard(){return '<div class="card"><h3>🎨 Couleur de l’Amicale</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Sur cet appareil seulement. Touche une couleur.</p><div class="chips">'+[['','Violet (défaut)'],['#2f6fb3','Encre'],['#0d9488','Turquoise'],['#16a34a','Vert'],['#db2777','Rose'],['#ea580c','Orange'],['#dc2626','Rouge'],['#475569','Graphite']].map(([c,l])=>'<button class="chip'+((S.amCol||'')===c?' on':'')+'" data-act="am-col" data-v="'+c+'" style="'+(c?'border-left:1.1rem solid '+c:'border-left:1.1rem solid #7c3aed')+'">'+esc(l)+'</button>').join('')+'</div></div>'}
 function amSetCard(){
