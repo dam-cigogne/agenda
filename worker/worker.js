@@ -38,9 +38,10 @@ async function sendOne(env,x,msg){
   }catch(e){return String(e).slice(0,80)}
 }
 // Test : envoyé à tous les téléphones du groupe, sans règle
-async function pushTest(env,space){
-  const r=await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE space = ?').bind(space).all();let ok=0;const err=[];
-  for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'✅ Test réussi',b:'Les notifications fonctionnent sur ce téléphone 🎉',g:'agd-test'});if(s==='ok')ok++;else err.push(s)}
+// Avec « ep » : seulement ce téléphone (2.78.2)
+async function pushTest(env,space,ep,lb){
+  const r=ep?await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE space = ? AND endpoint = ?').bind(space,ep).all():await env.DB.prepare('SELECT endpoint, p, a FROM push3 WHERE space = ?').bind(space).all();let ok=0;const err=[];
+  for(const x of (r.results||[])){const s=await sendOne(env,x,{t:'✅ Test réussi'+(lb?' · '+lb:''),b:'Les notifications fonctionnent sur ce téléphone 🎉',g:'agd-test-'+space.slice(0,6)});if(s==='ok')ok++;else err.push(s)}
   return {ok,err};
 }
 // Vraie notification : jamais pour ses propres appareils, seulement pour le destinataire, une pour chaque modification
@@ -234,7 +235,7 @@ export default {
       return json(req, { ok: true, n: st.length - 1 });
     }
     // Notifications : abonnement d'un téléphone à un groupe, test, et envoi
-    const pm = url.pathname.match(/^\/push\/([0-9a-f]{32})(\/test)?$/);
+    const pm = url.pathname.match(/^\/push\/([0-9a-f]{32})(\/test|\/list)?$/);
     if (pm && env.DB && env.VAPID_PRIVATE) {
       if (req.method === 'PUT') {
         let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
@@ -243,7 +244,14 @@ export default {
         await env.DB.prepare('INSERT OR REPLACE INTO push3 (endpoint, space, me, pf, at, p, a) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(o.endpoint, pm[1], String(o.me || '').slice(0, 20), String(o.pf || '').slice(0, 60), Date.now(), o.keys.p256dh, o.keys.auth).run();
         return json(req, { ok: true });
       }
-      if (req.method === 'POST' && pm[2]) return json(req, await pushTest(env, pm[1]));
+      if (req.method === 'POST' && pm[2]) {
+        let o = {}; try { o = JSON.parse(await req.text() || '{}') || {} } catch (e) {}
+        const ep = typeof o.endpoint === 'string' ? o.endpoint.slice(0, 700) : '';
+        if (pm[2] === '/test') return json(req, await pushTest(env, pm[1], ep, String(o.lb || '').slice(0, 40)));
+        // Qui reçoit : identités et rubriques des téléphones inscrits (jamais les adresses)
+        const r = await env.DB.prepare('SELECT endpoint, me, pf, at FROM push3 WHERE space = ?').bind(pm[1]).all();
+        return json(req, { list: (r.results || []).map(x => ({ me: x.me, pf: x.pf, at: x.at, mine: !!ep && x.endpoint === ep })) });
+      }
       return json(req, { error: 'methode' }, 405);
     }
     if (url.pathname === '/' || url.pathname === '/ping') return json(req, { ok: true, app: 'agendam-famille', db: env.DB ? 'd1' : 'kv' });
