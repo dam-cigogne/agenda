@@ -122,7 +122,8 @@ function ready(env) {
     env.DB.prepare('CREATE INDEX IF NOT EXISTS remind_at ON remind (at)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (n INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, at INTEGER NOT NULL, ip TEXT NOT NULL DEFAULT \'\', data TEXT NOT NULL)'),
     env.DB.prepare('CREATE INDEX IF NOT EXISTS inbox_id ON inbox (id, n)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS inboxsp (id TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS inboxsp (id TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS pubm (id TEXT PRIMARY KEY, k TEXT NOT NULL, data TEXT NOT NULL, at INTEGER NOT NULL)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -271,6 +272,31 @@ export default {
         const after = Math.max(0, +url.searchParams.get('a') || 0);
         const r = await env.DB.prepare('SELECT n, at, data FROM inbox WHERE id = ? AND n > ? ORDER BY n LIMIT 300').bind(id, after).all();
         return json(req, { list: (r.results || []).map(x => ({ n: x.n, at: x.at, d: x.data })) });
+      }
+      return json(req, { error: 'methode' }, 405);
+    }
+    // 2.81.0 : menu public d'un événement (QR « Menu » de l'affiche). Lisible par tous ; modifiable seulement avec la clé d'écriture.
+    const pb = url.pathname.match(/^\/pub\/([0-9a-f]{32})$/);
+    if (pb && env.DB) {
+      await ready(env);
+      const id = pb[1];
+      if (req.method === 'GET') {
+        const row = await env.DB.prepare('SELECT data, at FROM pubm WHERE id = ?').bind(id).first();
+        if (!row) return json(req, { error: 'introuvable' }, 404);
+        let d = {}; try { d = JSON.parse(row.data) } catch (e) {}
+        return json(req, { at: row.at, d });
+      }
+      if (req.method === 'PUT') {
+        const body = await req.text();
+        if (body.length > 16000) return json(req, { error: 'trop gros' }, 413);
+        let o; try { o = JSON.parse(body) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+        if (!o || typeof o.k !== 'string' || o.k.length < 20 || o.k.length > 80 || !o.d || typeof o.d !== 'object') return json(req, { error: 'format' }, 400);
+        const h = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('agd-pub:' + o.k)))).map(b => b.toString(16).padStart(2, '0')).join('');
+        const row = await env.DB.prepare('SELECT k FROM pubm WHERE id = ?').bind(id).first();
+        if (row && row.k !== h) return json(req, { error: 'refusé' }, 403);
+        const at = Date.now();
+        await env.DB.prepare('INSERT OR REPLACE INTO pubm (id, k, data, at) VALUES (?, ?, ?, ?)').bind(id, h, JSON.stringify(o.d).slice(0, 15000), at).run();
+        return json(req, { ok: true, at });
       }
       return json(req, { error: 'methode' }, 405);
     }
