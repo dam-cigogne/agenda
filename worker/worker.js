@@ -73,6 +73,7 @@ const AMV={co:{a:['a ajouté','aux courses'],d:['a retiré','des courses'],x:['a
  tk:{a:['a ajouté','aux tâches'],d:['a supprimé','des tâches'],x:['a terminé','parmi les tâches'],u:['a rouvert','parmi les tâches'],m:['a modifié','dans les tâches'],N:'tâche'},
  ev:{a:['a ajouté','à l’agenda'],d:['a supprimé','de l’agenda'],x:['a modifié','dans l’agenda'],u:['a modifié','dans l’agenda'],m:['a modifié','dans l’agenda'],N:'rendez-vous'},
  ee:{a:['a ajouté','aux événements'],d:['a supprimé','des événements'],x:['a modifié','dans les événements'],u:['a modifié','dans les événements'],m:['a modifié','dans les événements'],N:'événement'},
+ qr:{a:['a envoyé','par QR code'],m:['a envoyé','par QR code'],N:'inscription'},
  id:{a:['a proposé','dans la boîte à idées'],d:['a supprimé','de la boîte à idées'],v:['a validé ou mis à jour','dans la boîte à idées'],r:['a répondu à','dans la boîte à idées'],x:['a modifié','dans la boîte à idées'],u:['a modifié','dans la boîte à idées'],m:['a modifié','dans la boîte à idées'],N:'idée'},
  nt:{a:['a ajouté','aux notes'],d:['a supprimé','des notes'],x:['a modifié','dans les notes'],u:['a modifié','dans les notes'],m:['a modifié','dans les notes'],N:'note'}};
 function amMsg(rows){
@@ -88,7 +89,7 @@ function amMsg(rows){
 }
 const evTxt=(h,d)=>{const p=d.split('|');return (h==='fea'?'a ajouté':h==='fed'?'a supprimé':'a modifié')+' l’événement « '+p[0]+' »'+(p[1]?' ('+p[1]+')':'')};
 const itTxt=(h,d)=>{const co=h[1]==='c',v=h[2]==='a'?'a ajouté':h[2]==='d'?(co?'a retiré':'a supprimé'):'a modifié';if(d[0]==='#'){const p=d.slice(1).split('|'),c=+p[0]||0,nm=p.slice(1).filter(Boolean),suf=co?(h[2]==='a'?' aux courses':h[2]==='d'?' des courses':' dans les courses'):'';if(nm.length)return v+' '+nm.map(x=>'« '+x+' »').join(', ')+(c>nm.length?' et '+(c-nm.length)+' autre'+(c-nm.length>1?'s':''):'')+(co?suf:' (tâches)');return v+' '+c+(co?' articles':' tâches')+suf}return v+(co?' « '+d+' »'+(h[2]==='a'?' aux courses':h[2]==='d'?' des courses':''):(h[2]==='a'?' la tâche « ':h[2]==='d'?' la tâche « ':' la tâche « ')+d+' »')};
-const HINT = { id:['💡 Amicale · Boîte à idées','a écrit dans la boîte à idées'], fca:['🏠 Famille · Courses','a ajouté un article aux courses'], fcm:['🏠 Famille · Courses','a modifié la liste de courses'], fcd:['🏠 Famille · Courses','a retiré un article des courses'], fea:['🏠 Famille · Agenda','a ajouté un événement'], fem:['🏠 Famille · Agenda','a modifié un événement'], fed:['🏠 Famille · Agenda','a supprimé un événement'], fta:['🏠 Famille · Listes','a ajouté une tâche ou un article'], ftm:['🏠 Famille · Listes','a modifié une tâche ou une liste'], ftd:['🏠 Famille · Listes','a supprimé une tâche ou un article'], fba:['🏠 Famille · Anniversaires','a ajouté un anniversaire'], fbm:['🏠 Famille · Anniversaires','a modifié un anniversaire'], fbd:['🏠 Famille · Anniversaires','a supprimé un anniversaire'], fva:['🏠 Famille · Voyages','a ajouté un voyage'], fvm:['🏠 Famille · Voyages','a modifié un voyage'], fvd:['🏠 Famille · Voyages','a supprimé un voyage'], fmu:['🏠 Famille · Du nouveau','a fait plusieurs modifications'], fra:['🏠 Famille · Recettes','a ajouté une recette'], frm:['🏠 Famille · Recettes','a modifié une recette'], frd:['🏠 Famille · Recettes','a supprimé une recette'], tk:['☑ Amicale · Tâches','a modifié une tâche'], co:['🛒 Amicale · Courses','a modifié la liste de courses'], ev:['📅 Amicale · Agenda','a modifié l’agenda'], ee:['🎉 Amicale · Événement','a ajouté ou modifié un événement'], nt:['📝 Amicale · Notes','a modifié une note'], am:['🎖 Amicale · Membres','a modifié la liste des amicalistes'], ad:['📁 Amicale · Administratif','a ajouté ou modifié un document'], cd:['🎁 Amicale · Cadeaux','a modifié un cadeau'], ag:['📝 Amicale · Compte rendu AG','a modifié un compte rendu'], bs:['📰 Amicale · Bulletin','a modifié un bulletin'], bm:['📰 Amicale · Bulletin','a modifié un modèle de bulletin'], po:['🖼 Amicale · Affiches','a modifié une affiche'] };
+const HINT = { qr:['📲 Amicale · Inscription','Nouvelle inscription reçue par QR code'], id:['💡 Amicale · Boîte à idées','a écrit dans la boîte à idées'], fca:['🏠 Famille · Courses','a ajouté un article aux courses'], fcm:['🏠 Famille · Courses','a modifié la liste de courses'], fcd:['🏠 Famille · Courses','a retiré un article des courses'], fea:['🏠 Famille · Agenda','a ajouté un événement'], fem:['🏠 Famille · Agenda','a modifié un événement'], fed:['🏠 Famille · Agenda','a supprimé un événement'], fta:['🏠 Famille · Listes','a ajouté une tâche ou un article'], ftm:['🏠 Famille · Listes','a modifié une tâche ou une liste'], ftd:['🏠 Famille · Listes','a supprimé une tâche ou un article'], fba:['🏠 Famille · Anniversaires','a ajouté un anniversaire'], fbm:['🏠 Famille · Anniversaires','a modifié un anniversaire'], fbd:['🏠 Famille · Anniversaires','a supprimé un anniversaire'], fva:['🏠 Famille · Voyages','a ajouté un voyage'], fvm:['🏠 Famille · Voyages','a modifié un voyage'], fvd:['🏠 Famille · Voyages','a supprimé un voyage'], fmu:['🏠 Famille · Du nouveau','a fait plusieurs modifications'], fra:['🏠 Famille · Recettes','a ajouté une recette'], frm:['🏠 Famille · Recettes','a modifié une recette'], frd:['🏠 Famille · Recettes','a supprimé une recette'], tk:['☑ Amicale · Tâches','a modifié une tâche'], co:['🛒 Amicale · Courses','a modifié la liste de courses'], ev:['📅 Amicale · Agenda','a modifié l’agenda'], ee:['🎉 Amicale · Événement','a ajouté ou modifié un événement'], nt:['📝 Amicale · Notes','a modifié une note'], am:['🎖 Amicale · Membres','a modifié la liste des amicalistes'], ad:['📁 Amicale · Administratif','a ajouté ou modifié un document'], cd:['🎁 Amicale · Cadeaux','a modifié un cadeau'], ag:['📝 Amicale · Compte rendu AG','a modifié un compte rendu'], bs:['📰 Amicale · Bulletin','a modifié un bulletin'], bm:['📰 Amicale · Bulletin','a modifié un modèle de bulletin'], po:['🖼 Amicale · Affiches','a modifié une affiche'] };
 const LBT = { a: '🏠 Famille · Agenda', c: '🏠 Famille · Listes', i: '🏛️ Amicale · Du nouveau' };
 const LBL = { a: 'l’agenda partagé', c: 'les listes partagées', i: 'un élément du groupe Amicale' };
 const ORIGINS = ['https://dam-cigogne.github.io', 'http://localhost:8765'];
@@ -118,7 +119,10 @@ function ready(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS push3 (endpoint TEXT NOT NULL, space TEXT NOT NULL, me TEXT NOT NULL DEFAULT \'\', pf TEXT NOT NULL DEFAULT \'\', at INTEGER NOT NULL, p TEXT NOT NULL, a TEXT NOT NULL, last INTEGER NOT NULL DEFAULT 0, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (endpoint, space))'),
     env.DB.prepare('CREATE INDEX IF NOT EXISTS push3_sp ON push3 (space)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS remind (endpoint TEXT NOT NULL, id TEXT NOT NULL, at INTEGER NOT NULL, c TEXT NOT NULL, PRIMARY KEY (endpoint, id))'),
-    env.DB.prepare('CREATE INDEX IF NOT EXISTS remind_at ON remind (at)')
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS remind_at ON remind (at)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (n INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, at INTEGER NOT NULL, ip TEXT NOT NULL DEFAULT \'\', data TEXT NOT NULL)'),
+    env.DB.prepare('CREATE INDEX IF NOT EXISTS inbox_id ON inbox (id, n)'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS inboxsp (id TEXT PRIMARY KEY, space TEXT NOT NULL, at INTEGER NOT NULL)')
   ]).catch(e => { READY = null; throw e });
   return READY;
 }
@@ -233,6 +237,42 @@ export default {
       }
       await env.DB.batch(st);
       return json(req, { ok: true, n: st.length - 1 });
+    }
+    // 2.80.0 : inscriptions par QR code. Le formulaire public dépose une inscription CHIFFRÉE (clé publique de l'événement) ;
+    // seuls les organisateurs, qui ont la clé privée, peuvent la lire. Le serveur ne voit que des données illisibles.
+    const im = url.pathname.match(/^\/in\/([0-9a-f]{32})$/);
+    if (im && env.DB) {
+      await ready(env);
+      const id = im[1], now = Date.now();
+      if (req.method === 'POST') {
+        const body = await req.text();
+        if (body.length > 4000) return json(req, { error: 'trop gros' }, 413);
+        let o; try { o = JSON.parse(body) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+        if (!o || !o.e || typeof o.e.x !== 'string' || typeof o.e.y !== 'string' || typeof o.iv !== 'string' || typeof o.c !== 'string') return json(req, { error: 'format' }, 400);
+        const ipr = req.headers.get('CF-Connecting-IP') || '';
+        const ip = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('agd-in:' + ipr)))).slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
+        const rl = await env.DB.prepare('SELECT COUNT(*) AS n FROM inbox WHERE ip = ? AND at > ?').bind(ip, now - 3600e3).first();
+        if (rl && rl.n >= 20) return json(req, { error: 'trop de demandes, réessaie plus tard' }, 429);
+        const tot = await env.DB.prepare('SELECT COUNT(*) AS n FROM inbox WHERE id = ?').bind(id).first();
+        if (tot && tot.n >= 600) return json(req, { error: 'complet' }, 409);
+        await env.DB.prepare('INSERT INTO inbox (id, at, ip, data) VALUES (?, ?, ?, ?)').bind(id, now, ip, JSON.stringify({ e: { x: o.e.x.slice(0, 60), y: o.e.y.slice(0, 60) }, iv: o.iv.slice(0, 40), c: o.c.slice(0, 3800) })).run();
+        if (Math.random() < 0.02) await env.DB.prepare('DELETE FROM inbox WHERE at < ?').bind(now - 200 * DAY).run();
+        const sp = await env.DB.prepare('SELECT space FROM inboxsp WHERE id = ?').bind(id).first();
+        if (sp && env.VAPID_PRIVATE) ctx.waitUntil(notify(env, sp.space, { kind: 'i', to: null, by: 'Quelqu’un', hint: 'qr', det: 'a|', skip: [], selfEp: null }));
+        return json(req, { ok: true });
+      }
+      if (req.method === 'PUT') {
+        let o; try { o = JSON.parse(await req.text()) } catch (e) { return json(req, { error: 'illisible' }, 400) }
+        if (!o || !/^[0-9a-f]{32}$/.test(o.space || '')) return json(req, { error: 'format' }, 400);
+        await env.DB.prepare('INSERT OR IGNORE INTO inboxsp (id, space, at) VALUES (?, ?, ?)').bind(id, o.space, now).run();
+        return json(req, { ok: true });
+      }
+      if (req.method === 'GET') {
+        const after = Math.max(0, +url.searchParams.get('a') || 0);
+        const r = await env.DB.prepare('SELECT n, at, data FROM inbox WHERE id = ? AND n > ? ORDER BY n LIMIT 300').bind(id, after).all();
+        return json(req, { list: (r.results || []).map(x => ({ n: x.n, at: x.at, d: x.data })) });
+      }
+      return json(req, { error: 'methode' }, 405);
     }
     // Notifications : abonnement d'un téléphone à un groupe, test, et envoi
     const pm = url.pathname.match(/^\/push\/([0-9a-f]{32})(\/test|\/list)?$/);
