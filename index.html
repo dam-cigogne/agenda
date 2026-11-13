@@ -705,7 +705,16 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 @keyframes amLive{0%{transform:scale(1) translateY(0)}100%{transform:scale(1.045) translateY(-4px)}}
 .am-sign-bd b.pop{animation:amPop .5s ease}@keyframes amPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 .am-sign-j{animation:amPulse 2.2s ease-in-out infinite}@keyframes amPulse{0%,100%{opacity:1}50%{opacity:.55}}
-@media (prefers-reduced-motion:reduce){.am-fx,.am-fx *{display:none}.am-sign-img,.am-sign-pv,.am-sign-j{animation:none}}
+.am-sign-bd.am-sign-bar.am-sign-bar{z-index:4;margin:-30px 22px 1rem;padding:.3rem .9rem;transform:rotate(-4deg);background:linear-gradient(120deg,#6d28d9 0%,#a21caf 55%,#db2777 100%);color:#fff;border:2px solid rgba(255,255,255,.9);border-radius:16px;box-shadow:0 12px 24px rgba(0,0,0,.38),inset 0 2px 0 rgba(255,255,255,.35),inset 0 -4px 0 rgba(0,0,0,.2);animation:amRib 4s ease-in-out infinite}
+.am-sign-bar::before,.am-sign-bar::after{content:'';position:absolute;top:58%;width:22px;height:30px;background:#5b1a8f;z-index:-1;box-shadow:0 4px 8px rgba(0,0,0,.3)}
+.am-sign-bar::before{left:-14px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}
+.am-sign-bar::after{right:-14px;background:#9d174d;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
+.am-sign-bd.am-sign-bar>b{color:#fff;font-size:2.1rem;text-shadow:0 0 12px rgba(253,224,71,.85),0 2px 0 rgba(0,0,0,.25)}
+.am-sign-bar span{color:#fff}.am-sign-bd.am-sign-bar .am-sign-dt{color:#fde68a}.am-sign-bd.am-sign-bar .am-sign-dt b{color:#fff;text-shadow:none}
+.am-sign-bar .am-sign-j{background:#fde68a;color:#7c2d12;padding:.1rem .5rem;border-radius:9px}
+.am-sign-bar em{background:#fff;color:#7c2d12}
+@keyframes amRib{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(-3deg) translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.am-fx,.am-fx *{display:none}.am-sign-img,.am-sign-pv,.am-sign-j,.am-sign-bar{animation:none!important}}
 .am-sign-bd{position:absolute;right:10px;top:10px;z-index:3;display:flex;flex-direction:column;align-items:center;min-width:5.6rem;padding:.45rem .7rem .5rem;border-radius:16px;background:rgba(255,255,255,.94);color:#1f1633;box-shadow:0 6px 18px rgba(0,0,0,.35);pointer-events:none;text-align:center}.am-sign-bd b{font-size:2.3rem;line-height:1;font-weight:900;color:#7c3aed}.am-sign-bd span{font-size:.78rem;font-weight:800;max-width:7rem}.am-sign-bd em{font-style:normal;font-size:.75rem;font-weight:800;margin-top:.25rem;padding:.1rem .45rem;border-radius:9px;background:#fde68a;color:#7c2d12}.am-sign-j{font-style:normal;font-size:.75rem;font-weight:800;margin-top:.25rem;color:#be123c}.am-sign-bd .am-sign-dt{font-size:.8rem;font-weight:700;color:#4b5563;white-space:nowrap}.am-sign-bd .am-sign-dt b{font-size:.95rem;color:#1f1633}.am-sign-bd.am-sign-bar{position:relative;right:auto;top:auto;margin:-.35rem 0 .7rem;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:.2rem .6rem;padding:.45rem .8rem;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.12);border:1px solid var(--line,#e5e7eb);pointer-events:auto}.am-sign-bar b{font-size:1.9rem}.am-sign-bar span{max-width:none;font-size:.9rem}.am-sign-bar em,.am-sign-bar .am-sign-j{margin-top:0;font-size:.85rem}.am-sign-img .am-sign-bd span{max-width:6.2rem}
 .aq-card .am-it{flex-wrap:wrap}.aq-card .am-it>.am-itx{flex:1 1 100%;min-width:0}
 .qr-dt{margin:.4rem 0}.qr-dt>summary{cursor:pointer;font-weight:800;padding:.55rem .7rem;border:1px solid var(--line2,var(--line,#ddd));border-radius:.9rem;background:var(--surface);list-style:none}.qr-dt>summary::-webkit-details-marker{display:none}.qr-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.6rem;margin-top:.5rem}.qr-c{text-align:center;padding:.7rem;margin:0}.qr-c .qr-img{width:120px;height:120px;margin:.2rem auto .4rem;display:block}.qr-c .chips{justify-content:center}.qr-ct{font-weight:800}
@@ -2885,7 +2894,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.16';
+const APP_VERSION='2.82.17';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2893,6 +2902,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.17',d:'15/11/2026',items:['<b>🎀 Le bandeau des inscrits devient un ruban</b> : penché, à cheval sur le bas de l’affiche, en relief avec ses bouts repliés, et il flotte doucement.']},
  {v:'2.82.16',d:'15/11/2026',items:['<b>✨ La pancarte s’anime</b> (accueil et fiche) : une étoile filante dorée qui file en arc, de la neige qui tombe, l’affiche qui bouge doucement, et le nombre d’inscrits qui monte jusqu’au bon chiffre. Le grand chiffre = les inscrits de chez nous ; en dessous, accompagnants et enfants, et le total de personnes. Désactivé si le téléphone est réglé sur « Réduire les animations ».']},
  {v:'2.82.15',d:'15/11/2026',items:['<b>👥 Le nombre d’inscrits en grand</b> juste sous la pancarte de l’événement (accueil et fiche) : les inscrits de chez nous, puis « + X accompagnants · + Y enfants = Z personnes », les inscriptions QR à valider et le compte à rebours (J-16, Demain, Aujourd’hui).']},
  {v:'2.82.14',d:'15/11/2026',items:['<b>📲 Adhésion par QR : envoyer le lien</b>. « 💬 Envoyer le lien » prépare un message tout prêt (nom de l’amicale, saison, lien du formulaire) à envoyer par SMS, WhatsApp ou dans un groupe. « 🔳 Envoyer le QR en image » envoie le QR avec son nom dessous.']},
