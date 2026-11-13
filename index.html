@@ -354,7 +354,9 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .scn-mn{font-family:Georgia,"Times New Roman",serif;color:var(--tc);text-shadow:0 2px 4px rgba(0,0,0,.45)}
 .scn-mh{font-weight:800;margin-top:.6em}.scn-mh:first-child{margin-top:.2em}.scn-mi{opacity:.96;line-height:1.3}
 .pt-parch .scn-mn,.pt-gold .scn-mn{text-shadow:none}
-.am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.am-sign-img{height:300px}.am-sign-img i{position:absolute;inset:0;background:rgba(0,0,0,.55)}.am-sign-img img{position:relative;display:block;height:100%;width:auto;max-width:100%;margin:0 auto;object-fit:contain}
+.am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.qr-card{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}.qr-card>div{flex:1 1 100%}.qr-pend .am-it{flex-wrap:wrap}.qr-pend .am-itx{flex:1 1 220px}.qr-img{width:132px;height:132px;flex:none;border-radius:10px;border:1px solid var(--line,#ddd);background:#fff;image-rendering:pixelated}.qr-pend{border:2px solid #7c3aed}.qr-pend .am-it{gap:.3rem}
+.scn-qr,.pst-qr{display:inline-flex;align-items:center;gap:14px;background:#fff;color:#111;border-radius:18px;padding:10px 18px 10px 10px;margin-top:16px;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:3}.scn-qr img,.pst-qr img{width:150px;height:150px;display:block;image-rendering:pixelated}.scn-qr span,.pst-qr span{font:800 24px/1.2 "Trebuchet MS",Arial,sans-serif;text-align:left;max-width:190px}.pst-qr{margin:20px auto 0}
+.am-sign-img{height:300px}.am-sign-img i{position:absolute;inset:0;background:rgba(0,0,0,.55)}.am-sign-img img{position:relative;display:block;height:100%;width:auto;max-width:100%;margin:0 auto;object-fit:contain}
 .am-sign-in{position:absolute;left:0;top:0;width:794px;height:1123px;transform-origin:0 0;pointer-events:none}.am-sign .scn-bt,.am-sign .scn-sky,.am-sign .scn-dim,.am-sign .scn-gr{display:none}.am-sign .pst{background:transparent!important}
 .scn-pnb{position:absolute;left:0;top:0;right:0;bottom:0;border-radius:30px;z-index:-1;box-sizing:border-box}.scn-pn.pt-none .scn-tt h1,.scn-pn.pt-none .scn-pl,.scn-pn.pt-none .scn-acc,.scn-pn.pt-none .scn-mn{text-shadow:0 0 14px rgba(0,0,0,.9),0 2px 4px rgba(0,0,0,.9)}
 .am-shot .scn-pnb{box-shadow:none}.am-shot .scn-pnb.pn-gold{box-shadow:0 0 0 7px #fde68a}
@@ -1593,12 +1595,1264 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 <input type="file" id="fi-ics" accept=".ics,text/calendar" hidden>
 <input type="file" id="fi-vcf" accept=".vcf,text/vcard,text/x-vcard" hidden>
 <input type="file" id="fi-xl" accept=".xlsx,.xls,.ods,.csv,.tsv,.txt,text/csv" hidden>
+<script>
+/* QRCode for JavaScript — Copyright (c) 2009 Kazuhiko Arase — MIT license (http://www.opensource.org/licenses/mit-license.php).
+   Version adaptée de qrcode-terminal (vendor/QRCode), regroupée en un seul fichier pour AgenDam / Amicale.
+   « QR Code » est une marque déposée de DENSO WAVE INCORPORATED. */
+(function(){var M={};function require(p){return M[p.replace("./","")]}
+M["QRMode"]=(function(){var module={exports:{}};module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+return module.exports})();
+M["QRErrorCorrectLevel"]=(function(){var module={exports:{}};module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+return module.exports})();
+M["QRMaskPattern"]=(function(){var module={exports:{}};module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+return module.exports})();
+M["QRMath"]=(function(){var module={exports:{}};var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+return module.exports})();
+M["QRPolynomial"]=(function(){var module={exports:{}};var QRMath = require('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+return module.exports})();
+M["QRRSBlock"]=(function(){var module={exports:{}};var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+return module.exports})();
+M["QRBitBuffer"]=(function(){var module={exports:{}};function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+return module.exports})();
+M["QR8bitByte"]=(function(){var module={exports:{}};var QRMode = require('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+module.exports = QR8bitByte;
+
+return module.exports})();
+M["QRUtil"]=(function(){var module={exports:{}};var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+module.exports = QRUtil;
+
+return module.exports})();
+M["index"]=(function(){var module={exports:{}};//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+module.exports = QRCode;
+
+return module.exports})();
+var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q(-1,M["QRErrorCorrectLevel"][ec||"M"]);q.addData(txt);q.make();var n=q.getModuleCount(),r=[];for(var y=0;y<n;y++){var row=[];for(var x=0;x<n;x++)row.push(q.isDark(y,x)?1:0);r.push(row)}return r};})();
+</script>
 <script>window.addEventListener('error',function(e){try{if(!(e.error instanceof SyntaxError)&&!/syntax/i.test(String(e.message)))return;var d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99999;background:#b00020;color:#fff;padding:12px 16px;font:15px/1.4 -apple-system,sans-serif';d.textContent='L’appli n’a pas pu démarrer : navigateur trop ancien ou incomplet ('+String(e.message).slice(0,90)+'). Mets Safari / Chrome à jour.';(document.body||document.documentElement).appendChild(d)}catch(x){}});</script>
 <script>
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.79.4';
+const APP_VERSION='2.80.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1606,6 +2860,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.80.0',d:'13/11/2026',items:['<b>📲 Inscription par QR code</b> : dans la fiche d’un événement, « Créer le QR code d’inscription ». Il se met tout seul sur l’affiche. On le scanne, on remplit un petit formulaire (nom, prénom, adultes, enfants, téléphone, mail, amicaliste, régime) et l’inscription arrive dans « 📥 À valider ». Un organisateur touche ✅ Ajouter : la personne rejoint les inscrits (avec 📲 QR). Les infos sont chiffrées : seuls les organisateurs peuvent les lire.','<b>Excel + QR ensemble</b> : ceux qui ne scannent pas s’ajoutent comme avant (ou par import Excel) ; les doublons (même nom) ne sont pas recopiés, les infos manquantes sont complétées.','<b>🔔 Rubrique « 📲 Inscriptions QR »</b> dans les notifications (bureau). Nécessite le worker à jour.']},
  {v:'2.79.4',d:'13/11/2026',items:['<b>« Mon image seule »</b> : ton affiche s’affiche maintenant sur l’accueil et en haut de la fiche de l’événement. Le bouton dit clairement comment revenir au décor de l’appli, et « Changer l’image de fond » confirme le changement (on peut aussi re-choisir la même image).']},
  {v:'2.79.3',d:'13/11/2026',items:['<b>📷 Lecture d’une photo de menu bien meilleure</b> : le décor (bois, neige, guirlandes) est ignoré, les rubriques Apéro, Plat, Dessert, Enfants… sont reconnues toutes seules.']},
  {v:'2.79.2',d:'13/11/2026',items:['<b>🌫 Fondu des bords</b> pour les images et logos ajoutés sur l’affiche (bords droits ou en ovale) : la photo se fond dans le décor.','<b>Panneau du titre transparent</b> : avec une image de fond, règle le panneau de 0 à 100 % pour voir ton image dessous (0 = juste les textes).','<b>🖼 Mon image seule</b> : une affiche déjà prête (faite avec ChatGPT, Canva…) devient l’affiche de l’événement, telle quelle, à imprimer ou partager.','<b>🪧 La pancarte de l’affiche</b> (titre, date, lieu sur son décor) s’affiche sur l’accueil et en haut de la fiche de l’événement (styles illustrés). Touche-la pour ouvrir l’événement, puis l’affiche.','<b>Bouton « 🖼 Affiche et 📜 menu »</b> directement sur la fiche de l’événement. Décor « Aucun » enlève aussi guirlandes et neige.']},
@@ -6852,7 +8107,7 @@ function openHelp(hist){
  h+=d('📥 CV en poche','<ul><li>Dans <b>CV en poche</b>, copie le code (ou le lien) de tes entretiens. Dans AgenDam : <b>Réglages → Fichier calendrier → 📥 Coller depuis CV en poche</b>.</li><li>Tu vois la liste, puis tu confirmes. Un événement déjà présent (même titre, même jour, même heure) n’est pas ajouté deux fois.</li><li>Si tu ouvres directement le lien reçu de CV en poche, AgenDam te propose la même confirmation.</li></ul>');
  h+=d('🏠 Gestion Locative Facile','<ul><li><b>Suite de la visite</b> (et de l’entretien, pour CV en poche) : ouvre l’événement et choisis ✅ Bien passé, 🔁 2ᵉ visite ou entretien, 🤔 À réfléchir, 🎉 Retenu ou ❌ Refusé. Le dessin s’affiche devant le titre dans l’agenda ; touche-le de nouveau pour l’enlever. Dans 📋 Reçus…, un filtre par statut aide à s’y retrouver.</li><li>Les visites de candidats locataires envoyées par <b>Gestion Locative Facile</b> se reçoivent comme celles de CV en poche : touche le lien, ou copie le code puis <b>Réglages → Fichier calendrier → 📥 Coller…</b> (le préfixe GLF: est accepté).</li><li>Elles arrivent avec 🏠, l’adresse du logement et la note complète (candidat, téléphone, loyer…), en catégorie « Location » si elle existe.</li><li>Pour les retirer : 📋 Reçus de CV en poche / Gestion Locative.</li></ul>');
  h+=d('📋 Retirer des rendez-vous CV en poche','<ul><li><b>Réglages → Fichier calendrier → 📋 Reçus de CV en poche</b> : la liste de tout ce qui est venu de CV en poche.</li><li>Coche les rendez-vous à retirer, puis « Retirer les rendez-vous cochés ».</li></ul>');
- h+=d('👥 Groupe (amicale, club…)','<ul><li><b>🖼 Affiche d’un événement</b> (fiche de l’événement › 🖨 Imprimer › Affiche) : styles ✨ illustrés (Noël féerique, Galette, Loto, Barbecue, Halloween, Soirée dansante), bouton 📜 Menu pour l’affiche du menu (avec « 📷 Lire une photo du menu »), 🌄 image de fond (avec 🤖 la demande toute prête pour ChatGPT ou Gemini, panneau réglable, ou « Mon image seule » pour une affiche déjà faite), 🌫 fondu des bords des photos, 📲 partager en image. Accès direct : bouton « 🖼 Affiche et 📜 menu » sur la fiche de l’événement.</li><li><b>💡 Boîte à idées</b> (onglet 💡 Idées, ou « Plus ») : propose une idée, une question ou un problème ; 👍 pour soutenir celles des autres ; l’administrateur valide, répond, et suit « En cours » / « Faite ». Avec les notifications activées, tout le groupe est prévenu des nouveaux messages et des réponses (pas des 👍).</li><li><b>💶 Événement payant</b> (facultatif) : fiche de l’événement › « Mettre les tarifs » : prix par personne et/ou par ticket (repas, boisson…), amicaliste et non-amicaliste. Chacun voit ce qu’il doit ; le bouton 💶 de la ligne encaisse (montant, moyen, qui a encaissé). <b>Sur la page Jour J</b>, chaque personne a aussi son bouton 💶 (montant à payer) à côté des tickets : on touche, on vérifie le montant, « Encaisser » → il devient vert « ✅ Payé », sans quitter le Jour J. Dans la fiche de l’événement, les inscrits sont rangés en deux onglets : 🎖 Amicalistes / 👤 Non-amicalistes.</li><li><b>📥 Importer une liste</b> fait entrer ta liste officielle dans l’appli (ajout + mise à jour). <b>📋 Compléter une liste Excel</b> ne change rien dans l’appli : elle rend ta liste de noms complétée (grade, badge, cotisation…). Le petit « ? » sur chaque bouton l’explique.</li><li><b>💶 Remettre les prix à jour</b> (onglet Amicalistes) : recalcule le prix payé d’après les tarifs (catégorie, sinon grade, sinon « * » ; sortie d’école = 0 €), avec la liste avant/après à valider.</li><li><b>👤 Non-amicalistes connus</b> : deux listes dans l’onglet Amicalistes ; leurs infos restent ; dans la liste « Non-amicalistes connus », le bouton « ＋ Ajouter un non-amicaliste » sert pour les nouveaux arrivants ; « Ajouter un amicaliste » les retrouve et pré-remplit. Import : colonne « Amicaliste » (oui, vide = non). <b>🔄 Nouvelle saison</b> (administrateur) : tout le monde repasse non-amicaliste, cotisations à zéro. <b>📣 Annonce</b> « Inscriptions ouvertes » : bandeau pour tout le groupe, affiche, message.</li><li><b>☑ Sélection dans un événement</b> : « ☑ Sélectionner » (inscrits) → Présent, Payé en avance, Invitation par SMS/mail, Exporter, Retirer ; « ☑ Sélectionner des tâches » → Donner à…, Rappel, Supprimer.</li><li><b>Administrateur</b> : « 🧹 Effacer la liste » (Qui a fait quoi) et « 🗑 Vider la corbeille » (mot VIDER à écrire).</li><li><b>📤 Exporter une liste</b> : Excel, Word, PDF (les grands tableaux passent en paysage), CSV, ou « 📨 Envoyer à un membre du bureau » : SMS, mail en texte, ou mail avec le fichier Excel joint (sur iPhone/iPad : choisir Mail, l’adresse est copiée, la coller dans « À : »). Filtres 🔴 Pas payé / 🟠 Reste à payer / ✅ Payé, « 📋 Qui n’a pas payé ? » à copier ou en Excel.</li><li><b>🛡 Sauvegarde de l’Amicale</b> (onglet Groupe) : 🗑 Corbeille 30 jours (↩ Restaurer), 📅 Copies automatiques (revenir à la copie d’hier : seulement ce qui a été supprimé, ou tout comme à cette date), 💾 Fichier chiffré par mot de passe (administrateur). Restaurer demande de taper RESTAURER ; les ajouts faits depuis sont gardés.</li><li><b>🎁 Cadeaux de l’amicale</b> : fiche de l’amicaliste › Action › « 🎁 Cadeaux » (naissance, mariage, départ, décès d’un proche… ou un événement écrit à la main). La liste complète est dans <b>📁 Administratif</b> : celui qui remet le cadeau coche ✓, tout le bureau voit qui l’a donné et quand. Filtre par événement, export Excel.</li><li><b>📥 Votre fichier Excel</b> (Amicalistes › Importer) : grades abrégés, N° badge, moyen de paiement, « date paiement + qui », patch OK, coffret 8 ans sont reconnus. Réimporter met à jour sans doublon ; <b>🧹 Retirer les doublons</b> réunit les fiches en double.</li><li><b>🪪 Numéros de badge</b> : tous, cotisation payée, sélection, liste filtrée ou inscrits d’un repas → à copier ou en Excel. Filtres <b>🎁 Coffret 8 ans</b> et <b>Sans badge</b> + « Exporter cette liste ».</li><li><b>🥪 Plat à composer</b> (sandwich, croque, kebab) : base par personne + choix (quantité pour une portion). « 👆 Choix de chacun » : on coche pour chaque inscrit, ou on tape combien de chaque. Totaux, courses et récap cuisine automatiques.</li><li><b>🍽 Repas d’un événement</b> : fiche de l’événement › « 📖 Une recette de l’onglet Repas » ou « ✏️ Un plat tapé à la main » (pour combien de personnes + ingrédients). Le nombre de repas vient des tickets repas des inscrits (ou se tape à la main). « 🛒 Envoyer dans les courses du groupe » : liste au nom de l’événement, quantités calculées, sans doublon.</li><li><b>📲 Plusieurs appareils</b> : ⚙ › « Lier un autre appareil » (iPad, PC, nouveau téléphone) : c’est toi, mêmes droits, tout se synchronise.</li><li><b>📝 Compte rendu d’AG</b> (bureau, onglet 📁 Administratif) : « ＋ Préparer le compte rendu d’AG », choisis la date. Il reprend le précédent (en-tête, ville, titre, lignes du bilan) et l’appli remplit les chiffres : adhérents, payants, total des cotisations, activités de la saison, manifestations à venir, bureau et règlement de la saison suivante. Complète les soldes et les votes, fais signer au doigt ou imprime pour signer sur papier. « 🔄 Reprendre les chiffres de l’appli » refait le calcul. Un compte rendu se partage en PDF ou s’exporte en .json.</li><li><b>📜 Bulletin = votre règlement</b> (administrateur, ⚙ › Bulletin d’adhésion) : colle les articles, mets les membres du bureau avec leur signature (au doigt ou photo). Chaque amicaliste signe un bulletin identique au papier : tout le règlement, les signatures du bureau, puis Grade / Prénom / Nom / Service, la somme réglée, la date et sa signature.</li><li><b>📅 Nouvelle saison</b> (après l’AG) : « Préparer la saison suivante ». Les bulletins déjà signés gardent leur ancien modèle ; les fiches indiquent « à refaire ». Pour les bulletins déjà remplis à la main : fiche › « Bulletin signé sur papier » (ou ☑ Sélectionner › ✏️ Modifier pour plusieurs).</li><li><b>☑ Sélectionner des amicalistes</b> : bouton à côté de la recherche, touche les noms (ou « Tout » pour la liste filtrée), puis 📤 Exporter / envoyer, ✏️ Modifier (catégorie, cotisation, patch…) ou 🗑 Supprimer.</li><li><b>📁 Administratif</b> (bureau) : <b>＋ Ajouter un document</b> (PDF, Word, Excel, photo, 6 Mo maximum), choisis le dossier. Touche un document pour l’aperçu, ✉️ pour l’envoyer (sur iPhone : Mail avec la pièce jointe), 💾 pour l’enregistrer. Tout le bureau le reçoit, pas les aides.</li><li><b>▶ Visite guidée et 📖 guide du bureau</b> (pas à pas, avec captures) : <a href="'+new URL('../amicale/visite.html',location.href).href+'" target="_blank" rel="noopener">visite plein écran</a> · <a href="'+new URL('../amicale/guide.html',location.href).href+'" target="_blank" rel="noopener">guide à lire</a>.</li><li><b>📱 Appli « Amicale »</b> (dam-cigogne.github.io/amicale) : la même chose que cet onglet, sans le reste d’AgenDam, pour les membres du bureau et les aides. Tout ce qui change d’un côté est identique de l’autre (membres, agenda, tâches, courses, notes, événements, affiches, bulletins). Pour être <b>la même personne</b> dans les deux : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis le code dans Amicale (sur Android et ordinateur, Amicale propose aussi « Reprendre le groupe d’AgenDam »).</li><li><b>🖼 Affiches partagées</b> : l’affiche d’un événement est maintenant envoyée au groupe (les images sont réduites pour le partage).</li><li><b>📝 Modèle de bulletin partagé</b> : l’administrateur règle le texte et les tarifs une seule fois (Groupe › Réglages › Bulletin d’adhésion) ; tous les appareils du bureau les reçoivent tout seuls, sans fichier à importer. Les autres membres du bureau ne peuvent pas le modifier (ils peuvent l’exporter). Les aides ne le reçoivent pas.</li><li><b>🥗 Régimes</b> : les personnes avec un régime ressortent en orange avec un décompte par régime (touche un nom pour le saisir). <b>🎟 Jour J</b> : dans un événement avec inscrits, « Page Jour J » affiche la liste à servir (recherche, grade, Amicalistes / Non-amicalistes) ; chaque personne a une case par ticket (repas, boisson, dessert…) à cocher ; quand tout est remis, la ligne passe dans « Servis ». « +1 pour tous » ajoute un ticket à chaque inscrit. Dans tout export, « 📨 Envoyer à un membre du bureau » prépare un SMS ou un mail (pro ou perso) avec le listing. « ⚙️ Ce qu’on distribue » choisit repas, boisson, dessert, café ou tes propres rubriques.</li><li><b>🎖 Amicalistes</b> (bureau) : la liste des adhérents (grade, cotisation, patch, régime…) avec export Excel ; dans un événement, « Inscrits et suivi » pour pointer les présents, compter les tickets et suivre les paiements (amicalistes / non-amicalistes triés tout seuls).</li><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
+ h+=d('👥 Groupe (amicale, club…)','<ul><li><b>📲 Inscription par QR code</b> (fiche de l’événement) : crée le QR, il apparaît sur l’affiche ; les inscriptions reçues arrivent dans « 📥 À valider », tu les ajoutes d’un geste. Infos chiffrées, lisibles seulement par les organisateurs.</li><li><b>🖼 Affiche d’un événement</b> (fiche de l’événement › 🖨 Imprimer › Affiche) : styles ✨ illustrés (Noël féerique, Galette, Loto, Barbecue, Halloween, Soirée dansante), bouton 📜 Menu pour l’affiche du menu (avec « 📷 Lire une photo du menu »), 🌄 image de fond (avec 🤖 la demande toute prête pour ChatGPT ou Gemini, panneau réglable, ou « Mon image seule » pour une affiche déjà faite), 🌫 fondu des bords des photos, 📲 partager en image. Accès direct : bouton « 🖼 Affiche et 📜 menu » sur la fiche de l’événement.</li><li><b>💡 Boîte à idées</b> (onglet 💡 Idées, ou « Plus ») : propose une idée, une question ou un problème ; 👍 pour soutenir celles des autres ; l’administrateur valide, répond, et suit « En cours » / « Faite ». Avec les notifications activées, tout le groupe est prévenu des nouveaux messages et des réponses (pas des 👍).</li><li><b>💶 Événement payant</b> (facultatif) : fiche de l’événement › « Mettre les tarifs » : prix par personne et/ou par ticket (repas, boisson…), amicaliste et non-amicaliste. Chacun voit ce qu’il doit ; le bouton 💶 de la ligne encaisse (montant, moyen, qui a encaissé). <b>Sur la page Jour J</b>, chaque personne a aussi son bouton 💶 (montant à payer) à côté des tickets : on touche, on vérifie le montant, « Encaisser » → il devient vert « ✅ Payé », sans quitter le Jour J. Dans la fiche de l’événement, les inscrits sont rangés en deux onglets : 🎖 Amicalistes / 👤 Non-amicalistes.</li><li><b>📥 Importer une liste</b> fait entrer ta liste officielle dans l’appli (ajout + mise à jour). <b>📋 Compléter une liste Excel</b> ne change rien dans l’appli : elle rend ta liste de noms complétée (grade, badge, cotisation…). Le petit « ? » sur chaque bouton l’explique.</li><li><b>💶 Remettre les prix à jour</b> (onglet Amicalistes) : recalcule le prix payé d’après les tarifs (catégorie, sinon grade, sinon « * » ; sortie d’école = 0 €), avec la liste avant/après à valider.</li><li><b>👤 Non-amicalistes connus</b> : deux listes dans l’onglet Amicalistes ; leurs infos restent ; dans la liste « Non-amicalistes connus », le bouton « ＋ Ajouter un non-amicaliste » sert pour les nouveaux arrivants ; « Ajouter un amicaliste » les retrouve et pré-remplit. Import : colonne « Amicaliste » (oui, vide = non). <b>🔄 Nouvelle saison</b> (administrateur) : tout le monde repasse non-amicaliste, cotisations à zéro. <b>📣 Annonce</b> « Inscriptions ouvertes » : bandeau pour tout le groupe, affiche, message.</li><li><b>☑ Sélection dans un événement</b> : « ☑ Sélectionner » (inscrits) → Présent, Payé en avance, Invitation par SMS/mail, Exporter, Retirer ; « ☑ Sélectionner des tâches » → Donner à…, Rappel, Supprimer.</li><li><b>Administrateur</b> : « 🧹 Effacer la liste » (Qui a fait quoi) et « 🗑 Vider la corbeille » (mot VIDER à écrire).</li><li><b>📤 Exporter une liste</b> : Excel, Word, PDF (les grands tableaux passent en paysage), CSV, ou « 📨 Envoyer à un membre du bureau » : SMS, mail en texte, ou mail avec le fichier Excel joint (sur iPhone/iPad : choisir Mail, l’adresse est copiée, la coller dans « À : »). Filtres 🔴 Pas payé / 🟠 Reste à payer / ✅ Payé, « 📋 Qui n’a pas payé ? » à copier ou en Excel.</li><li><b>🛡 Sauvegarde de l’Amicale</b> (onglet Groupe) : 🗑 Corbeille 30 jours (↩ Restaurer), 📅 Copies automatiques (revenir à la copie d’hier : seulement ce qui a été supprimé, ou tout comme à cette date), 💾 Fichier chiffré par mot de passe (administrateur). Restaurer demande de taper RESTAURER ; les ajouts faits depuis sont gardés.</li><li><b>🎁 Cadeaux de l’amicale</b> : fiche de l’amicaliste › Action › « 🎁 Cadeaux » (naissance, mariage, départ, décès d’un proche… ou un événement écrit à la main). La liste complète est dans <b>📁 Administratif</b> : celui qui remet le cadeau coche ✓, tout le bureau voit qui l’a donné et quand. Filtre par événement, export Excel.</li><li><b>📥 Votre fichier Excel</b> (Amicalistes › Importer) : grades abrégés, N° badge, moyen de paiement, « date paiement + qui », patch OK, coffret 8 ans sont reconnus. Réimporter met à jour sans doublon ; <b>🧹 Retirer les doublons</b> réunit les fiches en double.</li><li><b>🪪 Numéros de badge</b> : tous, cotisation payée, sélection, liste filtrée ou inscrits d’un repas → à copier ou en Excel. Filtres <b>🎁 Coffret 8 ans</b> et <b>Sans badge</b> + « Exporter cette liste ».</li><li><b>🥪 Plat à composer</b> (sandwich, croque, kebab) : base par personne + choix (quantité pour une portion). « 👆 Choix de chacun » : on coche pour chaque inscrit, ou on tape combien de chaque. Totaux, courses et récap cuisine automatiques.</li><li><b>🍽 Repas d’un événement</b> : fiche de l’événement › « 📖 Une recette de l’onglet Repas » ou « ✏️ Un plat tapé à la main » (pour combien de personnes + ingrédients). Le nombre de repas vient des tickets repas des inscrits (ou se tape à la main). « 🛒 Envoyer dans les courses du groupe » : liste au nom de l’événement, quantités calculées, sans doublon.</li><li><b>📲 Plusieurs appareils</b> : ⚙ › « Lier un autre appareil » (iPad, PC, nouveau téléphone) : c’est toi, mêmes droits, tout se synchronise.</li><li><b>📝 Compte rendu d’AG</b> (bureau, onglet 📁 Administratif) : « ＋ Préparer le compte rendu d’AG », choisis la date. Il reprend le précédent (en-tête, ville, titre, lignes du bilan) et l’appli remplit les chiffres : adhérents, payants, total des cotisations, activités de la saison, manifestations à venir, bureau et règlement de la saison suivante. Complète les soldes et les votes, fais signer au doigt ou imprime pour signer sur papier. « 🔄 Reprendre les chiffres de l’appli » refait le calcul. Un compte rendu se partage en PDF ou s’exporte en .json.</li><li><b>📜 Bulletin = votre règlement</b> (administrateur, ⚙ › Bulletin d’adhésion) : colle les articles, mets les membres du bureau avec leur signature (au doigt ou photo). Chaque amicaliste signe un bulletin identique au papier : tout le règlement, les signatures du bureau, puis Grade / Prénom / Nom / Service, la somme réglée, la date et sa signature.</li><li><b>📅 Nouvelle saison</b> (après l’AG) : « Préparer la saison suivante ». Les bulletins déjà signés gardent leur ancien modèle ; les fiches indiquent « à refaire ». Pour les bulletins déjà remplis à la main : fiche › « Bulletin signé sur papier » (ou ☑ Sélectionner › ✏️ Modifier pour plusieurs).</li><li><b>☑ Sélectionner des amicalistes</b> : bouton à côté de la recherche, touche les noms (ou « Tout » pour la liste filtrée), puis 📤 Exporter / envoyer, ✏️ Modifier (catégorie, cotisation, patch…) ou 🗑 Supprimer.</li><li><b>📁 Administratif</b> (bureau) : <b>＋ Ajouter un document</b> (PDF, Word, Excel, photo, 6 Mo maximum), choisis le dossier. Touche un document pour l’aperçu, ✉️ pour l’envoyer (sur iPhone : Mail avec la pièce jointe), 💾 pour l’enregistrer. Tout le bureau le reçoit, pas les aides.</li><li><b>▶ Visite guidée et 📖 guide du bureau</b> (pas à pas, avec captures) : <a href="'+new URL('../amicale/visite.html',location.href).href+'" target="_blank" rel="noopener">visite plein écran</a> · <a href="'+new URL('../amicale/guide.html',location.href).href+'" target="_blank" rel="noopener">guide à lire</a>.</li><li><b>📱 Appli « Amicale »</b> (dam-cigogne.github.io/amicale) : la même chose que cet onglet, sans le reste d’AgenDam, pour les membres du bureau et les aides. Tout ce qui change d’un côté est identique de l’autre (membres, agenda, tâches, courses, notes, événements, affiches, bulletins). Pour être <b>la même personne</b> dans les deux : Groupe › Réglages › <b>📲 Lier un autre appareil</b>, puis le code dans Amicale (sur Android et ordinateur, Amicale propose aussi « Reprendre le groupe d’AgenDam »).</li><li><b>🖼 Affiches partagées</b> : l’affiche d’un événement est maintenant envoyée au groupe (les images sont réduites pour le partage).</li><li><b>📝 Modèle de bulletin partagé</b> : l’administrateur règle le texte et les tarifs une seule fois (Groupe › Réglages › Bulletin d’adhésion) ; tous les appareils du bureau les reçoivent tout seuls, sans fichier à importer. Les autres membres du bureau ne peuvent pas le modifier (ils peuvent l’exporter). Les aides ne le reçoivent pas.</li><li><b>🥗 Régimes</b> : les personnes avec un régime ressortent en orange avec un décompte par régime (touche un nom pour le saisir). <b>🎟 Jour J</b> : dans un événement avec inscrits, « Page Jour J » affiche la liste à servir (recherche, grade, Amicalistes / Non-amicalistes) ; chaque personne a une case par ticket (repas, boisson, dessert…) à cocher ; quand tout est remis, la ligne passe dans « Servis ». « +1 pour tous » ajoute un ticket à chaque inscrit. Dans tout export, « 📨 Envoyer à un membre du bureau » prépare un SMS ou un mail (pro ou perso) avec le listing. « ⚙️ Ce qu’on distribue » choisit repas, boisson, dessert, café ou tes propres rubriques.</li><li><b>🎖 Amicalistes</b> (bureau) : la liste des adhérents (grade, cotisation, patch, régime…) avec export Excel ; dans un événement, « Inscrits et suivi » pour pointer les présents, compter les tickets et suivre les paiements (amicalistes / non-amicalistes triés tout seuls).</li><li><b>Réglages › Famille et contacts › 👥 Groupe</b> : crée un groupe (tu en es l’administrateur) ou rejoins-en un avec un code. Un onglet apparaît en bas, tu peux le renommer et le masquer.</li><li>Deux niveaux : <b>Bureau</b> (voit tout) et <b>Aide extérieur</b> (voit seulement ce qui est partagé avec les aides). Chaque niveau a sa propre clé : un aide ne peut pas lire la zone Bureau.</li><li><b>🔢 Inviter</b> : un code par personne, valable 7 jours, pour le niveau choisi.</li><li>Chaque membre a une <b>fiche</b> (téléphone, mail perso, mail travail) avec Appeler, SMS, Écrire. L’administrateur donne les <b>titres</b> (Président, Secrétaire…).</li><li><b>✅ Tâches et 🛒 Courses du groupe</b> : chaque élément est « Bureau seulement » ou « Tout le monde ». Touche le rond pour cocher, le texte pour modifier ou supprimer.</li><li><b>📅 Agenda</b> du groupe (bureau seulement ou tout le monde) et <b>📝 Notes</b> (bureau seulement).</li><li><b>Retirer quelqu’un</b> (fiche du membre, administrateur seulement) renouvelle les clés du groupe : la personne perd l’accès, les autres reçoivent les nouvelles clés toutes seules.</li><li><b>📲 Lier un autre appareil</b> (iPad, nouveau téléphone) : code à usage unique de 12 caractères, valable 15 minutes. L’autre appareil devient toi, avec les mêmes droits.</li><li><b>🎉 Événements</b> : les événements de l’année avec liste de préparation à cocher, programme par horaires et copie pour l’an prochain. Le bureau modifie, les aides voient ceux qui leur sont ouverts.</li><li><b>🛒 Courses</b> : plusieurs listes, rayons, quantités, ajout rapide. <b>📝 Notes</b> : pleine page, impression / PDF, partage, mail.</li><li><b>🖨 Impressions</b> : sur la fiche d’un événement, bouton Imprimer · affiche · PDF (programme, préparation, tout, affiche décorée). <b>📥 Importer une liste</b> depuis Word ou du texte collé.</li><li>À venir : messages et alertes.</li></ul>');
  h+=d('🖼️ Changer de style avec aperçu','<ul><li>Touche <b>🎨</b> (agenda) ou <b>🎨 Style</b> (Tâches, Courses) : une fenêtre s’ouvre en bas avec une vignette par style.</li><li>Touche une vignette : l’écran du dessus change tout de suite. Ferme avec ✕ quand tu as fini.</li><li>Sur les Tâches et les Courses, « Même style Tâches et Courses » : coche pour un seul choix, décoche pour un style différent par onglet.</li></ul>');
  h+=d('🎨 Apparence des listes','<ul><li><b>Réglages › Affichage › Apparence des listes</b> : choisis un style pour les <b>Tâches</b> et les <b>Courses</b> (Cartes, Post-it, Nuit néon, Journal, Pop, Tableau, Ardoise).</li><li>Tu peux donner un style différent aux Tâches et aux Courses, ou les laisser suivre le choix général.</li><li>Le style change aussi les onglets du côté. Il se combine avec ton thème (couleurs, police).</li><li>« Actuel » remet l’apparence d’origine.</li></ul>');
  h+=d('💼 Agenda pro','<ul><li>En haut de l’agenda : <b>Tous · Perso · Agenda pro</b>. Touche pour ne voir que l’un ou l’autre. Le bouton <b>✏️</b> au bout de la barre permet de <b>renommer</b> les deux agendas (ex. « Famille », « Boulot »).</li><li>Dans la fiche d’un rendez-vous, choisis son <b>Agenda</b> (Perso par défaut). Si tu enregistres un rendez-vous dans l’autre agenda, l’affichage bascule dessus.</li><li>Le bouton <b>✏️</b> au bout de la barre renomme les deux agendas (ex. « Moi » et « Boulot »).</li><li>Les <b>catégories</b> restent les mêmes : elles disent le type de rendez-vous, l’agenda dit « perso » ou « pro ».</li><li><b>Réglages › Mon agenda › Agenda pro</b> : range d’un coup toute une catégorie, ou tout ce qui vient d’Outlook, en Agenda pro (et tout remettre en Perso).</li><li>La recherche, les alertes et la sauvegarde gardent tous tes rendez-vous, quel que soit l’agenda affiché.</li></ul>');
@@ -7709,6 +8964,13 @@ async function act(a,el,e){
   case 'po-png':amPoPng();break;
   case 'po-prompt':amPoPrompt();break;
   case 'po-fo':{const m=PO&&PO.imgs&&PO.imgs[PO.sel];if(m){m.fo=m.fo?0:1;if(!m.fd)m.fd=25;await amPoFade(m);amPoSave();amPoOpen()}break}
+  case 'qr-on':amQrOn(ds_.id);break;
+  case 'qr-ref':{const c=AMQR[ds_.id];if(c)c.at=0;await amQrFetch(ds_.id,true);render();toast('À jour',1500);break}
+  case 'qr-ok':amQrAccept(ds_.id,[+ds_.n]);break;
+  case 'qr-all':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amQrAccept(ds_.id,amQrPend(it).map(x=>x.n));break}
+  case 'qr-no':amQrRefuse(ds_.id,+ds_.n);break;
+  case 'qr-copy':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it){try{await navigator.clipboard.writeText(amQrUrl(it));toast('🔗 Lien copié : colle-le dans un message',3500)}catch(e){toast('Copie impossible',2500)}}break}
+  case 'qr-test':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)window.open(amQrUrl(it),'_blank','noopener');break}
   case 'ee-sign':{const a=amc(),id=ds_.id,it=a&&a.it&&a.it[id];if(!it)break;if(AMC_TAB==='ee'&&AMC_EE===id)amEePoster(it);else{AMC_TAB='ee';AMC_EE=id;PT_SEL=CK_SEL=null;render();window.scrollTo(0,0)}break}
   case 'ee-poster':{const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(it)amEePoster(it);break}
   case 'po-imgdel':if(PO&&PO.imgs.length){PO.imgs.splice(PO.sel,1);PO.sel=0;amPoSave();amPoOpen()}break;
@@ -10193,7 +11455,7 @@ async function dupMulti(ev,from){
    et les éléments de l'autre qu'on a modifiés (case cochée…). Retirer un droit retire les éléments chez l'autre. */
 const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
-const PUSH_SEC=[['tk','☑ Tâches','tk'],['co','🛒 Courses','co'],['ev','📅 Agenda','ev'],['ee','🎉 Événements','ee'],['id','💡 Boîte à idées','id'],['nt','📝 Notes du bureau','nt',1],['am','🎖 Amicalistes','am',1],['ad','📁 Administratif','ad',1],['cd','🎁 Cadeaux','cd',1],['ag','📰 AG et bulletins','ag,bs,bm',1]];
+const PUSH_SEC=[['tk','☑ Tâches','tk'],['co','🛒 Courses','co'],['ev','📅 Agenda','ev'],['ee','🎉 Événements','ee'],['id','💡 Boîte à idées','id'],['nt','📝 Notes du bureau','nt',1],['am','🎖 Amicalistes','am',1],['ad','📁 Administratif','ad',1],['cd','🎁 Cadeaux','cd',1],['ag','📰 AG et bulletins','ag,bs,bm',1],['qr','📲 Inscriptions QR','qr',1]];
 const pushEx=()=>Array.isArray(S.pushEx)?S.pushEx:[];
 function pushPfStr(){const base=S.pushPf==null?'aci':S.pushPf,ex=PUSH_SEC.filter(x=>pushEx().includes(x[0])).map(x=>x[2]).join(',');return base+(ex?'!'+ex:'')}
 const pushIsOn=()=>{try{return !!localStorage.getItem('agd-push-ep')&&S.pushOff!==1}catch(e){return false}};
@@ -11248,7 +12510,7 @@ async function amPull(manual){
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:P.kind==='lg'?30000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');
      if(P.kind==='co'||P.kind==='cq'||P.kind==='ad'||P.kind==='cd')a.it[P.id].l=String(P.l||'').slice(0,P.kind==='cd'?60:30);
      if(P.kind==='ac'){const c=a.it[P.id];if(c.del||!c.bd)await PH.del('adc-'+P.id);else await PH.put('adc-'+P.id,c.bd);c.bd=''}
-     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.rp=amRpClean(P.rp);o2.pr=amPrClean(P.pr);o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({rg:S2(c&&c.rg).slice(0,40),by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3),du:c&&c.du!=null&&c.du!==''&&isFinite(+c.du)?Math.max(0,Math.min(9999,+c.du)):null,eb:S2(c&&c.eb).slice(0,30),et:Math.max(0,+(c&&c.et)||0)}))}
+     if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.rp=amRpClean(P.rp);o2.pr=amPrClean(P.pr);o2.qr=(P.qr&&/^[0-9a-f]{32}$/.test(P.qr.id||'')&&typeof P.qr.x==='string'&&typeof P.qr.y==='string'&&typeof P.qr.d==='string')?{id:P.qr.id,x:P.qr.x.slice(0,60),y:P.qr.y.slice(0,60),d:P.qr.d.slice(0,60)}:null;o2.qd=arr(P.qd).map(v=>+v).filter(v=>v>0&&isFinite(v)).slice(-800);o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({rg:S2(c&&c.rg).slice(0,40),by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),na:Math.max(0,Math.min(99,+(c&&c.na)||0)),ne:Math.max(0,Math.min(99,+(c&&c.ne)||0)),tl:S2(c&&c.tl).slice(0,30),ml:S2(c&&c.ml).slice(0,80),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3),du:c&&c.du!=null&&c.du!==''&&isFinite(+c.du)?Math.max(0,Math.min(9999,+c.du)):null,eb:S2(c&&c.eb).slice(0,30),et:Math.max(0,+(c&&c.et)||0)}))}
      if(P.kind==='bs'){const o4=a.it[P.id];o4.w=String(P.w||'').slice(0,16);o4.sg=/^data:image\/png;base64,[A-Za-z0-9+\/=]{20,60000}$/.test(String(P.sg||''))?String(P.sg):''}
      if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba','bsa','bp','sv','bg','k8','pd','pb','st','pxk'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'?120:60)})}
      chg=true;continue}
@@ -11530,7 +12792,7 @@ async function amFlush(){
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
  if(a.rot)amRotFlush();
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
-  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
+  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[]}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
    await amPut(it.z,'i-'+it.id,P,0,it.kind==='dl'?'':(it.kind==='id'&&it.nh==='l')?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
@@ -11799,7 +13061,7 @@ function amPoDef(it,sv){
  let imgs=Array.isArray(sv.imgs)?sv.imgs.slice(0,4):[];
  if(!imgs.length&&sv.img)imgs=[{src:sv.img,x:247,y:330,w:300}];
  const th0=sv.th||amThGuess(it.tx),T0=AM_TH[th0]||{};
- return {id:it.id,th:th0,lay:sv.lay||T0.lay||'band',fnt:sv.fnt||T0.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||T0.dec||'em',col:sv.col||'',col2:sv.col2||'',bgc:sv.bgc||'',bw:sv.bw||'0',em:sv.em||'',off:sv.off&&typeof sv.off==='object'?sv.off:{},selb:'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt||'',acc:sv.acc||'',hr:sv.hr||'',dt:sv.dt||'1',pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info||'',ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',imgs,sel:0,md:sv.md==='menu'?'menu':'',mt:sv.mt||'',mn:sv.mn!=null?String(sv.mn):(it.mn||''),bgi:sv.bgi||'',bgd:sv.bgd||'1',bgo:sv.bgo||'0',pno:sv.pno!=null?sv.pno:100,offa:sv.offa&&typeof sv.offa==='object'?sv.offa:(sv.md==='menu'?{}:(sv.off||{})),offm:sv.offm&&typeof sv.offm==='object'?sv.offm:{}};
+ return {id:it.id,th:th0,lay:sv.lay||T0.lay||'band',fnt:sv.fnt||T0.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||T0.dec||'em',col:sv.col||'',col2:sv.col2||'',bgc:sv.bgc||'',bw:sv.bw||'0',em:sv.em||'',off:sv.off&&typeof sv.off==='object'?sv.off:{},selb:'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt||'',acc:sv.acc||'',hr:sv.hr||'',dt:sv.dt||'1',pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info||'',ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',imgs,sel:0,md:sv.md==='menu'?'menu':'',mt:sv.mt||'',mn:sv.mn!=null?String(sv.mn):(it.mn||''),bgi:sv.bgi||'',bgd:sv.bgd||'1',bgo:sv.bgo||'0',qrs:sv.qrs||'1',pno:sv.pno!=null?sv.pno:100,offa:sv.offa&&typeof sv.offa==='object'?sv.offa:(sv.md==='menu'?{}:(sv.off||{})),offm:sv.offm&&typeof sv.offm==='object'?sv.offm:{}};
 }
 const AM_PO_COL2=['#7c3aed','#a855f7','#ec4899','#f43f5e','#dc2626','#ea580c','#f59e0b','#ca8a04','#84cc16','#16a34a','#0d9488','#0891b2','#0ea5e9','#1d4ed8','#1e3a8a','#78350f','#475569','#111827'];
 const amDShort=d=>{const x=pd(d),j=x.getDate();return cap(x.toLocaleDateString('fr-FR',{weekday:'long'}))+' '+(j===1?'1er':j)+' '+x.toLocaleDateString('fr-FR',{month:'long'})};
@@ -11841,7 +13103,7 @@ function amPoIll(it,P,edit,bp,c1,c2){
   const pg=P.pg==='1'?(it.pg||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1).slice(0,5):[];
   h+='<div class="scn-flow"><div class="scn-pn pt-'+pnc+'">'+nails+'<div '+bp('top','scn-tt')+' style="--ts:'+ts+'px"><h1>'+esc(title)+'</h1>'+subH+'</div>'+((rib||pl)?'<div '+bp('box','scn-box')+'>'+rib+pl+'</div>':'')+(P.acc.trim()?'<div '+bp('acc','scn-acc')+'>'+esc(P.acc.trim())+'</div>':'')+'</div>'+
    (pg.length?'<div '+bp('pg','scn-pg')+'>'+pg.map(p=>'<div><b>'+esc(p.tm||'')+'</b><span>'+esc(p.t)+'</span></div>').join('')+'</div>':'')+
-   (P.info.trim()?'<div '+bp('info','scn-info')+'>'+esc(P.info.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','scn-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(P.ft.trim()?'<div '+bp('ft','scn-ft')+'>'+esc(P.ft.trim())+'</div>':'')+'</div>';
+   (P.info.trim()?'<div '+bp('info','scn-info')+'>'+esc(P.info.trim())+'</div>':'')+amPoQr(it,P,bp,'scn-qr')+(P.ct.trim()?'<div '+bp('ct','scn-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(P.ft.trim()?'<div '+bp('ft','scn-ft')+'>'+esc(P.ft.trim())+'</div>':'')+'</div>';
  }
  if(menu)h+=(P.ft.trim()?'<div '+bp('ft','scn-ft scn-abs')+' style="bottom:206px">'+esc(P.ft.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','scn-ct scn-abs')+' style="bottom:176px">'+esc(P.ct.trim())+'</div>':'');
  if(P.dec!=='none')h+='<div class="scn-bt">'+emo.join('')+'</div>';
@@ -11871,7 +13133,7 @@ function amPosterHTML(it,P,edit){
   '<div class="pst-in">'+(P.acc.trim()?'<div '+bp('acc','pst-acc')+'>'+esc(P.acc.trim())+'</div>':'')+
   ((P.dt==='1'||P.pl==='1'||P.hr.trim())?'<div '+bp('box','pst-box')+'>'+(P.dt==='1'?'<div class="pst-date">'+esc(amDLong(it.d))+'</div>':'')+(P.hr.trim()?'<div class="pst-hr">🕐 '+esc(P.hr.trim())+'</div>':'')+(P.pl==='1'&&it.pl?'<div class="pst-lieu">📍 '+esc(it.pl)+'</div>':'')+'</div>':'')+
   (pg.length?'<div '+bp('pg','pst-pg')+'>'+pg.map(p=>'<div><b>'+esc(p.tm||'')+'</b><span>'+esc(p.t)+'</span></div>').join('')+'</div>':'')+
-  (P.info.trim()?'<div '+bp('info','pst-info')+'>'+esc(P.info.trim())+'</div>':'')+'</div>'+
+  (P.info.trim()?'<div '+bp('info','pst-info')+'>'+esc(P.info.trim())+'</div>':'')+amPoQr(it,P,bp,'pst-qr')+'</div>'+
   (P.ft.trim()?'<div '+bp('ft','pst-ft')+'>'+esc(P.ft.trim())+'</div>':'')+
   (P.ct.trim()?'<div '+bp('ct','pst-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(row?'<div class="pst-bot">'+row+'</div>':'')+imgs+'</div>';
 }
@@ -11955,13 +13217,14 @@ function amPoOpen(){
  if(PO.selb){const o=(PO.off||{})[PO.selb]||{};h+='<label class="fld"><span>Taille : <b id="po-bsv">'+Math.round((o.s||1)*100)+' %</b></span><input type="range" id="po-bs" min="30" max="250" step="5" value="'+Math.round((o.s||1)*100)+'" style="width:100%"></label><label class="fld"><span>Rotation : <b id="po-brv">'+Math.round(o.r||0)+'°</b></span><input type="range" id="po-br" min="-180" max="180" step="1" value="'+Math.round(o.r||0)+'" style="width:100%"></label><div class="chips" style="margin:.1rem 0 .4rem"><button class="chip" data-act="po-bres">↺ Remettre à sa place</button></div>'}
  if(menu)h+='<b class="rc-h" style="display:block">Textes</b>'+amPoFld('kick','Sous-titre (association)',PO.kick,'Amicale…')+amPoFld('ft','Bas de page',PO.ft,'')+amPoFld('ct','Contact',PO.ct,'Prénom · téléphone');
  else{h+='<b class="rc-h" style="display:block">Textes</b>'+amPoFld('kick','Ligne du haut (association)',PO.kick,'Amicale…')+amPoFld('tt','Titre (par défaut : le nom de l’événement)',PO.tt,it.tx)+amPoFld('acc','Phrase d’accroche',PO.acc,'Venez nombreux !')+amPoFld('hr','Horaire',PO.hr,'Dès 14 h · Ouverture des portes 13 h 30')+amPoFld('info','Infos pratiques',PO.info,'Entrée libre · Buvette sur place',true)+amPoFld('ft','Bas de page',PO.ft,'Ne pas jeter sur la voie publique')+amPoFld('ct','Contact',PO.ct,'Prénom · téléphone');
- h+='<b class="rc-h" style="display:block">Afficher</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(PO.dt==='1'?' on':'')+'" data-act="po" data-k="dt" data-v="'+(PO.dt==='1'?'0':'1')+'">📅 Date</button><button class="chip'+(PO.pl==='1'?' on':'')+'" data-act="po" data-k="pl" data-v="'+(PO.pl==='1'?'0':'1')+'">📍 Lieu</button><button class="chip'+(PO.pg==='1'?' on':'')+'" data-act="po" data-k="pg" data-v="'+(PO.pg==='1'?'0':'1')+'">🕐 Programme</button></div>'}
+ h+='<b class="rc-h" style="display:block">Afficher</b><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(PO.dt==='1'?' on':'')+'" data-act="po" data-k="dt" data-v="'+(PO.dt==='1'?'0':'1')+'">📅 Date</button><button class="chip'+(PO.pl==='1'?' on':'')+'" data-act="po" data-k="pl" data-v="'+(PO.pl==='1'?'0':'1')+'">📍 Lieu</button><button class="chip'+(PO.pg==='1'?' on':'')+'" data-act="po" data-k="pg" data-v="'+(PO.pg==='1'?'0':'1')+'">🕐 Programme</button>'+(it.qr?'<button class="chip'+(PO.qrs!=='0'?' on':'')+'" data-act="po" data-k="qrs" data-v="'+(PO.qrs!=='0'?'0':'1')+'">📲 QR d’inscription</button>':'')+'</div>'+(it.qr?'':'<p class="mut" style="font-size:.78rem;margin:-.3rem 0 .5rem">📲 Pour mettre un QR code d’inscription, crée-le d’abord dans la fiche de l’événement.</p>')}
  h+='<button class="btn pri blk" data-act="po-go">🖨 Imprimer / créer le PDF'+(menu?' du menu':'')+'</button><button class="btn blk" data-act="po-png">📲 Partager en image'+(menu?' (menu)':'')+'</button><button class="btn blk" data-act="po-reset">↺ Tout remettre par défaut</button><p class="mut" style="font-size:.8rem;margin:.4rem 0 0">Tes réglages sont gardés pour cet événement (et pour l’an prochain si tu le copies).</p></div></div>';
  openSheet(h,'po');
  {const n=$('#sheet .sh');if(n&&top)n.scrollTop=top;const r=$('#sheet .po-r');if(r&&top2)r.scrollTop=top2}
  amPoPv();amPoDrag();
 }
-const AM_PO_BLK=[['top','Titre'],['acc','Accroche'],['box','Date et lieu'],['pg','Programme'],['info','Infos'],['ft','Bas de page'],['ct','Contact']];
+const AM_PO_BLK=[['top','Titre'],['acc','Accroche'],['box','Date et lieu'],['pg','Programme'],['info','Infos'],['qr','QR code'],['ft','Bas de page'],['ct','Contact']];
+const amPoQr=(it,P,bp,cl)=>(it&&it.qr&&P.qrs!=='0'&&P.md!=='menu')?'<div '+bp('qr',cl)+'><img src="'+amQrImg(amQrUrl(it))+'" alt=""><span>📲 Scanne pour t’inscrire</span></div>':'';
 function amPoSet(k,v){
  if(!PO)return;
  if(k==='md'){const was=PO.md==='menu'?'offm':'offa';PO[was]=PO.off||{};PO.off=PO[v==='menu'?'offm':'offa']||{};PO.selb='';PO.md=v;amPoSave();amPoOpen();return}
@@ -11969,7 +13232,7 @@ function amPoSet(k,v){
  if(k==='th'){const T=AM_TH[v]||{};PO.bw='0';PO.col='';PO.col2='';PO.bgc='';PO.em='';if(T.lay)PO.lay=T.lay;if(T.fnt)PO.fnt=T.fnt;if(T.dec)PO.dec=T.dec;amPoSave();amPoOpen();return}
  amPoSave();
  $$('#sheet [data-act="po"][data-k="'+k+'"]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- if(k==='dt'||k==='pl'||k==='pg'||k==='bw'||k==='bgc'||k==='col'||k==='col2'||k==='bgi'||k==='bgd'||k==='bgo'||k==='lay'){amPoOpen();return}
+ if(k==='qrs'||k==='dt'||k==='pl'||k==='pg'||k==='bw'||k==='bgc'||k==='col'||k==='col2'||k==='bgi'||k==='bgd'||k==='bgo'||k==='lay'){amPoOpen();return}
  amPoPv();
 }
 function amPoDrag(){
@@ -12039,6 +13302,49 @@ async function amPoOcr(f){
   if(o.mt&&!(PO.mt||'').trim())PO.mt=o.mt;
   amPoSave();amPoOpen();toast('✅ Menu lu : vérifie et corrige si besoin (la lecture peut se tromper)',6000);
  }catch(e){toast('Lecture impossible : '+(e&&e.message||'erreur')+'. Astuce iPhone : copie le texte de la photo et colle-le.',7000)}
+}
+/* 2.80.0 : inscription par QR code. Clé publique de l'événement dans le QR ; le formulaire chiffre l'inscription ; seuls ceux qui voient l'événement peuvent la lire. */
+const AMQR={},AMQR_IMG={};
+const amQrBase=()=>'https://dam-cigogne.github.io/amicale/inscription.html';
+function amQrUrl(it){const a=amc()||{},q=it.qr;if(!q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify({t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),g:String(a.nm||'').slice(0,40)})));return amQrBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
+function amQrImg(txt,col){const k=txt+'|'+(col||'');if(AMQR_IMG[k])return AMQR_IMG[k];try{const m=window.qrMatrix(txt,'M'),n=m.length,s=8,q=4,W=(n+2*q)*s,c=document.createElement('canvas');c.width=c.height=W;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,W);g.fillStyle=col||'#111';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(m[y][x])g.fillRect((x+q)*s,(y+q)*s,s,s);return AMQR_IMG[k]=c.toDataURL('image/png')}catch(e){return ''}}
+async function amQrOn(id){
+ const a=amc(),it=a&&a.it&&a.it[id];if(!it)return;if(demo){toast('Non disponible en mode démo',2500);return}
+ try{const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']),j=await crypto.subtle.exportKey('jwk',kp.privateKey),qid=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  amEeMut(o=>{o.qr={id:qid,x:j.x,y:j.y,d:j.d};o.qd=[]});
+  try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space})})}catch(e){}
+  toast('✅ QR code d’inscription créé',3000)}catch(e){toast('Impossible : '+(e&&e.message||'erreur'),5000)}
+}
+async function amQrFetch(id,force){
+ const a=amc(),it=a&&a.it&&a.it[id];if(!it||!it.qr||demo)return;const c=AMQR[id]||(AMQR[id]={L:[],last:0,at:0,busy:0});
+ if(c.busy||(!force&&Date.now()-c.at<25000))return;c.busy=1;
+ try{const r=await fetch(famUrl()+'/in/'+it.qr.id+'?a='+c.last);if(!r.ok)throw 0;const j=await r.json();let add=0;
+  for(const x of (j.list||[])){c.last=Math.max(c.last,x.n);try{const o=JSON.parse(x.d),key=await amDerive({kty:'EC',crv:'P-256',x:it.qr.x,y:it.qr.y,d:it.qr.d},o.e,'agd-qr:'+it.qr.id),pl=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64u(o.iv)},key,unb64u(o.c)),v=JSON.parse(new TextDecoder().decode(pl));c.L.push({n:x.n,at:x.at,v});add++}catch(e){}}
+  c.at=Date.now();if(add&&AMC_EE===id)render()}catch(e){c.at=Date.now()}finally{c.busy=0}
+}
+const amQrPend=it=>((AMQR[it.id]||{}).L||[]).filter(x=>!(it.qd||[]).includes(x.n));
+const amQrName=v=>(String(v.nm||'').trim().toUpperCase()+' '+String(v.pr||'').trim().replace(/^./,c=>c.toUpperCase())).trim().slice(0,60);
+function amQrAccept(id,ns){
+ const a=amc(),it=a&&a.it&&a.it[id];if(!it)return;const P=amQrPend(it).filter(x=>ns.includes(x.n));if(!P.length)return;let nw=0,up=0;
+ amEeMut(o=>{o.qd=o.qd||[];P.forEach(x=>{const v=x.v||{},nm=amQrName(v);if(!nm){o.qd.push(x.n);return}const k=amNk(nm),m=amItems('am').find(y=>amNk(y.tx)===k),f={na:Math.max(0,Math.min(99,+v.na||0)),ne:Math.max(0,Math.min(99,+v.ne||0)),tl:String(v.tl||'').slice(0,30),ml:String(v.ml||'').slice(0,80),rg:String(v.rg||'').slice(0,40)};
+  const ex=o.pt.find(p=>amNk(p.n)===k);
+  if(ex){Object.keys(f).forEach(z=>{if(f[z]&&!ex[z])ex[z]=f[z]});up++}
+  else if(o.pt.length<250){o.pt.push(Object.assign({n:(m?m.tx:nm).slice(0,60),m:m&&v.am!=='n'?m.id:'',a:(m&&v.am!=='n')||v.am==='o'?1:0,p:0,tr:0,tb:0,pa:0,pm:'',by:'📲 QR',bt:x.at||Date.now()},f));nw++}
+  o.qd.push(x.n)})});
+ toast((nw?'✅ '+nw+' inscrit'+(nw>1?'s':'')+' ajouté'+(nw>1?'s':''):'')+(up?(nw?' · ':'')+up+' déjà dans la liste (complété'+(up>1?'s':'')+')':''),4000);
+}
+function amQrRefuse(id,n){amEeMut(o=>{o.qd=o.qd||[];if(!o.qd.includes(n))o.qd.push(n)});toast('Inscription écartée',2500)}
+function amQrHTML(it,rw){
+ if(!rw&&!it.qr)return '';
+ let h='<h4 class="am-h">📲 Inscription par QR code</h4>';
+ if(!it.qr)return h+'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">Un QR code à mettre sur l’affiche : on le scanne, on remplit un petit formulaire (nom, nombre de personnes, téléphone, régime…) et l’inscription arrive ici. Tu la valides, et la personne rejoint les inscrits. Les infos sont chiffrées : seuls les organisateurs peuvent les lire.</p><button class="btn blk" data-act="qr-on" data-id="'+esc(it.id)+'">📲 Créer le QR code d’inscription</button>';
+ setTimeout(()=>amQrFetch(it.id),50);
+ const P=amQrPend(it),u=amQrUrl(it);
+ h+='<div class="card qr-card"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code d’inscription"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.9rem">Il est aussi <b>sur l’affiche</b> (réglage « 📲 QR d’inscription »).</p><div class="chips"><button class="chip" data-act="qr-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="qr-test" data-id="'+esc(it.id)+'">👀 Voir le formulaire</button><button class="chip" data-act="qr-ref" data-id="'+esc(it.id)+'">🔄 Vérifier</button></div><p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Ceux qui ne scannent pas : ajoute-les comme d’habitude ou importe ton fichier Excel ; les doublons (même nom) ne sont pas recopiés.</p></div></div>';
+ if(P.length){
+  h+='<div class="card qr-pend"><b>📥 '+P.length+' inscription'+(P.length>1?'s':'')+' à valider</b>'+P.map(x=>{const v=x.v||{},nm=amQrName(v);return '<div class="am-it"><span class="am-itx"><b>'+esc(nm||'(sans nom)')+'</b><small>'+['👥 '+(+v.na||0)+' adulte'+((+v.na||0)>1?'s':'')+(+v.ne?' + '+(+v.ne)+' enfant'+((+v.ne)>1?'s':''):''),v.am==='o'?'🎖 amicaliste':v.am==='n'?'👤 non-amicaliste':'',v.tl?'📞 '+esc(v.tl):'',v.ml?'✉️ '+esc(v.ml):'',v.rg?'🥗 '+esc(v.rg):'',v.mo?'💬 '+esc(v.mo):'','le '+esc(new Date(x.at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}))].filter(Boolean).join(' · ')+'</small></span>'+(rw?'<button class="chip on" data-act="qr-ok" data-id="'+esc(it.id)+'" data-n="'+x.n+'">✅ Ajouter</button><button class="chip" data-act="qr-no" data-id="'+esc(it.id)+'" data-n="'+x.n+'" aria-label="Écarter">✕</button>':'')+'</div>'}).join('')+(rw&&P.length>1?'<button class="btn pri blk" data-act="qr-all" data-id="'+esc(it.id)+'" style="margin-top:.4rem">✅ Tout ajouter ('+P.length+')</button>':'')+'</div>';
+ }else h+='<p class="mut" style="font-size:.85rem;margin:.2rem 0 .4rem">Aucune nouvelle inscription pour l’instant.</p>';
+ return h;
 }
 /* 2.79.2 : la pancarte de l'affiche (titre, date, lieu sur son décor) affichée sur l'accueil et sur la fiche de l'événement */
 function amPoSign(it){
@@ -13412,7 +14718,7 @@ function amPtHTML(it,rw){
  h+=amPayBar(it,rw);
  const row=x=>{const p=x.p,g=x.m&&(x.m.o||{}).gr,rg=amRgOf(x),q=(k,ic2)=>'<span class="pt-q"><small>'+ic2+'</small>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="-1" aria-label="Moins">−</button>':'')+'<b>'+amQ(p,k)+'</b>'+(rw?'<button data-act="pt-t" data-i="'+x.i+'" data-k="'+k+'" data-n="1" aria-label="Plus">+</button>':'')+'</span>';
   const SM=rw&&!!amPtSel(),sl=SM&&PT_SEL.has(x.i);
-  return '<div class="am-it pt'+(p.p?' done':'')+(rg?' rg':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(SM?' am-cks':'')+'" '+(SM?'data-act="pt-sel" data-i="'+x.i+'" aria-label="Choisir">'+(sl?'☑':''):(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':''))+'</button><button class="am-itx" '+(SM?'data-act="pt-sel" data-i="'+x.i+'"':rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',rg?'<span class="rg-b">🥗 '+esc(amRgCat(rg)===rg?rg:amRgCat(rg)+' ('+rg+')')+'</span>':'',(()=>{if(!(it.pr&&it.pr.on))return p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):'';const s=amPtSt(it,x);return s.k==='free'?'<span class="pay-ok">gratuit</span>':s.k==='ok'?'<span class="pay-ok">✅ payé '+esc(amEur(s.pa))+'</span>'+(p.pm?' ('+amPmLb(p.pm)+')':''):s.k==='part'?'<span class="pay-part">🟠 payé '+esc(amEur(s.pa))+' / '+esc(amEur(s.d))+' · reste '+esc(amEur(s.r))+'</span>':'<span class="pay-no">🔴 '+esc(amEur(s.d))+' à payer</span>'})(),p.eb&&p.pa?'encaissé par '+esc(p.eb):'',p.by?'✍️ '+esc(p.by)+(p.bt?' · '+esc(amHM(p.bt)):''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+(rw&&it.pr&&it.pr.on?'<button class="ib pt-pay" data-act="pt-pay" data-i="'+x.i+'" aria-label="Encaisser" title="Encaisser">💶</button>':'')+'</div>'};
+  return '<div class="am-it pt'+(p.p?' done':'')+(rg?' rg':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(SM?' am-cks':'')+'" '+(SM?'data-act="pt-sel" data-i="'+x.i+'" aria-label="Choisir">'+(sl?'☑':''):(rw?'data-act="pt-p" data-i="'+x.i+'"':'disabled')+' aria-label="Présent">'+(p.p?'✓':''))+'</button><button class="am-itx" '+(SM?'data-act="pt-sel" data-i="'+x.i+'"':rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b><small>'+[g?esc(g):'',(p.na||p.ne)?'👥 '+(p.na||0)+' adulte'+((p.na||0)>1?'s':'')+(p.ne?' + '+p.ne+' enfant'+(p.ne>1?'s':''):''):'',p.tl?'📞 '+esc(p.tl):'',p.by==='📲 QR'?'📲 QR':'',rg?'<span class="rg-b">🥗 '+esc(amRgCat(rg)===rg?rg:amRgCat(rg)+' ('+rg+')')+'</span>':'',(()=>{if(!(it.pr&&it.pr.on))return p.pa?'💶 '+esc(amEur(p.pa))+(p.pm?' ('+amPmLb(p.pm)+')':''):'';const s=amPtSt(it,x);return s.k==='free'?'<span class="pay-ok">gratuit</span>':s.k==='ok'?'<span class="pay-ok">✅ payé '+esc(amEur(s.pa))+'</span>'+(p.pm?' ('+amPmLb(p.pm)+')':''):s.k==='part'?'<span class="pay-part">🟠 payé '+esc(amEur(s.pa))+' / '+esc(amEur(s.d))+' · reste '+esc(amEur(s.r))+'</span>':'<span class="pay-no">🔴 '+esc(amEur(s.d))+' à payer</span>'})(),p.eb&&p.pa?'encaissé par '+esc(p.eb):'',p.by?'✍️ '+esc(p.by)+(p.bt?' · '+esc(amHM(p.bt)):''):''].filter(Boolean).join(' · ')+'</small></button>'+(tk?amTy(it).map(t=>q(t.k,t.e||t.l)).join(''):'')+(rw&&it.pr&&it.pr.on?'<button class="ib pt-pay" data-act="pt-pay" data-i="'+x.i+'" aria-label="Encaisser" title="Encaisser">💶</button>':'')+'</div>'};
  const flt=L=>(it.pr&&it.pr.on&&AM_PTF)?L.filter(x=>amPtSt(it,x).k===AM_PTF||(AM_PTF==='ok'&&amPtSt(it,x).k==='free')):L;
  const grp=(t,L0)=>{const L=flt(L0);return L.length?'<h4 class="am-h" style="font-size:.95rem">'+t+' · '+L.length+' <small class="mut">(présents '+L.filter(x=>x.p.p).length+')</small></h4>'+L.map(row).join(''):''};
  {const FA=flt(A),FN=flt(N);let g=AM_PTG==='n'?'n':'a';if(g==='a'&&!FA.length&&FN.length)g='n';else if(g==='n'&&!FN.length&&FA.length)g='a';
@@ -13722,6 +15028,7 @@ function amEeHTML(){
   const CS=rw&&!!amCkSel();if(rw&&ck.length)h+=CS?amCkSelBar(ck):'<div class="chips" style="margin:.1rem 0 .3rem"><button class="chip" data-act="ck-son">☑ Sélectionner des tâches</button></div>';
   h+=ck.length?ck.map((c,i)=>{const sl=CS&&CK_SEL.has(i);return '<div class="am-it'+(c.ok?' done':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(CS?' am-cks':'')+'" '+(CS?'data-act="ck-sel" data-i="'+i+'" aria-label="Choisir">'+(sl?'☑':''):(rw?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':''))+'</button><button class="am-itx" '+(CS?'data-act="ck-sel" data-i="'+i+'"':rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+'</b>'+(c.w||(c.ok&&c.ob)?'<small>'+[c.w?'👤 '+esc(c.w):'',c.ok&&c.ob?'✅ fait par <b>'+esc(c.ob)+'</b>'+(c.ot?' · '+esc(amHM(c.ot)):''):''].filter(Boolean).join(' · ')+'</small>':'')+'</button></div>'}).join(''):'<p class="empty">Rien à préparer pour l’instant.</p>';
   if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div>';
+  h+=amQrHTML(it,rw);
   h+=amPtHTML(it,rw);
   h+=amRpHTML(it,rw);
   if(rw)h+=amAdEvHTML(it);
@@ -14165,7 +15472,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
