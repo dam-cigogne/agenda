@@ -2,7 +2,7 @@
 <html lang="fr" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>AgenDam · l’organisateur de la famille</title>
 <meta name="description" content="AgenDam, l’organisateur de la famille : agenda, tâches, courses, repas, anniversaires et voyages, partagés en direct avec ta famille et tes amis. Gratuit, sans publicité, sans compte.">
 <meta name="theme-color" content="#2f6fb3">
@@ -694,6 +694,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 #sheet:empty,#dlg:empty{display:none}
 .am-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
 .am-fx>b{position:absolute;top:-8px;border-radius:50%;background:#fff;opacity:.85;box-shadow:0 0 4px rgba(255,255,255,.9);animation:amSnow linear infinite}
+.am-fx>b.em{background:none;box-shadow:none;border-radius:0;top:-24px;line-height:1;opacity:.95;text-shadow:0 1px 3px rgba(0,0,0,.35)}
 @keyframes amSnow{0%{transform:translate(0,-10px)}50%{transform:translate(12px,160px)}100%{transform:translate(-6px,340px)}}
 .am-fx-star{position:absolute;inset:0}
 .am-fx-star i{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:radial-gradient(circle,#fff 0,#fff7c2 35%,rgba(253,224,71,.9) 55%,rgba(253,224,71,0) 72%);box-shadow:0 0 14px 4px rgba(253,224,71,.8);transform:scale(var(--s,1));opacity:0;animation:amStar 7s cubic-bezier(.35,.1,.45,1) infinite}
@@ -705,7 +706,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 @keyframes amLive{0%{transform:scale(1) translateY(0)}100%{transform:scale(1.045) translateY(-4px)}}
 .am-sign-bd b.pop{animation:amPop .5s ease}@keyframes amPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 .am-sign-j{animation:amPulse 2.2s ease-in-out infinite}
-.am-sign-ql{font-style:normal;font-weight:800;padding:.1rem .55rem;border-radius:999px;background:#fff;color:#b91c1c;white-space:nowrap}.am-sign-ql.bl{background:#dc2626;color:#fff;animation:amBlink 1s steps(2,start) infinite}.am-sign-ql.cl{background:#e5e7eb;color:#374151}@keyframes amBlink{to{visibility:hidden}}
+.am-sign-ql{font-style:normal;font-weight:800;padding:.1rem .55rem;border-radius:999px;background:#fff;color:#b91c1c;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:middle}.qr-ql .am-sign-ql{white-space:normal;border-radius:.8rem;font-size:.95rem;line-height:1.25}.am-sign-ql.bl{background:#dc2626;color:#fff;animation:amBlink 1s steps(2,start) infinite}.am-sign-ql.cl{background:#e5e7eb;color:#374151}@keyframes amBlink{to{visibility:hidden}}
 .pst-ql{position:absolute;left:0;right:0;top:0;z-index:30;padding:14px 18px;text-align:center;font:900 38px/1.15 -apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#fff;background:linear-gradient(90deg,#b91c1c,#ef4444,#b91c1c);letter-spacing:.3px;box-shadow:0 4px 14px rgba(0,0,0,.35);text-shadow:0 2px 3px rgba(0,0,0,.35)}
 .am-sign-pv .pst-ql,.am-pe .pst-ql{animation:amQlGlow 1.2s ease-in-out infinite}@keyframes amQlGlow{50%{filter:brightness(1.35)}}.am-shot .pst-ql{animation:none!important}@media print{.pst-ql,.am-sign-ql{animation:none!important}}
 @media (prefers-reduced-motion:reduce){.am-sign-ql.bl,.pst-ql{animation:none!important}}@keyframes amPulse{0%,100%{opacity:1}50%{opacity:.55}}
@@ -728,6 +729,11 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 /* 2.82.19 : sur iPhone/iPad, toucher une case de moins de 16 px fait zoomer Safari tout seul (l'écran « part dans tous les sens ») ; et la page derrière une fiche ne bouge plus */
 @supports(-webkit-touch-callout:none){input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:max(16px,1em)!important}}
 .sh{overscroll-behavior:contain}
+/* 2.82.25 : plus rien ne doit dépasser à droite (sinon, sur iPhone, l'écran glisse dans tous les sens quand on le touche) */
+html,body{overflow-x:clip;max-width:100%}
+#main,.card,.sh,.dlgbox{overflow-wrap:break-word;min-width:0}
+.chip,.btn{max-width:100%}
+#main img,#main video,#main canvas{max-width:100%}
 html:has(#dlg .ov),html:has(#sheet .ov){overflow:hidden}
 /* 2.82.19 : sur iPhone, les cases date (« Date d’adhésion », « Payée le »…) dépassaient à droite : la fiche glissait de côté */
 input.in[type=date],input.in[type=time],input.in[type=datetime-local],input.in[type=month]{display:block;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;text-align:left}
@@ -2906,7 +2912,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.24';
+const APP_VERSION='2.82.25';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2914,6 +2920,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.25',d:'15/11/2026',items:['<b>iPhone : l’écran ne glisse plus dans tous les sens</b>. La date de fin des inscriptions dépassait à droite de l’écran ; partout dans l’appli, plus rien ne peut dépasser, et l’écran ne zoome plus tout seul.','<b>📋 Copier tous les numéros</b> : quand tu envoies un lien à plusieurs personnes (ou la relance des non-inscrits), « Copier les numéros » met tous les numéros d’un coup : tu les colles dans « À : » de Messages, puis tu colles le message.','<b>✨ Animations selon l’événement</b>, sur la pancarte et sur les pages des liens (inscription, menu, adhésion) : neige à Noël, 🍇🍷 au Beaujolais, 🎖️⭐ bleu-blanc-rouge à la Saint-Éloi, 🥖🧀 au casse-croûte, 👑 à la galette, 🔥🍖 au barbecue, 🎃 à Halloween, 🏆 au sport… L’appli reconnaît le nom de l’événement (ou le style de l’affiche). Plus une étoile filante, et des confettis quand quelqu’un s’inscrit.']},
  {v:'2.82.24',d:'15/11/2026',items:['<b>⏰ Date de fin des inscriptions</b> : dans la fiche de l’événement (QR code d’inscription) › « Mettre une date limite ». Elle s’affiche en bandeau rouge en haut de l’affiche, elle clignote sur la pancarte les 7 derniers jours (« Fin des inscriptions J-3 »), et la page d’inscription l’indique aussi.','<b>⏰ Relancer les non-inscrits</b> : un bouton coche tout seul les amicalistes pas encore inscrits et prépare le rappel (« Plus que 3 jours pour t’inscrire… ») avec le lien. Aussi dans « Envoyer un lien » › « Relance ».']},
  {v:'2.82.23',d:'15/11/2026',items:['<b>📲 Envoyer un lien : l’inscription et le menu en une fois</b>. Quand l’événement a les deux QR, « 📲 Inscription + 🍽 menu » met les deux liens dans le même message (avec l’affiche si tu veux).']},
  {v:'2.82.22',d:'15/11/2026',items:['<b>📲 Envoyer un lien : ta signature et son numéro</b>. Le message finit par ta signature (nom, amicale, ton numéro… tu l’écris une fois, l’appli s’en souvient). Si son numéro n’est pas dans sa fiche, tu peux le taper juste là : WhatsApp ou SMS s’ouvrent directement sur sa conversation, et le numéro est ajouté à sa fiche.']},
@@ -13675,6 +13682,7 @@ async function amSendLink(ids,pre){
  B.push({label:one?'🟢 WhatsApp':'🟢 WhatsApp (tu choisis la personne ou le groupe)',value:'wa'});
  if(ml.length)B.push({label:'✉️ Mail'+(P.length>1?' ('+ml.length+')':''),value:'ml'});
  if(x.k!=='a')B.unshift({label:x.k==='m'?'📜 Avec l’image du menu (WhatsApp, Messages…)':'🖼 Avec l’affiche (WhatsApp, Messages…)',value:'po',cls:'pri'});
+ if(P.length>1&&tel.length)B.push({label:'📋 Copier les '+tel.length+' numéros (à coller dans Messages)',value:'cpn'});
  B.push({label:'📋 Copier le message',value:'cp'},{label:'Annuler',value:null});
  const miss=P.length>1?P.filter(m=>!amTelHref((m.o||{}).tl)&&!/@/.test(String((m.o||{}).ml||''))).map(m=>m.tx):[];
  const grpN=P.length>1?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">À plusieurs : 💬 SMS fait une conversation de groupe (chacun voit les réponses des autres). Plus discret : ✉️ Mail (copie cachée), ou 🟢 WhatsApp dans le groupe de l’amicale.</p>':'';
@@ -13694,6 +13702,9 @@ async function amSendLink(ids,pre){
  try{await navigator.clipboard.writeText(body2)}catch(e){}
  const go=u=>{const l=document.createElement('a');l.href=u;l.target=u.startsWith('http')?'_blank':'_self';l.rel='noopener';document.body.appendChild(l);l.click();setTimeout(()=>l.remove(),500)};
  if(v==='cp'){toast('📋 Message copié',2500);return}
+ if(v==='cpn'){const nums=P.map(m=>String((m.o||{}).tl||'').trim()).filter(t=>amTelHref(t)).join(', ');try{await navigator.clipboard.writeText(nums)}catch(e){}
+  const r=await ask({title:'📋 '+tel.length+' numéros copiés',html:'<ol style="margin:.2rem 0 .6rem;padding-left:1.2rem;line-height:1.45"><li>Ouvre <b>Messages</b>, nouveau message.</li><li>Dans « À : », <b>colle</b> : tous les numéros arrivent d’un coup.</li><li>Reviens ici et touche <b>Copier le message</b>, puis colle-le dans Messages.</li></ol><p class="mut" style="font-size:.82rem;margin:0 0 .5rem">⚠️ C’est une conversation de groupe : chacun voit les réponses des autres. Au-delà d’une vingtaine de personnes, certains opérateurs bloquent : fais plusieurs envois, ou utilise le ✉️ mail.</p>',btns:[{label:'📋 Copier le message',value:'m',cls:'pri'},{label:'📋 Recopier les numéros',value:'n'},{label:'Fermer',value:null}]});
+  if(r==='m'){try{await navigator.clipboard.writeText(body2);toast('📋 Message copié : colle-le dans Messages',3500)}catch(e){}}else if(r==='n'){try{await navigator.clipboard.writeText(nums);toast('📋 Numéros copiés',2500)}catch(e){}}return}
  if(v==='po'){const it=x.e,keep=PO;PO=amPoDef(it,amPoGet(it.id));PO.md=x.k==='m'?'menu':'';amPoBgLoad(PO,PO.md);PO.off=PO[PO.md==='menu'?'offm':'offa']||{};PO.selb='';PO.sel=-1;try{await amPoPng({text:body2})}finally{PO=keep}return}
  if(v==='sms'){const b=encodeURIComponent(body2);if(T.length<=1)go('sms:'+(T[0]||'')+(amIOS()?'&':'?')+'body='+b);else go(amIOS()?'sms:/open?addresses='+T.join(',')+'&body='+b:'sms:'+T.join(',')+'?body='+b);return}
  if(v==='wa'){go('https://wa.me/'+waN+'?text='+encodeURIComponent(body2));return}
@@ -13738,7 +13749,31 @@ function amAqPrint(){const a=amc()||{},u=amAqUrl();if(!u)return;
 /* 2.79.2 : la pancarte de l'affiche (titre, date, lieu sur son décor) affichée sur l'accueil et sur la fiche de l'événement */
 /* 2.82.15 : sur la pancarte (accueil et fiche), le nombre d'inscrits en grand, les inscriptions à valider et le compte à rebours */
 /* 2.82.16 : la pancarte s'anime : étoile filante dorée (sur le trajet de l'avion), neige, image vivante */
-function amSignFx(){let h='<div class="am-fx" aria-hidden="true"><div class="am-fx-star">';for(let k=0;k<9;k++)h+='<i style="animation-delay:'+(k*0.05).toFixed(2)+'s;--s:'+(1-k*0.09).toFixed(2)+'"></i>';h+='</div>';
+function amFxTheme(t,th){t=String(t||'').toLowerCase();th=String(th||'');var R=[
+ ['eloi',/[ée]loi|militaire|c[ée]r[ée]monie|14 juillet|armistice|11 novembre|8 mai|r[ée]giment|prise d.armes|d[ée]fil[ée]/,['🎖️','⭐','✦','🎖️','✦'],['#1d4ed8','#ffffff','#dc2626']],
+ ['vin',/beaujolais|vin\b|vins|vendange|[œo]e?nolog|d[ée]gustation|\bcave\b|ap[ée]ro|ap[ée]ritif/,['🍇','🍷','🥂','🍇','🧀'],0],
+ ['galette',/galette|\brois\b|[ée]piphanie/,['👑','🥧','✨','👑','🥂'],0],
+ ['hallo',/halloween/,['🎃','👻','🦇','🍬','🎃'],0],
+ ['paques',/p[âa]ques/,['🥚','🐣','🌷','🍫','🐰'],0],
+ ['crepe',/chandeleur|cr[êe]pe/,['🥞','✨','🍯','🥞'],0],
+ ['noel',/no[eë]l|r[ée]veillon|hiver|neige|sapin|nouvel an|saint[- ]sylvestre/,['❄','❅','❆','✦'],['#ffffff','#a5b4fc']],
+ ['bbq',/barbecue|bbq|grillade|m[ée]choui|plancha|paella/,['🔥','🍖','🌭','🍉','🍔'],0],
+ ['anniv',/anniversaire|d[ée]part|retraite|mariage|naissance|bapt[êe]me|mutation/,['🎈','🥂','🎉','🎁'],0],
+ ['repas',/casse[- ]?cro[uû]te|midi|d[ée]jeuner|repas|buffet|d[îi]ner|banquet|pique[- ]nique|\bpot\b/,['🥖','🧀','🥪','🍷','☕'],0],
+ ['loto',/loto|tombola|bingo|quine/,['🎱','🍀','🎁','⭐'],0],
+ ['sport',/foot|match|tournoi|sport|course|rando|p[ée]tanque|cross|v[ée]lo|marche/,['🏆','⚽','🥇','🏅'],0],
+ ['disco',/dansante|disco|\bbal\b|\bdj\b|karaok|soir[ée]e/,['🎵','🪩','💃','🕺','✨'],0],
+ ['enfant',/enfant|kid|go[ûu]ter/,['🎈','🧸','🍭','🎨'],0],
+ ['ete',/[ée]t[ée]\b|plage|piscine|juillet|ao[ûu]t|soleil/,['☀️','🌴','🍉','🍦'],0],
+ ['adh',/adh[ée]sion|amicale/,['🎖️','✨','⭐','✨'],0]];
+ var TH={noel:'noel',noelf:'noel',galette:'galette',loto:'loto',lotof:'loto',repas:'repas',bbq:'bbq',hallo:'hallo',disco:'disco',nuit:'disco',sport:'sport',enfants:'enfant',ete:'ete'};
+ for(var k=0;k<R.length;k++)if(R[k][1].test(t))return {k:R[k][0],e:R[k][2],c:R[k][3]};
+ if(TH[th])for(var j=0;j<R.length;j++)if(R[j][0]===TH[th])return {k:R[j][0],e:R[j][2],c:R[j][3]};
+ var m=new Date().getMonth();if(m===11||m===0)return {k:'noel',e:R[6][2],c:R[6][3]};
+ return {k:'fete',e:['✨','🎉','⭐','🎊'],c:['#f59e0b','#ec4899','#8b5cf6','#10b981']}}
+function amSignFx(it,th){const T=amFxTheme(it?it.tx:'',th);if(T.k!=='noel'){let h='<div class="am-fx" aria-hidden="true"><div class="am-fx-star">';for(let k=0;k<9;k++)h+='<i style="animation-delay:'+(k*0.05).toFixed(2)+'s;--s:'+(1-k*0.09).toFixed(2)+'"></i>';h+='</div>';for(let k=0;k<12;k++){const l=(k*37+11)%100,d=(6+(k*7)%6),dl=-((k*13)%10),z=(13+(k*5)%9);h+='<b class="em" style="left:'+l+'%;font-size:'+z+'px;animation-duration:'+d+'s;animation-delay:'+dl+'s'+(T.c?';color:'+T.c[k%T.c.length]:'')+'">'+T.e[k%T.e.length]+'</b>'}return h+'</div>'}
+ return amSignFx0()}
+function amSignFx0(){let h='<div class="am-fx" aria-hidden="true"><div class="am-fx-star">';for(let k=0;k<9;k++)h+='<i style="animation-delay:'+(k*0.05).toFixed(2)+'s;--s:'+(1-k*0.09).toFixed(2)+'"></i>';h+='</div>';
  for(let k=0;k<18;k++){const l=(k*37+11)%100,d=(5+(k*7)%6),dl=-((k*13)%10),z=(2+(k*5)%4);h+='<b style="left:'+l+'%;width:'+z+'px;height:'+z+'px;animation-duration:'+d+'s;animation-delay:'+dl+'s"></b>'}return h+'</div>'}
 /* 2.82.24 : date de fin des inscriptions (bandeau sur l'affiche, pancarte qui clignote, page d'inscription, relance) */
 const amQlDays=it=>it&&it.ql?Math.round((new Date(it.ql+'T12:00')-new Date(today()+'T12:00'))/864e5):null;
@@ -13751,12 +13786,12 @@ function amSignBadge(it,bar){try{const pt=it.pt||[],n=pt.length,ac=pt.reduce((t,
  return '<div class="am-sign-bd'+(bar?' am-sign-bar':'')+'"><b data-cnt="'+n+'" data-k="'+esc(it.id)+'">'+(AMSB[it.id]===n?n:0)+'</b><span>inscrit'+(n>1?'s':'')+'</span>'+((ac||ki)?[ac?'<span class="am-sign-dt">+ '+ac+' accompagnant'+(ac>1?'s':'')+'</span>':'',ki?'<span class="am-sign-dt">+ '+ki+' enfant'+(ki>1?'s':'')+'</span>':''].join('')+'<span class="am-sign-dt">= <b>'+tot+'</b> personnes</span>':'')+(pd?'<em>📥 '+pd+' à valider</em>':'')+(j?'<i class="am-sign-j">⏳ '+j+'</i>':'')+(it.qr?amQlBadge(it):'')+'</div>'}catch(e){return ''}}
 function amPoSign(it){
  try{const sv=amPoGet(it.id),P=amPoDef(it,sv);
-  amPoBgLoad(P,'');if(P.bgi){P.selb='';P.sel=-1;return '<div class="am-sign am-sign-img" data-act="ee-sign" data-id="'+esc(it.id)+'" role="button" aria-label="'+esc(it.tx)+'" style="background:#111 url('+P.bgi+') center/cover no-repeat"><i></i><div class="am-sign-pv" aria-hidden="true"><div class="am-sign-pvi">'+amPosterHTML(it,Object.assign(P,{md:''}),false)+'</div></div>'+amSignFx()+'</div>'+amSignBadge(it,1)}
+  amPoBgLoad(P,'');if(P.bgi){P.selb='';P.sel=-1;return '<div class="am-sign am-sign-img" data-act="ee-sign" data-id="'+esc(it.id)+'" role="button" aria-label="'+esc(it.tx)+'" style="background:#111 url('+P.bgi+') center/cover no-repeat"><i></i><div class="am-sign-pv" aria-hidden="true"><div class="am-sign-pvi">'+amPosterHTML(it,Object.assign(P,{md:''}),false)+'</div></div>'+amSignFx(it,P.th)+'</div>'+amSignBadge(it,1)}
   if(P.lay!=='ill'||P.bw==='1')return '';
   Object.assign(P,{md:'',pg:'0',info:'',ct:'',ft:'',acc:'',off:{},imgs:[],sz:'m',qrs:'0'});const T=AM_TH[P.th]||AM_TH.fete;
   const html=amPoIll(it,P,false,(k,cl)=>'class="'+cl+'"',P.col||T.c1,P.col2||T.c2)+'</div>';
   const sc=AM_SC[P.th],bg=P.bgi?'#111 url('+P.bgi+') center/cover no-repeat':(P.bgc||(sc?sc.sky:T.c1));
-  return '<div class="am-sign" data-act="ee-sign" data-id="'+esc(it.id)+'" role="button" aria-label="'+esc(it.tx)+'" style="background:'+bg+'"><div class="am-sign-in" aria-hidden="true">'+html+'</div>'+amSignFx()+'</div>'+amSignBadge(it,1)}catch(e){return ''}
+  return '<div class="am-sign" data-act="ee-sign" data-id="'+esc(it.id)+'" role="button" aria-label="'+esc(it.tx)+'" style="background:'+bg+'"><div class="am-sign-in" aria-hidden="true">'+html+'</div>'+amSignFx(it,P.th)+'</div>'+amSignBadge(it,1)}catch(e){return ''}
 }
 var AMSB={};
 function amSignCount(){$$('.am-sign-bd b[data-cnt]').forEach(el=>{const n=+el.dataset.cnt,k=el.dataset.k;if(AMSB[k]===n){el.textContent=n;return}const from=AMSB[k]!=null?AMSB[k]:0;AMSB[k]=n;
