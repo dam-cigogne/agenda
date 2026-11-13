@@ -721,6 +721,14 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 .po-tabs{position:sticky;top:0;z-index:3;background:var(--surface);padding:.35rem 0;margin:0 0 .2rem;flex-wrap:wrap}.po-tabs .chip{font-weight:800}.po-tip{font-size:.78rem;margin:0 0 .4rem}.po-bc{padding:.6rem .7rem;margin:.2rem 0 .6rem;border:2px solid var(--accent)}
 .ov{position:fixed;inset:0;background:rgba(8,12,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .ov.dlgov{z-index:80;align-items:center}
+/* 2.82.19 : sur iPhone/iPad, toucher une case de moins de 16 px fait zoomer Safari tout seul (l'écran « part dans tous les sens ») ; et la page derrière une fiche ne bouge plus */
+@supports(-webkit-touch-callout:none){input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:max(16px,1em)!important}}
+.sh{overscroll-behavior:contain}
+html:has(#dlg .ov),html:has(#sheet .ov){overflow:hidden}
+/* 2.82.19 : sur iPhone, les cases date (« Date d’adhésion », « Payée le »…) dépassaient à droite : la fiche glissait de côté */
+input.in[type=date],input.in[type=time],input.in[type=datetime-local],input.in[type=month]{display:block;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;text-align:left}
+input.in[type=date]::-webkit-date-and-time-value,input.in[type=time]::-webkit-date-and-time-value{text-align:left}
+.dlgbox,.sh{overflow-x:hidden}
 .sh{background:var(--surface);width:100%;max-width:40rem;max-height:92vh;max-height:92dvh;overflow:auto;border-radius:1.4rem 1.4rem 0 0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom,0px));box-shadow:var(--shadow);animation:up .2s ease-out}
 .sh.full{height:92vh;height:92dvh}
 .dlgbox{border-radius:1.3rem;max-width:26rem;margin:1rem;width:calc(100% - 2rem);padding:1.1rem}
@@ -2894,7 +2902,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.18';
+const APP_VERSION='2.82.19';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2902,6 +2910,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.19',d:'15/11/2026',items:['<b>iPhone / iPad : l’écran ne part plus dans tous les sens</b> quand on ouvre une fiche (amicaliste, événement…) et qu’on touche une case : les cases date ne dépassent plus à droite (la fiche ne glisse plus de côté), Safari ne zoome plus tout seul, et la page derrière la fiche reste en place.']},
  {v:'2.82.18',d:'15/11/2026',items:['<b>📲 Envoyer un lien à quelqu’un de la liste</b> : dans la fiche d’un amicaliste (ou d’un non-amicaliste connu) › Action › « Lui envoyer un lien », ou à plusieurs avec ☑ Sélectionner › « 📲 Envoyer un lien ». Au choix : l’inscription à un événement, le menu, ou l’adhésion. Le message est prêt avec son prénom, par 💬 SMS, 🟢 WhatsApp ou ✉️ mail.']},
  {v:'2.82.17',d:'15/11/2026',items:['<b>🎀 Le bandeau des inscrits devient un ruban</b> : penché, à cheval sur le bas de l’affiche, en relief avec ses bouts repliés, et il flotte doucement.']},
  {v:'2.82.16',d:'15/11/2026',items:['<b>✨ La pancarte s’anime</b> (accueil et fiche) : une étoile filante dorée qui file en arc, de la neige qui tombe, l’affiche qui bouge doucement, et le nombre d’inscrits qui monte jusqu’au bon chiffre. Le grand chiffre = les inscrits de chez nous ; en dessous, accompagnants et enfants, et le total de personnes. Désactivé si le téléphone est réglé sur « Réduire les animations ».']},
