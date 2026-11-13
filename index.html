@@ -2866,7 +2866,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.81.5';
+const APP_VERSION='2.82.0';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2874,6 +2874,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.0',d:'14/11/2026',items:['<b>📲 Adhésion par QR code</b> (onglet Amicalistes) : on scanne, on remplit son bulletin sur son téléphone (nom, grade, service, catégorie, adresse, téléphone, mail, régime). La demande arrive chez le bureau, chiffrée.','<b>✅ Valider</b> : l’appli reconnaît un ancien amicaliste (même avec une faute dans le nom) et met sa fiche à jour, ou crée la fiche.','<b>✍️ À faire signer</b> : quand la personne est devant toi, elle signe sur l’iPad (cotisation et règlement dans le bulletin), ou tu imprimes son <b>bulletin papier déjà rempli</b> puis « ✓ Signé sur papier ».','<b>🖨 Affichette du QR</b> à imprimer pour le bureau ou l’assemblée générale.','<b>💶 Fenêtres à remplir (tarifs…)</b> : sur iPad, le bouton « Enregistrer » pouvait ne plus répondre après la fermeture du clavier. C’est corrigé ; la touche « Retour » du clavier enregistre aussi. Toucher à côté de la fenêtre ne la ferme plus (pour ne rien perdre).','<b>💶 Encart des tarifs</b> : taille jusqu’à 300 %, et un exemple plus lisible tant que les prix ne sont pas mis.']},
  {v:'2.81.5',d:'13/11/2026',items:['<b>💶 Tarifs : accompagnant d’un amicaliste et enfant</b>. Avec une inscription par QR (adultes + enfants), le montant se calcule tout seul : l’amicaliste, ses accompagnants, ses enfants. Les tarifs (encart de l’affiche, page du QR menu) montrent les 4 prix.','<b>📲 QR plus petits</b> : la taille des QR descend jusqu’à 20 % et leur texte jusqu’à 20 % ; le cadre blanc rétrécit avec.','<b>🍽 Page du menu</b> : l’image du menu est allégée avant l’envoi (elle était parfois trop lourde et la page restait en texte). Un message confirme « Page du menu mise à jour avec ton image ».']},
  {v:'2.81.4',d:'13/11/2026',items:['<b>💶 Encart des tarifs</b> sur l’affiche ou le menu : les prix de la fiche de l’événement (amicaliste / non-amicaliste) dans un encart à placer où tu veux. Fond (sombre, blanc, couleur, sans), couleur et style du texte, bordure, taille et titre réglables.']},
  {v:'2.81.3',d:'13/11/2026',items:['<b>Page du QR menu</b> : elle montre maintenant <b>ton affiche du menu</b> (telle que dans l’appli, avec ton image), puis les tarifs. L’image se met à jour avec « ✅ Enregistrer et fermer ». Nécessite le worker à jour.']},
@@ -7777,8 +7778,10 @@ function ask(o){
   root.onclick=e=>{
    const b=e.target.closest('[data-v]');
    if(b){e.stopPropagation();done(btns[+b.dataset.v].value)}
-   else if(e.target.classList.contains('ov')){e.stopPropagation();done(null)}
+   else if(e.target.classList.contains('ov')&&!root.querySelector('.dlgbox input,.dlgbox textarea,.dlgbox select')){e.stopPropagation();done(null)}
   };
+  /* 2.82.0 : sur iPad/iPhone, après la fermeture du clavier, les boutons pouvaient ne plus répondre (écran décalé) : on recale la page */
+  root.onfocusout=()=>setTimeout(()=>{const ae=document.activeElement;if(ae&&root.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;try{window.scrollTo(window.scrollX,window.scrollY+1);window.scrollTo(window.scrollX,Math.max(0,window.scrollY-1))}catch(e){}},120);
  });
 }
 let SHEET_OPEN=false;
@@ -8998,6 +9001,16 @@ async function act(a,el,e){
   case 'qr-on':amQrOn(ds_.id);break;
   case 'qr-ref':{const c=AMQR[ds_.id];if(c)c.at=0;await amQrFetch(ds_.id,true);render();toast('À jour',1500);break}
   case 'qr-ok':amQrAcceptChk(ds_.id,[+ds_.n]);break;
+  case 'aq-on':await amAqOn();render();break;
+  case 'aq-ref':{if(AMQR.__aq)AMQR.__aq.at=0;await amAqFetch(true);render();toast('À jour',1500);break}
+  case 'aq-ok':amAqOk(+ds_.n);break;
+  case 'aq-no':amAqNo(+ds_.n);break;
+  case 'aq-sign':amBsOpen(ds_.id);break;
+  case 'aq-paper':amAqPaper(ds_.id);break;
+  case 'aq-done':{const r=await ask({title:'Retirer de « à faire signer » ?',text:'Sa fiche reste dans la liste des amicalistes. Seul le rappel de signature disparaît.',btns:[{label:'Retirer',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r)amAqMut(o=>{o.w=o.w.filter(x=>x!==ds_.id)});break}
+  case 'aq-print':amAqPrint();break;
+  case 'aq-copy':{const u=amAqUrl();try{await navigator.clipboard.writeText(u);toast('🔗 Lien copié : colle-le dans un message',3500)}catch(e){toast('Copie impossible',2500)}break}
+  case 'aq-test':{const u=amAqUrl();if(u)window.open(u,'_blank','noopener');break}
   case 'qr-hist':amQrHist(ds_.id);break;
   case 'qr-all':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amQrAcceptChk(ds_.id,amQrPend(it).map(x=>x.n));break}
   case 'qr-no':amQrRefuse(ds_.id,+ds_.n);break;
@@ -12336,7 +12349,9 @@ async function amForm(title,intro,fields,ok){
  const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
  const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  root.oninput=root.onchange=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
- const r=await pr;root.oninput=root.onchange=null;return r==='ok'?v:null;
+ const sync=()=>fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});root.addEventListener('click',sync,true);
+ root.onkeydown=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});const b=root.querySelector('.dlgbox .btn.pri');if(b)b.click()}};
+ const r=await pr;root.removeEventListener('click',sync,true);root.oninput=root.onchange=root.onkeydown=null;return r==='ok'?v:null;
 }
 let AM_QUIET=0;
 /* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
@@ -12529,7 +12544,8 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an','lg','dl','id'].includes(P.kind))continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','an','lg','dl','id','aq'].includes(P.kind))continue;
+     if(P.kind==='aq'&&!P.del){if(P.id!==AQ_ID||x.z!=='b'||String(P.bd||'').length>20000)continue;try{const q=JSON.parse(String(P.bd||'{}'));if(!q.qr||!/^[0-9a-f]{32}$/.test(q.qr.id||''))continue}catch(e){continue}}
      if(P.kind==='id'&&!P.del){if(String(P.bd||'').length>6000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='dl'&&!P.del){if(x.z!=='a'||String(P.bd||'').length>2500)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='lg'&&!/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{0,30000}$/.test(String(P.bd||''))&&!P.del)continue;
@@ -12539,7 +12555,7 @@ async function amPull(manual){
      if(P.kind==='po'){if(String(P.bd||'').length>400000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='bm'&&((P.id!==AM_BM_ID&&!/^bm[0-9]{4,12}$/.test(P.id))||String(P.bd||'').length>150000||!(await amVerify([String(P.bd||''),P.del?1:0],P.at,P.sg,a.apub))))continue;
      a.it=a.it||{};const o=a.it[P.id];if(o&&(o.at||0)>=(P.at||0))continue;
-     a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:P.kind==='lg'?30000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');
+     a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:P.kind==='lg'?30000:P.kind==='aq'?20000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');
      if(P.kind==='co'||P.kind==='cq'||P.kind==='ad'||P.kind==='cd')a.it[P.id].l=String(P.l||'').slice(0,P.kind==='cd'?60:30);
      if(P.kind==='ac'){const c=a.it[P.id];if(c.del||!c.bd)await PH.del('adc-'+P.id);else await PH.put('adc-'+P.id,c.bd);c.bd=''}
      if(P.kind==='ee'){const o2=a.it[P.id],S2=v=>String(v||''),arr=v=>Array.isArray(v)?v:[];o2.rp=amRpClean(P.rp);o2.pr=amPrClean(P.pr);o2.qr=(P.qr&&/^[0-9a-f]{32}$/.test(P.qr.id||'')&&typeof P.qr.x==='string'&&typeof P.qr.y==='string'&&typeof P.qr.d==='string')?{id:P.qr.id,x:P.qr.x.slice(0,60),y:P.qr.y.slice(0,60),d:P.qr.d.slice(0,60)}:null;o2.qd=arr(P.qd).map(v=>+v).filter(v=>v>0&&isFinite(v)).slice(-800);o2.qh=arr(P.qh).map(v=>+v).filter(v=>v>0&&isFinite(v)).slice(-800);o2.qm=(P.qm&&/^[0-9a-f]{32}$/.test(P.qm.id||'')&&typeof P.qm.k==='string')?{id:P.qm.id,k:P.qm.k.slice(0,80)}:null;o2.ck=arr(P.ck).slice(0,60).map(c=>({t:S2(c&&c.t).slice(0,100),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0)}));o2.pg=arr(P.pg).slice(0,40).map(c=>({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100)}));o2.sv=['p','r'].includes(P.sv)?P.sv:'';o2.ty=arr(P.ty).slice(0,8).map(c=>({k:S2(c&&c.k).replace(/[^a-z0-9]/g,'').slice(0,4),l:S2(c&&c.l).slice(0,20),e:S2(c&&c.e).slice(0,4)})).filter(c=>c.k);o2.pt=arr(P.pt).slice(0,250).map(c=>({rg:S2(c&&c.rg).slice(0,40),by:S2(c&&c.by).slice(0,30),bt:Math.max(0,+(c&&c.bt)||0),sd:c&&c.sd?1:0,gv:(()=>{const r={},q=c&&c.gv&&typeof c.gv==='object'?c.gv:{};Object.keys(q).slice(0,10).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k)&&+q[k]>0)r[k]=Math.min(99,Math.round(+q[k]))});return r})(),xt:(()=>{const r={},q=c&&c.xt&&typeof c.xt==='object'?c.xt:{};Object.keys(q).slice(0,8).forEach(k=>{if(/^[a-z0-9]{1,4}$/.test(k))r[k]=Math.max(0,Math.min(99,+q[k]||0))});return r})(),n:S2(c&&c.n).slice(0,60),m:S2(c&&c.m).slice(0,16),na:Math.max(0,Math.min(99,+(c&&c.na)||0)),ne:Math.max(0,Math.min(99,+(c&&c.ne)||0)),tl:S2(c&&c.tl).slice(0,30),ml:S2(c&&c.ml).slice(0,80),qn:S2(c&&c.qn).slice(0,80),a:c&&c.a?1:0,p:c&&c.p?1:0,tr:Math.max(0,Math.min(99,+(c&&c.tr)||0)),tb:Math.max(0,Math.min(99,+(c&&c.tb)||0)),pa:Math.max(0,Math.min(9999,+(c&&c.pa)||0)),pm:S2(c&&c.pm).slice(0,3),du:c&&c.du!=null&&c.du!==''&&isFinite(+c.du)?Math.max(0,Math.min(9999,+c.du)):null,eb:S2(c&&c.eb).slice(0,30),et:Math.max(0,+(c&&c.et)||0)}))}
@@ -13228,7 +13244,7 @@ function amPxUI(){
  h+='<span class="mut" style="font-size:.8rem">Couleur du texte</span>'+ch('pxc',[['#ffffff','Blanc','#ffffff','#111'],['#111111','Noir','#111111'],['#f6c453','Doré','#f6c453','#111'],['#c21d1d','Rouge','#c21d1d'],['#16a34a','Vert','#16a34a'],['#1d4ed8','Bleu','#1d4ed8']]);
  h+='<span class="mut" style="font-size:.8rem">Style du texte</span>'+ch('pxf',[['cl','Classique'],['or','✨ Doré'],['sc','✍️ Manuscrit'],['mo','Moderne'],['ch','🖍 Craie']]);
  h+='<span class="mut" style="font-size:.8rem">Bordure</span>'+ch('pxr',[['n','Aucune'],['f','Fine'],['o','Dorée']]);
- h+='<label class="fld"><span>Taille de l’encart : <b id="po-pxzv">'+(PO.pxz||100)+' %</b></span><input type="range" id="po-pxz" min="60" max="200" step="5" value="'+(PO.pxz||100)+'" style="width:100%"></label>'+amPoFld('pxt','Titre de l’encart',PO.pxt||'','💶 Tarifs')+'<p class="mut" style="font-size:.78rem;margin:0 0 .5rem">Glisse l’encart directement sur l’affiche pour le placer. Les prix suivent ceux de la fiche de l’événement.</p>';
+ h+='<label class="fld"><span>Taille de l’encart : <b id="po-pxzv">'+(PO.pxz||100)+' %</b></span><input type="range" id="po-pxz" min="50" max="300" step="5" value="'+(PO.pxz||100)+'" style="width:100%"></label>'+amPoFld('pxt','Titre de l’encart',PO.pxt||'','💶 Tarifs')+'<p class="mut" style="font-size:.78rem;margin:0 0 .5rem">Glisse l’encart directement sur l’affiche pour le placer. Les prix suivent ceux de la fiche de l’événement.</p>';
  return h;
 }
 function amPoImgUI(){
@@ -13280,8 +13296,8 @@ const amPoQr=(it,P,bp,cl)=>(it&&it.qr&&P.qrs!=='0'&&P.md!=='menu')?amPoQrBox(bp,
 function amPxRows(it){const pr=amPrClean(it&&it.pr),p=[];if(pr){if(pr.f.a||pr.f.n||pr.f.c||pr.f.e)p.push(['🎟 Entrée',pr.f.a,pr.f.n,pr.f.c,pr.f.e]);amTy(it).forEach(t=>{const z=pr.t[t.k];if(z&&(z.a||z.n))p.push([(t.e?t.e+' ':'')+t.l,z.a,z.n])})}return p}
 function amPoPx(it,P,bp){
  if((P.md==='menu'?P.pxsm:P.pxs)!=='1')return '';const R=amPxRows(it),e=n=>n?amEur(n):'—';
- const col=P.pxc||'#ffffff',bg=P.pxb||'d',f=P.pxf||'cl',bd=P.pxr||'n',z=Math.max(60,Math.min(200,+P.pxz||100))/100;
- const hc=R.some(x=>x[3]!=null),he=R.some(x=>x[4]!=null),body=R.length?'<table><tr><th></th><th>Amicaliste</th>'+(hc?'<th>Accomp.</th>':'')+'<th>Non-amic.</th>'+(he?'<th>Enfant</th>':'')+'</tr>'+R.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+e(x[1])+'</td>'+(hc?'<td>'+(x[3]!=null?(x[3]?e(x[3]):'Gratuit'):'')+'</td>':'')+'<td>'+e(x[2])+'</td>'+(he?'<td>'+(x[4]!=null?(x[4]?e(x[4]):'Gratuit'):'')+'</td>':'')+'</tr>').join('')+'</table>':'<div style="font-size:20px;opacity:.85">💶 Mets les tarifs dans la fiche de l’événement</div>';
+ const col=P.pxc||'#ffffff',bg=P.pxb||'d',f=P.pxf||'cl',bd=P.pxr||'n',z=Math.max(50,Math.min(300,+P.pxz||100))/100;
+ const hc=R.some(x=>x[3]!=null),he=R.some(x=>x[4]!=null),body=R.length?'<table><tr><th></th><th>Amicaliste</th>'+(hc?'<th>Accomp.</th>':'')+'<th>Non-amic.</th>'+(he?'<th>Enfant</th>':'')+'</tr>'+R.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+e(x[1])+'</td>'+(hc?'<td>'+(x[3]!=null?(x[3]?e(x[3]):'Gratuit'):'')+'</td>':'')+'<td>'+e(x[2])+'</td>'+(he?'<td>'+(x[4]!=null?(x[4]?e(x[4]):'Gratuit'):'')+'</td>':'')+'</tr>').join('')+'</table>':'<div style="font-size:.85em;opacity:.9;margin-top:.2em">Amicaliste … € · Non-amicaliste … €<br><small>(mets les prix dans la fiche de l’événement)</small></div>';
  return '<div '+bp('px','pst-px pxb-'+bg+' pxf-'+f+' pxr-'+bd)+' style="--pxc:'+col+';font-size:'+Math.round(24*z)+'px"><div class="px-t">'+esc((P.pxt!=null&&P.pxt!==''?P.pxt:'💶 Tarifs'))+'</div>'+body+'</div>';
 }
 function amPoQrBox(bp,key,cl,url,zz,tt,tx0,tsz){const z=Math.max(20,Math.min(170,+zz||100))/100,t=tt||'bd',tx=String(tx0||'').trim(),tk=Math.max(20,Math.min(200,+tsz||100))/100,zf=Math.max(.35,Math.min(1.4,z));
@@ -13473,6 +13489,74 @@ function amQrHTML(it,rw){
  }else h+='<p class="mut" style="font-size:.85rem;margin:.2rem 0 .4rem">Aucune nouvelle inscription pour l’instant.</p>';
  return h;
 }
+/* 2.82.0 : adhésion par QR code. On scanne, on remplit le bulletin chez soi ; le bureau valide, encaisse et fait signer (iPad ou papier pré-rempli). */
+const AQ_ID='aqadh';
+function amAq(){const a=amc(),it=a&&a.it&&a.it[AQ_ID];if(!it||it.del||it.kind!=='aq')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],w:Array.isArray(o.w)?o.w:[]}}
+function amAqMut(f){const A=amAq();if(!A)return;const o={qr:A.qr,qd:A.qd.slice(),w:A.w.slice()};f(o);o.qd=o.qd.slice(-700);o.w=o.w.filter((x,i,l)=>l.indexOf(x)===i).slice(-300);amItemSave(Object.assign({},A.it,{bd:JSON.stringify(o)}))}
+const amAqBase=()=>'https://dam-cigogne.github.io/amicale/adhesion.html';
+function amAqUrl(){const A=amAq(),a=amc()||{};if(!A)return '';const q=A.qr,inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),sa:String(amSaCur()||'').slice(0,12)})));return amAqBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
+async function amAqOn(){
+ const a=amc();if(!a||!a.kB)return;if(demo){toast('Non disponible en mode démo',2500);return}if(amAq())return;
+ try{const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']),j=await crypto.subtle.exportKey('jwk',kp.privateKey),qid=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  amItemSave({id:AQ_ID,kind:'aq',x:0,z:'b',tx:'Adhésion par QR',d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify({qr:{id:qid,x:j.x,y:j.y,d:j.d},qd:[],w:[]}),del:0});
+  try{const FK=await famKeys({k:a.kB});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space})})}catch(e){}
+  toast('✅ QR code d’adhésion créé',3000)}catch(e){toast('Impossible : '+(e&&e.message||'erreur'),5000)}
+}
+async function amAqFetch(force){
+ const A=amAq();if(!A||demo)return;const c=AMQR.__aq&&AMQR.__aq.id===A.qr.id?AMQR.__aq:(AMQR.__aq={id:A.qr.id,L:[],last:0,at:0,busy:0});
+ if(c.busy||(!force&&Date.now()-c.at<25000))return;c.busy=1;
+ try{const r=await fetch(famUrl()+'/in/'+A.qr.id+'?a='+c.last);if(!r.ok)throw 0;const j=await r.json();let add=0;
+  for(const x of (j.list||[])){c.last=Math.max(c.last,x.n);try{const o=JSON.parse(x.d),key=await amDerive({kty:'EC',crv:'P-256',x:A.qr.x,y:A.qr.y,d:A.qr.d},o.e,'agd-qr:'+A.qr.id),pl=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64u(o.iv)},key,unb64u(o.c)),v=JSON.parse(new TextDecoder().decode(pl));c.L.push({n:x.n,at:x.at,v});add++}catch(e){}}
+  c.at=Date.now();if(add&&AMC_TAB==='am')render()}catch(e){c.at=Date.now()}finally{c.busy=0}
+}
+const amAqPend=()=>{const A=amAq();if(!A)return [];const c=AMQR.__aq;return ((c&&c.id===A.qr.id&&c.L)||[]).filter(x=>!A.qd.includes(x.n))};
+const amAqSigned=m=>{const o=(m&&m.o)||{},sac=amSaCur(),sg=amSg()[m.id];return !!(sg&&((sg.f&&sg.f.sa)||amSaOf(sg.at))===sac)||(o.bp==='1'&&amBsSa(o)===sac)};
+const amAqToSign=()=>{const A=amAq(),a=amc();if(!A)return [];return A.w.map(id=>a.it[id]).filter(m=>m&&!m.del&&m.kind==='am'&&!amAqSigned(m))};
+function amAqLine(v){const ct=(AM_CT.find(x=>x[0]===v.ct)||[])[1]||'';return [v.gr?'🎖 '+esc(v.gr):'',ct&&v.ct!=='actif'?esc(ct):'',v.sv?'🏢 '+esc(v.sv):'',v.tl?'📞 '+esc(v.tl):'',v.ml?'✉️ '+esc(v.ml):'',v.ad?'🏠 '+esc(v.ad):'',v.rg?'🥗 '+esc(v.rg):'',v.an==='o'?'déjà amicaliste l’an dernier':v.an==='n'?'nouvelle adhésion':'',v.mo?'💬 '+esc(v.mo):''].filter(Boolean).join(' · ')}
+function amAqHTML(){
+ const a=amc();if(!a||!a.kB)return '';const A=amAq();
+ let h='<div class="card aq-card"><h3 style="margin:0 0 .3rem">📲 Adhésion par QR code</h3>';
+ if(!A)return h+'<p class="mut" style="margin:.1rem 0 .5rem;font-size:.9rem">Un QR code à afficher : on le scanne, on remplit son bulletin chez soi (nom, grade, service, adresse, téléphone…). La demande arrive ici. Quand la personne est devant toi, tu valides, tu encaisses et elle signe sur l’iPad, ou sur un bulletin papier déjà rempli. Les infos sont chiffrées : seul le bureau peut les lire.</p><button class="btn blk" data-act="aq-on">📲 Créer le QR code d’adhésion</button></div>';
+ setTimeout(()=>amAqFetch(),50);
+ const u=amAqUrl(),P=amAqPend(),T=amAqToSign();
+ h+='<div class="qr-card" style="display:flex;gap:.7rem;align-items:center"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code d’adhésion"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.9rem">Saison <b>'+esc(amSaCur())+'</b></p><div class="chips"><button class="chip" data-act="aq-print">🖨 Affichette du QR</button><button class="chip" data-act="aq-copy">🔗 Copier le lien</button><button class="chip" data-act="aq-test">👀 Voir le formulaire</button><button class="chip" data-act="aq-ref">🔄 Vérifier</button></div></div></div>';
+ if(P.length)h+='<div class="qr-pend" style="margin-top:.5rem"><b>📥 '+P.length+' demande'+(P.length>1?'s':'')+' d’adhésion à valider</b>'+P.map(x=>{const v=x.v||{},nm=amQrName(v),C=amQrCheck(v);return '<div class="am-it"><span class="am-itx"><b>'+esc(nm||'(sans nom)')+'</b><small>'+amAqLine(v)+(C.m?' · <b style="color:#b45309">🔎 '+(C.cand?'nom proche de « '+esc(C.cand.tx)+' »':amIsAm(C.m)?'déjà dans ta liste':'connu comme non-amicaliste')+'</b>':'')+' · le '+esc(new Date(x.at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}))+'</small></span><button class="chip on" data-act="aq-ok" data-n="'+x.n+'">✅ Valider</button><button class="chip" data-act="aq-no" data-n="'+x.n+'" aria-label="Écarter">✕</button></div>'}).join('')+'</div>';
+ else h+='<p class="mut" style="font-size:.85rem;margin:.4rem 0 0">Aucune nouvelle demande pour l’instant.</p>';
+ if(T.length)h+='<div style="margin-top:.6rem"><b>✍️ '+T.length+' à faire signer</b><p class="mut" style="font-size:.8rem;margin:.1rem 0 .2rem">Validés, bulletin '+esc(amSaCur())+' pas encore signé. Quand la personne est devant toi :</p>'+T.map(m=>{const o=m.o||{};return '<div class="am-it"><span class="am-itx"><b>'+esc(m.tx)+'</b><small>'+(o.cf==='1'?'💶 cotisation payée':'💶 cotisation à régler')+(o.gr?' · '+esc(o.gr):'')+'</small></span><button class="chip on" data-act="aq-sign" data-id="'+esc(m.id)+'">✍️ Signer</button><button class="chip" data-act="aq-paper" data-id="'+esc(m.id)+'">🖨 Papier</button><button class="chip" data-act="aq-done" data-id="'+esc(m.id)+'" aria-label="Retirer de la liste">✕</button></div>'}).join('')+'</div>';
+ return h+'</div>';
+}
+async function amAqOk(n){
+ const x=amAqPend().find(y=>y.n===n);if(!x)return;const v=x.v||{},C=amQrCheck(v),nm=C.nm;if(!nm){amAqMut(o=>o.qd.push(n));return}
+ const R=(k,val,lab,on)=>'<label style="display:flex;gap:.5rem;align-items:flex-start;margin:.25rem 0"><input type="radio" name="'+k+'" data-qk="'+k+'" value="'+val+'"'+(on?' checked':'')+' style="margin-top:.25rem"><span>'+lab+'</span></label>';
+ AMQR_CK={sp:'y'};
+ let h='<p style="margin:.1rem 0 .3rem"><b>'+esc(nm)+'</b></p><p class="mut" style="margin:0 0 .5rem;font-size:.88rem">'+amAqLine(v)+'</p>';
+ if(C.cand)h+='<div class="card" style="padding:.6rem .7rem;margin:.4rem 0"><b>✏️ Nom proche dans ta liste</b>'+R('sp','y','C’est bien <b>'+esc(C.cand.tx)+'</b> : je mets sa fiche à jour (je garde l’orthographe de ma liste)',1)+R('sp','n','Non, c’est une autre personne : nouvelle fiche',0)+'</div>';
+ else if(C.m)h+='<div class="card" style="padding:.6rem .7rem;margin:.4rem 0">'+(amIsAm(C.m)?'🎖 <b>Déjà dans ta liste des amicalistes</b> : sa fiche est mise à jour avec ces infos.':'👤 <b>Connu comme non-amicaliste</b> : il devient amicaliste, sa fiche est mise à jour.')+'</div>';
+ else h+='<div class="card" style="padding:.6rem .7rem;margin:.4rem 0">🆕 <b>Nouvel amicaliste</b> : une fiche est créée.</div>';
+ h+='<p class="mut" style="font-size:.82rem;margin:.3rem 0 0">Ensuite : encaisse la cotisation et fais signer le bulletin (sur l’iPad, ou sur papier déjà rempli).</p>';
+ const b=await ask({title:'📲 Valider l’adhésion',html:h,btns:[{label:'✅ Valider et faire signer maintenant',value:'sign',cls:'pri'},{label:'✅ Valider (signature plus tard)',value:'ok'},{label:'Plus tard',value:null}]});
+ if(!b)return;
+ const a=amc(),m=(C.cand&&AMQR_CK.sp!=='y')?C.ex:C.m,nb=t=>String(t==null?'':t).trim(),gr=amGrFind(v.gr)||'',ct=AM_CT.some(c=>c[0]===v.ct)?v.ct:'actif',inf={gr,ct,sv:nb(v.sv).slice(0,60),ad:nb(v.ad).slice(0,120),tl:nb(v.tl).slice(0,30),ml:nb(v.ml).slice(0,60),rg:nb(v.rg).slice(0,60)};
+ let id;
+ if(m){const o=Object.assign({},m.o||{});Object.keys(inf).forEach(k=>{if(inf[k])o[k]=inf[k]});o.st='';const mo=nb(v.mo);amItemSave(Object.assign({},m,{o,bd:mo&&!String(m.bd||'').includes(mo)?(String(m.bd||'')+(m.bd?'\n':'')+'📲 '+mo).slice(0,1000):(m.bd||'')}));id=m.id}
+ else{id=amId();amItemSave({id,kind:'am',x:0,z:'b',tx:nm.slice(0,60),d:'',w:'',qt:'',tm:'',pl:'',bd:nb(v.mo)?('📲 '+nb(v.mo)).slice(0,1000):'',o:Object.assign({cb:a.me.n,cf:'0',pm:'',pa:'',pc:'0',bg:'',k8:'',pd:'',pb:'',st:''},inf)})}
+ amAqMut(o=>{o.qd.push(n);o.w.push(id)});
+ toast(m?'📇 Fiche de '+m.tx+' mise à jour':'🎖 '+nm+' ajouté aux amicalistes',3500);
+ if(b==='sign')setTimeout(()=>amBsOpen(id),200);
+}
+function amAqNo(n){amAqMut(o=>{if(!o.qd.includes(n))o.qd.push(n)});toast('Demande écartée',2500)}
+function amAqPaperHtml(id){
+ const a=amc(),m=a&&a.it&&a.it[id];if(!m)return null;const o=m.o||{},ps=amNomSplit(m.tx);
+ const f={gr:o.gr||'',ct:o.ct||'actif',ad:o.ad||'',tl:o.tl||'',ml:o.ml||'',rg:o.rg||'',sv:o.sv||'',pa:String(o.pa||amBmPrice(o.gr,o.ct)||''),pmx:o.cf==='1'?(o.pm||''):'',sa:amSaCur(),pn:ps[0],nm:String(ps[1]||'').toUpperCase()};
+ return amBsHtml(id,{at:today(),sig:'',f,by:''},m.tx);
+}
+async function amAqPaper(id){const a=amc(),m=a&&a.it&&a.it[id],h=amAqPaperHtml(id);if(!m||!h)return;
+ const pr=ask({title:'🖨 Bulletin papier de '+m.tx,html:'<p class="mut" style="margin:.1rem 0 .5rem;font-size:.85rem">Déjà rempli avec ses infos. Imprime-le, elle signe au stylo. Ensuite touche « ✓ Signé sur papier » pour le noter dans sa fiche.</p>'+amBsPaper(h),btns:[{label:'🖨 Imprimer',value:'print',cls:'pri'},{label:'✓ Signé sur papier',value:'done'},{label:'Fermer',value:null}]});
+ amBsFit();const r=await pr;if(r==='print')amPdf(h,'bulletin-'+amSlug(m.tx)+'.pdf');else if(r==='done')amAqPaperDone(id)}
+function amAqPaperDone(id){const a=amc(),m=a&&a.it&&a.it[id];if(!m)return;amItemSave(Object.assign({},m,{o:Object.assign({},m.o||{},{bp:'1',bs:today(),bsa:amSaCur()})}));toast('✓ Bulletin papier noté dans la fiche de '+m.tx,3000)}
+function amAqPrint(){const a=amc()||{},u=amAqUrl();if(!u)return;
+ const h='<div style="text-align:center;font-family:Georgia,serif;padding:40px 30px"><div style="font:700 15px Arial,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#7c3aed">'+esc(a.nm||'Amicale')+'</div><h1 style="font-size:44px;margin:14px 0 6px">Adhésion '+esc(amSaCur())+'</h1><p style="font-size:20px;margin:0 0 26px">Scanne, remplis ton bulletin sur ton téléphone,<br>puis passe voir le bureau pour régler et signer.</p><img src="'+amQrImg(u)+'" style="width:380px;height:380px" alt=""><p style="font-size:15px;color:#555;margin-top:22px">Tout est déjà rempli quand tu arrives : il ne reste qu’à signer.</p></div>';
+ amPdf(h,'qr-adhesion.pdf')}
 /* 2.79.2 : la pancarte de l'affiche (titre, date, lieu sur son décor) affichée sur l'accueil et sur la fiche de l'événement */
 function amPoSign(it){
  try{const sv=amPoGet(it.id),P=amPoDef(it,sv);
@@ -14543,7 +14627,7 @@ function amAmRows(){
 function amAmHTML(){
  const L=amAms(),n=L.length,NN=amNons().length,cot=L.filter(m=>(m.o||{}).cf==='1'),tot=cot.reduce((s,m)=>s+(+(m.o||{}).pa||0),0);
  const by=AM_CT.map(c=>[c[1],L.filter(m=>(m.o||{}).ct===c[0]).length]).filter(x=>x[1]);
- let h='<div class="card"><h3>🎖 Amicalistes · '+n+'</h3><p class="mut" style="margin:.2rem 0;font-size:.9rem">💶 Cotisation payée : <b>'+cot.length+'/'+n+'</b>'+(tot?' · encaissé '+esc(amEur(tot)):'')+'<br>🧵 Patch reçu : <b>'+L.filter(m=>(m.o||{}).pc==='1').length+'</b> · 🍽 Régimes particuliers : <b>'+L.filter(m=>(m.o||{}).rg).length+'</b> · 🎁 Coffret 8 ans : <b>'+L.filter(m=>(m.o||{}).k8==='1').length+'</b>'+(by.length?'<br>'+by.map(x=>esc(x[0])+' '+x[1]).join(' · '):'')+(NN?'<br>👤 Non-amicalistes connus (infos gardées) : <b>'+NN+'</b>':'')+'</p><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">🔒 Liste visible par le bureau seulement.</p></div>'+amAnBanner(1);
+ let h='<div class="card"><h3>🎖 Amicalistes · '+n+'</h3><p class="mut" style="margin:.2rem 0;font-size:.9rem">💶 Cotisation payée : <b>'+cot.length+'/'+n+'</b>'+(tot?' · encaissé '+esc(amEur(tot)):'')+'<br>🧵 Patch reçu : <b>'+L.filter(m=>(m.o||{}).pc==='1').length+'</b> · 🍽 Régimes particuliers : <b>'+L.filter(m=>(m.o||{}).rg).length+'</b> · 🎁 Coffret 8 ans : <b>'+L.filter(m=>(m.o||{}).k8==='1').length+'</b>'+(by.length?'<br>'+by.map(x=>esc(x[0])+' '+x[1]).join(' · '):'')+(NN?'<br>👤 Non-amicalistes connus (infos gardées) : <b>'+NN+'</b>':'')+'</p><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">🔒 Liste visible par le bureau seulement.</p></div>'+amAnBanner(1)+amAqHTML();
  h+='<button class="btn pri blk" data-act="am-amadd">'+ic('plus')+(AM_ST==='n'?' Ajouter un non-amicaliste (nouvel arrivant…)':' Ajouter un amicaliste')+'</button><div class="btns" style="margin-top:.4rem"><button class="btn grow hlp-w" data-act="am-amimp">📥 Importer une liste<span class="hlp-q" data-act="am-help" data-v="imp" role="button" aria-label="Aide : à quoi ça sert ?">?</span></button><button class="btn grow" data-act="am-amexp">📤 Exporter (Excel)</button></div><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-badges">🪪 Numéros de badge</button><button class="btn grow" data-act="am-dbl">🧹 Retirer les doublons</button></div><button class="btn blk hlp-w" data-act="am-fill" style="margin-top:.4rem">📋 Compléter une liste Excel (nom, prénom → grade, badge…)<span class="hlp-q" data-act="am-help" data-v="fill" role="button" aria-label="Aide : à quoi ça sert ?">?</span></button>';
  amBsOrphanClean();const nbs=amBsLive().length;
  if(amc().apriv&&nbs)h+='<button class="btn blk" data-act="bs-arch" style="margin-top:.4rem">🗄 Archiver les bulletins signés ('+nbs+')</button>';
@@ -15659,7 +15743,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqUrl,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
