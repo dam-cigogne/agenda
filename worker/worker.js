@@ -288,14 +288,17 @@ export default {
       }
       if (req.method === 'PUT') {
         const body = await req.text();
-        if (body.length > 16000) return json(req, { error: 'trop gros' }, 413);
+        if (body.length > 700000) return json(req, { error: 'trop gros' }, 413);
         let o; try { o = JSON.parse(body) } catch (e) { return json(req, { error: 'illisible' }, 400) }
         if (!o || typeof o.k !== 'string' || o.k.length < 20 || o.k.length > 80 || !o.d || typeof o.d !== 'object') return json(req, { error: 'format' }, 400);
         const h = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('agd-pub:' + o.k)))).map(b => b.toString(16).padStart(2, '0')).join('');
-        const row = await env.DB.prepare('SELECT k FROM pubm WHERE id = ?').bind(id).first();
+        const row = await env.DB.prepare('SELECT k, data FROM pubm WHERE id = ?').bind(id).first();
         if (row && row.k !== h) return json(req, { error: 'refusé' }, 403);
+        // l'image du menu n'est envoyée que de temps en temps : on garde la précédente si elle n'est pas renvoyée
+        if (row && !('img' in o.d)) { try { const pv = JSON.parse(row.data); if (pv && typeof pv.img === 'string') o.d.img = pv.img } catch (e) {} }
+        if (typeof o.d.img === 'string' && (o.d.img.length > 650000 || !/^data:image\/(jpeg|png);base64,/.test(o.d.img))) delete o.d.img;
         const at = Date.now();
-        await env.DB.prepare('INSERT OR REPLACE INTO pubm (id, k, data, at) VALUES (?, ?, ?, ?)').bind(id, h, JSON.stringify(o.d).slice(0, 15000), at).run();
+        await env.DB.prepare('INSERT OR REPLACE INTO pubm (id, k, data, at) VALUES (?, ?, ?, ?)').bind(id, h, JSON.stringify(o.d), at).run();
         return json(req, { ok: true, at });
       }
       return json(req, { error: 'methode' }, 405);
