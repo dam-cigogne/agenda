@@ -354,7 +354,8 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .scn-mn{font-family:Georgia,"Times New Roman",serif;color:var(--tc);text-shadow:0 2px 4px rgba(0,0,0,.45)}
 .scn-mh{font-weight:800;margin-top:.6em}.scn-mh:first-child{margin-top:.2em}.scn-mi{opacity:.96;line-height:1.3}
 .pt-parch .scn-mn,.pt-gold .scn-mn{text-shadow:none}
-.am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.am-sign-in{position:absolute;left:0;top:0;width:794px;height:1123px;transform-origin:0 0;pointer-events:none}.am-sign .scn-bt,.am-sign .scn-sky,.am-sign .scn-dim,.am-sign .scn-gr{display:none}.am-sign .pst{background:transparent!important}
+.am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.am-sign-img{height:300px}.am-sign-img i{position:absolute;inset:0;background:rgba(0,0,0,.55)}.am-sign-img img{position:relative;display:block;height:100%;width:auto;max-width:100%;margin:0 auto;object-fit:contain}
+.am-sign-in{position:absolute;left:0;top:0;width:794px;height:1123px;transform-origin:0 0;pointer-events:none}.am-sign .scn-bt,.am-sign .scn-sky,.am-sign .scn-dim,.am-sign .scn-gr{display:none}.am-sign .pst{background:transparent!important}
 .scn-pnb{position:absolute;left:0;top:0;right:0;bottom:0;border-radius:30px;z-index:-1;box-sizing:border-box}.scn-pn.pt-none .scn-tt h1,.scn-pn.pt-none .scn-pl,.scn-pn.pt-none .scn-acc,.scn-pn.pt-none .scn-mn{text-shadow:0 0 14px rgba(0,0,0,.9),0 2px 4px rgba(0,0,0,.9)}
 .am-shot .scn-pnb{box-shadow:none}.am-shot .scn-pnb.pn-gold{box-shadow:0 0 0 7px #fde68a}
 .am-shot .scn-rib{box-shadow:none}
@@ -1597,7 +1598,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.79.2';
+const APP_VERSION='2.79.4';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -1605,6 +1606,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.79.4',d:'13/11/2026',items:['<b>« Mon image seule »</b> : ton affiche s’affiche maintenant sur l’accueil et en haut de la fiche de l’événement. Le bouton dit clairement comment revenir au décor de l’appli, et « Changer l’image de fond » confirme le changement (on peut aussi re-choisir la même image).']},
+ {v:'2.79.3',d:'13/11/2026',items:['<b>📷 Lecture d’une photo de menu bien meilleure</b> : le décor (bois, neige, guirlandes) est ignoré, les rubriques Apéro, Plat, Dessert, Enfants… sont reconnues toutes seules.']},
  {v:'2.79.2',d:'13/11/2026',items:['<b>🌫 Fondu des bords</b> pour les images et logos ajoutés sur l’affiche (bords droits ou en ovale) : la photo se fond dans le décor.','<b>Panneau du titre transparent</b> : avec une image de fond, règle le panneau de 0 à 100 % pour voir ton image dessous (0 = juste les textes).','<b>🖼 Mon image seule</b> : une affiche déjà prête (faite avec ChatGPT, Canva…) devient l’affiche de l’événement, telle quelle, à imprimer ou partager.','<b>🪧 La pancarte de l’affiche</b> (titre, date, lieu sur son décor) s’affiche sur l’accueil et en haut de la fiche de l’événement (styles illustrés). Touche-la pour ouvrir l’événement, puis l’affiche.','<b>Bouton « 🖼 Affiche et 📜 menu »</b> directement sur la fiche de l’événement. Décor « Aucun » enlève aussi guirlandes et neige.']},
  {v:'2.79.1',d:'13/11/2026',items:['<b>🤖 Préparer la demande pour ChatGPT</b> : dans l’affiche (Image de fond), l’appli écrit pour toi le texte à donner à ChatGPT ou Gemini, d’après l’événement (titre, date, lieu, style, menu). Deux versions : image de fond sans texte (conseillé) ou affiche complète. Bouton pour copier et ouvrir ChatGPT ou Gemini.']},
  {v:'2.79.0',d:'13/11/2026',items:['<b>🎄 Affiches illustrées</b> : 6 nouveaux styles avec un vrai décor (Noël féerique, Galette des rois, Loto festif, Barbecue / été, Halloween, Soirée dansante) : ciel, guirlandes, panneau en bois, titre lumineux, ruban pour la date, 📍 pour le lieu.','<b>📜 Affiche « Menu »</b> : dans l’affiche d’un événement, le bouton 📜 Menu crée une 2e affiche avec le même décor (Apéro, Plat, Dessert, Enfants…). « 📷 Lire une photo du menu » recopie le texte d’une photo (à vérifier ensuite).','<b>🌄 Image de fond</b> : une photo ou une image créée par ChatGPT ou Gemini en plein fond ; l’appli écrit le titre, la date et le lieu par-dessus.','<b>📲 Partager en image</b> : l’affiche ou le menu part en image (WhatsApp, Messages, mail…).']},
@@ -11939,7 +11942,7 @@ function amPoOpen(){
  if(menu)h+='<b class="rc-h" style="display:block">Le menu</b><p class="mut" style="font-size:.8rem;margin:.1rem 0 .3rem">Une rubrique par ligne finie par « : » (Apéro :, Plat :, Dessert :, Enfants :), puis les plats en dessous. Même décor que l’affiche.</p><div class="chips" style="margin:.1rem 0 .3rem"><label class="chip" style="position:relative;overflow:hidden">📷 Lire une photo du menu<input type="file" accept="image/*" id="po-ocr" style="position:absolute;inset:0;opacity:0"></label></div><p class="mut" style="font-size:.78rem;margin:0 0 .4rem">Sur iPhone, encore plus fiable : ouvre la photo, appuie longuement sur le texte, « Tout sélectionner », « Copier », puis colle ici.</p>'+amPoFld('mt','Titre du menu',PO.mt,'Menu'+(/noel/.test(PO.th)?' de Noël':''))+'<label class="fld"><span>Menu</span><textarea class="in" rows="11" data-po="mn" placeholder="Apéro / entrées :&#10;- toasts&#10;Plat :&#10;- …&#10;Dessert :&#10;- …">'+esc(PO.mn||'')+'</textarea></label>';
  const ills=Object.keys(AM_TH).filter(k=>AM_SC[k]),simp=Object.keys(AM_TH).filter(k=>!AM_SC[k]);
  h+='<b class="rc-h" style="display:block">Style ✨ illustré</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem">'+ills.map(k=>'<button class="chip'+(PO.th===k?' on':'')+'" data-act="po" data-k="th" data-v="'+k+'">'+AM_TH[k].n+'</button>').join('')+'</div><span class="mut" style="font-size:.8rem">Styles simples</span><div class="chips tk-chips" style="margin:.2rem 0 .5rem">'+simp.map(k=>'<button class="chip'+(PO.th===k?' on':'')+'" data-act="po" data-k="th" data-v="'+k+'">'+AM_TH[k].n+'</button>').join('')+'</div>';
- h+='<b class="rc-h" style="display:block">Image de fond</b><div class="chips" style="margin:.2rem 0 .3rem"><label class="chip" style="position:relative;overflow:hidden">🌄 '+(PO.bgi?'Changer':'Choisir')+' l’image de fond<input type="file" accept="image/*" id="po-bgi" style="position:absolute;inset:0;opacity:0"></label><button class="chip" data-act="po-prompt">🤖 Préparer la demande pour ChatGPT</button>'+(PO.bgi?'<button class="chip'+(PO.bgd!=='0'?' on':'')+'" data-act="po" data-k="bgd" data-v="'+(PO.bgd!=='0'?'0':'1')+'">🌗 Assombrir un peu</button><button class="chip" data-act="po" data-k="bgi" data-v="">🗑 Retirer</button><button class="chip'+(PO.bgo==='1'?' on':'')+'" data-act="po" data-k="bgo" data-v="'+(PO.bgo==='1'?'0':'1')+'">🖼 Mon image seule (affiche déjà prête)</button>':'')+'</div>'+(PO.lay==='ill'&&PO.bgo!=='1'?'<label class="fld"><span>Panneau du titre : <b id="po-pnov">'+(PO.pno==null?100:PO.pno)+' %</b> (0 = pas de panneau, ton image se voit dessous)</span><input type="range" id="po-pno" min="0" max="100" step="5" value="'+(PO.pno==null?100:PO.pno)+'" style="width:100%"></label>':'')+'<p class="mut" style="font-size:.78rem;margin:0 0 .5rem">Une photo, ou une image créée par ChatGPT ou Gemini (par exemple : « ciel de Noël étoilé avec un avion et des cadeaux, sans aucun texte, format portrait »). L’appli écrit le titre, la date et le lieu par-dessus.</p>';
+ h+='<b class="rc-h" style="display:block">Image de fond</b><div class="chips" style="margin:.2rem 0 .3rem"><label class="chip" style="position:relative;overflow:hidden">🌄 '+(PO.bgi?'Changer':'Choisir')+' l’image de fond<input type="file" accept="image/*" id="po-bgi" style="position:absolute;inset:0;opacity:0"></label><button class="chip" data-act="po-prompt">🤖 Préparer la demande pour ChatGPT</button>'+(PO.bgi?'<button class="chip'+(PO.bgd!=='0'?' on':'')+'" data-act="po" data-k="bgd" data-v="'+(PO.bgd!=='0'?'0':'1')+'">🌗 Assombrir un peu</button><button class="chip" data-act="po" data-k="bgi" data-v="">🗑 Retirer</button><button class="chip'+(PO.bgo==='1'?' on':'')+'" data-act="po" data-k="bgo" data-v="'+(PO.bgo==='1'?'0':'1')+'">'+(PO.bgo==='1'?'✅ Mon image seule · touche pour revenir au décor de l’appli':'🖼 Mon image seule (affiche déjà prête)')+'</button>':'')+'</div>'+(PO.lay==='ill'&&PO.bgo!=='1'?'<label class="fld"><span>Panneau du titre : <b id="po-pnov">'+(PO.pno==null?100:PO.pno)+' %</b> (0 = pas de panneau, ton image se voit dessous)</span><input type="range" id="po-pno" min="0" max="100" step="5" value="'+(PO.pno==null?100:PO.pno)+'" style="width:100%"></label>':'')+'<p class="mut" style="font-size:.78rem;margin:0 0 .5rem">Une photo, ou une image créée par ChatGPT ou Gemini (par exemple : « ciel de Noël étoilé avec un avion et des cadeaux, sans aucun texte, format portrait »). L’appli écrit le titre, la date et le lieu par-dessus.</p>';
  h+='<b class="rc-h" style="display:block">Couleurs</b><div class="chips tk-chips" style="margin:.2rem 0 .3rem"><button class="chip'+(PO.bw==='1'?' on':'')+'" data-act="po" data-k="bw" data-v="'+(PO.bw==='1'?'0':'1')+'">⚫⚪ Noir et blanc (sans couleur)</button></div>';
  if(PO.bw!=='1')h+='<span class="mut" style="font-size:.8rem">Couleur principale</span>'+amPoSw('col',PO.col,true)+'<span class="mut" style="font-size:.8rem">Deuxième couleur</span>'+amPoSw('col2',PO.col2,true);
  h+='<span class="mut" style="font-size:.8rem">Fond de l’affiche</span><div class="chips tk-chips" style="margin:.2rem 0 .5rem"><button class="chip'+(!PO.bgc?' on':'')+'" data-act="po" data-k="bgc" data-v="">Du style</button>'+['#ffffff','#fff7ed','#fef9c3','#ecfccb','#e0f2fe','#fce7f3','#ede9fe','#e5e7eb','#111827'].map(c=>'<button class="chip'+(PO.bgc===c?' on':'')+'" data-act="po" data-k="bgc" data-v="'+c+'" style="background:'+c+';min-width:2rem;padding:.3rem;border:1px solid #bbb"> </button>').join('')+'<label class="chip" style="position:relative;overflow:hidden">🎨 Autre<input type="color" data-poc="bgc" value="'+(PO.bgc||'#ffffff')+'" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></label></div>';
@@ -11992,7 +11995,7 @@ document.addEventListener('input',e=>{const t=e.target;if(!(PO&&t&&$('#po-pv')))
 document.addEventListener('change',async e=>{const t=e.target;
  if(PO&&t&&t.dataset&&t.dataset.poc){amPoOpen();return}
  if(PO&&t&&t.id==='po-fd'){const m=PO.imgs&&PO.imgs[PO.sel];if(m){m.fd=+t.value;await amPoFade(m);amPoSave();amPoPv()}return}
- if(PO&&t&&t.id==='po-bgi'&&t.files&&t.files[0]){try{const f=t.files[0],u=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});const im=await loadImg(u),k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);PO.bgi=c.toDataURL('image/jpeg',.82);if(PO.bgd==null)PO.bgd='1';amPoSave();amPoOpen()}catch(x){toast('Image illisible')}return}
+ if(PO&&t&&t.id==='po-bgi'&&t.files&&t.files[0]){try{const f=t.files[0],u=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});const im=await loadImg(u),k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);PO.bgi=c.toDataURL('image/jpeg',.82);if(PO.bgd==null)PO.bgd='1';amPoSave();amPoOpen();toast('✅ Image de fond changée'+(PO.bgo==='1'?' (affiche = ton image seule)':''),3000)}catch(x){toast('Image illisible : essaie une capture d’écran de l’image ou un autre format',5000)}try{t.value=''}catch(x){}return}
  if(PO&&t&&t.id==='po-ocr'&&t.files&&t.files[0]){amPoOcr(t.files[0]);return}
  if(!(PO&&t&&t.id==='po-img'&&t.files&&t.files[0]))return;
  try{const f=t.files[0],u=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)});
@@ -12004,9 +12007,20 @@ document.addEventListener('change',async e=>{const t=e.target;
 /* lire le texte d'une photo de menu (reconnaissance de texte chargée à la demande, internet nécessaire) */
 function loadOcr(){if(window.Tesseract)return Promise.resolve();return new Promise((ok,ko)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>ko(new Error('pas de connexion'));document.head.appendChild(s)})}
 function amMnClean(raw){
- const L=String(raw||'').replace(/\r/g,'').split('\n').map(l=>l.replace(/[|_~`«»"“”]+/g,' ').replace(/\s{2,}/g,' ').trim()).filter(l=>{if(l.length<3)return false;const lt=(l.match(/[a-zàâäéèêëîïôöùûüç]/gi)||[]).length;return lt/l.length>.55});
- let mt='';if(L.length&&/menu/i.test(L[0])&&L[0].length<40){mt=L.shift().replace(/[^\wÀ-ÿ' ]/g,'').trim()}
- const out=[];L.forEach(l=>{if(/:\s*$/.test(l)&&l.length<40){out.push(l.replace(/\s*:\s*$/,'')+' :')}else{const m=l.match(/^([A-Za-zÀ-ÿ /'’]{3,30})\s*:\s*(.+)$/);if(m&&!/^[-•*]/.test(l)){out.push(m[1].trim()+' :');m[2].split(/\s+-\s+/).forEach(x=>x.trim()&&out.push('- '+x.replace(/^[-•*]\s*/,'').trim()))}else l.replace(/^[-•*–]\s*/,'').split(/\s+-\s+/).forEach(x=>x.trim()&&out.push('- '+x.trim()))}});
+ const KW=/(ap[ée]ritif|ap[ée]ro|entr[ée]es?|plats?|desserts?|enfants?|fromages?|boissons?|amuse-bouches?|menu enfant)/i;
+ const good=l=>{const w=l.split(/\s+/).filter(x=>(x.match(/[a-zàâäéèêëîïôöùûüç]/gi)||[]).length>=3);const lt=w.join('').length;return w.length&&lt>=Math.max(4,l.replace(/\s/g,'').length*.55)};
+ let L=String(raw||'').replace(/\r/g,'').split('\n').map(l=>l.replace(/[|_~`«»"“”‘’'*•°]+/g,' ').replace(/\s{2,}/g,' ').trim()).filter(l=>l.length>=3);
+ let mt='';
+ const out=[];
+ for(let l of L){
+  if(!mt&&/^menu\b/i.test(l)&&l.length<40&&!out.length){mt=l.replace(/[^\wÀ-ÿ' ]/g,'').trim();continue}
+  const m=l.match(/^[^A-Za-zÀ-ÿ]*(?:\S{1,3}\s+)?([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ \/'’-]{1,28}?)\s*:\s*(.*)$/);
+  if(m&&KW.test(m[1])&&m[1].split(/\s+/).length<=4){out.push(m[1].replace(/\s*\/\s*/g,' / ').trim()+' :');l=m[2]}
+  else{const k=l.match(new RegExp('^[^A-Za-zÀ-ÿ]*(?:\\S{1,3}\\s+)?('+KW.source+'[^:]{0,20})$','i'));if(k&&l.length<34){out.push(k[1].trim()+' :');continue}}
+  l=l.replace(/^[^A-Za-zÀ-ÿ0-9(]+/,'').replace(/^\S{1,3}[,.;]\s+/,'').replace(/^[^A-Za-zÀ-ÿ0-9(]+/,'').replace(/[^A-Za-zÀ-ÿ0-9).!]+$/,'').trim();
+  if(!l||!good(l))continue;
+  l.split(/\s+-\s*|\s+-(?=[A-Za-zÀ-ÿ])/).forEach(x=>{x=x.replace(/^[-–]\s*/,'').replace(/\s+[^\sA-Za-zÀ-ÿ0-9()]{1,3}$/,'').replace(/\s+\S{1,2}$/,m=>/^\s+(de|du|la|le|et|à|au)$/i.test(m)?m:'').trim();if(x&&good(x))out.push('- '+x)});
+ }
  return {mt,mn:out.join('\n')};
 }
 async function amPoOcr(f){
@@ -12016,7 +12030,7 @@ async function amPoOcr(f){
   const im=await loadImg(u),k=Math.min(2.2,1700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
   const g=c.getContext('2d');g.drawImage(im,0,0,c.width,c.height);const D=g.getImageData(0,0,c.width,c.height),d=D.data;let sum=0;
   for(let i=0;i<d.length;i+=4){const y=.3*d[i]+.59*d[i+1]+.11*d[i+2];d[i]=d[i+1]=d[i+2]=y;sum+=y}
-  if(sum/(d.length/4)<128)for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=255-d[i]}
+  const dk=sum/(d.length/4)<128;for(let i=0;i<d.length;i+=4){const y=d[i];d[i]=d[i+1]=d[i+2]=(dk?y>175:y<90)?0:255}
   g.putImageData(D,0,0);
   await loadOcr();const w=await Tesseract.createWorker('fra');const R=await w.recognize(c);try{await w.terminate()}catch(x){}
   const o=amMnClean(R&&R.data&&R.data.text);
@@ -12028,7 +12042,9 @@ async function amPoOcr(f){
 }
 /* 2.79.2 : la pancarte de l'affiche (titre, date, lieu sur son décor) affichée sur l'accueil et sur la fiche de l'événement */
 function amPoSign(it){
- try{const sv=amPoGet(it.id),P=amPoDef(it,sv);if(P.lay!=='ill'||P.bw==='1'||P.bgo==='1')return '';
+ try{const sv=amPoGet(it.id),P=amPoDef(it,sv);
+  if(P.bgi&&P.bgo==='1')return '<div class="am-sign am-sign-img" data-act="ee-sign" data-id="'+esc(it.id)+'" role="button" aria-label="'+esc(it.tx)+'" style="background:#111 url('+P.bgi+') center/cover no-repeat"><i></i><img src="'+P.bgi+'" alt=""></div>';
+  if(P.lay!=='ill'||P.bw==='1')return '';
   Object.assign(P,{md:'',pg:'0',info:'',ct:'',ft:'',acc:'',off:{},imgs:[],sz:'m'});const T=AM_TH[P.th]||AM_TH.fete;
   const html=amPoIll(it,P,false,(k,cl)=>'class="'+cl+'"',P.col||T.c1,P.col2||T.c2)+'</div>';
   const sc=AM_SC[P.th],bg=P.bgi?'#111 url('+P.bgi+') center/cover no-repeat':(P.bgc||(sc?sc.sky:T.c1));
