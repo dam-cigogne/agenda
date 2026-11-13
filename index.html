@@ -692,6 +692,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 
 /* sheets & dialogs */
 #sheet:empty,#dlg:empty{display:none}
+.qr-dt{margin:.4rem 0}.qr-dt>summary{cursor:pointer;font-weight:800;padding:.55rem .7rem;border:1px solid var(--line2,var(--line,#ddd));border-radius:.9rem;background:var(--surface);list-style:none}.qr-dt>summary::-webkit-details-marker{display:none}.qr-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.6rem;margin-top:.5rem}.qr-c{text-align:center;padding:.7rem;margin:0}.qr-c .qr-img{width:120px;height:120px;margin:.2rem auto .4rem;display:block}.qr-c .chips{justify-content:center}.qr-ct{font-weight:800}
 .po-tabs{position:sticky;top:0;z-index:3;background:var(--surface);padding:.35rem 0;margin:0 0 .2rem;flex-wrap:wrap}.po-tabs .chip{font-weight:800}.po-tip{font-size:.78rem;margin:0 0 .4rem}.po-bc{padding:.6rem .7rem;margin:.2rem 0 .6rem;border:2px solid var(--accent)}
 .ov{position:fixed;inset:0;background:rgba(8,12,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .ov.dlgov{z-index:80;align-items:center}
@@ -2868,7 +2869,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.9';
+const APP_VERSION='2.82.11';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2876,6 +2877,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.11',d:'14/11/2026',items:['<b>🍽 Page du QR menu</b> : avec « Mon image seule », la page montre maintenant ton image <b>exactement cadrée comme dans l’appli</b> (format de l’affiche, zoom et position), et plus l’image entière avec ses bords.','<b>Correction</b> : après « ✅ Enregistrer et fermer », l’image du menu n’était parfois pas envoyée (seuls le texte et les prix l’étaient). C’est réparé.']},
+ {v:'2.82.10',d:'14/11/2026',items:['<b>📲 QR codes de l’événement plus discrets</b> : le QR d’inscription et celui du menu sont côte à côte, dans une ligne « 📲 QR codes » à ouvrir d’un toucher. Les inscriptions à valider restent toujours visibles.']},
  {v:'2.82.9',d:'14/11/2026',items:['<b>🍽 QR du menu dans la fiche de l’événement</b> : en grand, avec « Menu » à côté, « 👀 Voir la page du menu », « 🔗 Copier le lien » et « 💬 Envoyer les liens ». Plus besoin d’ouvrir l’affiche pour vérifier.','<b>📲 Envoyer l’affiche</b> directement depuis la fiche de l’événement : l’affiche, le menu ou seulement les liens, avec les mêmes choix que dans l’affiche (image + liens, image seule, lien d’inscription, lien du menu, les deux, ou un QR code seul en image).']},
  {v:'2.82.8',d:'14/11/2026',items:['<b>✂️ Recadrer ton image</b> (affiche et menu, avec « Mon image seule ») : zoom, monter / descendre, gauche / droite, et « Enlever les bandes noires ou blanches ». Les bandes noires ou blanches d’une image sont aussi enlevées toutes seules quand tu la choisis.']},
  {v:'2.82.7',d:'14/11/2026',items:['<b>🕘 Affiche : versions précédentes</b> : un bouton en bas de l’affiche pour revenir en arrière après une fausse manip. L’appli garde les versions de l’affiche (toutes les 20 minutes de travail, et avant « Tout remettre par défaut »), et retrouve aussi celles des copies automatiques de l’Amicale.','<b>↺ Tout remettre par défaut</b> demande maintenant une confirmation.']},
@@ -13525,19 +13528,21 @@ function amQrAccept(id,ns,D){
  toast((nw?'✅ '+nw+' inscrit'+(nw>1?'s':'')+' ajouté'+(nw>1?'s':''):'')+(up?(nw?' · ':'')+up+' déjà dans la liste (complété'+(up>1?'s':'')+')':'')+(FU.length?' · 📇 fiche mise à jour : '+FU.join(', '):''),6000);
 }
 function amQrRefuse(id,n){amEeMut(o=>{o.qd=o.qd||[];if(!o.qd.includes(n))o.qd.push(n)});toast('Inscription écartée',2500)}
-function amQmCard(it){if(!it.qm)return '';const u=amQmUrl(it);return '<h4 class="am-h">🍽 QR code du menu</h4><div class="card qr-card"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code du menu"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.95rem"><b>🍽 Menu</b> : on scanne, on voit ton menu et les tarifs.</p><div class="chips"><button class="chip" data-act="qm-see2" data-id="'+esc(it.id)+'">👀 Voir la page du menu</button><button class="chip" data-act="qm-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer les liens</button></div><p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Il est aussi sur l’affiche (onglet 📲 QR codes). La page se met à jour avec « ✅ Enregistrer et fermer » de l’affiche.</p></div></div>'}
+function amQmCard(it,bare){if(!it.qm)return '';const u=amQmUrl(it),c='<div class="card qr-c"><div class="qr-ct">🍽 Menu</div><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code du menu"><div class="chips"><button class="chip" data-act="qm-see2" data-id="'+esc(it.id)+'">👀 Voir la page</button><button class="chip" data-act="qm-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer</button></div><p class="mut" style="font-size:.78rem;margin:.3rem 0 0">Se met à jour avec « ✅ Enregistrer et fermer » de l’affiche.</p></div>';return bare?c:amQrDt(it,'🍽 QR code du menu',c)}
+const AMQR_OPEN={};document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('qr-dt'))AMQR_OPEN[d.dataset.id]=d.open},true);
+function amQrDt(it,t,inner){return '<details class="qr-dt" data-id="'+esc(it.id)+'"'+(AMQR_OPEN[it.id]?' open':'')+'><summary>'+t+'</summary><div class="qr-2">'+inner+'</div></details>'}
 function amQrHTML(it,rw){
  if(it.qm)amQmPub(it.id);
  if(!rw&&!it.qr)return amQmCard(it);
- let h='<h4 class="am-h">📲 Inscription par QR code</h4>';
+ let h='';
  if(!it.qr)return h+'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">Un QR code à mettre sur l’affiche : on le scanne, on remplit un petit formulaire (nom, nombre de personnes, téléphone, régime…) et l’inscription arrive ici. Tu la valides, et la personne rejoint les inscrits. Les infos sont chiffrées : seuls les organisateurs peuvent les lire.</p><button class="btn blk" data-act="qr-on" data-id="'+esc(it.id)+'">📲 Créer le QR code d’inscription</button>'+amQmCard(it);
  setTimeout(()=>amQrFetch(it.id),50);
  const P=amQrPend(it),u=amQrUrl(it);
- h+='<div class="card qr-card"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code d’inscription"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.9rem">Il est aussi <b>sur l’affiche</b> (réglage « 📲 QR d’inscription »).</p><div class="chips"><button class="chip" data-act="qr-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer les liens</button><button class="chip" data-act="qr-test" data-id="'+esc(it.id)+'">👀 Voir le formulaire</button><button class="chip" data-act="qr-ref" data-id="'+esc(it.id)+'">🔄 Vérifier</button><button class="chip" data-act="qr-hist" data-id="'+esc(it.id)+'">📜 Toutes les inscriptions reçues</button></div><p class="mut" style="font-size:.8rem;margin:.3rem 0 0">Ceux qui ne scannent pas : ajoute-les comme d’habitude ou importe ton fichier Excel ; les doublons (même nom) ne sont pas recopiés.</p></div></div>';
+ h+=amQrDt(it,'📲 QR codes : inscription'+(it.qm?' et menu':''),'<div class="card qr-c"><div class="qr-ct">📲 Inscription</div><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code d’inscription"><div class="chips"><button class="chip" data-act="qr-test" data-id="'+esc(it.id)+'">👀 Voir le formulaire</button><button class="chip" data-act="qr-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer</button></div></div>'+amQmCard(it,1))+'<div class="chips" style="margin:.3rem 0"><button class="chip" data-act="qr-ref" data-id="'+esc(it.id)+'">🔄 Vérifier les inscriptions</button><button class="chip" data-act="qr-hist" data-id="'+esc(it.id)+'">📜 Toutes les inscriptions reçues</button></div>';
  if(P.length){
   h+='<div class="card qr-pend"><b>📥 '+P.length+' inscription'+(P.length>1?'s':'')+' à valider</b>'+P.map(x=>{const v=x.v||{},nm=amQrName(v);return '<div class="am-it"><span class="am-itx"><b>'+esc(nm||'(sans nom)')+'</b><small>'+['👥 '+(+v.na||0)+' adulte'+((+v.na||0)>1?'s':'')+(+v.ne?' + '+(+v.ne)+' enfant'+((+v.ne)>1?'s':''):''),v.am==='o'?'🎖 amicaliste':v.am==='n'?'👤 non-amicaliste':'',v.tl?'📞 '+esc(v.tl):'',v.ml?'✉️ '+esc(v.ml):'',v.rg?'🥗 '+esc(v.rg):'',v.mo?'💬 '+esc(v.mo):'',(()=>{const C=amQrCheck(v);return C.I.length?'<b style="color:#b45309">🔎 '+[C.I.includes('sp')?'nom proche de « '+esc(C.cand.tx)+' »':'',C.I.includes('amx')?'amicaliste ? pas dans la liste':'',C.I.includes('amn')?'est dans la liste des amicalistes':'',(C.I.includes('tl')||C.I.includes('ml'))?'nouvelles coordonnées':''].filter(Boolean).join(' · ')+'</b>':''})(),'le '+esc(new Date(x.at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}))].filter(Boolean).join(' · ')+'</small></span>'+(rw?'<button class="chip on" data-act="qr-ok" data-id="'+esc(it.id)+'" data-n="'+x.n+'">✅ Ajouter</button><button class="chip" data-act="qr-no" data-id="'+esc(it.id)+'" data-n="'+x.n+'" aria-label="Écarter">✕</button>':'')+'</div>'}).join('')+(rw&&P.length>1?'<button class="btn pri blk" data-act="qr-all" data-id="'+esc(it.id)+'" style="margin-top:.4rem">✅ Tout ajouter ('+P.length+')</button>':'')+'</div>';
  }else h+='<p class="mut" style="font-size:.85rem;margin:.2rem 0 .4rem">Aucune nouvelle inscription pour l’instant.</p>';
- return h+amQmCard(it);
+ return h;
 }
 /* 2.82.0 : adhésion par QR code. On scanne, on remplit le bulletin chez soi ; le bureau valide, encaisse et fait signer (iPad ou papier pré-rempli). */
 const AQ_ID='aqadhqr';
@@ -13647,7 +13652,7 @@ async function amPoPrompt(){
  }
 }
 /* 2.81.0 : page publique du menu (QR « Menu ») : menu de l'affiche + tarifs de l'événement, mise à jour automatique */
-const AMQM_LAST={},AMQM_T={};
+const AMQM_LAST={},AMQM_T={},AMQM_W={};
 function amQmData(it){
  const sv=(PO&&PO.id===it.id)?PO:amPoDef(it,amPoGet(it.id)),a=amc()||{},pr=amPrClean(it.pr),p=[];
  const p2=amPxRows(it);p.push(...p2);
@@ -13657,20 +13662,24 @@ function amQmData(it){
 /* enlève les bandes unies (noires ou blanches) en haut et en bas d'une image */
 function amTrimBars(cv){try{const w=cv.width,h=cv.height,d=cv.getContext('2d').getImageData(0,0,w,h).data,flat=y=>{let mn=[255,255,255],mx=[0,0,0];for(let x=0;x<w;x+=Math.max(1,w>>6)){const i=(y*w+x)*4;for(let c=0;c<3;c++){mn[c]=Math.min(mn[c],d[i+c]);mx[c]=Math.max(mx[c],d[i+c])}}const avg=(mn[0]+mn[1]+mn[2]+mx[0]+mx[1]+mx[2])/6;return Math.max(mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2])<14&&(avg<40||avg>225)};
  let t=0,b=h-1;while(t<h/3&&flat(t))t++;while(b>h*2/3&&flat(b))b--;if(t<8&&h-1-b<8)return cv;const o=document.createElement('canvas');o.width=w;o.height=b-t+1;o.getContext('2d').drawImage(cv,0,t,w,o.height,0,0,w,o.height);return o}catch(e){return cv}}
+/* image « seule » recadrée comme sur l'affiche (format A4, zoom et position) */
+async function amPoCover(src,z,bx,by){try{const im=await loadImg(src),w=im.width,h=im.height,R=794/1123;let cw,ch;if(w/h>R){ch=h;cw=h*R}else{cw=w;ch=w/R}const k=Math.max(1,z/100);cw/=k;ch/=k;const x0=(w-cw)*bx/100,y0=(h-ch)*by/100,H=Math.min(1400,Math.round(ch)),W=Math.round(H*R),c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,W,H);g.drawImage(im,x0,y0,cw,ch,0,0,W,H);return c.toDataURL('image/jpeg',.82)}catch(e){return await amPoBgSmall(src,1100,.8)}}
 async function amQmImgMake(id){
  const a=amc(),it=a&&a.it&&a.it[id];if(!it)return null;
  const base=(PO&&PO.id===id)?JSON.parse(JSON.stringify(PO)):amPoDef(it,amPoGet(id));
  if(PO&&PO.id===id){const m=PO.md==='menu'?'m':'a';base['bgi'+m]=PO.bgi||'';base['bgo'+m]=PO.bgo||'0';base['bgd'+m]=PO.bgd||'1';if(PO.md==='menu')base.offm=PO.off||{}}
  const P=amPoBgLoad(Object.assign(base,{md:'menu',selb:'',sel:-1}),'menu');P.off=P.offm||{};
  if(!String(P.mn||'').trim()&&!(P.bgi&&P.bgo==='1'))return null;
- if(P.bgi&&P.bgo==='1'&&(+P.bgz||100)===100&&(P.bgx==null||+P.bgx===50)&&(P.bgy==null||+P.bgy===50))return await amPoBgSmall(P.bgi,1100,.8); /* 2.82.3 : image seule = ton image telle quelle (sans bandes noires) */
+ if(P.bgi&&P.bgo==='1')return await amPoCover(P.bgi,+P.bgz||100,P.bgx!=null?+P.bgx:50,P.bgy!=null?+P.bgy:50); /* 2.82.10 : exactement le cadrage vu dans l'appli */ /* 2.82.3 : image seule = ton image telle quelle (sans bandes noires) */
  let sh;try{await loadH2C();sh=document.createElement('div');sh.className='am-shot am-poster';sh.innerHTML=amPosterHTML(it,P,false);document.body.appendChild(sh);await new Promise(r=>setTimeout(r,300));
   const cv=await html2canvas(sh,{scale:1.25,backgroundColor:'#ffffff',logging:false,width:794,height:1123,windowWidth:794});return amTrimBars(cv).toDataURL('image/jpeg',.8)}catch(e){return null}finally{if(sh)sh.remove()}
 }
 /* 2.81.5 : l'image envoyée à la page du menu doit rester sous ~550 Ko, sinon le serveur l'ignore */
 async function amQmFit(src){if(!src)return null;if(src.length<=550000)return src;try{const im=await loadImg(src);for(const [mx,q] of [[1100,.72],[1000,.65],[900,.6],[800,.55],[700,.5],[600,.5]]){const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);const r=c.toDataURL('image/jpeg',q);if(r.length<=550000)return r}}catch(e){}return null}
 function amQmPub(id,now,withImg){
- clearTimeout(AMQM_T[id]);AMQM_T[id]=setTimeout(async()=>{const a=amc(),it=a&&a.it&&a.it[id];if(!it||!it.qm||demo)return;const d=amQmData(it),js=JSON.stringify(d);if(AMQM_LAST[id]===js&&!withImg)return;let imKo=0;if(withImg){let im=null;try{im=await amQmFit(await amQmImgMake(id))}catch(e){}if(im)d.img=im;else imKo=1}
+ /* 2.82.11 : un envoi « avec image » en attente n'est plus annulé par une mise à jour sans image (l'image du menu ne partait pas) */
+ if(withImg)AMQM_W[id]={now:!!now};else if(AMQM_W[id]){withImg=true;now=AMQM_W[id].now}
+ clearTimeout(AMQM_T[id]);AMQM_T[id]=setTimeout(async()=>{delete AMQM_W[id];const a=amc(),it=a&&a.it&&a.it[id];if(!it||!it.qm||demo)return;const d=amQmData(it),js=JSON.stringify(d);if(AMQM_LAST[id]===js&&!withImg)return;let imKo=0;if(withImg){let im=null;try{im=await amQmFit(await amQmImgMake(id))}catch(e){}if(im)d.img=im;else imKo=1}
   try{const r=await fetch(famUrl()+'/pub/'+it.qm.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({k:it.qm.k,d})});if(r.ok){AMQM_LAST[id]=js;if(withImg&&now)toast(imKo?'Page du menu mise à jour (texte et prix) — l’image du menu n’a pas pu être préparée':'✅ Page du menu mise à jour avec ton image',3500)}else if(withImg&&now)toast('Page du menu non mise à jour (erreur '+r.status+')',4000)}catch(e){if(withImg&&now)toast('Page du menu non mise à jour : pas de connexion',4000)}},now?50:2500);
 }
 async function amQmToggle(){
@@ -15831,7 +15840,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqUrl,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
