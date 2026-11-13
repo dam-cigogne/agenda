@@ -2894,7 +2894,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.17';
+const APP_VERSION='2.82.18';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2902,6 +2902,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.18',d:'15/11/2026',items:['<b>📲 Envoyer un lien à quelqu’un de la liste</b> : dans la fiche d’un amicaliste (ou d’un non-amicaliste connu) › Action › « Lui envoyer un lien », ou à plusieurs avec ☑ Sélectionner › « 📲 Envoyer un lien ». Au choix : l’inscription à un événement, le menu, ou l’adhésion. Le message est prêt avec son prénom, par 💬 SMS, 🟢 WhatsApp ou ✉️ mail.']},
  {v:'2.82.17',d:'15/11/2026',items:['<b>🎀 Le bandeau des inscrits devient un ruban</b> : penché, à cheval sur le bas de l’affiche, en relief avec ses bouts repliés, et il flotte doucement.']},
  {v:'2.82.16',d:'15/11/2026',items:['<b>✨ La pancarte s’anime</b> (accueil et fiche) : une étoile filante dorée qui file en arc, de la neige qui tombe, l’affiche qui bouge doucement, et le nombre d’inscrits qui monte jusqu’au bon chiffre. Le grand chiffre = les inscrits de chez nous ; en dessous, accompagnants et enfants, et le total de personnes. Désactivé si le téléphone est réglé sur « Réduire les animations ».']},
  {v:'2.82.15',d:'15/11/2026',items:['<b>👥 Le nombre d’inscrits en grand</b> juste sous la pancarte de l’événement (accueil et fiche) : les inscrits de chez nous, puis « + X accompagnants · + Y enfants = Z personnes », les inscriptions QR à valider et le compte à rebours (J-16, Demain, Aujourd’hui).']},
@@ -9062,6 +9063,7 @@ async function act(a,el,e){
   case 'aq-paper':amAqPaper(ds_.id);break;
   case 'aq-done':{const r=await ask({title:'Retirer de « à faire signer » ?',text:'Sa fiche reste dans la liste des amicalistes. Seul le rappel de signature disparaît.',btns:[{label:'Retirer',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r)amAqMut(o=>{o.w=o.w.filter(x=>x!==ds_.id)});break}
   case 'aq-print':amAqPrint();break;
+  case 'am-sellnk':if(AM_SEL&&AM_SEL.size)amSendLink([...AM_SEL]);break;
   case 'aq-pay':amAqPay(ds_.id);break;
   case 'aq-paylist':{try{await navigator.clipboard.writeText(amAqPayTxt());toast('📋 Liste copiée (noms et téléphones)',3000)}catch(e){toast('Copie impossible',2500)}break}
   case 'aq-payremind':{const t='Bonjour, ta demande d’adhésion à '+((amc()||{}).nm||'l’amicale')+' est bien reçue. Il reste à régler ta cotisation '+amSaCur()+' : passe voir le bureau quand tu peux. Merci !';try{await navigator.clipboard.writeText(t)}catch(e){}if(navigator.share){try{await navigator.share({text:t});break}catch(e){if(e&&e.name==='AbortError')break}}toast('📨 Message copié : colle-le dans WhatsApp ou un SMS',4000);break}
@@ -13623,6 +13625,36 @@ function amAqHTML(){
  if(PY.length)h+='<div style="margin-top:.7rem"><b>💶 '+PY.length+' en attente de paiement</b><p class="mut" style="font-size:.8rem;margin:.1rem 0 .3rem">Inscrits par le QR, cotisation '+esc(amSaCur())+' pas encore payée : à appeler ou à convoquer.</p><div class="chips" style="margin:0 0 .3rem"><button class="chip" data-act="aq-paylist">📋 Copier la liste</button><button class="chip" data-act="aq-payremind">📨 Message de rappel</button><button class="chip" data-act="aq-payall">👀 Tous les amicalistes à payer</button></div>'+PY.map(m=>{const o=m.o||{},t=amTelHref(o.tl),pr=o.pa||amBmPrice(o.gr,o.ct);return '<div class="am-it"><span class="am-itx"><b>'+esc(m.tx)+'</b><small>'+[o.tl?'📞 '+esc(o.tl):'',o.ml?'✉️ '+esc(o.ml):'',pr?'💶 '+esc(amEur(pr)):'',amAqSigned(m)?'📝 bulletin signé':'📝 bulletin à signer'].filter(Boolean).join(' · ')+'</small></span>'+(t?'<a class="chip" href="tel:'+esc(t)+'" style="text-decoration:none">📞 Appeler</a><a class="chip" href="sms:'+esc(t)+'" style="text-decoration:none">💬 SMS</a>':'')+'<button class="chip on" data-act="aq-pay" data-id="'+esc(m.id)+'">💶 Payé</button></div>'}).join('')+'</div>';
  return h+'</div>';
 }
+/* 2.82.18 : envoyer à une ou plusieurs personnes de la liste le lien d'inscription d'un événement, du menu ou de l'adhésion (SMS, WhatsApp, mail) */
+const amIOS=()=>/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const amWaNum=t=>{let d=String(t||'').replace(/[^0-9+]/g,'');if(d.startsWith('+'))return d.slice(1);if(d.startsWith('00'))return d.slice(2);if(/^0[1-9]\d{8}$/.test(d))return '33'+d.slice(1);return d};
+async function amSendLink(ids){
+ const a=amc();if(!a)return;const P=ids.map(id=>a.it[id]).filter(m=>m&&!m.del);if(!P.length)return;
+ const t0=today(),EV=amItems('ee').filter(e=>(!e.d||e.d>=t0)&&(e.qr||e.qm)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));const A=amAq(),L=[];
+ EV.forEach(e=>{if(e.qr)L.push({k:'i',e,l:'📲 Inscription : '+e.tx});if(e.qm)L.push({k:'m',e,l:'🍽 Menu et tarifs : '+e.tx})});if(A)L.push({k:'a',l:'🎖 Adhésion à l’amicale ('+amSaCur()+')'});
+ if(!L.length){toast('Pas encore de lien à envoyer : crée le QR d’inscription d’un événement, ou le QR d’adhésion',5000);return}
+ const who=P.length===1?P[0].tx:P.length+' personnes';
+ const c=await ask({title:'📲 Envoyer un lien à '+esc(who),text:'Quel lien ?',btns:L.map((x,i)=>({label:x.l,value:String(i)})).concat([{label:'Annuler',value:null}])});if(c==null)return;const x=L[+c];
+ const dfr=d=>{try{return new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}catch(e){return d}};
+ const msg=(m)=>{const pn=m?(amNomSplit(m.tx)[0]||''):'',hi='Bonjour'+(pn?' '+pn:'')+',\n';
+  if(x.k==='a')return hi+'Pour adhérer à '+(a.nm||'l’amicale')+' (saison '+amSaCur()+'), remplis ton bulletin sur ton téléphone, puis passe voir le bureau pour régler et signer :\n'+amAqUrl();
+  const e=x.e,inf='« '+e.tx+' »'+(e.d?' le '+dfr(e.d):'')+(e.pl?' à '+e.pl:'');
+  return x.k==='i'?hi+'Tu es invité(e) à '+inf+'. Inscris-toi ici (2 minutes) :\n'+amQrUrl(e):hi+'Le menu et les tarifs de '+inf+' :\n'+amQmUrl(e)};
+ const tel=P.map(m=>amTelHref((m.o||{}).tl)).filter(Boolean),ml=P.map(m=>String((m.o||{}).ml||'').trim()).filter(v=>/@/.test(v));
+ const one=P.length===1?P[0]:null,body=msg(one),B=[];
+ if(tel.length)B.push({label:'💬 SMS'+(P.length>1?' ('+tel.length+')':''),value:'sms',cls:'pri'});
+ if(one&&tel.length)B.push({label:'🟢 WhatsApp',value:'wa'});
+ if(ml.length)B.push({label:'✉️ Mail'+(P.length>1?' ('+ml.length+')':''),value:'ml'});
+ B.push({label:'📋 Copier le message',value:'cp'},{label:'Annuler',value:null});
+ const miss=P.filter(m=>!amTelHref((m.o||{}).tl)&&!/@/.test(String((m.o||{}).ml||''))).map(m=>m.tx);
+ const v=await ask({title:'📲 '+esc(x.l),html:'<div class="card" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem">'+esc(body).replace(/https:\/\/\S+/,u=>'<span class="mut">'+u.slice(0,48)+'…</span>')+'</div>'+(miss.length?'<p class="mut" style="font-size:.82rem">Sans téléphone ni mail : '+esc(miss.slice(0,8).join(', '))+(miss.length>8?'…':'')+'</p>':''),btns:B});if(!v)return;
+ try{await navigator.clipboard.writeText(body)}catch(e){}
+ const go=u=>{const l=document.createElement('a');l.href=u;l.target=u.startsWith('http')?'_blank':'_self';l.rel='noopener';document.body.appendChild(l);l.click();setTimeout(()=>l.remove(),500)};
+ if(v==='cp'){toast('📋 Message copié',2500);return}
+ if(v==='sms'){const b=encodeURIComponent(body);if(tel.length===1)go('sms:'+tel[0]+(amIOS()?'&':'?')+'body='+b);else go(amIOS()?'sms:/open?addresses='+tel.join(',')+'&body='+b:'sms:'+tel.join(',')+'?body='+b);return}
+ if(v==='wa'){go('https://wa.me/'+amWaNum((one.o||{}).tl)+'?text='+encodeURIComponent(body));return}
+ if(v==='ml'){const sj=encodeURIComponent(x.k==='a'?'Adhésion '+amSaCur():(x.e.tx||'Invitation'));go(ml.length===1?'mailto:'+ml[0]+'?subject='+sj+'&body='+encodeURIComponent(body):'mailto:?bcc='+ml.join(',')+'&subject='+sj+'&body='+encodeURIComponent(body));return}
+}
 function amAqPayTxt(){const L=amAqToPay();return 'Cotisation '+amSaCur()+' à régler ('+L.length+') :\n'+L.map(m=>{const o=m.o||{};return '- '+m.tx+(o.tl?' · '+o.tl:'')+(o.ml?' · '+o.ml:'')}).join('\n')}
 async function amAqPay(id){const a=amc(),m=a&&a.it&&a.it[id];if(!m)return;const o=m.o||{};
  const v=await amForm('💶 Cotisation de '+m.tx,'Saison '+esc(amSaCur())+'.',[{k:'pa',l:'Montant reçu (€)',v:String(o.pa||amBmPrice(o.gr,o.ct)||'').replace('.',','),ph:'20'},{k:'pm',l:'Payée par',t:'select',v:o.pm||'esp',o:AM_PM.filter(x=>x[0])}],'Encaisser');if(!v)return;
@@ -14757,7 +14789,7 @@ function amJournalHTML(){
 function amAmSorted(L){const g=m=>amGrRank((m.o||{}).gr),c=m=>AM_CT.findIndex(x=>x[0]===(m.o||{}).ct);
  return L.slice().sort((p,q)=>AM_SORT==='grade'?(g(p)-g(q)||p.tx.localeCompare(q.tx,'fr')):AM_SORT==='cat'?(c(p)-c(q)||p.tx.localeCompare(q.tx,'fr')):p.tx.localeCompare(q.tx,'fr'))}
 let AM_SEL=null,AM_VIS=[];
-function amSelBar(){if(!AM_SEL)return '';const n=AM_SEL.size;return '<div class="card am-selbar"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"><b style="flex:1;min-width:8rem">☑ '+n+' sélectionné'+(n>1?'s':'')+'</b><button class="chip" data-act="am-selall">Tout</button><button class="chip" data-act="am-selnone">Aucun</button><button class="chip on" data-act="am-seloff">Terminer</button></div>'+(n?'<div class="btns" style="margin-top:.5rem"><button class="btn grow" data-act="am-selexp">📤 Exporter / envoyer</button><button class="btn grow" data-act="am-badges" data-v="s">🪪 Badges</button><button class="btn grow" data-act="am-seledit">✏️ Modifier</button><button class="btn grow dng" data-act="am-seldel">🗑 Supprimer</button></div>':'<p class="mut" style="margin:.4rem 0 0;font-size:.85rem">Touche les noms à choisir, ou « Tout » (la liste affichée, avec ses filtres).</p>')+'</div>'}
+function amSelBar(){if(!AM_SEL)return '';const n=AM_SEL.size;return '<div class="card am-selbar"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"><b style="flex:1;min-width:8rem">☑ '+n+' sélectionné'+(n>1?'s':'')+'</b><button class="chip" data-act="am-selall">Tout</button><button class="chip" data-act="am-selnone">Aucun</button><button class="chip on" data-act="am-seloff">Terminer</button></div>'+(n?'<div class="btns" style="margin-top:.5rem"><button class="btn grow" data-act="am-sellnk">📲 Envoyer un lien</button><button class="btn grow" data-act="am-selexp">📤 Exporter / envoyer</button><button class="btn grow" data-act="am-badges" data-v="s">🪪 Badges</button><button class="btn grow" data-act="am-seledit">✏️ Modifier</button><button class="btn grow dng" data-act="am-seldel">🗑 Supprimer</button></div>':'<p class="mut" style="margin:.4rem 0 0;font-size:.85rem">Touche les noms à choisir, ou « Tout » (la liste affichée, avec ses filtres).</p>')+'</div>'}
 function amSelSync(){const b=$('#am-selbar');if(b)b.innerHTML=amSelBar();const l=$('#am-list');if(l)l.innerHTML=amAmRows()}
 function amAmRows(){
  const q=norm(AM_Q);let L=AM_ST==='n'?amNons():amAms();
@@ -14811,11 +14843,12 @@ async function amAmEdit(id){
  const sac=amSaCur(),sgc=m&&amSg()[m.id],appOk=!!(sgc&&((sgc.f&&sgc.f.sa)||amSaOf(sgc.at))===sac&&o.bp!=='1');
  if(!appOk)F.push({k:'bp',l:'Bulletin '+sac+' signé sur papier',t:'select',v:(o.bp==='1'&&amBsSa(o)===sac)?'1':'0',o:[['0','Non'],['1','Oui (déjà rempli à la main)']]});
  F.push({k:'bd',l:'Notes',t:'area',v:m?m.bd:''});
- if(m)F.push({k:'act',l:'Action',t:'select',v:'',o:[['','Garder dans la liste'],['cd','🎁 Cadeaux (naissance, mariage, départ, décès…)'+(amCdOf(m.id).length?' · '+amCdOf(m.id).length:'')],['bul','📝 Bulletin d’adhésion : faire signer']].concat(amSg()[m.id]?[['pdf','📄 Rouvrir le bulletin signé']]:[],[['del','🗑 Retirer de la liste']])});else F.push({k:'bul',l:'Bulletin d’adhésion',t:'select',v:'0',o:[['0','Plus tard'],['1','📝 Faire signer maintenant']]});
+ if(m)F.push({k:'act',l:'Action',t:'select',v:'',o:[['','Garder dans la liste'],['lnk','📲 Lui envoyer un lien (inscription à un événement, menu, adhésion)'],['cd','🎁 Cadeaux (naissance, mariage, départ, décès…)'+(amCdOf(m.id).length?' · '+amCdOf(m.id).length:'')],['bul','📝 Bulletin d’adhésion : faire signer']].concat(amSg()[m.id]?[['pdf','📄 Rouvrir le bulletin signé']]:[],[['del','🗑 Retirer de la liste']])});else F.push({k:'bul',l:'Bulletin d’adhésion',t:'select',v:'0',o:[['0','Plus tard'],['1','📝 Faire signer maintenant']]});
  const pv=amForm(m?(o.st?'Modifier la fiche (non-amicaliste)':'Modifier l’amicaliste'):(AM_ST==='n'?'Nouveau non-amicaliste':'Nouvel amicaliste'),'',F,m?'Enregistrer':'Ajouter');let reuse=null;if(!m)setTimeout(()=>{reuse=amAmSuggest()},60);const v=await pv;if(!v)return;
  if(!m){const k=amNk(v.tx),ex=(reuse&&reuse.id&&amNk(reuse.id.tx)===k&&reuse.id)||amItems('am').find(x=>amNk(x.tx)===k);if(ex)return amAmSaveFrom(ex,v,sac)}
  if(m&&v.act==='del'){amBsDropFor([m.id]);amItemSave(Object.assign({},m,{del:1}));toast('Retiré de la liste (et son bulletin)',2500);return}
  if(m&&v.act==='pdf'){amBsMenu(m.id);return}
+ if(m&&v.act==='lnk'){amSendLink([m.id]);return}
  if(m&&v.act==='cd'){amCdMember(m.id);return}
  if(!String(v.tx||'').trim()){toast('Il faut un nom',2500);return}
  const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{cb:m?(o.cb||o.pb||''):a.me.n,gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pxk:String(v.pa||'').replace(',','.').slice(0,8)!==String(o.pa||'')?'1':(o.pxk||''),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60),sv:String(v.sv||'').slice(0,60),tl:String(v.tl||'').trim().slice(0,30),ml:String(v.ml||'').trim().slice(0,60),bg:String(v.bg||'').trim().slice(0,20),k8:v.k8==='1'?'1':'',pd:v.pd||'',pb:String(v.pb||'').trim().slice(0,30),st:v.st==='n'?'n':''})};
@@ -15896,7 +15929,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
