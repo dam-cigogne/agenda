@@ -2902,7 +2902,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.22';
+const APP_VERSION='2.82.23';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2910,6 +2910,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.23',d:'15/11/2026',items:['<b>📲 Envoyer un lien : l’inscription et le menu en une fois</b>. Quand l’événement a les deux QR, « 📲 Inscription + 🍽 menu » met les deux liens dans le même message (avec l’affiche si tu veux).']},
  {v:'2.82.22',d:'15/11/2026',items:['<b>📲 Envoyer un lien : ta signature et son numéro</b>. Le message finit par ta signature (nom, amicale, ton numéro… tu l’écris une fois, l’appli s’en souvient). Si son numéro n’est pas dans sa fiche, tu peux le taper juste là : WhatsApp ou SMS s’ouvrent directement sur sa conversation, et le numéro est ajouté à sa fiche.']},
  {v:'2.82.21',d:'15/11/2026',items:['<b>📲 Envoyer un lien : WhatsApp même sans son numéro</b>. « 🟢 WhatsApp (tu choisis la personne ou le groupe) » ouvre WhatsApp avec le message déjà écrit (prénom + lien) : tu touches la personne ou le groupe, et c’est parti, sans copier-coller. Marche aussi quand plusieurs personnes sont sélectionnées.']},
  {v:'2.82.20',d:'15/11/2026',items:['<b>📲 Envoyer un lien… avec l’affiche</b> : pour une inscription ou un menu, « 🖼 Avec l’affiche » envoie l’image de l’affiche (ou du menu) et le message avec son prénom et le lien, en même temps. Tu choisis WhatsApp ou Messages, puis la personne.']},
@@ -13643,7 +13644,7 @@ const amWaNum=t=>{let d=String(t||'').replace(/[^0-9+]/g,'');if(d.startsWith('+'
 async function amSendLink(ids){
  const a=amc();if(!a)return;const P=ids.map(id=>a.it[id]).filter(m=>m&&!m.del);if(!P.length)return;
  const t0=today(),EV=amItems('ee').filter(e=>(!e.d||e.d>=t0)&&(e.qr||e.qm)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));const A=amAq(),L=[];
- EV.forEach(e=>{if(e.qr)L.push({k:'i',e,l:'📲 Inscription : '+e.tx});if(e.qm)L.push({k:'m',e,l:'🍽 Menu et tarifs : '+e.tx})});if(A)L.push({k:'a',l:'🎖 Adhésion à l’amicale ('+amSaCur()+')'});
+ EV.forEach(e=>{if(e.qr&&e.qm)L.push({k:'im',e,l:'📲 Inscription + 🍽 menu : '+e.tx});if(e.qr)L.push({k:'i',e,l:'📲 Inscription : '+e.tx});if(e.qm)L.push({k:'m',e,l:'🍽 Menu et tarifs : '+e.tx})});if(A)L.push({k:'a',l:'🎖 Adhésion à l’amicale ('+amSaCur()+')'});
  if(!L.length){toast('Pas encore de lien à envoyer : crée le QR d’inscription d’un événement, ou le QR d’adhésion',5000);return}
  const who=P.length===1?P[0].tx:P.length+' personnes';
  const c=await ask({title:'📲 Envoyer un lien à '+esc(who),text:'Quel lien ?',btns:L.map((x,i)=>({label:x.l,value:String(i)})).concat([{label:'Annuler',value:null}])});if(c==null)return;const x=L[+c];
@@ -13651,6 +13652,7 @@ async function amSendLink(ids){
  const msg=(m)=>{const pn=m?(amNomSplit(m.tx)[0]||''):'',hi='Bonjour'+(pn?' '+pn:'')+',\n';
   if(x.k==='a')return hi+'Pour adhérer à '+(a.nm||'l’amicale')+' (saison '+amSaCur()+'), remplis ton bulletin sur ton téléphone, puis passe voir le bureau pour régler et signer :\n'+amAqUrl();
   const e=x.e,inf='« '+e.tx+' »'+(e.d?' le '+dfr(e.d):'')+(e.pl?' à '+e.pl:'');
+  if(x.k==='im')return hi+'Tu es invité(e) à '+inf+'.\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e)+'\n\n📲 Inscris-toi ici (2 minutes) :\n'+amQrUrl(e);
   return x.k==='i'?hi+'Tu es invité(e) à '+inf+'. Inscris-toi ici (2 minutes) :\n'+amQrUrl(e):hi+'Le menu et les tarifs de '+inf+' :\n'+amQmUrl(e)};
  const tel=P.map(m=>amTelHref((m.o||{}).tl)).filter(Boolean),ml=P.map(m=>String((m.o||{}).ml||'').trim()).filter(v=>/@/.test(v));
  const one=P.length===1?P[0]:null,body=msg(one),B=[],askTl=!!(one&&!tel.length);
@@ -13663,7 +13665,7 @@ async function amSendLink(ids){
  if(x.k!=='a')B.unshift({label:x.k==='m'?'📜 Avec l’image du menu (WhatsApp, Messages…)':'🖼 Avec l’affiche (WhatsApp, Messages…)',value:'po',cls:'pri'});
  B.push({label:'📋 Copier le message',value:'cp'},{label:'Annuler',value:null});
  const miss=P.length>1?P.filter(m=>!amTelHref((m.o||{}).tl)&&!/@/.test(String((m.o||{}).ml||''))).map(m=>m.tx):[];
- const pv=()=>esc(full()).replace(/https:\/\/\S+/,u=>'<span class="mut">'+u.slice(0,48)+'…</span>');
+ const pv=()=>esc(full()).replace(/https:\/\/\S+/g,u=>'<span class="mut">'+u.slice(0,48)+'…</span>');
  const root=$('#dlg');
  const pr=ask({title:esc(x.l),html:(x.k!=='a'?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">Avec l’affiche : tu choisis ensuite WhatsApp ou Messages, puis la personne (le téléphone ne permet pas de mettre une image dans un SMS tout prêt).</p>':'')
   +'<div class="card" id="sl-pv" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem;max-height:30vh;overflow:auto">'+pv()+'</div>'
