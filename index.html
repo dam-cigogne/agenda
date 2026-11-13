@@ -2866,7 +2866,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.0';
+const APP_VERSION='2.82.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2874,6 +2874,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.1',d:'14/11/2026',items:['<b>💶 Bouton « Enregistrer » sur iPad</b> : quand le clavier était ouvert (après avoir tapé un prix), toucher « Enregistrer » ne faisait rien. Le bouton réagit maintenant dès que le doigt se lève. Les cases de prix ouvrent le clavier des chiffres.','<b>💶 Encart des tarifs</b> : une fois déplacé sur l’affiche, il ne suivait plus la couleur du texte ni la taille. C’est corrigé.','<b>📲 QR d’adhésion</b> : créé sur un appareil, il n’arrivait pas sur les autres. Corrigé : c’est le même QR partout (celui déjà créé est gardé).']},
  {v:'2.82.0',d:'14/11/2026',items:['<b>📲 Adhésion par QR code</b> (onglet Amicalistes) : on scanne, on remplit son bulletin sur son téléphone (nom, grade, service, catégorie, adresse, téléphone, mail, régime). La demande arrive chez le bureau, chiffrée.','<b>✅ Valider</b> : l’appli reconnaît un ancien amicaliste (même avec une faute dans le nom) et met sa fiche à jour, ou crée la fiche.','<b>✍️ À faire signer</b> : quand la personne est devant toi, elle signe sur l’iPad (cotisation et règlement dans le bulletin), ou tu imprimes son <b>bulletin papier déjà rempli</b> puis « ✓ Signé sur papier ».','<b>🖨 Affichette du QR</b> à imprimer pour le bureau ou l’assemblée générale.','<b>💶 Fenêtres à remplir (tarifs…)</b> : sur iPad, le bouton « Enregistrer » pouvait ne plus répondre après la fermeture du clavier. C’est corrigé ; la touche « Retour » du clavier enregistre aussi. Toucher à côté de la fenêtre ne la ferme plus (pour ne rien perdre).','<b>💶 Encart des tarifs</b> : taille jusqu’à 300 %, et un exemple plus lisible tant que les prix ne sont pas mis.']},
  {v:'2.81.5',d:'13/11/2026',items:['<b>💶 Tarifs : accompagnant d’un amicaliste et enfant</b>. Avec une inscription par QR (adultes + enfants), le montant se calcule tout seul : l’amicaliste, ses accompagnants, ses enfants. Les tarifs (encart de l’affiche, page du QR menu) montrent les 4 prix.','<b>📲 QR plus petits</b> : la taille des QR descend jusqu’à 20 % et leur texte jusqu’à 20 % ; le cadre blanc rétrécit avec.','<b>🍽 Page du menu</b> : l’image du menu est allégée avant l’envoi (elle était parfois trop lourde et la page restait en texte). Un message confirme « Page du menu mise à jour avec ton image ».']},
  {v:'2.81.4',d:'13/11/2026',items:['<b>💶 Encart des tarifs</b> sur l’affiche ou le menu : les prix de la fiche de l’événement (amicaliste / non-amicaliste) dans un encart à placer où tu veux. Fond (sombre, blanc, couleur, sans), couleur et style du texte, bordure, taille et titre réglables.']},
@@ -7774,14 +7775,22 @@ function ask(o){
   const btns=o.btns||[];
   root.innerHTML='<div class="ov dlgov"><div class="sh dlgbox" role="dialog" aria-modal="true"><h2 style="font-size:1.25rem">'+esc(o.title||'')+'</h2>'+(o.html?o.html:'<p style="margin:.3rem 0 .6rem">'+esc(o.text||'')+'</p>')+
    btns.map((b,i)=>'<button class="btn blk '+(b.cls||'')+'" data-v="'+i+'">'+esc(b.label)+'</button>').join('')+'</div></div>';
-  const done=v=>{root.innerHTML='';root.onclick=null;res(v)};
+  const done=v=>{root.innerHTML='';root.onclick=root.ontouchstart=root.ontouchmove=root.ontouchend=root.onfocusout=null;try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch(e){}res(v)};
   root.onclick=e=>{
    const b=e.target.closest('[data-v]');
    if(b){e.stopPropagation();done(btns[+b.dataset.v].value)}
    else if(e.target.classList.contains('ov')&&!root.querySelector('.dlgbox input,.dlgbox textarea,.dlgbox select')){e.stopPropagation();done(null)}
   };
   /* 2.82.0 : sur iPad/iPhone, après la fermeture du clavier, les boutons pouvaient ne plus répondre (écran décalé) : on recale la page */
-  root.onfocusout=()=>setTimeout(()=>{const ae=document.activeElement;if(ae&&root.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;try{window.scrollTo(window.scrollX,window.scrollY+1);window.scrollTo(window.scrollX,Math.max(0,window.scrollY-1))}catch(e){}},120);
+  const y0=window.scrollY||0;
+  root.onfocusout=()=>setTimeout(()=>{const ae=document.activeElement;if(ae&&root.contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;try{window.scrollTo(window.scrollX,y0)}catch(e){}},80);
+  /* 2.82.1 : sur iPad, toucher un bouton pendant que le clavier est ouvert ferme le clavier, la fenêtre bouge et le « clic » était perdu : on valide dès que le doigt se lève sur le bouton */
+  let tb=null;
+  let tx0=0,ty0=0;
+  root.ontouchstart=e=>{tb=e.target.closest&&e.target.closest('.dlgbox [data-v]');const t=e.touches&&e.touches[0];if(t){tx0=t.screenX;ty0=t.screenY}};
+  root.ontouchmove=e=>{const t=e.touches&&e.touches[0];if(t&&Math.abs(t.screenX-tx0)+Math.abs(t.screenY-ty0)>14)tb=null};
+  root.ontouchend=e=>{const b=tb;tb=null;if(!b||!root.contains(b))return;
+   e.preventDefault();root.dispatchEvent(new CustomEvent('dlgsync'));done(btns[+b.dataset.v].value)};
  });
 }
 let SHEET_OPEN=false;
@@ -12346,12 +12355,12 @@ async function amVerify(list,at,sig,pub){try{if(!pub||!sig)return false;const k=
 async function amForm(title,intro,fields,ok){
  const v={};fields.forEach(f=>v[f.k]=f.v||'');
  const root=$('#dlg');
- const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
+ const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'"'+(/€/.test(f.l)?' inputmode="decimal"':'')+' value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
  const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  root.oninput=root.onchange=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
- const sync=()=>fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});root.addEventListener('click',sync,true);
+ const sync=()=>fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});root.addEventListener('click',sync,true);root.addEventListener('dlgsync',sync);
  root.onkeydown=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});const b=root.querySelector('.dlgbox .btn.pri');if(b)b.click()}};
- const r=await pr;root.removeEventListener('click',sync,true);root.oninput=root.onchange=root.onkeydown=null;return r==='ok'?v:null;
+ const r=await pr;root.removeEventListener('click',sync,true);root.removeEventListener('dlgsync',sync);root.oninput=root.onchange=root.onkeydown=null;return r==='ok'?v:null;
 }
 let AM_QUIET=0;
 /* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
@@ -13143,19 +13152,19 @@ function amPoIll(it,P,edit,bp,c1,c2){
   const S2=amMnParse(P.mn),mf0=P.mnf||'cl',hk0=mf0==='sc'?1.75:mf0==='mo'?1.15:1.3,n=S2.reduce((t,x)=>t+x.L.length*1.3+(x.h?hk0*1.25+.6+(P.mno==='1'?1.1:0):0),0),fs=Math.max(15,Math.min(34,Math.floor(600/Math.max(n,1))));
   const mt=(P.mt||'').trim()||('Menu'+(P.th==='noelf'||P.th==='noel'?' de Noël':''));
   const ts=Math.round((mt.length>18?72:92)*zs);
-  h+='<div class="scn-pn scn-mpn pt-'+pnc+'">'+nails+'<div '+bp('top','scn-tt')+' style="--ts:'+ts+'px"><h1>'+esc(mt)+'</h1>'+subH+'</div>';
+  h+='<div class="scn-pn scn-mpn pt-'+pnc+'">'+nails+'<div '+bp('top','scn-tt','--ts:'+ts+'px')+'><h1>'+esc(mt)+'</h1>'+subH+'</div>';
   const mf=P.mnf||'cl',mk=Math.max(.7,Math.min(1.6,(+P.mns||100)/100)),fs2=Math.round(fs*mk),hk=mf==='sc'?1.75:mf==='mo'?1.15:1.3,orn=P.mno==='1';
-  h+='<div '+bp('mn','scn-mn mf-'+mf)+' style="font-size:'+fs2+'px">'+(S2.length?S2.map(x=>(x.h?'<div class="scn-mh" style="font-size:'+Math.round(fs2*hk)+'px">'+(orn?'✦ ':'')+esc(x.h)+(orn?' ✦':(mf==='sc'||mf==='mo'?'':' :'))+'</div>'+(orn?'<div class="mn-orn">❦</div>':''):'')+x.L.map(v=>'<div class="scn-mi">'+esc(v)+'</div>').join('')).join(''):'<div class="scn-mi"><i>Écris le menu dans les réglages (Apéro :, Plat :, Dessert :…)</i></div>')+'</div></div>';
+  h+='<div '+bp('mn','scn-mn mf-'+mf,'font-size:'+fs2+'px')+'>'+(S2.length?S2.map(x=>(x.h?'<div class="scn-mh" style="font-size:'+Math.round(fs2*hk)+'px">'+(orn?'✦ ':'')+esc(x.h)+(orn?' ✦':(mf==='sc'||mf==='mo'?'':' :'))+'</div>'+(orn?'<div class="mn-orn">❦</div>':''):'')+x.L.map(v=>'<div class="scn-mi">'+esc(v)+'</div>').join('')).join(''):'<div class="scn-mi"><i>Écris le menu dans les réglages (Apéro :, Plat :, Dessert :…)</i></div>')+'</div></div>';
  }else{
   const title=(P.tt||it.tx).trim()||it.tx,ts=Math.round((title.length>26?66:title.length>15?80:96)*zs),hr=P.hr.trim();
   const rbt=(P.dt==='1'?amDShort(it.d):'')+(hr?(P.dt==='1'?' · ':'')+hr:''),rib=(P.dt==='1'||hr)?'<div class="scn-rib" style="font-size:'+(rbt.length>34?28:rbt.length>26?33:40)+'px">'+(P.dt==='1'?esc(amDShort(it.d)):'')+(hr?(P.dt==='1'?' · ':'')+esc(hr):'')+'</div>':'';
   const pl=P.pl==='1'&&it.pl?'<div class="scn-pl">📍 '+esc(it.pl)+'</div>':'';
   const pg=P.pg==='1'?(it.pg||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1).slice(0,5):[];
-  h+='<div class="scn-flow"><div class="scn-pn pt-'+pnc+'">'+nails+'<div '+bp('top','scn-tt')+' style="--ts:'+ts+'px"><h1>'+esc(title)+'</h1>'+subH+'</div>'+((rib||pl)?'<div '+bp('box','scn-box')+'>'+rib+pl+'</div>':'')+(P.acc.trim()?'<div '+bp('acc','scn-acc')+'>'+esc(P.acc.trim())+'</div>':'')+'</div>'+
+  h+='<div class="scn-flow"><div class="scn-pn pt-'+pnc+'">'+nails+'<div '+bp('top','scn-tt','--ts:'+ts+'px')+'><h1>'+esc(title)+'</h1>'+subH+'</div>'+((rib||pl)?'<div '+bp('box','scn-box')+'>'+rib+pl+'</div>':'')+(P.acc.trim()?'<div '+bp('acc','scn-acc')+'>'+esc(P.acc.trim())+'</div>':'')+'</div>'+
    (pg.length?'<div '+bp('pg','scn-pg')+'>'+pg.map(p=>'<div><b>'+esc(p.tm||'')+'</b><span>'+esc(p.t)+'</span></div>').join('')+'</div>':'')+
    (P.info.trim()?'<div '+bp('info','scn-info')+'>'+esc(P.info.trim())+'</div>':'')+amPoQr(it,P,bp,'scn-qr')+amPoQm(it,P,bp,'scn-qr')+(P.ct.trim()?'<div '+bp('ct','scn-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(P.ft.trim()?'<div '+bp('ft','scn-ft')+'>'+esc(P.ft.trim())+'</div>':'')+'</div>';
  }
- if(menu)h+=(P.ft.trim()?'<div '+bp('ft','scn-ft scn-abs')+' style="bottom:146px">'+esc(P.ft.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','scn-ct scn-abs')+' style="bottom:118px">'+esc(P.ct.trim())+'</div>':'');
+ if(menu)h+=(P.ft.trim()?'<div '+bp('ft','scn-ft scn-abs','bottom:146px')+'>'+esc(P.ft.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','scn-ct scn-abs','bottom:118px')+'>'+esc(P.ct.trim())+'</div>':'');
  h+=amPoPx(it,P,bp);
  if(P.dec!=='none')h+='<div class="scn-bt">'+emo.join('')+'</div>';
  return h;
@@ -13172,13 +13181,13 @@ function amPosterHTML(it,P,edit){
  const title=(P.tt||it.tx).trim()||it.tx;
  const pg=P.pg==='1'?(it.pg||[]).slice().sort((p,q)=>(p.tm||'99')<(q.tm||'99')?-1:1).slice(0,8):[];
  const imgs=(P.imgs||[]).map((m,k)=>'<img class="pst-fi'+(edit&&k===P.sel?' sel':'')+'" data-i="'+k+'" src="'+m.src+'" alt="" style="left:'+Math.round(m.x)+'px;top:'+Math.round(m.y)+'px;width:'+Math.round(m.w)+'px'+(m.r?';transform:rotate('+Math.round(m.r)+'deg)':'')+'">').join('');
- const bp=(k,cl)=>{const o=(P.off||{})[k];return 'class="'+cl+' pst-b'+(edit&&P.selb===k?' sel':'')+'" data-b="'+k+'"'+(o?' style="transform:translate('+Math.round(o.x||0)+'px,'+Math.round(o.y||0)+'px) rotate('+Math.round(o.r||0)+'deg) scale('+(o.s||1)+')"':'')};
+ const bp=(k,cl,st)=>{const o=(P.off||{})[k],tr=o?'transform:translate('+Math.round(o.x||0)+'px,'+Math.round(o.y||0)+'px) rotate('+Math.round(o.r||0)+'deg) scale('+(o.s||1)+')':'',sty=[tr,st||''].filter(Boolean).join(';');return 'class="'+cl+' pst-b'+(edit&&P.selb===k?' sel':'')+'" data-b="'+k+'"'+(sty?' style="'+sty+'"':'')};
  const dark=P.th==='nuit'&&!bw&&!P.bgc?' dk':'';
  if(P.bgi&&P.bgo==='1')return '<div class="pst" style="background:#000 url('+P.bgi+') center/cover no-repeat">'+amPoQr(it,P,bp,'pst-qr pst-qra')+amPoQm(it,P,bp,'pst-qr pst-qma')+amPoPx(it,P,bp)+imgs+'</div>';
  if(P.lay==='ill'&&!bw){const imgs2=imgs;return amPoIll(it,P,edit,bp,c1,c2)+imgs2+'</div>'}
  const bgs=P.bgi?';background:url('+P.bgi+') center/cover no-repeat':'';
  if(P.md==='menu'){const S2=amMnParse(P.mn),mt=(P.mt||'').trim()||('Menu'+(/noel/.test(P.th)?' de Noël':''));
-  return '<div class="pst l-'+P.lay+' f-'+P.fnt+' z-'+P.sz+dark+'" style="--c1:'+c1+';--c2:'+c2+';--bg:'+bg+bgs+'">'+conf+'<div '+bp('top','pst-top')+'>'+(P.kick.trim()?'<small>'+esc(P.kick.trim())+'</small>':'')+'<h1>'+esc(mt)+'</h1></div>'+row+'<div class="pst-in"><div '+bp('mn','pst-mn mf-'+(P.mnf||'cl'))+' style="zoom:'+Math.max(.7,Math.min(1.6,(+P.mns||100)/100))+'">'+S2.map(x=>(x.h?'<h3>'+(P.mno==='1'?'✦ ':'')+esc(x.h)+(P.mno==='1'?' ✦':'')+'</h3>':'')+x.L.map(v=>'<div>'+esc(v)+'</div>').join('')).join('')+'</div></div>'+(P.ft.trim()?'<div '+bp('ft','pst-ft')+'>'+esc(P.ft.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','pst-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(row?'<div class="pst-bot">'+row+'</div>':'')+amPoPx(it,P,bp)+imgs+'</div>'}
+  return '<div class="pst l-'+P.lay+' f-'+P.fnt+' z-'+P.sz+dark+'" style="--c1:'+c1+';--c2:'+c2+';--bg:'+bg+bgs+'">'+conf+'<div '+bp('top','pst-top')+'>'+(P.kick.trim()?'<small>'+esc(P.kick.trim())+'</small>':'')+'<h1>'+esc(mt)+'</h1></div>'+row+'<div class="pst-in"><div '+bp('mn','pst-mn mf-'+(P.mnf||'cl'),'zoom:'+Math.max(.7,Math.min(1.6,(+P.mns||100)/100)))+'>'+S2.map(x=>(x.h?'<h3>'+(P.mno==='1'?'✦ ':'')+esc(x.h)+(P.mno==='1'?' ✦':'')+'</h3>':'')+x.L.map(v=>'<div>'+esc(v)+'</div>').join('')).join('')+'</div></div>'+(P.ft.trim()?'<div '+bp('ft','pst-ft')+'>'+esc(P.ft.trim())+'</div>':'')+(P.ct.trim()?'<div '+bp('ct','pst-ct')+'>'+esc(P.ct.trim())+'</div>':'')+(row?'<div class="pst-bot">'+row+'</div>':'')+amPoPx(it,P,bp)+imgs+'</div>'}
  return '<div class="pst l-'+P.lay+' f-'+P.fnt+' z-'+P.sz+dark+'" style="--c1:'+c1+';--c2:'+c2+';--bg:'+bg+bgs+'">'+conf+
   '<div '+bp('top','pst-top')+'>'+(P.kick.trim()?'<small>'+esc(P.kick.trim())+'</small>':'')+'<h1>'+esc(title)+'</h1></div>'+row+
   '<div class="pst-in">'+(P.acc.trim()?'<div '+bp('acc','pst-acc')+'>'+esc(P.acc.trim())+'</div>':'')+
@@ -13298,7 +13307,7 @@ function amPoPx(it,P,bp){
  if((P.md==='menu'?P.pxsm:P.pxs)!=='1')return '';const R=amPxRows(it),e=n=>n?amEur(n):'—';
  const col=P.pxc||'#ffffff',bg=P.pxb||'d',f=P.pxf||'cl',bd=P.pxr||'n',z=Math.max(50,Math.min(300,+P.pxz||100))/100;
  const hc=R.some(x=>x[3]!=null),he=R.some(x=>x[4]!=null),body=R.length?'<table><tr><th></th><th>Amicaliste</th>'+(hc?'<th>Accomp.</th>':'')+'<th>Non-amic.</th>'+(he?'<th>Enfant</th>':'')+'</tr>'+R.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+e(x[1])+'</td>'+(hc?'<td>'+(x[3]!=null?(x[3]?e(x[3]):'Gratuit'):'')+'</td>':'')+'<td>'+e(x[2])+'</td>'+(he?'<td>'+(x[4]!=null?(x[4]?e(x[4]):'Gratuit'):'')+'</td>':'')+'</tr>').join('')+'</table>':'<div style="font-size:.85em;opacity:.9;margin-top:.2em">Amicaliste … € · Non-amicaliste … €<br><small>(mets les prix dans la fiche de l’événement)</small></div>';
- return '<div '+bp('px','pst-px pxb-'+bg+' pxf-'+f+' pxr-'+bd)+' style="--pxc:'+col+';font-size:'+Math.round(24*z)+'px"><div class="px-t">'+esc((P.pxt!=null&&P.pxt!==''?P.pxt:'💶 Tarifs'))+'</div>'+body+'</div>';
+ return '<div '+bp('px','pst-px pxb-'+bg+' pxf-'+f+' pxr-'+bd,'--pxc:'+col+';font-size:'+Math.round(24*z)+'px')+'><div class="px-t">'+esc((P.pxt!=null&&P.pxt!==''?P.pxt:'💶 Tarifs'))+'</div>'+body+'</div>';
 }
 function amPoQrBox(bp,key,cl,url,zz,tt,tx0,tsz){const z=Math.max(20,Math.min(170,+zz||100))/100,t=tt||'bd',tx=String(tx0||'').trim(),tk=Math.max(20,Math.min(200,+tsz||100))/100,zf=Math.max(.35,Math.min(1.4,z));
  return '<div '+bp(key,cl+' qrt-'+t+(z<.45?' qr-xs':z<.75?' qr-sm':''))+'><img src="'+amQrImg(url)+'" alt="" style="width:'+Math.round(150*z)+'px;height:'+Math.round(150*z)+'px">'+(t!=='n'&&tx?'<span style="font-size:'+Math.max(6,Math.round((t==='r'?24:30)*zf*tk))+'px'+(t!=='r'?';max-width:'+Math.max(Math.round(150*z),Math.round(200*z*Math.max(1,tk)))+'px':'')+(z<1?';padding:'+Math.max(2,Math.round(8*z))+'px '+Math.max(3,Math.round(10*z))+'px':'')+'">'+esc(tx)+'</span>':'')+'</div>'}
@@ -13490,8 +13499,10 @@ function amQrHTML(it,rw){
  return h;
 }
 /* 2.82.0 : adhésion par QR code. On scanne, on remplit le bulletin chez soi ; le bureau valide, encaisse et fait signer (iPad ou papier pré-rempli). */
-const AQ_ID='aqadh';
-function amAq(){const a=amc(),it=a&&a.it&&a.it[AQ_ID];if(!it||it.del||it.kind!=='aq')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],w:Array.isArray(o.w)?o.w:[]}}
+const AQ_ID='aqadhqr';
+/* 2.82.1 : l'identifiant 'aqadh' (5 lettres) n'était pas accepté par les autres appareils : on le recopie sous le bon nom, même QR */
+let AQ_MIG=0;function amAqMig(){const a=amc();if(AQ_MIG||!a||!a.it)return;const o=a.it.aqadh;if(o&&!o.del&&o.kind==='aq'&&!a.it[AQ_ID]){AQ_MIG=1;setTimeout(()=>{amItemSave(Object.assign({},o,{id:AQ_ID}));amItemSave(Object.assign({},o,{del:1}))},0)}}
+function amAq(){amAqMig();const a=amc(),it0=a&&a.it&&(a.it[AQ_ID]||a.it.aqadh),it=it0&&!it0.del?it0:(a&&a.it&&a.it[AQ_ID]);if(!it||it.del||it.kind!=='aq')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],w:Array.isArray(o.w)?o.w:[]}}
 function amAqMut(f){const A=amAq();if(!A)return;const o={qr:A.qr,qd:A.qd.slice(),w:A.w.slice()};f(o);o.qd=o.qd.slice(-700);o.w=o.w.filter((x,i,l)=>l.indexOf(x)===i).slice(-300);amItemSave(Object.assign({},A.it,{bd:JSON.stringify(o)}))}
 const amAqBase=()=>'https://dam-cigogne.github.io/amicale/adhesion.html';
 function amAqUrl(){const A=amAq(),a=amc()||{};if(!A)return '';const q=A.qr,inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),sa:String(amSaCur()||'').slice(0,12)})));return amAqBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
