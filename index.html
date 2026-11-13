@@ -2858,7 +2858,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.81.0';
+const APP_VERSION='2.81.1';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2866,6 +2866,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.81.1',d:'13/11/2026',items:['« Placer les textes » ne propose plus « QR menu » ou « QR inscription » tant qu’ils ne sont pas affichés (le QR du menu s’active dans Afficher › « 🍽 QR du menu »).']},
  {v:'2.81.0',d:'13/11/2026',items:['<b>L’affiche et le menu ont chacun leur image de fond</b> (et leur réglage « Mon image seule ») : changer l’image du menu ne touche plus l’affiche.','<b>✅ Enregistrer et fermer</b> en bas de l’affiche (elle est aussi enregistrée toute seule à chaque changement). « 📲 Partager ou enregistrer dans Photos » pour garder l’image.','<b>🍽 QR du menu</b> : un 2e QR code sur l’affiche (Afficher › « 🍽 QR du menu »). En le scannant, on voit une jolie page avec le menu (onglet 📜 Menu de l’affiche) et les tarifs de l’événement (amicaliste / non-amicaliste). Si le menu ou les prix changent, la page se met à jour toute seule : pas besoin de réimprimer. Taille, texte et position réglables. Nécessite le worker à jour.']},
  {v:'2.80.6',d:'13/11/2026',items:['<b>Inscriptions QR</b> : une personne connue comme non-amicaliste qui se dit amicaliste est bien signalée « ⚠️ n’est pas amicaliste dans ta liste ». Nouveau téléphone ou mail : la case « mettre à jour sa fiche » est cochée d’office, et un message confirme la mise à jour.','<b>📜 Inscriptions reçues</b> : coche des lignes pour les remettre à valider, ou (administrateur) les effacer quand ce sont des essais. Après « Ajouter », l’appli vérifie que la personne est bien dans les inscrits, sinon elle la remet à valider.']},
  {v:'2.80.5',d:'13/11/2026',items:['<b>QR d’inscription : choix de la forme</b> : ⬜ carré avec le texte en gros dessous, 🟥 carré avec un bandeau coloré (par défaut, très visible), texte à droite, ou QR seul. Taille réglable de 40 à 170 %.','<b>Menu : style du texte</b> au choix (Classique, ✨ Doré, ✍️ Manuscrit, Moderne, 🖍 Craie), ✦ ornements autour des rubriques, et taille du texte réglable (70 à 160 %).']},
@@ -13233,7 +13234,7 @@ function amPoOpen(){
  h+='<b class="rc-h" style="display:block">Titre</b>'+amPoChips('fnt',AM_PO_FNT,PO.fnt)+amPoChips('sz',AM_PO_SZ,PO.sz);
  h+='<b class="rc-h" style="display:block">Décor</b>'+amPoChips('dec',AM_PO_DEC,PO.dec)+amPoFld('em','Tes propres emojis (facultatif)',PO.em,'🎃👻🍬');
  h+='<b class="rc-h" style="display:block">Images et logos</b>'+amPoImgUI();
- const BLK=menu?[['top','Titre'],['mn','Menu'],['ct','Contact'],['ft','Bas de page']]:AM_PO_BLK;
+ const BLK=menu?[['top','Titre'],['mn','Menu'],['ct','Contact'],['ft','Bas de page']]:AM_PO_BLK.filter(b=>b[0]==='qr'?(it.qr&&PO.qrs!=='0'):b[0]==='qm'?(it.qm&&PO.qms==='1'):true);
  h+='<b class="rc-h" style="display:block">Placer les textes</b><p class="mut" style="font-size:.8rem;margin:.1rem 0 .3rem">Glisse un texte directement sur l’affiche (nom, date encadrée, programme…) ou choisis-le ici pour le grossir, le tourner ou le remettre à sa place.</p><div class="chips tk-chips" style="margin:.1rem 0 .3rem">'+BLK.map(b=>'<button class="chip'+(PO.selb===b[0]?' on':'')+'" data-act="po-blk" data-v="'+b[0]+'">'+b[1]+'</button>').join('')+'</div>';
  if(PO.selb){const o=(PO.off||{})[PO.selb]||{};h+='<label class="fld"><span>Taille : <b id="po-bsv">'+Math.round((o.s||1)*100)+' %</b></span><input type="range" id="po-bs" min="30" max="250" step="5" value="'+Math.round((o.s||1)*100)+'" style="width:100%"></label><label class="fld"><span>Rotation : <b id="po-brv">'+Math.round(o.r||0)+'°</b></span><input type="range" id="po-br" min="-180" max="180" step="1" value="'+Math.round(o.r||0)+'" style="width:100%"></label><div class="chips" style="margin:.1rem 0 .4rem"><button class="chip" data-act="po-bres">↺ Remettre à sa place</button></div>'}
  if(menu)h+='<b class="rc-h" style="display:block">Textes</b>'+amPoFld('kick','Sous-titre (association)',PO.kick,'Amicale…')+amPoFld('ft','Bas de page',PO.ft,'')+amPoFld('ct','Contact',PO.ct,'Prénom · téléphone');
