@@ -2902,7 +2902,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.21';
+const APP_VERSION='2.82.22';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2910,6 +2910,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.22',d:'15/11/2026',items:['<b>📲 Envoyer un lien : ta signature et son numéro</b>. Le message finit par ta signature (nom, amicale, ton numéro… tu l’écris une fois, l’appli s’en souvient). Si son numéro n’est pas dans sa fiche, tu peux le taper juste là : WhatsApp ou SMS s’ouvrent directement sur sa conversation, et le numéro est ajouté à sa fiche.']},
  {v:'2.82.21',d:'15/11/2026',items:['<b>📲 Envoyer un lien : WhatsApp même sans son numéro</b>. « 🟢 WhatsApp (tu choisis la personne ou le groupe) » ouvre WhatsApp avec le message déjà écrit (prénom + lien) : tu touches la personne ou le groupe, et c’est parti, sans copier-coller. Marche aussi quand plusieurs personnes sont sélectionnées.']},
  {v:'2.82.20',d:'15/11/2026',items:['<b>📲 Envoyer un lien… avec l’affiche</b> : pour une inscription ou un menu, « 🖼 Avec l’affiche » envoie l’image de l’affiche (ou du menu) et le message avec son prénom et le lien, en même temps. Tu choisis WhatsApp ou Messages, puis la personne.']},
  {v:'2.82.19',d:'15/11/2026',items:['<b>iPhone / iPad : l’écran ne part plus dans tous les sens</b> quand on ouvre une fiche (amicaliste, événement…) et qu’on touche une case : les cases date ne dépassent plus à droite (la fiche ne glisse plus de côté), Safari ne zoome plus tout seul, et la page derrière la fiche reste en place.']},
@@ -13652,21 +13653,36 @@ async function amSendLink(ids){
   const e=x.e,inf='« '+e.tx+' »'+(e.d?' le '+dfr(e.d):'')+(e.pl?' à '+e.pl:'');
   return x.k==='i'?hi+'Tu es invité(e) à '+inf+'. Inscris-toi ici (2 minutes) :\n'+amQrUrl(e):hi+'Le menu et les tarifs de '+inf+' :\n'+amQmUrl(e)};
  const tel=P.map(m=>amTelHref((m.o||{}).tl)).filter(Boolean),ml=P.map(m=>String((m.o||{}).ml||'').trim()).filter(v=>/@/.test(v));
- const one=P.length===1?P[0]:null,body=msg(one),B=[];
- if(tel.length)B.push({label:'💬 SMS (le lien seul)'+(P.length>1?' ('+tel.length+')':''),value:'sms',cls:x.k==='a'?'pri':''});
- const waN=one&&tel.length?amWaNum((one.o||{}).tl):'';B.push({label:waN?'🟢 WhatsApp':'🟢 WhatsApp (tu choisis la personne ou le groupe)',value:'wa'});
+ const one=P.length===1?P[0]:null,body=msg(one),B=[],askTl=!!(one&&!tel.length);
+ /* 2.82.22 : ta signature à la fin du message (gardée sur ce téléphone), et son numéro tapé ici s'il manque dans sa fiche */
+ const sig0=S.amSig!=null?String(S.amSig):((a.me&&a.me.n?a.me.n:'')+(a.nm?(a.me&&a.me.n?' – ':'')+a.nm:''));const V={sig:sig0,tl:''};
+ const full=()=>body+(String(V.sig).trim()?'\n\n'+String(V.sig).trim():'');
+ if(tel.length||askTl)B.push({label:'💬 SMS (le lien seul)'+(P.length>1?' ('+tel.length+')':''),value:'sms',cls:x.k==='a'?'pri':''});
+ B.push({label:one?'🟢 WhatsApp':'🟢 WhatsApp (tu choisis la personne ou le groupe)',value:'wa'});
  if(ml.length)B.push({label:'✉️ Mail'+(P.length>1?' ('+ml.length+')':''),value:'ml'});
  if(x.k!=='a')B.unshift({label:x.k==='m'?'📜 Avec l’image du menu (WhatsApp, Messages…)':'🖼 Avec l’affiche (WhatsApp, Messages…)',value:'po',cls:'pri'});
  B.push({label:'📋 Copier le message',value:'cp'},{label:'Annuler',value:null});
- const miss=P.filter(m=>!amTelHref((m.o||{}).tl)&&!/@/.test(String((m.o||{}).ml||''))).map(m=>m.tx);
- const v=await ask({title:esc(x.l),html:(x.k!=='a'?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">Avec l’affiche : tu choisis ensuite WhatsApp ou Messages, puis la personne (le téléphone ne permet pas de mettre une image dans un SMS tout prêt).</p>':'')+'<div class="card" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem">'+esc(body).replace(/https:\/\/\S+/,u=>'<span class="mut">'+u.slice(0,48)+'…</span>')+'</div>'+(miss.length?'<p class="mut" style="font-size:.82rem">Sans téléphone ni mail : '+esc(miss.slice(0,8).join(', '))+(miss.length>8?'…':'')+'</p>':''),btns:B});if(!v)return;
- try{await navigator.clipboard.writeText(body)}catch(e){}
+ const miss=P.length>1?P.filter(m=>!amTelHref((m.o||{}).tl)&&!/@/.test(String((m.o||{}).ml||''))).map(m=>m.tx):[];
+ const pv=()=>esc(full()).replace(/https:\/\/\S+/,u=>'<span class="mut">'+u.slice(0,48)+'…</span>');
+ const root=$('#dlg');
+ const pr=ask({title:esc(x.l),html:(x.k!=='a'?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">Avec l’affiche : tu choisis ensuite WhatsApp ou Messages, puis la personne (le téléphone ne permet pas de mettre une image dans un SMS tout prêt).</p>':'')
+  +'<div class="card" id="sl-pv" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem;max-height:30vh;overflow:auto">'+pv()+'</div>'
+  +(askTl?'<label class="lbl">📞 Son numéro <span class="mut" style="font-weight:400;text-transform:none">(pas dans sa fiche : facultatif, il y sera ajouté)</span></label><input class="in" id="sl-tl" type="tel" inputmode="tel" placeholder="06 12 34 56 78" autocomplete="off">':'')
+  +'<label class="lbl" style="margin-top:.4rem">✍️ Ta signature <span class="mut" style="font-weight:400;text-transform:none">(gardée pour la prochaine fois)</span></label><textarea class="in" id="sl-sig" rows="2" style="width:100%;min-height:3.4rem" placeholder="Prénom NOM – Amicale – 06…">'+esc(sig0)+'</textarea>'
+  +(miss.length?'<p class="mut" style="font-size:.82rem">Sans téléphone ni mail : '+esc(miss.slice(0,8).join(', '))+(miss.length>8?'…':'')+'</p>':''),btns:B});
+ const rd=()=>{const t=root.querySelector('#sl-tl'),g=root.querySelector('#sl-sig');if(t)V.tl=t.value;if(g)V.sig=g.value};
+ root.oninput=()=>{rd();const e=root.querySelector('#sl-pv');if(e)e.innerHTML=pv()};root.addEventListener('click',rd,true);root.addEventListener('dlgsync',rd);
+ const v=await pr;root.removeEventListener('click',rd,true);root.removeEventListener('dlgsync',rd);root.oninput=null;if(!v)return;
+ if(String(V.sig)!==sig0){S.amSig=String(V.sig).trim().slice(0,200);saveSet()}
+ const tT=askTl?amTelHref(V.tl):'';if(tT){try{amItemSave(Object.assign({},one,{o:Object.assign({},one.o||{},{tl:String(V.tl).trim().slice(0,30)})}));toast('📞 Numéro ajouté à sa fiche',2500)}catch(e){}}
+ const T=tT?[tT]:tel,body2=full(),waN=one&&T.length?amWaNum(one===P[0]&&tT?V.tl:(one.o||{}).tl):'';
+ try{await navigator.clipboard.writeText(body2)}catch(e){}
  const go=u=>{const l=document.createElement('a');l.href=u;l.target=u.startsWith('http')?'_blank':'_self';l.rel='noopener';document.body.appendChild(l);l.click();setTimeout(()=>l.remove(),500)};
  if(v==='cp'){toast('📋 Message copié',2500);return}
- if(v==='po'){const it=x.e,keep=PO;PO=amPoDef(it,amPoGet(it.id));PO.md=x.k==='m'?'menu':'';amPoBgLoad(PO,PO.md);PO.off=PO[PO.md==='menu'?'offm':'offa']||{};PO.selb='';PO.sel=-1;try{await amPoPng({text:body})}finally{PO=keep}return}
- if(v==='sms'){const b=encodeURIComponent(body);if(tel.length===1)go('sms:'+tel[0]+(amIOS()?'&':'?')+'body='+b);else go(amIOS()?'sms:/open?addresses='+tel.join(',')+'&body='+b:'sms:'+tel.join(',')+'?body='+b);return}
- if(v==='wa'){go('https://wa.me/'+waN+'?text='+encodeURIComponent(body));return}
- if(v==='ml'){const sj=encodeURIComponent(x.k==='a'?'Adhésion '+amSaCur():(x.e.tx||'Invitation'));go(ml.length===1?'mailto:'+ml[0]+'?subject='+sj+'&body='+encodeURIComponent(body):'mailto:?bcc='+ml.join(',')+'&subject='+sj+'&body='+encodeURIComponent(body));return}
+ if(v==='po'){const it=x.e,keep=PO;PO=amPoDef(it,amPoGet(it.id));PO.md=x.k==='m'?'menu':'';amPoBgLoad(PO,PO.md);PO.off=PO[PO.md==='menu'?'offm':'offa']||{};PO.selb='';PO.sel=-1;try{await amPoPng({text:body2})}finally{PO=keep}return}
+ if(v==='sms'){const b=encodeURIComponent(body2);if(T.length<=1)go('sms:'+(T[0]||'')+(amIOS()?'&':'?')+'body='+b);else go(amIOS()?'sms:/open?addresses='+T.join(',')+'&body='+b:'sms:'+T.join(',')+'?body='+b);return}
+ if(v==='wa'){go('https://wa.me/'+waN+'?text='+encodeURIComponent(body2));return}
+ if(v==='ml'){const sj=encodeURIComponent(x.k==='a'?'Adhésion '+amSaCur():(x.e.tx||'Invitation'));go(ml.length===1?'mailto:'+ml[0]+'?subject='+sj+'&body='+encodeURIComponent(body2):'mailto:?bcc='+ml.join(',')+'&subject='+sj+'&body='+encodeURIComponent(body2));return}
 }
 function amAqPayTxt(){const L=amAqToPay();return 'Cotisation '+amSaCur()+' à régler ('+L.length+') :\n'+L.map(m=>{const o=m.o||{};return '- '+m.tx+(o.tl?' · '+o.tl:'')+(o.ml?' · '+o.ml:'')}).join('\n')}
 async function amAqPay(id){const a=amc(),m=a&&a.it&&a.it[id];if(!m)return;const o=m.o||{};
@@ -14861,7 +14877,6 @@ async function amAmEdit(id){
  if(!m){const k=amNk(v.tx),ex=(reuse&&reuse.id&&amNk(reuse.id.tx)===k&&reuse.id)||amItems('am').find(x=>amNk(x.tx)===k);if(ex)return amAmSaveFrom(ex,v,sac)}
  if(m&&v.act==='del'){amBsDropFor([m.id]);amItemSave(Object.assign({},m,{del:1}));toast('Retiré de la liste (et son bulletin)',2500);return}
  if(m&&v.act==='pdf'){amBsMenu(m.id);return}
- if(m&&v.act==='lnk'){amSendLink([m.id]);return}
  if(m&&v.act==='cd'){amCdMember(m.id);return}
  if(!String(v.tx||'').trim()){toast('Il faut un nom',2500);return}
  const n={id:m?m.id:amId(),kind:'am',x:0,z:'b',tx:v.tx.trim().slice(0,60),d:v.d||'',w:'',qt:'',tm:'',pl:'',bd:String(v.bd||'').slice(0,1000),o:Object.assign({},o,{cb:m?(o.cb||o.pb||''):a.me.n,gr:v.gr||'',ct:v.ct||'actif',cf:v.cf==='1'?'1':'0',pm:v.pm||'',pa:String(v.pa||'').replace(',','.').slice(0,8),pxk:String(v.pa||'').replace(',','.').slice(0,8)!==String(o.pa||'')?'1':(o.pxk||''),pc:v.pc==='1'?'1':'0',rg:String(v.rg||'').slice(0,60),sv:String(v.sv||'').slice(0,60),tl:String(v.tl||'').trim().slice(0,30),ml:String(v.ml||'').trim().slice(0,60),bg:String(v.bg||'').trim().slice(0,20),k8:v.k8==='1'?'1':'',pd:v.pd||'',pb:String(v.pb||'').trim().slice(0,30),st:v.st==='n'?'n':''})};
@@ -14869,6 +14884,7 @@ async function amAmEdit(id){
  if(v.bp==='1')Object.assign(n.o,{bp:'1',bs:(o.bp==='1'&&amBsSa(o)===sac&&o.bs)||today(),bsa:sac,ba:''});else if(v.bp==='0'&&o.bp==='1')Object.assign(n.o,{bp:'',bs:'',bsa:''});
  amItemSave(n);
  if(v.bul==='1'||v.act==='bul')setTimeout(()=>amBsOpen(n.id),150);
+ if(v.act==='lnk')setTimeout(()=>amSendLink([n.id]),150);
 }
 async function amAmImport(){
  const a=amc();if(!a||!a.kB)return;
