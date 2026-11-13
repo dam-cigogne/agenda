@@ -692,6 +692,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 
 /* sheets & dialogs */
 #sheet:empty,#dlg:empty{display:none}
+.aq-card .am-it{flex-wrap:wrap}.aq-card .am-it>.am-itx{flex:1 1 100%;min-width:0}
 .qr-dt{margin:.4rem 0}.qr-dt>summary{cursor:pointer;font-weight:800;padding:.55rem .7rem;border:1px solid var(--line2,var(--line,#ddd));border-radius:.9rem;background:var(--surface);list-style:none}.qr-dt>summary::-webkit-details-marker{display:none}.qr-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.6rem;margin-top:.5rem}.qr-c{text-align:center;padding:.7rem;margin:0}.qr-c .qr-img{width:120px;height:120px;margin:.2rem auto .4rem;display:block}.qr-c .chips{justify-content:center}.qr-ct{font-weight:800}
 .po-tabs{position:sticky;top:0;z-index:3;background:var(--surface);padding:.35rem 0;margin:0 0 .2rem;flex-wrap:wrap}.po-tabs .chip{font-weight:800}.po-tip{font-size:.78rem;margin:0 0 .4rem}.po-bc{padding:.6rem .7rem;margin:.2rem 0 .6rem;border:2px solid var(--accent)}
 .ov{position:fixed;inset:0;background:rgba(8,12,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -2869,7 +2870,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.11';
+const APP_VERSION='2.82.12';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2877,6 +2878,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.12',d:'14/11/2026',items:['<b>📲 Adhésion par QR</b> : sur téléphone, les boutons (Valider, Signer, Papier) passent sous le nom, plus lisible. Le message « C’est envoyé » du formulaire s’affiche correctement.','<b>▶ Visite guidée</b> mise à jour avec toutes les nouveautés.']},
  {v:'2.82.11',d:'14/11/2026',items:['<b>🍽 Page du QR menu</b> : avec « Mon image seule », la page montre maintenant ton image <b>exactement cadrée comme dans l’appli</b> (format de l’affiche, zoom et position), et plus l’image entière avec ses bords.','<b>Correction</b> : après « ✅ Enregistrer et fermer », l’image du menu n’était parfois pas envoyée (seuls le texte et les prix l’étaient). C’est réparé.']},
  {v:'2.82.10',d:'14/11/2026',items:['<b>📲 QR codes de l’événement plus discrets</b> : le QR d’inscription et celui du menu sont côte à côte, dans une ligne « 📲 QR codes » à ouvrir d’un toucher. Les inscriptions à valider restent toujours visibles.']},
  {v:'2.82.9',d:'14/11/2026',items:['<b>🍽 QR du menu dans la fiche de l’événement</b> : en grand, avec « Menu » à côté, « 👀 Voir la page du menu », « 🔗 Copier le lien » et « 💬 Envoyer les liens ». Plus besoin d’ouvrir l’affiche pour vérifier.','<b>📲 Envoyer l’affiche</b> directement depuis la fiche de l’événement : l’affiche, le menu ou seulement les liens, avec les mêmes choix que dans l’affiche (image + liens, image seule, lien d’inscription, lien du menu, les deux, ou un QR code seul en image).']},
