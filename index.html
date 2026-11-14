@@ -360,6 +360,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .mf-ch,.mf-ch .scn-mh{font-family:"Chalkboard SE","Marker Felt","Comic Sans MS",cursive}.mf-ch .scn-mh{color:var(--sb)}
 .mn-orn{font-size:.9em;color:var(--sb);opacity:.85;line-height:1;margin:.05em 0 .15em}
 .pst-mn.mf-sc h3{font-family:"Snell Roundhand","Segoe Script","Brush Script MT","Apple Chancery","URW Chancery L",cursive;font-size:44px}.pst-mn.mf-mo h3{font-family:"Avenir Next","Trebuchet MS",Arial;text-transform:uppercase;letter-spacing:.14em}.pst-mn.mf-ch,.pst-mn.mf-ch h3{font-family:"Chalkboard SE","Marker Felt","Comic Sans MS",cursive}.pst-mn.mf-or h3{color:var(--c2)}
+.am2-car{position:relative;margin:.2rem -.2rem .5rem}.am2-cart{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.am2-cart::-webkit-scrollbar{display:none}.am2-sl{flex:0 0 100%;min-width:0;scroll-snap-align:center;scroll-snap-stop:always;padding:0 .2rem;box-sizing:border-box}.am2-sl .am2-hero{width:100%}.am2-dots{display:flex;justify-content:center;gap:.45rem;margin:.15rem 0 .4rem}.am2-dots i{width:.55rem;height:.55rem;border-radius:999px;background:color-mix(in srgb,var(--text) 22%,transparent);transition:width .25s,background .25s;cursor:pointer}.am2-dots i.on{width:1.4rem;background:var(--k-am,#7c3aed)}
 .am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.qr-card{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}.qr-card>div{flex:1 1 100%}.qr-pend .am-it{flex-wrap:wrap}.qr-pend .am-itx{flex:1 1 220px}.qr-img{width:132px;height:132px;flex:none;border-radius:10px;border:1px solid var(--line,#ddd);background:#fff;image-rendering:pixelated}.qr-pend{border:2px solid #7c3aed}.aq-np{display:block;margin:.15rem 0;color:#b91c1c;font-weight:900;font-size:.85rem}.aq-paybtn{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important;font-weight:800}.am2-req{position:absolute;top:-.55rem;right:-.35rem;transform:rotate(8deg);background:#dc2626;color:#fff;font-style:normal;font-weight:900;font-size:.78rem;padding:.18rem .5rem;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.3);animation:amReq 1.6s ease-in-out infinite;white-space:nowrap}@keyframes amReq{50%{transform:rotate(8deg) scale(1.1)}}@media (prefers-reduced-motion:reduce){.am2-req{animation:none}}.aq-dt>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}.aq-dt>summary::-webkit-details-marker{display:none}.aq-dt>summary::after{content:'▾ ouvrir';margin-left:auto;font-size:.8rem;font-weight:700;color:var(--muted)}.aq-dt[open]>summary::after{content:'▴ replier'}.aq-dt[open]>summary{margin-bottom:.5rem}.aq-bds{display:flex;gap:.3rem;flex-wrap:wrap}.aq-bd{font-weight:800;font-size:.85rem;padding:.12rem .5rem;border-radius:999px;color:#1f2937}.qr-pend .am-it{gap:.3rem}
 .scn-qr,.pst-qr{display:inline-flex;align-items:center;gap:14px;background:#fff;color:#111;border-radius:18px;padding:10px 18px 10px 10px;margin-top:16px;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:3}.scn-qr img,.pst-qr img{width:150px;height:150px;display:block;image-rendering:pixelated}.scn-qr span,.pst-qr span{font:800 24px/1.2 "Trebuchet MS",Arial,sans-serif;text-align:left;max-width:190px}.pst-qr{margin:20px auto 0}.scn-qr.qrt-b,.pst-qr.qrt-b,.scn-qr.qrt-bd,.pst-qr.qrt-bd{flex-direction:column;padding:12px;gap:8px}.qrt-b span,.qrt-bd span{text-align:center!important;font-weight:900!important;line-height:1.1!important}.qrt-b span{color:#111}.qrt-bd span{display:block;box-sizing:border-box;width:100%;background:var(--rb,#c21d1d);color:#fff!important;border-radius:10px;padding:8px 10px}.pst .qrt-bd span{background:var(--c1)}.scn-qr.qrt-n,.pst-qr.qrt-n{padding:8px}
 .pst-qr.qr-sm{padding:7px!important;gap:5px!important;border-radius:10px}.pst-qr.qr-xs{padding:4px!important;gap:3px!important;border-radius:7px}.qr-xs span{border-radius:5px!important}.pst-px{position:absolute;left:0;right:0;top:700px;margin:0 auto;display:table;z-index:4;color:var(--pxc);padding:.5em .8em;border-radius:.7em;text-align:center;font-family:Georgia,"Times New Roman",serif}
@@ -2919,7 +2920,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.43';
+const APP_VERSION='2.82.44';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2927,6 +2928,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.44',d:'17/11/2026',items:['<b>📋 Coller une image</b> marche mieux avec Gemini (images WebP, liens) ; sinon une zone « appui long › Coller » s’ouvre.','<b>Accueil : les 3 prochains événements</b> en grand, l’un après l’autre : ils défilent tout seuls, et tu peux les faire glisser du doigt ou toucher les petits points. Une vente partenaire reste affichée tant qu’elle est ouverte.']},
  {v:'2.82.43',d:'17/11/2026',items:['iPhone : les onglets sur le côté des Réglages (Groupe, Bulletin, Notifications…) ne sortent plus à moitié de l’écran.']},
  {v:'2.82.42',d:'17/11/2026',items:['<b>🤖 Belle image ChatGPT pour la vente partenaire</b> : un bouton sur la fiche de la vente et en haut de son affiche. La demande est écrite pour toi (parfums, rose et or, remise, dates), avec un carré vide pour le QR code.','Affiche de la vente : pas d’onglet Menu ni Tarifs, et la date « Du 16 au 30 novembre » partout.']},
  {v:'2.82.41',d:'17/11/2026',items:['<b>« Avec l’affiche » à une personne</b> : c’est maintenant son <b>numéro</b> qui est copié (le message part avec l’affiche). Dans Messages : « À : » › Coller.','<b>Affiche de la vente partenaire</b> : réglages du QR comme un événement normal (taille, texte, à déplacer où tu veux), dates « Du 16 au 30 novembre », remises dans les infos.','<b>🎨 Cadre du QR code au choix</b> sur toutes les affiches : doré + rouge, blanc + rose, or + noir, blanc + bleu, blanc + vert, noir + blanc, ou sans cadre.']},
@@ -12504,7 +12506,13 @@ let AM_QUIET=0;
 function amWideFix(){try{const vw=window.innerWidth,de=document.documentElement;if(de.scrollWidth>vw+1||document.querySelector('.jump.jside')){const M=document.querySelector('#main');if(M)M.querySelectorAll('*').forEach(e=>{if(e.closest('.jside,.co-tabs,#tgw,.po-g,.am-sign,.pst,svg'))return;const r=e.getBoundingClientRect();if(r.width&&r.right>vw+1&&getComputedStyle(e).position!=='fixed'){e.style.maxWidth='100%';e.style.minWidth='0';e.style.overflowWrap='anywhere'}})}
  const j=document.querySelector('.jump.jside');if(j){const vv=window.visualViewport,lw=de.clientWidth,vr=vv?vv.offsetLeft+vv.width:vw,d=Math.round(lw-vr);j.style.right=d>0?d+'px':''}}catch(e){}}
 if(window.visualViewport){visualViewport.addEventListener('resize',()=>amWideFix());visualViewport.addEventListener('scroll',()=>amWideFix())}window.addEventListener('resize',()=>amWideFix());
-function amSnFit(){amDockFit();amWideFix();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
+function amCarInit(){const c=document.querySelector('.am2-cart');if(!c||c._ok)return;c._ok=1;const D=[...c.parentNode.querySelectorAll('.am2-dots i')],n=D.length;let t0=0;
+ const cur=()=>Math.round(c.scrollLeft/Math.max(1,c.clientWidth));
+ c.addEventListener('scroll',()=>{const k=cur();D.forEach((d,i)=>d.classList.toggle('on',i===k))},{passive:true});
+ ['touchstart','pointerdown'].forEach(ev=>c.addEventListener(ev,()=>{t0=Date.now()},{passive:true}));
+ D.forEach((d,i)=>d.addEventListener('click',()=>{t0=Date.now();c.scrollTo({left:i*c.clientWidth,behavior:'smooth'})}));
+ const tm=setInterval(()=>{if(!document.body.contains(c)){clearInterval(tm);return}if(document.hidden||Date.now()-t0<12000||$('#dlg .dlgbox')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const k=(cur()+1)%n;c.scrollTo({left:k*c.clientWidth,behavior:'smooth'})},6500)}
+function amSnFit(){amDockFit();amWideFix();amCarInit();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
 window.addEventListener('resize',()=>setTimeout(amSnFit,200));window.addEventListener('orientationchange',()=>setTimeout(amSnFit,400));
 let AML_OK=false,AML_H=0;
 const amlDelay=()=>S.amlDelay==null?300:+S.amlDelay;
@@ -14194,13 +14202,24 @@ function amMnSync(id,quiet){
 /* 2.80.3 : coller une image copiée (ChatGPT, Gemini, Photos…) sans passer par l'enregistrement */
 async function amPoPaste(inputId){
  const inp=$('#'+inputId);if(!inp)return;
- try{if(!(navigator.clipboard&&navigator.clipboard.read))throw new Error('nosup');const items=await navigator.clipboard.read();let blob=null;
-  for(const it of items){const ty=it.types.find(t=>/^image\//.test(t));if(ty){blob=await it.getType(ty);break}}
-  if(!blob){toast('Pas d’image dans le presse-papiers : dans ChatGPT ou Gemini, appuie longuement sur l’image puis « Copier »',6000);return}
-  const dt=new DataTransfer();dt.items.add(new File([blob],'image-collee.'+(blob.type.split('/')[1]||'png'),{type:blob.type}));inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}))}
- catch(e){toast(e&&e.message==='nosup'?'Ton navigateur ne permet pas de coller une image ici : enregistre-la puis choisis-la':'Collage refusé : autorise « Coller » quand ton iPhone ou iPad le demande',6000)}
+ const put=b=>{const ty=b.type||'image/png',dt=new DataTransfer();dt.items.add(new File([b],'image-collee.'+(ty.split('/')[1]||'png').replace('jpeg','jpg'),{type:ty}));inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}));return true};
+ const fromSrc=async src=>{src=String(src||'').trim();if(!src)return null;try{if(/^data:image\//.test(src)){return await (await fetch(src)).blob()}if(/^https?:\/\//.test(src)){const r=await fetch(src,{mode:'cors'});if(r.ok){const b=await r.blob();if(/^image\//.test(b.type))return b}}}catch(e){}return null};
+ /* 2.82.44 : Gemini copie souvent une image WebP, un lien ou du HTML : on essaie tout, puis on propose une zone « appui long › Coller » */
+ try{if(navigator.clipboard&&navigator.clipboard.read){const items=await navigator.clipboard.read();
+   for(const it of items){const ty=it.types.find(t=>/^image\//.test(t));if(ty){put(await it.getType(ty));return}}
+   for(const it of items){if(it.types.includes('text/html')){const h=await (await it.getType('text/html')).text(),m=h.match(/<img[^>]+src=["']([^"']+)/i);const b=m&&await fromSrc(m[1]);if(b){put(b);return}}
+    for(const t of ['text/uri-list','text/plain'])if(it.types.includes(t)){const u=(await (await it.getType(t)).text()).split('\n')[0];const b=await fromSrc(u);if(b){put(b);return}}}}}catch(e){}
+ const root=$('#dlg');let got=null;
+ const pr=ask({title:'📋 Coller l’image',html:'<p style="margin:.2rem 0 .5rem">Appuie longuement dans le cadre ci-dessous, puis <b>Coller</b>.</p><div id="pz" contenteditable="true" style="min-height:9rem;border:2px dashed var(--k-am,#7c3aed);border-radius:1rem;padding:.8rem;font-size:16px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mut,#777)">👆 Appui long ici › Coller</div><p class="mut" style="font-size:.8rem;margin:.5rem 0 0">Si ça ne marche toujours pas : dans Gemini ou ChatGPT, <b>enregistre l’image</b> (dans Photos), puis « 🌄 Choisir l’image de fond ».</p>',btns:[{label:'Annuler',value:null}]});
+ const pz=root.querySelector('#pz');
+ const done=b=>{if(got)return;got=b;put(b);const x=root.querySelector('[data-close],.dlg-x');if(x)x.click();else if(root._close)root._close()};
+ if(pz){pz.addEventListener('paste',async e=>{const cd=e.clipboardData;const f=cd&&[...(cd.files||[])].find(x=>/^image\//.test(x.type));if(f){e.preventDefault();done(f);return}
+   const h=cd&&cd.getData('text/html'),m=h&&h.match(/<img[^>]+src=["']([^"']+)/i);if(m){const b=await fromSrc(m[1]);if(b){e.preventDefault();done(b);return}}
+   setTimeout(async()=>{const im=pz.querySelector('img');if(im&&im.src){const b=await fromSrc(im.src);if(b){done(b);return}}if(!got)toast('Cette image ne peut pas être collée : enregistre-la dans Photos puis « 🌄 Choisir l’image de fond »',6000);pz.innerHTML='👆 Appui long ici › Coller'},250)});
+  setTimeout(()=>{try{pz.focus()}catch(e){}},300)}
+ await pr;
 }
-document.addEventListener('paste',e=>{if(!(PO&&$('#po-pv')))return;const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>/^image\//.test(x.type));if(!f)return;e.preventDefault();const inp=$('#po-bgi');if(!inp)return;const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}))});
+document.addEventListener('paste',e=>{if(!(PO&&$('#po-pv')))return;if(e.target&&e.target.closest&&e.target.closest('#pz'))return;const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>/^image\//.test(x.type));if(!f)return;e.preventDefault();const inp=$('#po-bgi');if(!inp)return;const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;inp.dispatchEvent(new Event('change',{bubbles:true}))});
 /* 2.82.4 : dans WhatsApp on ne peut pas « toucher » un QR dans une image : on envoie aussi les liens en texte */
 function amPoLinks(it,P,only){const L=[],d=it.d?(()=>{try{return new Date(it.d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}catch(e){return ''}})():'';
  if(it.qr&&only!=='m')L.push('📲 Inscription : '+amQrUrl(it));if(it.qm&&(P.qms==='1'||only==='m')&&only!=='i')L.push('🍽 Menu et tarifs : '+amQmUrl(it));
@@ -16117,14 +16136,15 @@ async function amEditRing(){
 }
 function amHome(a,nTk,nEv){
  const L=amList(),td=new Date().toISOString().slice(0,10),MO=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
- const nxt=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&(i.d||'')>=td).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||'')))[0];
+ /* 2.82.44 : les 3 prochains événements en carrousel (glisser ou points), une vente en cours compte jusqu’à sa fin */
+ const NX=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&((i.d||'')>=td||(i.sv==='v'&&i.vp&&(i.vp.d1||'')>=td))).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||''))).slice(0,3),nxt=NX[0];
  let h='<div class="am2-id"><div class="am2-logo"'+(a.apriv?' data-act="am-logo" role="button" aria-label="Logo du groupe"':'')+' style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
  {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],['#FFB020','co',nCo,'courses']];
   if(a.kB){try{if(amAq())setTimeout(()=>amAqFetch(),300)}catch(e){}T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':''),amAq()?amAqPend().length:0]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
   h+='<div class="am2-st">'+T.map(t=>'<button style="position:relative;background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span>'+(t[4]?'<i class="am2-req">📥 '+t[4]+' demande'+(t[4]>1?'s':'')+'</i>':'')+'</button>').join('')+'</div>'}
- if(nxt){const d=new Date((nxt.d||td)+'T12:00:00');
-  const sg=nxt.kind==='ee'?amPoSign(nxt):'';
-  if(sg)h+=sg;else h+='<button class="am2-hero" data-act="am-tab" data-k="'+(nxt.kind==='ee'?'ee':'ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(nxt.tx)+'</h3><p>'+esc([nxt.tm,nxt.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'}
+ const slide=x=>{const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
+ if(NX.length===1)h+=slide(nxt);
+ else if(NX.length>1)h+='<div class="am2-car"><div class="am2-cart">'+NX.map((x,i)=>'<div class="am2-sl" data-i="'+i+'">'+slide(x)+'</div>').join('')+'</div><div class="am2-dots">'+NX.map((x,i)=>'<i data-i="'+i+'"'+(i?'':' class="on"')+' role="button" aria-label="Événement '+(i+1)+'"></i>').join('')+'</div></div>';
  return h;
 }
 const AM_LGID='logogroup';
