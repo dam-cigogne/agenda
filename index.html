@@ -377,6 +377,8 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .pst.tx-doux .pst-top h1,.pst.tx-doux .scn-tt h1{text-shadow:0 6px 20px rgba(0,0,0,.55)!important}
 .pst.tx-or .pst-top h1,.pst.tx-or .scn-tt h1{color:#f6d365!important;-webkit-text-stroke:1.5px #8a5a00;paint-order:stroke fill;text-shadow:0 2px 0 #b8860b,0 4px 10px rgba(0,0,0,.45)!important}
 .pst.l-band>.pst-ql,.pst.l-center>.pst-ql,.pst.l-side>.pst-ql,.pst.l-full>.pst-ql{position:relative}
+.dlgbox.q3wide{max-width:min(1000px,96vw)!important;width:min(1000px,96vw)}.q3g{display:block}.q3pv{position:sticky;top:-1px;z-index:3;background:var(--surface,#fff);padding:.2rem 0 .4rem;margin:0 0 .3rem}.q3pv canvas{width:100%;max-width:min(260px,62vw);aspect-ratio:1;display:block;margin:0 auto;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/20px 20px;border-radius:14px}
+@media (orientation:landscape),(min-width:760px){.q3g{display:grid;grid-template-columns:minmax(220px,44%) minmax(0,1fr);gap:16px;align-items:start}.q3pv{top:0;margin:0}.q3pv canvas{max-width:100%;max-height:70vh}}
 .am2-car{position:relative;margin:.2rem -.2rem .5rem}.am2-cart{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.am2-cart::-webkit-scrollbar{display:none}.am2-sl{flex:0 0 100%;min-width:0;scroll-snap-align:center;scroll-snap-stop:always;padding:0 .2rem;box-sizing:border-box}.am2-sl .am2-hero{width:100%}.am2-dots{display:flex;justify-content:center;gap:.45rem;margin:.15rem 0 .4rem}.am2-dots i{width:.55rem;height:.55rem;border-radius:999px;background:color-mix(in srgb,var(--text) 22%,transparent);transition:width .25s,background .25s;cursor:pointer}.am2-dots i.on{width:1.4rem;background:var(--k-am,#7c3aed)}
 .am-sign{position:relative;overflow:hidden;border-radius:18px;margin:.2rem 0 .7rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);height:240px}.qr-card{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}.qr-card>div{flex:1 1 100%}.qr-pend .am-it{flex-wrap:wrap}.qr-pend .am-itx{flex:1 1 220px}.qr-img{width:132px;height:132px;flex:none;border-radius:10px;border:1px solid var(--line,#ddd);background:#fff;image-rendering:pixelated}.qr-pend{border:2px solid #7c3aed}.aq-np{display:block;margin:.15rem 0;color:#b91c1c;font-weight:900;font-size:.85rem}.aq-paybtn{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important;font-weight:800}.am2-req{position:absolute;top:-.55rem;right:-.35rem;transform:rotate(8deg);background:#dc2626;color:#fff;font-style:normal;font-weight:900;font-size:.78rem;padding:.18rem .5rem;border-radius:999px;box-shadow:0 3px 8px rgba(0,0,0,.3);animation:amReq 1.6s ease-in-out infinite;white-space:nowrap}@keyframes amReq{50%{transform:rotate(8deg) scale(1.1)}}@media (prefers-reduced-motion:reduce){.am2-req{animation:none}}.aq-dt>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}.aq-dt>summary::-webkit-details-marker{display:none}.aq-dt>summary::after{content:'▾ ouvrir';margin-left:auto;font-size:.8rem;font-weight:700;color:var(--muted)}.aq-dt[open]>summary::after{content:'▴ replier'}.aq-dt[open]>summary{margin-bottom:.5rem}.aq-bds{display:flex;gap:.3rem;flex-wrap:wrap}.aq-bd{font-weight:800;font-size:.85rem;padding:.12rem .5rem;border-radius:999px;color:#1f2937}.qr-pend .am-it{gap:.3rem}
 .scn-qr,.pst-qr{display:inline-flex;align-items:center;gap:14px;background:#fff;color:#111;border-radius:18px;padding:10px 18px 10px 10px;margin-top:16px;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:3}.scn-qr img,.pst-qr img{width:150px;height:150px;display:block;image-rendering:pixelated}.scn-qr span,.pst-qr span{font:800 24px/1.2 "Trebuchet MS",Arial,sans-serif;text-align:left;max-width:190px}.pst-qr{margin:20px auto 0}.scn-qr.qrt-b,.pst-qr.qrt-b,.scn-qr.qrt-bd,.pst-qr.qrt-bd{flex-direction:column;padding:12px;gap:8px}.qrt-b span,.qrt-bd span{text-align:center!important;font-weight:900!important;line-height:1.1!important}.qrt-b span{color:#111}.qrt-bd span{display:block;box-sizing:border-box;width:100%;background:var(--rb,#c21d1d);color:#fff!important;border-radius:10px;padding:8px 10px}.pst .qrt-bd span{background:var(--c1)}.scn-qr.qrt-n,.pst-qr.qrt-n{padding:8px}
@@ -2937,7 +2939,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.48';
+const APP_VERSION='2.82.50';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2945,7 +2947,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
- {v:'2.82.48',d:'17/11/2026',items:['<b>📬 Contacter l’amicale</b> : un QR code pour tous (idée, question, problème…). Le message arrive chiffré au bureau, dans 💡 Idées › <b>📬 Amicalistes</b> (avec une pastille sur l’accueil). L’appli dit si la personne est dans la liste, et <b>✉️ Répondre par mail</b> prépare la réponse dans ton appli Mail.','<b>💡 Boîte à idées en 2 parties</b> : 🏛 Bureau et 📬 Amicalistes. Un message peut passer dans la boîte du bureau en un geste.','<b>🖼 Affiches de communication</b> : « Une idée ? Un souci ? » (QR contact) et « Rejoins l’amicale ! » (QR adhésion), avec le même éditeur et une belle image ChatGPT ou Gemini prévue pour.','<b>🧊 Éditeur de QR code en 3D</b> (adhésion, contact, inscriptions) : forme carrée, arrondie ou ronde, texte au-dessus et en dessous, écriture, cadre, trou pour accrocher, épaisseur, couleurs. Aperçu en direct, puis un fichier .stl pour imprimante 3D.']},
+ {v:'2.82.50',d:'17/11/2026',items:['🧊 QR 3D pour tous les QR codes : contact, adhésion, inscription, menu ou vente, à choisir en haut de l’éditeur','🧊 QR 3D : aimants à ta taille (diamètre et épaisseur au choix, avec une aide pour les mesurer)','🧊 QR 3D : un pictogramme à côté du titre (ampoule, lettre, bulle, étoile, cœur, médaille)','🧊 QR 3D : style « en creux » (gravé) en plus du relief','🧊 QR 3D : un petit pied pour poser la plaque debout (2e fichier)']},
+ {v:'2.82.49',d:'17/11/2026',items:['<b>💡 Accueil : case « idées »</b> à la place de « courses » (pour le bureau ; les courses restent en bas) : le nombre d’idées et de messages à voir, et une pastille « 📬 reçue » dès qu’un amicaliste écrit. Un appui ouvre directement les messages.','<b>🧊 QR en 3D, encore plus complet</b> : jusqu’à 3 lignes au-dessus et en dessous (le nom de l’amicale, puis à quoi sert le QR), taille du texte, <b>🧲 aimants au dos</b> (2 logements Ø10 × 2 mm). L’aperçu reste visible pendant les réglages, et passe à gauche quand le téléphone est tourné. Un avertissement si le texte devient trop petit pour l’imprimante.']},
+ {v:'2.82.48',d:'17/11/2026',items:['<b>📬 Contacter l’amicale</b> : un QR code pour tous (idée, question, problème…). Le message arrive chiffré au bureau, dans 💡 Idées › <b>📬 Amicalistes</b> (avec une pastille sur l’accueil). L’appli dit si la personne est dans la liste, et <b>✉️ Répondre par mail</b> prépare la réponse dans ton appli Mail.','<b>💡 Boîte à idées en 2 parties</b> : 🏛 Bureau et 📬 Amicalistes. Un message peut passer dans la boîte du bureau en un geste.','<b>🖼 Affiches de communication</b> : « Une idée ? Un souci ? » (QR contact) et « Rejoins l’amicale ! » (QR adhésion), avec le même éditeur et une belle image ChatGPT ou Gemini prévue pour.','<b>🧊 Éditeur de QR code en 3D</b> (adhésion, contact, inscriptions) : forme carrée, arrondie ou ronde, <b>jusqu’à 3 lignes</b> au-dessus et en dessous (nom de l’amicale, à quoi ça sert…), taille et écriture du texte, cadre, trou pour accrocher, <b>🧲 aimants au dos</b>, épaisseur, couleurs. Aperçu en direct (à gauche quand le téléphone est tourné), puis un fichier .stl pour imprimante 3D.']},
  {v:'2.82.47',d:'17/11/2026',items:['<b>✍️ Style d’écriture du titre</b> aussi pour les affiches illustrées (Noël féerique, vente…) : Manuscrit, Élégant, Moderne, Gras, Rigolo ou Affiche.','<b>✨ Effet sur le titre</b> : BD, Manga, Néon, 3D, Rétro, Doré, Ombre douce.','<b>🎨 Style de l’image ChatGPT / Gemini</b> : festif, dessin animé, manga, BD pop art, aquarelle, rétro, moderne épuré, photo, néon, papier découpé, dessin d’enfant, chic.','<b>Mêmes réglages pour toutes les affiches</b> : en haut de l’onglet ✏️ Textes, les <b>couleurs des textes</b> (titre, phrase, date…) et le <b>style d’écriture</b>, quel que soit le style choisi (Fête, Loto, Repas, illustré…).']},
  {v:'2.82.46',d:'17/11/2026',items:['<b>🎨 Couleurs des textes de l’affiche</b> (style illustré, comme Noël féerique ou la vente) : une couleur au choix pour le <b>titre</b>, la <b>phrase</b> (« avec … »), le <b>nom de l’amicale</b> et le <b>ruban de la date</b>. En haut de l’onglet ✏️ Textes et dans 🎨 Style et fond.','<b>Emojis en bas de l’affiche</b> : « 🚫 Retirer » (onglet ✏️ Textes), ou mets les tiens.']},
  {v:'2.82.45',d:'17/11/2026',items:['<b>🪟 Estomper le panneau du titre</b> : dès qu’il y a une image de fond, un curseur en haut des réglages de l’affiche rend le panneau transparent. Ton image se voit à travers, et les textes gardent un halo blanc pour rester lisibles.']},
@@ -8925,9 +8929,12 @@ async function act(a,el,e){
   case 'cx-test':{const u=amCxUrl();if(u)window.open(u,'_blank','noopener');break}
   case 'cx-po':{const C=amCx();if(C)amEePoster(C.it);break}
   case 'aq-po':{const A=amAq();if(A)amEePoster(A.it);break}
-  case 'cx-3d':amQr3DDlg(amCxUrl(),'Une idée ? Un souci ?','Scanne-moi !','contact');break;
-  case 'aq-3d':amQr3DDlg(amAqUrl(),'Rejoins l’amicale !','Scanne-moi','adhesion');break;
-  case 'qr-3d':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amQr3DDlg(amQrUrl(it),String(it.tx||'').slice(0,34),'Inscris-toi !',norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,20));break}
+  case 'cx-3d':amQr3DDlg('cx');break;
+  case 'aq-3d':amQr3DDlg('aq');break;
+  case 'qr-3d':amQr3DDlg('qr:'+ds_.id);break;
+  case 'qm-3d':amQr3DDlg('qm:'+ds_.id);break;
+  case 'vp-3d':amQr3DDlg('vp:'+ds_.id);break;
+  case 'q3-any':amQr3DDlg('');break;
   case 'cx-rep':await amCxRep(ds_.id);break;
   case 'cx-st':{const a=amc(),it=a&&a.it[ds_.id];if(!it)break;const m=amCmP(it);m.st=ds_.v||'';if(m.st){m.ra=Date.now();m.rb=String(a.me.n||'').slice(0,30)}amCmPut(it,m);break}
   case 'cx-del':{const a=amc(),it=a&&a.it[ds_.id];if(!it)break;const ok=await ask({title:'🗑 Supprimer ce message ?',text:'Il disparaît pour tout le bureau.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(ok)amItemSave(Object.assign({},it,{del:1}));break}
@@ -13720,7 +13727,7 @@ function amQrAccept(id,ns,D){
  toast((nw?'✅ '+nw+' inscrit'+(nw>1?'s':'')+' ajouté'+(nw>1?'s':''):'')+(up?(nw?' · ':'')+up+' déjà dans la liste (complété'+(up>1?'s':'')+')':'')+(FU.length?' · 📇 fiche mise à jour : '+FU.join(', '):''),6000);
 }
 function amQrRefuse(id,n){amEeMut(o=>{o.qd=o.qd||[];if(!o.qd.includes(n))o.qd.push(n)});toast('Inscription écartée',2500)}
-function amQmCard(it,bare){if(!it.qm)return '';const u=amQmUrl(it),c='<div class="card qr-c"><div class="qr-ct">🍽 Menu</div><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code du menu"><div class="chips"><button class="chip" data-act="qm-see2" data-id="'+esc(it.id)+'">👀 Voir la page</button><button class="chip" data-act="qm-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer</button></div><p class="mut" style="font-size:.78rem;margin:.3rem 0 0">Se met à jour avec « ✅ Enregistrer et fermer » de l’affiche.</p></div>';return bare?c:amQrDt(it,'🍽 QR code du menu',c)}
+function amQmCard(it,bare){if(!it.qm)return '';const u=amQmUrl(it),c='<div class="card qr-c"><div class="qr-ct">🍽 Menu</div><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code du menu"><div class="chips"><button class="chip" data-act="qm-see2" data-id="'+esc(it.id)+'">👀 Voir la page</button><button class="chip" data-act="qm-copy" data-id="'+esc(it.id)+'">🔗 Copier le lien</button><button class="chip" data-act="qm-3d" data-id="'+esc(it.id)+'">🧊 3D</button><button class="chip" data-act="po-links" data-id="'+esc(it.id)+'">💬 Envoyer</button></div><p class="mut" style="font-size:.78rem;margin:.3rem 0 0">Se met à jour avec « ✅ Enregistrer et fermer » de l’affiche.</p></div>';return bare?c:amQrDt(it,'🍽 QR code du menu',c)}
 const AMQR_OPEN={};document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.classList&&d.classList.contains('qr-dt'))AMQR_OPEN[d.dataset.id]=d.open},true);
 function amQrDt(it,t,inner){return '<details class="qr-dt" data-id="'+esc(it.id)+'"'+(AMQR_OPEN[it.id]?' open':'')+'><summary>'+t+'</summary><div class="qr-2">'+inner+'</div></details>'}
 function amQrHTML(it,rw){
@@ -13833,22 +13840,43 @@ async function amCxRep(id){const a=amc(),it=a&&a.it[id];if(!it)return;const m=am
    Aperçu en direct ; fichier STL pour imprimante 3D (plaque + relief à imprimer en 2 couleurs). */
 const Q3F={gras:'900 {s}px "Arial Black", Arial, Helvetica, sans-serif',rond:'700 {s}px "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif',ele:'italic 700 {s}px Georgia, "Times New Roman", serif',machine:'700 {s}px "Courier New", Courier, monospace'};
 const Q3COL={wn:['#f8fafc','#111827','Blanc + noir'],nw:['#111827','#f8fafc','Noir + blanc'],bw:['#1d4ed8','#f8fafc','Bleu + blanc'],rw:['#b91c1c','#f8fafc','Rouge + blanc'],gk:['#d4a017','#111827','Or + noir'],vw:['#7c3aed','#f8fafc','Violet + blanc']};
-function amQ3Lay(c){const m=window.qrMatrix(c.url,'M'),n=m.length,W=+c.W||60,rim=c.rim?Math.max(1.5,W*0.025):0,mg=Math.max(2.5,W*0.045)+rim,hole=c.hole?Math.max(2,W*0.035):0,L={W,n,m,rim,hole:null,T:[]};
- if(c.sh==='ci'){const D=W,hasT=!!(c.t1||c.t2);let qs=D*(hasT?0.56:0.66);if(c.hole&&c.t1)qs*=0.94;const cy=D/2+(c.t1&&!c.t2?D*0.04:c.t2&&!c.t1?-D*0.04:0);
-  L.H=D;L.qr={x:(D-qs)/2,y:cy-qs/2,s:qs};const band=D*0.1,chord=y=>2*Math.sqrt(Math.max(0,(D/2)**2-(y-D/2)**2))-2*mg;
-  if(c.t1){const y=L.qr.y-band*0.75;L.T.push({s:c.t1,x:D/2,y,w:Math.min(chord(y-band/2),chord(y+band/2)),h:band})}
-  if(c.t2){const y=L.qr.y+qs+band*0.75;L.T.push({s:c.t2,x:D/2,y,w:Math.min(chord(y-band/2),chord(y+band/2)),h:band})}
+function amQ3Lines(t){return String(t||'').split(/\n/).map(x=>x.trim()).filter(Boolean).slice(0,3)}
+function amQ3Lay(c){const m=window.qrMatrix(c.url,'M'),n=m.length,W=+c.W||60,rim=c.rim?Math.max(1.5,W*0.025):0,mg=Math.max(2.5,W*0.045)+rim,hole=c.hole?Math.max(2,W*0.035):0,L={W,n,m,rim,hole:null,T:[]},tz={S:0.8,M:1,L:1.2}[c.ts||'M']||1;
+ const A=amQ3Lines(c.t1),Bl=amQ3Lines(c.t2),lh=(i,top)=>W*0.13*tz*(i===0?1:top?0.85:0.72);
+ if(c.sh==='ci'){const D=W,nl=A.length+Bl.length;let qs=D*Math.max(0.4,0.66-0.07*nl);if(c.hole&&A.length)qs*=0.94;
+  const hA=A.reduce((t,x,i)=>t+lh(i,1)*0.8,0),hB=Bl.reduce((t,x,i)=>t+lh(i,0)*0.8,0),cy=D/2+(hA-hB)/2;
+  L.H=D;L.qr={x:(D-qs)/2,y:cy-qs/2,s:qs};const chord=y=>2*Math.sqrt(Math.max(0,(D/2)**2-(y-D/2)**2))-2*mg;
+  let y=L.qr.y-W*0.01;for(let i=A.length-1;i>=0;i--){const h=lh(i,1)*0.8;y-=h;L.T.push({s:A[i],x:D/2,y:y+h/2,w:Math.min(chord(y),chord(y+h)),h,f:i===0?1:0})}
+  y=L.qr.y+qs+W*0.01;Bl.forEach((s2,i)=>{const h=lh(i,0)*0.8;L.T.push({s:s2,x:D/2,y:y+h/2,w:Math.min(chord(y),chord(y+h)),h,f:i===0?2:0});y+=h});
   if(hole)L.hole={x:D/2,y:rim+hole+Math.max(1.5,W*0.02),r:hole}}
- else{const qs=W-2*mg,band=c.t1||c.t2?W*0.15:0,hb=hole?2*hole+Math.max(3,W*0.04):0;let y=mg+hb;
+ else{const qs=W-2*mg,hb=hole?2*hole+Math.max(3,W*0.04):0;let y=mg+hb;
   if(hole)L.hole={x:W/2,y:rim+hole+Math.max(1.5,W*0.02),r:hole};
-  if(c.t1){L.T.push({s:c.t1,x:W/2,y:y+band/2,w:qs,h:band});y+=band}
-  L.qr={x:mg,y,s:qs};y+=qs;
-  if(c.t2){L.T.push({s:c.t2,x:W/2,y:y+band/2,w:qs,h:band});y+=band}
+  A.forEach((s2,i)=>{const h=lh(i,1);L.T.push({s:s2,x:W/2,y:y+h/2,w:qs,h,f:i===0?1:0});y+=h});
+  L.qr={x:mg,y:y+(A.length?W*0.01:0),s:qs};y=L.qr.y+qs+(Bl.length?W*0.01:0);
+  Bl.forEach((s2,i)=>{const h=lh(i,0);L.T.push({s:s2,x:W/2,y:y+h/2,w:qs,h,f:i===0?2:0});y+=h});
   L.H=y+mg;L.rad=c.sh==='rd'?Math.max(3,W*0.12):0}
+ /* 🧲 logements d’aimants au dos (Ø10 × 2 mm) */
+ if(c.mag){const H=L.H,d=+c.md||10,cx=L.W/2;let P=c.sh==='ci'?[[cx-L.W*0.22,H/2],[cx+L.W*0.22,H/2]]:[[L.W*0.27,H*0.5],[L.W*0.73,H*0.5]];if(P[1][0]-P[0][0]<d+3)P=[[cx,H/2]];L.mag=P;L.md=d;L.mh=+c.mh||2;L.magBad=d+4>Math.min(L.W,L.H)}
  return L}
 function amQ3Path(g,c,L,k){g.beginPath();if(c.sh==='ci'){g.arc(L.W/2*k,L.W/2*k,L.W/2*k,0,Math.PI*2);return}const w=L.W*k,h=L.H*k,r=(L.rad||0)*k;if(!r){g.rect(0,0,w,h);return}
  g.moveTo(r,0);g.lineTo(w-r,0);g.arc(w-r,r,r,-Math.PI/2,0);g.lineTo(w,h-r);g.arc(w-r,h-r,r,0,Math.PI/2);g.lineTo(r,h);g.arc(r,h-r,r,Math.PI/2,Math.PI);g.lineTo(0,r);g.arc(r,r,r,Math.PI,Math.PI*1.5);g.closePath()}
-function amQ3Text(g,c,L,k){g.textAlign='center';g.textBaseline='middle';const F=Q3F[c.fo]||Q3F.gras;L.T.forEach(t=>{let fs=t.h*0.78*k;g.font=F.replace('{s}',fs.toFixed(1));while(fs>4&&g.measureText(t.s).width>t.w*k){fs-=0.5;g.font=F.replace('{s}',fs.toFixed(1))}g.fillText(t.s,t.x*k,t.y*k)})}
+/* pictogrammes dessinés en traits (imprimables en relief / en creux) — boîte de côté s centrée en (x,y) */
+const Q3IC={bulb:'💡 Ampoule',mail:'✉️ Lettre',bub:'💬 Bulle',star:'⭐ Étoile',heart:'❤️ Cœur',medal:'🎖 Médaille'};
+function amQ3Ico(g,ic,x,y,s,k){const X=u=>(x-s/2+u*s)*k,Y=v=>(y-s/2+v*s)*k,P=a=>{g.beginPath();a.forEach((p,i)=>i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1])));g.closePath();g.fill()};
+ g.save();g.lineWidth=Math.max(0.8,s*0.13)*k;g.lineJoin='round';g.lineCap='round';
+ if(ic==='bulb'){g.beginPath();g.arc(X(.5),Y(.38),.33*s*k,0,Math.PI*2);g.fill();P([[.36,.6],[.64,.6],[.62,.74],[.38,.74]]);P([[.36,.78],[.64,.78],[.64,.86],[.36,.86]]);P([[.41,.9],[.59,.9],[.55,.98],[.45,.98]])}
+ else if(ic==='mail'){g.strokeRect(X(.06),Y(.2),.88*s*k,.6*s*k);g.beginPath();g.moveTo(X(.06),Y(.22));g.lineTo(X(.5),Y(.56));g.lineTo(X(.94),Y(.22));g.stroke()}
+ else if(ic==='bub'){const r=.18*s*k,x0=X(.04),y0=Y(.1),w=.92*s*k,h=.62*s*k;g.beginPath();g.moveTo(x0+r,y0);g.arcTo(x0+w,y0,x0+w,y0+h,r);g.arcTo(x0+w,y0+h,x0,y0+h,r);g.lineTo(X(.42),y0+h);g.lineTo(X(.2),Y(.95));g.lineTo(X(.26),y0+h);g.arcTo(x0,y0+h,x0,y0,r);g.arcTo(x0,y0,x0+w,y0,r);g.closePath();g.fill()}
+ else if(ic==='star'){const a=[];for(let i=0;i<10;i++){const r=i%2?.21:.5,t=-Math.PI/2+i*Math.PI/5;a.push([.5+Math.cos(t)*r,.54+Math.sin(t)*r])}P(a)}
+ else if(ic==='heart'){g.beginPath();g.moveTo(X(.5),Y(.95));g.bezierCurveTo(X(-.1),Y(.5),X(.12),Y(.02),X(.5),Y(.28));g.bezierCurveTo(X(.88),Y(.02),X(1.1),Y(.5),X(.5),Y(.95));g.closePath();g.fill()}
+ else if(ic==='medal'){P([[.2,0],[.42,0],[.56,.42],[.38,.46]]);P([[.8,0],[.58,0],[.44,.42],[.62,.46]]);g.beginPath();g.arc(X(.5),Y(.68),.3*s*k,0,Math.PI*2);g.fill()}
+ g.restore()}
+function amQ3Text(g,c,L,k){g.textAlign='center';g.textBaseline='middle';const F=Q3F[c.fo]||Q3F.gras,ic=Q3IC[c.ic]?c.ic:'',tg=ic?(L.T.find(t=>t.f===1)||L.T.find(t=>t.f===2)):null;L.minT=99;L.T.forEach(t=>{const nI=t===tg?(c.ip==='b'?2:1):0,s=t.h*0.8,rs=nI*s*1.25;let fs=t.h*0.78*k;g.font=F.replace('{s}',fs.toFixed(1));while(fs>2&&g.measureText(t.s).width>(t.w-rs)*k){fs-=0.25;g.font=F.replace('{s}',fs.toFixed(1))}L.minT=Math.min(L.minT,fs/k*0.72);
+  if(!nI){g.fillText(t.s,t.x*k,t.y*k);return}const tw=g.measureText(t.s).width/k;
+  if(nI===2){g.fillText(t.s,t.x*k,t.y*k);const d=tw/2+s*0.25+s/2;amQ3Ico(g,ic,t.x-d,t.y,s,k);amQ3Ico(g,ic,t.x+d,t.y,s,k)}
+  else{const st=t.x-(s*1.25+tw)/2;amQ3Ico(g,ic,st+s/2,t.y,s,k);g.fillText(t.s,(st+s*1.25+tw/2)*k,t.y*k)}})}
+/* épaisseurs : couche du bas percée pour les aimants (hauteur aimant + 0,2), plaque au moins 1 mm au-dessus */
+const amQ3Th=c=>{const zb=c.mag?Math.ceil(((+c.mh||2)+0.2)*5-1e-6)/5:0;return {zb,base:Math.max(+c.th||2,c.mag?zb+1:0)}};
 function amQ3Relief(g,c,L,k){/* cadre + textes (le QR est dessiné à part, au module près) */
  if(L.rim){g.save();amQ3Path(g,c,L,k);g.clip();g.lineWidth=2*L.rim*k;amQ3Path(g,c,L,k);g.stroke();g.restore()}
  amQ3Text(g,c,L,k)}
@@ -13860,7 +13888,7 @@ function amQ3Draw(cv,c){const L=amQ3Lay(c),k=Math.min(cv.width/L.W,cv.height/L.H
  g.clearRect(0,0,cv.width,cv.height);g.save();g.translate(ox,oy);
  g.save();g.shadowColor='rgba(0,0,0,.35)';g.shadowBlur=14;g.shadowOffsetY=6;g.fillStyle=C[0];amQ3Path(g,c,L,k);g.fill();g.restore();
  if(L.hole){g.save();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,L.hole.r*k,0,Math.PI*2);g.fill();g.restore()}
- g.save();g.shadowColor='rgba(0,0,0,.45)';g.shadowOffsetX=1.2;g.shadowOffsetY=1.6;g.shadowBlur=1.5;g.fillStyle=C[1];g.strokeStyle=C[1];amQ3Relief(g,c,L,k);amQ3QR(L,(x,y,w,h)=>g.fillRect(x*k,y*k,w*k+.4,h*k+.4),amQ3Inv(c));g.restore();
+ g.save();if(c.cr){g.shadowColor='rgba(0,0,0,.55)';g.shadowOffsetX=-1;g.shadowOffsetY=-1.3;g.shadowBlur=1.2}else{g.shadowColor='rgba(0,0,0,.45)';g.shadowOffsetX=1.2;g.shadowOffsetY=1.6;g.shadowBlur=1.5}g.fillStyle=C[1];g.strokeStyle=C[1];amQ3Relief(g,c,L,k);amQ3QR(L,(x,y,w,h)=>g.fillRect(x*k,y*k,w*k+.4,h*k+.4),amQ3Inv(c));g.restore();
  g.restore();return L}
 function amQ3Mask(L,c,px,fn){const nx=Math.ceil(L.W/px),ny=Math.ceil(L.H/px),cv=document.createElement('canvas');cv.width=nx;cv.height=ny;const g=cv.getContext('2d');g.fillStyle='#000';g.strokeStyle='#000';fn(g,1/px);return {nx,ny,d:g.getImageData(0,0,nx,ny).data}}
 function amQ3Boxes(M,px,H,z0,z1,box){/* pixels pleins → pavés (fusion des lignes identiques) */const open={};
@@ -13868,49 +13896,77 @@ function amQ3Boxes(M,px,H,z0,z1,box){/* pixels pleins → pavés (fusion des lig
  for(let y=0;y<=M.ny;y++){const runs={};if(y<M.ny){let x=0;while(x<M.nx){if(M.d[(y*M.nx+x)*4+3]<128){x++;continue}let e=x;while(e<M.nx&&M.d[(y*M.nx+e)*4+3]>=128)e++;runs[x+':'+e]=1;x=e}}
   for(const key in open)if(!runs[key]){flush(key,open[key],y);delete open[key]}
   for(const key in runs)if(!open[key]){const [a,b]=key.split(':').map(Number);open[key]={x0:a,x1:b,y0:y}}}}
-function amQ3Stl(c){const L=amQ3Lay(c),base=+c.th||2,up=+c.up||1.2,H=L.H,px=0.2,T=[];
+function amQ3Stl(c){const L=amQ3Lay(c),{zb,base}=amQ3Th(c),up=+c.up||1.2,H=L.H,px=0.2,T=[];
  const tri=(a,b,d)=>T.push([a,b,d]);
  const box=(x0,y0,x1,y1,z0,z1)=>{const p=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
   tri(p[0],p[2],p[1]);tri(p[0],p[3],p[2]);tri(p[4],p[5],p[6]);tri(p[4],p[6],p[7]);tri(p[0],p[1],p[5]);tri(p[0],p[5],p[4]);tri(p[3],p[7],p[6]);tri(p[3],p[6],p[2]);tri(p[0],p[4],p[7]);tri(p[0],p[7],p[3]);tri(p[1],p[2],p[6]);tri(p[1],p[6],p[5])};
- /* plaque : forme lisse (sans trou) ou pixels fins (avec trou) */
+ /* plaque : forme lisse (sans trou) ou pixels fins (avec trou) ; avec aimants : couche du bas percée de 2 logements */
+ if(L.mag){const M0=amQ3Mask(L,c,px,(g,k)=>{amQ3Path(g,c,L,k);g.fill();g.globalCompositeOperation='destination-out';(L.hole?[[L.hole.x,L.hole.y,L.hole.r]]:[]).concat(L.mag.map(p=>[p[0],p[1],L.md/2+0.15])).forEach(h=>{g.beginPath();g.arc(h[0]*k,h[1]*k,h[2]*k,0,Math.PI*2);g.fill()})});amQ3Boxes(M0,px,H,0,zb,box)}
  if(!L.hole){const P=[];if(c.sh==='ci'){for(let i=0;i<120;i++){const a=i/120*Math.PI*2;P.push([L.W/2+Math.cos(a)*L.W/2,L.W/2+Math.sin(a)*L.W/2])}}
   else{const r=L.rad||0,w=L.W,h=L.H;if(!r)P.push([0,0],[w,0],[w,h],[0,h]);else{const arc=(cx,cy,a0)=>{for(let i=0;i<=10;i++){const a=a0+i/10*Math.PI/2;P.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r])}};arc(w-r,r,-Math.PI/2);arc(w-r,h-r,0);arc(r,h-r,Math.PI/2);arc(r,r,Math.PI)}}
   const Q=P.map(p=>[p[0],H-p[1]]),cx=L.W/2,cy=H/2,N=Q.length;
-  for(let i=0;i<N;i++){const a=Q[i],b=Q[(i+1)%N];tri([cx,cy,base],[a[0],a[1],base],[b[0],b[1],base]);tri([cx,cy,0],[b[0],b[1],0],[a[0],a[1],0]);tri([a[0],a[1],0],[b[0],b[1],0],[b[0],b[1],base]);tri([a[0],a[1],0],[b[0],b[1],base],[a[0],a[1],base])}
+  for(let i=0;i<N;i++){const a=Q[i],b=Q[(i+1)%N];tri([cx,cy,base],[a[0],a[1],base],[b[0],b[1],base]);tri([cx,cy,zb],[b[0],b[1],zb],[a[0],a[1],zb]);tri([a[0],a[1],zb],[b[0],b[1],zb],[b[0],b[1],base]);tri([a[0],a[1],zb],[b[0],b[1],base],[a[0],a[1],base])}
   /* sens des faces : la forme est parcourue dans le sens horaire après retournement → on vérifie l'aire et on inverse si besoin */
   let ar=0;for(let i=0;i<N;i++){const a=Q[i],b=Q[(i+1)%N];ar+=a[0]*b[1]-b[0]*a[1]}if(ar<0)for(let i=T.length-4*N;i<T.length;i++){const t=T[i];T[i]=[t[0],t[2],t[1]]}}
- else{const M=amQ3Mask(L,c,px,(g,k)=>{amQ3Path(g,c,L,k);g.fill();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,L.hole.r*k,0,Math.PI*2);g.fill()});amQ3Boxes(M,px,H,0,base,box)}
- const R=amQ3Mask(L,c,px,(g,k)=>{amQ3Relief(g,c,L,k);if(L.hole){g.globalCompositeOperation='destination-out';g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,(L.hole.r+0.8)*k,0,Math.PI*2);g.fill()}});amQ3Boxes(R,px,H,base,base+up,box);
- amQ3QR(L,(x,y,w,h)=>box(x,H-y-h,x+w,H-y,base,base+up),amQ3Inv(c));
- const buf=new ArrayBuffer(84+T.length*50),dv=new DataView(buf);dv.setUint32(80,T.length,true);let o=84;
+ else{const M=amQ3Mask(L,c,px,(g,k)=>{amQ3Path(g,c,L,k);g.fill();g.globalCompositeOperation='destination-out';g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,L.hole.r*k,0,Math.PI*2);g.fill()});amQ3Boxes(M,px,H,zb,base,box)}
+ if(c.cr){/* en creux : couche du dessus pleine, percée par le QR, les textes, le cadre et le pictogramme */
+  const M=amQ3Mask(L,c,px,(g,k)=>{amQ3Path(g,c,L,k);g.fill();g.globalCompositeOperation='destination-out';amQ3Relief(g,c,L,k);amQ3QR(L,(x,y,w,h)=>g.fillRect(x*k,y*k,w*k,h*k),amQ3Inv(c));if(L.hole){g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,L.hole.r*k,0,Math.PI*2);g.fill()}});amQ3Boxes(M,px,H,base,base+up,box)}
+ else{const R=amQ3Mask(L,c,px,(g,k)=>{amQ3Relief(g,c,L,k);if(L.hole){g.globalCompositeOperation='destination-out';g.beginPath();g.arc(L.hole.x*k,L.hole.y*k,(L.hole.r+0.8)*k,0,Math.PI*2);g.fill()}});amQ3Boxes(R,px,H,base,base+up,box);
+ amQ3QR(L,(x,y,w,h)=>box(x,H-y-h,x+w,H-y,base,base+up),amQ3Inv(c))}
+ return Object.assign(amStlBuf(T),{W:Math.round(L.W),H:Math.round(L.H)})}
+function amStlBuf(T){const buf=new ArrayBuffer(84+T.length*50),dv=new DataView(buf);dv.setUint32(80,T.length,true);let o=84;
  T.forEach(([a,b,d])=>{const u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],v=[d[0]-a[0],d[1]-a[1],d[2]-a[2]];let nx=u[1]*v[2]-u[2]*v[1],ny=u[2]*v[0]-u[0]*v[2],nz=u[0]*v[1]-u[1]*v[0];const l=Math.hypot(nx,ny,nz)||1;
   [nx/l,ny/l,nz/l].forEach(f=>{dv.setFloat32(o,f,true);o+=4});[a,b,d].forEach(p=>{p.forEach(f=>{dv.setFloat32(o,f,true);o+=4})});dv.setUint16(o,0,true);o+=2});
- return {buf,W:Math.round(L.W),H:Math.round(L.H),tri:T.length}}
+ return {buf,tri:T.length}}
+/* petit pied : socle avec une fente inclinée de 12° (plaque posée debout, légèrement penchée en arrière) — fichier à part, 1 couleur */
+function amQ3Foot(c){const L=amQ3Lay(c),{base}=amQ3Th(c),sw=base+(+c.up||1.2)+0.5,Ls=Math.round(Math.min(c.sh==='ci'?L.W*0.6:L.W*0.75,80)),Dp=22,Hs=12,z0=3,tl=Math.tan(12*Math.PI/180),y0=8,T=[],tri=(a,b,d)=>T.push([a,b,d]);
+ const box=(x0,y0_,x1,y1,z_,z1)=>{const p=[[x0,y0_,z_],[x1,y0_,z_],[x1,y1,z_],[x0,y1,z_],[x0,y0_,z1],[x1,y0_,z1],[x1,y1,z1],[x0,y1,z1]];
+  tri(p[0],p[2],p[1]);tri(p[0],p[3],p[2]);tri(p[4],p[5],p[6]);tri(p[4],p[6],p[7]);tri(p[0],p[1],p[5]);tri(p[0],p[5],p[4]);tri(p[3],p[7],p[6]);tri(p[3],p[6],p[2]);tri(p[0],p[4],p[7]);tri(p[0],p[7],p[3]);tri(p[1],p[2],p[6]);tri(p[1],p[6],p[5])};
+ box(0,0,Ls,Dp,0,z0);for(let z=z0;z<Hs-1e-6;z+=0.5){const z1=Math.min(Hs,z+0.5),yc=y0+(z+0.25-z0)*tl;box(0,0,Ls,yc-sw/2,z,z1);box(0,yc+sw/2,Ls,Dp,z,z1)}
+ return Object.assign(amStlBuf(T),{Ls,sw})}
 let Q3C=null;
-async function amQr3DDlg(url,t1,t2,nm){if(!url){toast('Pas encore de QR code',2500);return}const root=$('#dlg');
- const c=Object.assign({sh:'rd',W:60,fo:'gras',rim:1,hole:0,th:2,up:1.2,col:'wn'},(()=>{try{return JSON.parse(localStorage.getItem('agd-q3')||'{}')}catch(e){return {}}})(),{url,t1:t1||'',t2:t2||''});
+/* tous les QR codes de l’amicale : contact, adhésion, puis pour chaque événement inscription / menu / vente */
+function amQ3Src(){const a=amc()||{},nm=a.nm?a.nm+'\n':'',L=[],sl=t=>norm(t).replace(/[^a-z0-9]+/g,'-').slice(0,20),tdy=today();
+ if(amCx())L.push({k:'cx',lab:'📬 Contacter l’amicale (idées, questions)',url:amCxUrl(),t1:nm+'Une idée ? Un souci ?',t2:'Scanne-moi !\nIdée · question · problème',nm:'contact',ic:'bulb'});
+ if(amAq())L.push({k:'aq',lab:'🎖 Adhérer à l’amicale',url:amAqUrl(),t1:nm+'Rejoins l’amicale !',t2:'Scanne-moi\nAdhère en 2 minutes',nm:'adhesion',ic:'medal'});
+ const E=Object.values(a.it||{}).filter(it=>it&&!it.del&&it.kind==='ee'&&(it.qr||it.qm||(it.sv==='v'&&it.vp&&(it.vp.uc||it.vp.u))));
+ E.sort((x,y)=>{const fx=(x.d||'')>=tdy?0:1,fy=(y.d||'')>=tdy?0:1;return fx-fy||(fx?String(y.d||'').localeCompare(x.d||''):String(x.d||'').localeCompare(y.d||''))});
+ E.forEach(it=>{const t=String(it.tx||'').slice(0,40),dd=it.d?' ('+it.d.slice(8,10)+'/'+it.d.slice(5,7)+')':'';
+  if(it.sv==='v'&&it.vp&&(it.vp.uc||it.vp.u))L.push({k:'vp:'+it.id,lab:'🛍️ Vente : '+t+dd,url:it.vp.uc||amVpHref(it.vp.u),t1:nm+t,t2:(it.vp.uc?'Crée ton compte':'Commande ici')+'\nScanne-moi',nm:sl(t)});
+  if(it.qr)L.push({k:'qr:'+it.id,lab:'📲 Inscription : '+t+dd,url:amQrUrl(it),t1:nm+t,t2:'Inscris-toi !\nScanne-moi',nm:sl(t)});
+  if(it.qm)L.push({k:'qm:'+it.id,lab:'🍽 Menu : '+t+dd,url:amQmUrl(it),t1:nm+t,t2:'Le menu\nScanne-moi',nm:sl(t)+'-menu'})});
+ return L.filter(x=>x.url)}
+async function amQr3DDlg(key){const SRC=amQ3Src();if(!SRC.length){toast('Pas encore de QR code : crée d’abord un QR (contact, adhésion ou inscription à un événement)',4000);return}let S=SRC.find(x=>x.k===key)||SRC[0],url=S.url,t1=S.t1,t2=S.t2,nm=S.nm;const root=$('#dlg');
+ const c=Object.assign({sh:'rd',W:60,fo:'gras',rim:1,hole:0,th:2,up:1.2,col:'wn',ts:'M',mag:0,md:10,mh:2,ic:'',ip:'l',cr:0,ft:0},(()=>{try{return JSON.parse(localStorage.getItem('agd-q3')||'{}')}catch(e){return {}}})(),{url,t1:t1||'',t2:t2||''});
  const chips=(k,L)=>'<div class="chips" style="margin:.15rem 0 .35rem">'+L.map(x=>'<button type="button" class="chip'+(String(c[k])===String(x[0])?' on':'')+'" data-q3k="'+k+'" data-q3v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
- const ui=()=>'<canvas id="q3c" width="560" height="560" style="width:100%;max-width:280px;display:block;margin:0 auto .3rem;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/20px 20px;border-radius:14px"></canvas><p class="mut" id="q3d" style="text-align:center;margin:0 0 .4rem;font-size:.82rem"></p>'+
+ const ui=()=>'<label class="lbl" style="margin:0 0 .15rem">Quel QR code ?</label><select class="in" id="q3src" style="width:100%;font-size:16px;margin:0 0 .5rem">'+SRC.map(x=>'<option value="'+esc(x.k)+'"'+(x===S?' selected':'')+'>'+esc(x.lab)+'</option>').join('')+'</select><div class="q3g"><div class="q3pv"><canvas id="q3c" width="600" height="600"></canvas><p class="mut" id="q3d" style="text-align:center;margin:.2rem 0 0;font-size:.82rem"></p></div><div class="q3ctl">'+
+  '<label class="lbl">Texte au-dessus <span class="mut" style="font-weight:400;text-transform:none">(1 à 3 lignes)</span></label><textarea class="in" id="q3t1" rows="2" maxlength="110" placeholder="Amicale…&#10;Une idée ?" style="font-size:16px;width:100%">'+esc(c.t1)+'</textarea>'+
+  '<label class="lbl" style="margin-top:.3rem">Texte en dessous <span class="mut" style="font-weight:400;text-transform:none">(1 à 3 lignes : à quoi ça sert)</span></label><textarea class="in" id="q3t2" rows="2" maxlength="110" placeholder="Scanne-moi !" style="font-size:16px;width:100%">'+esc(c.t2)+'</textarea>'+
+  '<b class="lbl" style="margin-top:.4rem">Taille du texte</b>'+chips('ts',[['S','Petit'],['M','Moyen'],['L','Grand']])+
   '<b class="lbl">Forme</b>'+chips('sh',[['rd','▢ Carré arrondi'],['sq','◻️ Carré'],['ci','⚪ Rond']])+
-  '<b class="lbl">Taille</b>'+chips('W',[[40,'4 cm'],[50,'5 cm'],[60,'6 cm'],[80,'8 cm'],[100,'10 cm']])+
-  '<label class="lbl">Texte au-dessus</label><input class="in" id="q3t1" maxlength="34" value="'+esc(c.t1)+'" placeholder="(rien)" style="font-size:16px">'+
-  '<label class="lbl" style="margin-top:.3rem">Texte en dessous</label><input class="in" id="q3t2" maxlength="34" value="'+esc(c.t2)+'" placeholder="(rien)" style="font-size:16px">'+
-  '<b class="lbl" style="margin-top:.4rem">Écriture</b>'+chips('fo',[['gras','Gras'],['rond','Arrondie'],['ele','Élégante'],['machine','Machine']])+
-  '<b class="lbl">Finitions</b>'+chips('rim',[[1,'🔲 Avec cadre'],[0,'Sans cadre']])+chips('hole',[[0,'Sans trou'],[1,'🪝 Trou pour accrocher']])+
+  '<b class="lbl">Taille de la plaque</b>'+chips('W',[[40,'4 cm'],[50,'5 cm'],[60,'6 cm'],[80,'8 cm'],[100,'10 cm']])+
+  '<b class="lbl">Écriture</b>'+chips('fo',[['gras','Gras'],['rond','Arrondie'],['ele','Élégante'],['machine','Machine']])+
+  '<b class="lbl">Pictogramme <span class="mut" style="font-weight:400;text-transform:none">(à côté de la 1re ligne)</span></b>'+chips('ic',[['','Aucun']].concat(Object.entries(Q3IC)))+'<div id="q3ipw"'+(c.ic?'':' style="display:none"')+'>'+chips('ip',[['l','À gauche'],['b','Des deux côtés']])+'</div>'+
+  '<b class="lbl">Style</b>'+chips('cr',[[0,'⬆️ En relief'],[1,'⬇️ En creux (gravé)']])+
+  '<b class="lbl">Finitions</b>'+chips('rim',[[1,'🔲 Avec cadre'],[0,'Sans cadre']])+chips('hole',[[0,'Sans trou'],[1,'🪝 Trou pour accrocher']])+chips('ft',[[0,'Sans pied'],[1,'📐 Petit pied pour la poser debout']])+chips('mag',[[0,'Sans aimant'],[1,'🧲 Aimants au dos']])+
+  '<div id="q3mg" style="margin:.1rem 0 .3rem;padding:.4rem .55rem;border-radius:10px;background:rgba(127,127,127,.1)'+(c.mag?'':';display:none')+'"><b class="lbl" style="margin:0">🧲 Diamètre de tes aimants</b>'+chips('md',[5,6,8,10,12,15,20,25].map(v=>[v,v+' mm']))+'<b class="lbl">Épaisseur de tes aimants</b>'+chips('mh',[1,1.5,2,3,4,5].map(v=>[v,String(v).replace('.',',')+' mm']))+'<p class="mut" style="margin:.1rem 0 0;font-size:.8rem;line-height:1.35">📏 Tu ne connais pas la taille ? Mesure un aimant avec une règle : la <b>largeur du rond</b> = le diamètre, la <b>hauteur</b> = l’épaisseur. Entre deux tailles, prends la plus grande : l’appli ajoute déjà 0,3 mm de jeu, une goutte de colle fera le reste.</p></div>'+
   '<b class="lbl">Épaisseur</b>'+chips('th',[[1.5,'Fine'],[2,'Normale'],[3,'Épaisse']])+
   '<b class="lbl">Couleurs (2 filaments)</b>'+chips('col',Object.entries(Q3COL).map(([k,v])=>[k,'<i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:'+v[0]+';box-shadow:0 0 0 3px '+v[1]+';margin-right:5px;vertical-align:-1px"></i>'+v[2]]))+
-  '<details style="margin-top:.4rem"><summary style="font-weight:700">🖨 Comment l’imprimer</summary><ol style="margin:.4rem 0 .2rem;padding-left:1.2rem;font-size:.86rem;line-height:1.4"><li>Ouvre le fichier .stl dans ton logiciel (Cura, Bambu Studio, PrusaSlicer…), à plat.</li><li>La plaque fait l’épaisseur choisie, le relief 1,2 mm de plus : mets un <b>changement de filament</b> à la hauteur de la plaque (première couleur = plaque, deuxième = relief).</li><li>Teste le QR avec ton téléphone avant d’en imprimer plusieurs. Sous 5 cm, il peut mal se scanner.</li></ol></details>';
- const redraw=()=>{const cv=root.querySelector('#q3c');if(!cv)return;try{const L=amQ3Draw(cv,c),d=root.querySelector('#q3d');if(d)d.textContent='📏 '+(L.W/10).toFixed(1).replace('.',',')+' × '+(L.H/10).toFixed(1).replace('.',',')+' cm · plaque '+String(c.th).replace('.',',')+' mm + relief 1,2 mm'}catch(e){}};
- const onC=e=>{const b=e.target.closest&&e.target.closest('[data-q3k]');if(!b)return;e.stopPropagation();e.preventDefault();const k=b.dataset.q3k,v=b.dataset.q3v;c[k]=/^[0-9.]+$/.test(v)?+v:v;root.querySelectorAll('[data-q3k="'+k+'"]').forEach(x=>x.classList.toggle('on',x===b));redraw()};
- const onI=e=>{if(e.target&&(e.target.id==='q3t1'||e.target.id==='q3t2')){c[e.target.id==='q3t1'?'t1':'t2']=e.target.value.slice(0,34);redraw()}};
- root.addEventListener('click',onC,true);root.addEventListener('input',onI);
- const pr=ask({title:'🧊 QR code en 3D',html:'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Une plaque avec le QR et ta phrase <b>en relief</b>, pour imprimante 3D. Tout se règle ici, l’aperçu suit.</p>'+ui(),btns:[{label:'⬇️ Télécharger le fichier 3D (.stl)',value:'dl',cls:'pri'},{label:'Fermer',value:null}]});
- setTimeout(redraw,30);const r=await pr;root.removeEventListener('click',onC,true);root.removeEventListener('input',onI);
- try{const k={};['sh','W','fo','rim','hole','th','col'].forEach(x=>k[x]=c[x]);localStorage.setItem('agd-q3',JSON.stringify(k))}catch(e){}
+  '<details style="margin-top:.4rem"><summary style="font-weight:700">🖨 Comment l’imprimer</summary><ol style="margin:.4rem 0 .2rem;padding-left:1.2rem;font-size:.86rem;line-height:1.4"><li>Ouvre le fichier .stl dans ton logiciel (Cura, Bambu Studio, PrusaSlicer…), à plat.</li><li>Mets un <b>changement de filament</b> à la hauteur de la plaque (indiquée sous l’aperçu). <b>En relief</b> : 1re couleur = plaque, 2e = relief. <b>En creux</b> : c’est l’inverse, 1re couleur = celle du motif (le fond des creux), 2e = celle de la plaque.</li><li>🧲 Avec aimants : les logements sont au dos, à la taille choisie (+0,3 mm de jeu). Une goutte de colle et c’est bon.</li><li>📐 Le pied est un 2e fichier, à imprimer à part, d’une seule couleur. La plaque se glisse dans la fente.</li><li>Teste le QR avec ton téléphone avant d’en imprimer plusieurs. Sous 5 cm, il peut mal se scanner.</li></ol></details></div></div>';
+ const redraw=()=>{const cv=root.querySelector('#q3c');if(!cv)return;try{const L=amQ3Draw(cv,c),d=root.querySelector('#q3d'),th=amQ3Th(c).base,fr=v=>String(+(+v).toFixed(1)).replace('.',',');if(d)d.innerHTML='📏 '+(L.W/10).toFixed(1).replace('.',',')+' × '+(L.H/10).toFixed(1).replace('.',',')+' cm · plaque '+fr(th)+' mm + '+(c.cr?'1,2 mm gravé':'relief 1,2 mm')+(L.mag?' · 🧲 '+L.mag.length+' aimant'+(L.mag.length>1?'s':'')+' '+L.md+' × '+fr(L.mh)+' mm':'')+(c.ft?' · 📐 + pied':'')+(L.magBad?'<br><b style="color:#b45309">⚠️ Aimant trop grand pour cette plaque : prends une plaque plus grande.</b>':'')+(c.ic&&!L.T.length?'<br><b style="color:#b45309">⚠️ Le pictogramme se place à côté d’un texte : écris au moins une ligne.</b>':'')+(L.minT<2.6?'<br><b style="color:#b45309">⚠️ Texte très petit ('+L.minT.toFixed(1).replace('.',',')+' mm) : agrandis la plaque, choisis « Grand » ou raccourcis le texte.</b>':'')}catch(e){}};
+ const onC=e=>{const b=e.target.closest&&e.target.closest('[data-q3k]');if(!b)return;e.stopPropagation();e.preventDefault();const k=b.dataset.q3k,v=b.dataset.q3v;c[k]=/^[0-9.]+$/.test(v)?+v:v;root.querySelectorAll('[data-q3k="'+k+'"]').forEach(x=>x.classList.toggle('on',x===b));const mg=root.querySelector('#q3mg'),ip=root.querySelector('#q3ipw');if(mg)mg.style.display=c.mag?'':'none';if(ip)ip.style.display=c.ic?'':'none';redraw()};
+ const onI=e=>{if(e.target&&e.target.id==='q3src'){const n=SRC.find(x=>x.k===e.target.value);if(!n)return;S=n;nm=n.nm;c.url=n.url;c.t1=n.t1;c.t2=n.t2;const a1=root.querySelector('#q3t1'),a2=root.querySelector('#q3t2');if(a1)a1.value=n.t1;if(a2)a2.value=n.t2;redraw();return}if(e.target&&(e.target.id==='q3t1'||e.target.id==='q3t2')){c[e.target.id==='q3t1'?'t1':'t2']=e.target.value.slice(0,110);redraw()}};
+ root.addEventListener('click',onC,true);root.addEventListener('input',onI);root.addEventListener('change',onI);
+ const pr=ask({title:'🧊 QR code en 3D',html:'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Une plaque avec le QR et tes textes <b>en relief</b> (ou gravés), pour imprimante 3D. Tout se règle ici, l’aperçu suit. Tourne le téléphone : l’aperçu passe à gauche.</p>'+ui(),btns:[{label:'⬇️ Télécharger le fichier 3D (.stl)',value:'dl',cls:'pri'},{label:'Fermer',value:null}]});
+ setTimeout(()=>{const bx=root.querySelector('.dlgbox');if(bx)bx.classList.add('q3wide');redraw()},30);
+ const rz=()=>setTimeout(redraw,120);window.addEventListener('resize',rz);
+ const r=await pr;root.removeEventListener('click',onC,true);root.removeEventListener('input',onI);root.removeEventListener('change',onI);window.removeEventListener('resize',rz);
+ try{const k={};['sh','W','fo','rim','hole','th','col','ts','mag','md','mh','ic','ip','cr','ft'].forEach(x=>k[x]=c[x]);localStorage.setItem('agd-q3',JSON.stringify(k))}catch(e){}
  if(r!=='dl')return;
  try{const R=amQ3Stl(c),f=new File([R.buf],'qr-3d-'+(nm||'amicale')+'-'+c.sh+'-'+c.W/10+'cm.stl',{type:'model/stl'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:f.name});return}catch(e){if(e&&e.name==='AbortError')return}}
-  const u=URL.createObjectURL(f),l=document.createElement('a');l.href=u;l.download=f.name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000);toast('🧊 Fichier 3D prêt : '+R.W+' × '+R.H+' mm',4000)}catch(e){toast('Fichier 3D impossible : '+(e&&e.message||'erreur'),5000)}}
+  const F=[f];if(c.ft){const P=amQ3Foot(c);F.push(new File([P.buf],'qr-3d-'+(nm||'amicale')+'-pied.stl',{type:'model/stl'}))}
+  if(navigator.canShare&&navigator.canShare({files:F})){try{await navigator.share({files:F,title:f.name});return}catch(e){if(e&&e.name==='AbortError')return}}
+  F.forEach((ff,i)=>setTimeout(()=>{const u=URL.createObjectURL(ff),l=document.createElement('a');l.href=u;l.download=ff.name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000)},i*700));toast('🧊 Fichier 3D prêt : '+R.W+' × '+R.H+' mm'+(c.ft?' + le pied':''),4000)}catch(e){toast('Fichier 3D impossible : '+(e&&e.message||'erreur'),5000)}}
 const amAqPend=()=>{const A=amAq();if(!A)return [];const c=AMQR.__aq;return ((c&&c.id===A.qr.id&&c.L)||[]).filter(x=>!A.qd.includes(x.n))};
 const amAqSigned=m=>{const o=(m&&m.o)||{},sac=amSaCur(),sg=amSg()[m.id];return !!(sg&&((sg.f&&sg.f.sa)||amSaOf(sg.at))===sac)||(o.bp==='1'&&amBsSa(o)===sac)};
 const amAqToPay=()=>{const A=amAq(),a=amc();if(!A)return [];return A.w.map(id=>a.it[id]).filter(m=>m&&!m.del&&m.kind==='am'&&amIsAm(m)&&(m.o||{}).cf!=='1')};
@@ -13981,7 +14037,7 @@ function amVpHTML(it,rw){const vp=it.vp,s=amVpState(it);
  h+='<p style="margin:.1rem 0 .4rem"><b style="font-size:1.05rem">'+esc(vp.pn||it.tx)+'</b><br><span class="'+(s.urg?'am-sign-ql bl':'')+'" style="font-weight:700">'+esc(s.badge||'')+'</span></p>';
  const li=[it.d&&vp.d1?'🗓 Du '+esc(amVpDf(it.d))+' au '+esc(amVpDf(vp.d1))+' inclus':'',vp.pr?'🛒 '+esc(vp.pr):'',vp.rm?'🏷 '+esc(vp.rm):'',vp.bt?'🎁 '+esc(vp.bt)+(vp.b1?' (jusqu’au '+esc(amVpDf(vp.b1))+')':''):'',vp.uc?'🔗 Création de compte : <span class="mut">'+esc(vp.uc.slice(0,40))+'…</span>':'',vp.u?'🌐 '+esc(vp.u):'',vp.py?'💳 '+esc(vp.py):'',vp.ds?'📦 '+esc(vp.ds):''].filter(Boolean);
  h+='<div style="font-size:.9rem;line-height:1.5">'+li.join('<br>')+'</div>';
- if(rw){h+='<div class="btns" style="margin-top:.6rem;flex-wrap:wrap"><button class="btn pri grow" data-act="vp-send" data-id="'+esc(it.id)+'">'+(s.k==='soon'?'📣 Annoncer la vente':s.k==='open'?'⏰ Relancer':'📣 Envoyer un message')+'</button><button class="btn grow" data-act="vp-edit" data-id="'+esc(it.id)+'">✏️ Infos de la vente</button></div><div class="chips" style="margin:.4rem 0 0"><button class="chip" data-act="vp-copy" data-id="'+esc(it.id)+'">📋 Copier le message</button>'+'<button class="chip" data-act="vp-paste" data-id="'+esc(it.id)+'">📋 Coller le message du partenaire</button>'+(vp.uc||vp.u?'<button class="chip" data-act="vp-test" data-id="'+esc(it.id)+'">🔗 Tester le lien</button>':'')+'<button class="chip" data-act="ee-sign" data-id="'+esc(it.id)+'">🖼 Affiche</button><button class="chip" data-act="vp-ai" data-id="'+esc(it.id)+'">🤖 Belle image ChatGPT</button></div>'}
+ if(rw){h+='<div class="btns" style="margin-top:.6rem;flex-wrap:wrap"><button class="btn pri grow" data-act="vp-send" data-id="'+esc(it.id)+'">'+(s.k==='soon'?'📣 Annoncer la vente':s.k==='open'?'⏰ Relancer':'📣 Envoyer un message')+'</button><button class="btn grow" data-act="vp-edit" data-id="'+esc(it.id)+'">✏️ Infos de la vente</button></div><div class="chips" style="margin:.4rem 0 0"><button class="chip" data-act="vp-copy" data-id="'+esc(it.id)+'">📋 Copier le message</button>'+'<button class="chip" data-act="vp-paste" data-id="'+esc(it.id)+'">📋 Coller le message du partenaire</button>'+(vp.uc||vp.u?'<button class="chip" data-act="vp-test" data-id="'+esc(it.id)+'">🔗 Tester le lien</button><button class="chip" data-act="vp-3d" data-id="'+esc(it.id)+'">🧊 QR en 3D</button>':'')+'<button class="chip" data-act="ee-sign" data-id="'+esc(it.id)+'">🖼 Affiche</button><button class="chip" data-act="vp-ai" data-id="'+esc(it.id)+'">🤖 Belle image ChatGPT</button></div>'}
  h+='</div>';if(rw)h+=amRlHTML(it.rl,it.id);return h}
 /* 2.82.40 : remplir la vente en collant le message reçu du partenaire */
 function amVpParse(t){t=String(t||'').replace(/\r/g,'').replace(/[’`]/g,'\'');const o={},low=t.toLowerCase();
@@ -16336,9 +16392,9 @@ function amHome(a,nTk,nEv){
  /* 2.82.44 : les 3 prochains événements en carrousel (glisser ou points), une vente en cours compte jusqu’à sa fin */
  const NX=amItems('ev').concat(amItems('ee')).filter(i=>!i.x&&((i.d||'')>=td||(i.sv==='v'&&i.vp&&(i.vp.d1||'')>=td))).sort((p,q)=>(p.d+(p.tm||'')).localeCompare(q.d+(q.tm||''))).slice(0,3),nxt=NX[0];
  let h='<div class="am2-id"><div class="am2-logo"'+(a.apriv?' data-act="am-logo" role="button" aria-label="Logo du groupe"':'')+' style="background:linear-gradient(145deg,'+amAc()+',color-mix(in srgb,'+amAc()+' 55%,#b25cff))">'+(amLogoSrc()?'<img alt="" src="'+amLogoSrc()+'">':esc(String(a.nm||'A').trim().charAt(0).toUpperCase()))+'</div><div><h2>Bonjour '+esc((a.me&&a.me.sn)||String((a.me&&a.me.n)||'').split(/\s+/)[0]||'')+' 👋</h2><small>'+esc(a.nm)+' · '+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</small></div></div>';
- {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],['#FFB020','co',nCo,'courses']];
+ {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],a.kB?(()=>{const ni=amItems('id').filter(i=>!i.del&&!amIdP(i).s).length,nc=amCxNew().length;return ['#FFB020','id',ni+nc,'idée'+(ni+nc>1?'s':'')+' à voir',nc,'📬 '+nc+' reçue'+(nc>1?'s':'')]})():['#FFB020','co',nCo,'courses']];
   if(a.kB){try{if(amAq())setTimeout(()=>amAqFetch(),300)}catch(e){}T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':''),amAq()?amAqPend().length:0]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
-  h+='<div class="am2-st">'+T.map(t=>'<button style="position:relative;background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span>'+(t[4]?'<i class="am2-req">📥 '+t[4]+' demande'+(t[4]>1?'s':'')+'</i>':'')+'</button>').join('')+'</div>'}
+  h+='<div class="am2-st">'+T.map(t=>'<button style="position:relative;background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':t[1]==='id'&&t[4]?'cx-open':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span>'+(t[4]?'<i class="am2-req">'+(t[5]||('📥 '+t[4]+' demande'+(t[4]>1?'s':'')))+'</i>':'')+'</button>').join('')+'</div>'}
  const slide=x=>{const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
  if(NX.length===1)h+=slide(nxt);
  else if(NX.length>1)h+='<div class="am2-car"><div class="am2-cart">'+NX.map((x,i)=>'<div class="am2-sl" data-i="'+i+'">'+slide(x)+'</div>').join('')+'</div><div class="am2-dots">'+NX.map((x,i)=>'<i data-i="'+i+'"'+(i?'':' class="on"')+' role="button" aria-label="Événement '+(i+1)+'"></i>').join('')+'</div></div>';
