@@ -2919,7 +2919,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.42';
+const APP_VERSION='2.82.43';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2927,6 +2927,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.43',d:'17/11/2026',items:['iPhone : les onglets sur le côté des Réglages (Groupe, Bulletin, Notifications…) ne sortent plus à moitié de l’écran.']},
  {v:'2.82.42',d:'17/11/2026',items:['<b>🤖 Belle image ChatGPT pour la vente partenaire</b> : un bouton sur la fiche de la vente et en haut de son affiche. La demande est écrite pour toi (parfums, rose et or, remise, dates), avec un carré vide pour le QR code.','Affiche de la vente : pas d’onglet Menu ni Tarifs, et la date « Du 16 au 30 novembre » partout.']},
  {v:'2.82.41',d:'17/11/2026',items:['<b>« Avec l’affiche » à une personne</b> : c’est maintenant son <b>numéro</b> qui est copié (le message part avec l’affiche). Dans Messages : « À : » › Coller.','<b>Affiche de la vente partenaire</b> : réglages du QR comme un événement normal (taille, texte, à déplacer où tu veux), dates « Du 16 au 30 novembre », remises dans les infos.','<b>🎨 Cadre du QR code au choix</b> sur toutes les affiches : doré + rouge, blanc + rose, or + noir, blanc + bleu, blanc + vert, noir + blanc, ou sans cadre.']},
  {v:'2.82.40',d:'17/11/2026',items:['<b>Aides : fiche d’un événement allégée.</b> Elles voient la préparation, le programme, le menu et le repas. Plus rien du bureau : inscriptions à valider, relances, date limite, liens, liste des inscrits, argent encaissé, vente partenaire.','<b>🛍️ Vente partenaire : colle le message du partenaire</b>, l’appli remplit toute seule les dates, les liens, les remises et le paiement. Tu n’as plus qu’à vérifier.','<b>☑ Choisir les personnes</b> aussi pour « Relancer les non-inscrits » et « Relancer l’adhésion » : une ou quelques personnes, avec recherche par nom et ✅ pour ceux qui ont déjà reçu.']},
@@ -12498,7 +12499,12 @@ async function amForm(title,intro,fields,ok){
 let AM_QUIET=0;
 /* Verrou de toute l'appli (sur cet appareil seulement) : code + Face ID / empreinte, comme les anniversaires */
 /* Colonne d'onglets de droite : si elle est plus haute que l'écran, elle n'a plus de défilement à elle (ça se bloquait sur iPhone/iPad) : elle suit simplement le défilement de la page */
-function amSnFit(){amDockFit();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
+/* 2.82.43 : iPhone : si un élément dépasse à droite, Safari élargit l’écran « invisible » et les onglets fixés à droite sortent de l’écran (coupés).
+   On repère ce qui dépasse et on le resserre, et on recale les onglets sur la partie visible. */
+function amWideFix(){try{const vw=window.innerWidth,de=document.documentElement;if(de.scrollWidth>vw+1||document.querySelector('.jump.jside')){const M=document.querySelector('#main');if(M)M.querySelectorAll('*').forEach(e=>{if(e.closest('.jside,.co-tabs,#tgw,.po-g,.am-sign,.pst,svg'))return;const r=e.getBoundingClientRect();if(r.width&&r.right>vw+1&&getComputedStyle(e).position!=='fixed'){e.style.maxWidth='100%';e.style.minWidth='0';e.style.overflowWrap='anywhere'}})}
+ const j=document.querySelector('.jump.jside');if(j){const vv=window.visualViewport,lw=de.clientWidth,vr=vv?vv.offsetLeft+vv.width:vw,d=Math.round(lw-vr);j.style.right=d>0?d+'px':''}}catch(e){}}
+if(window.visualViewport){visualViewport.addEventListener('resize',()=>amWideFix());visualViewport.addEventListener('scroll',()=>amWideFix())}window.addEventListener('resize',()=>amWideFix());
+function amSnFit(){amDockFit();amWideFix();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
 window.addEventListener('resize',()=>setTimeout(amSnFit,200));window.addEventListener('orientationchange',()=>setTimeout(amSnFit,400));
 let AML_OK=false,AML_H=0;
 const amlDelay=()=>S.amlDelay==null?300:+S.amlDelay;
@@ -16324,7 +16330,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amWideFix,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
