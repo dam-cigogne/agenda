@@ -732,6 +732,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 .po-tabs{position:sticky;top:0;z-index:3;background:var(--surface);padding:.35rem 0;margin:0 0 .2rem;flex-wrap:wrap}.po-tabs .chip{font-weight:800}.po-tip{font-size:.78rem;margin:0 0 .4rem}.po-bc{padding:.6rem .7rem;margin:.2rem 0 .6rem;border:2px solid var(--accent)}
 .ov{position:fixed;inset:0;background:rgba(8,12,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .ov.dlgov{z-index:80;align-items:center}
+.fltn{display:inline-block;min-width:1.4em;padding:0 .35em;margin-left:.15rem;border-radius:999px;background:rgba(0,0,0,.08);font-size:.85em;text-align:center}.chip.on .fltn{background:rgba(255,255,255,.28)}.dlg-x{position:sticky;top:0;float:right;z-index:3;width:2.4rem;height:2.4rem;margin:-.35rem -.35rem .2rem .5rem;border-radius:50%;border:0;background:var(--surface2,#eee);color:var(--text);font-size:1.15rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 /* 2.82.19 : sur iPhone/iPad, toucher une case de moins de 16 px fait zoomer Safari tout seul (l'écran « part dans tous les sens ») ; et la page derrière une fiche ne bouge plus */
 @supports(-webkit-touch-callout:none){input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:max(16px,1em)!important}}
 .sh{overscroll-behavior:contain}
@@ -2918,7 +2919,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.30';
+const APP_VERSION='2.82.31';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2926,6 +2927,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.31',d:'17/11/2026',items:['<b>Relance d’adhésion : le début du message se modifie</b> (« Les adhésions … restent encore ouvertes », « plus que 15 jours »…) ; l’appli garde ta version.','<b>Signature automatique</b> : tu écris une fois ton grade et ton nom (« ADC DUPONT Jean ») ; ton titre au bureau s’ajoute tout seul (« – Président de l’amicale … »). Chaque membre du bureau a la sienne.','<b>🎖 Lien d’adhésion dans les messages d’événement</b> : en envoyant une inscription, un menu ou une relance, coche « Ajouter le lien d’adhésion à l’amicale » : le message ajoute « Pas encore adhérent ? L’adhésion est toujours possible » avec le lien. L’appli se souvient de ton choix.','<b>Les chiffres à côté des filtres</b> des amicalistes : 💶 À payer, 🧵 Sans patch, 🍽 Régimes, 🎁 Coffret 8 ans, 🪪 Sans badge.','<b>iPad / iPhone : un ✕ en haut de chaque fenêtre</b> pour la fermer à coup sûr (et la touche Échap au clavier), même quand un bouton en bas ne répond pas.','Le message d’adhésion dit maintenant de remplir <b>et signer</b> le bulletin en ligne, puis de régler (virement, carte, chèque ou espèces).']},
  {v:'2.82.30',d:'17/11/2026',items:['<b>Adhésion en ligne : le moyen de paiement précis</b> : 🏦 virement, 💳 carte (SumUp), 🧾 chèque ou 💶 espèces au bureau. On le voit en validant et dans « en attente de paiement ».','<b>📥 Demandes d’adhésion visibles dès l’accueil</b> : une pastille rouge en coin sur la case « amicalistes » (« 📥 2 demandes »).','<b>👁 Voir le bulletin signé</b> s’affiche à l’écran (avant, ça ouvrait l’impression).','<b>En attente de paiement plus clair</b> : « ⏳ PAS ENCORE PAYÉ · 20 € » en rouge, et un bouton vert « ✅ Encaisser » pour le marquer payé.']},
  {v:'2.82.29',d:'17/11/2026',items:['<b>✍️ Adhésion en ligne avec signature</b> : avec le QR ou le lien d’adhésion, la personne remplit ses infos, lit son bulletin (règlement et signatures du bureau), voit ce qu’elle doit payer (selon son grade et sa catégorie), choisit virement ou au bureau, et signe avec le doigt sur son téléphone. Chez nous : on vérifie, on valide, le bulletin signé est rangé dans sa fiche ; s’il n’a pas encore payé, il passe dans « 💶 en attente de paiement ».','<b>💶 Le montant se vérifie</b> : en validant une adhésion signée en ligne, tu vois le montant affiché à la personne et tu peux le corriger (civil, catégorie…) avant de l’enregistrer.','<b>🧵 Patch de bienvenue</b> : « Offert cette saison » dans la carte Adhésion ; la page le dit à la personne, et la liste « 🧵 Patchs à donner » se coche au fur et à mesure.','<b>Écran Amicalistes plus léger</b> : la carte Adhésion est repliée avec un résumé (📥 à valider · ✍️ à signer · 💶 à payer · 🧵 patchs) ; on la touche pour tout voir.']},
  {v:'2.82.28',d:'16/11/2026',items:['<b>🎉 Les nouveautés s’affichent à l’ouverture</b> : après chaque mise à jour, l’appli Amicale montre maintenant le résumé de ce qui a changé (jusqu’aux 8 dernières versions si tu ne l’avais pas ouverte depuis un moment).','<b>🎉 Une phrase d’accroche</b> dans les messages d’adhésion et de relance (« Cette année encore, l’amicale t’attend : soirée de Noël, repas, sorties… ») : tu peux la modifier au moment d’envoyer, l’appli la garde.','<b>⏰ Relancer l’adhésion</b> : dans Amicalistes › QR code d’adhésion, « Relancer ceux qui n’ont pas adhéré » choisit tout seul les amicalistes pas à jour de leur cotisation et/ou les non-amicalistes connus, avec le message de rappel et le lien. En SMS groupé : « 📋 Copier les numéros », puis colle dans Messages.']},
@@ -7855,10 +7857,13 @@ function ask(o){
  return new Promise(res=>{
   const root=$('#dlg');
   const btns=o.btns||[];
-  root.innerHTML='<div class="ov dlgov"><div class="sh dlgbox" role="dialog" aria-modal="true"><h2 style="font-size:1.25rem">'+esc(o.title||'')+'</h2>'+(o.html?o.html:'<p style="margin:.3rem 0 .6rem">'+esc(o.text||'')+'</p>')+
+  root.innerHTML='<div class="ov dlgov"><div class="sh dlgbox" role="dialog" aria-modal="true"><button type="button" class="dlg-x" data-close="1" aria-label="Fermer">✕</button><h2 style="font-size:1.25rem">'+esc(o.title||'')+'</h2>'+(o.html?o.html:'<p style="margin:.3rem 0 .6rem">'+esc(o.text||'')+'</p>')+
    btns.map((b,i)=>'<button class="btn blk '+(b.cls||'')+'" data-v="'+i+'">'+esc(b.label)+'</button>').join('')+'</div></div>';
-  const done=v=>{root.innerHTML='';root.onclick=root.ontouchstart=root.ontouchmove=root.ontouchend=root.onfocusout=null;try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch(e){}res(v)};
+  const done=v=>{root._close=null;root.innerHTML='';root.onclick=root.ontouchstart=root.ontouchmove=root.ontouchend=root.onfocusout=null;try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch(e){}res(v)};
+  /* 2.82.31 : toujours un moyen de sortir (✕ en haut, touche Échap), même si un bouton ne répond pas sur iPad/iPhone */
+  root._close=()=>done(null);
   root.onclick=e=>{
+   if(e.target.closest('[data-close]')){e.stopPropagation();done(null);return}
    const b=e.target.closest('[data-v]');
    if(b){e.stopPropagation();done(btns[+b.dataset.v].value)}
    else if(e.target.classList.contains('ov')&&!root.querySelector('.dlgbox input,.dlgbox textarea,.dlgbox select')){e.stopPropagation();done(null)}
@@ -7869,10 +7874,10 @@ function ask(o){
   /* 2.82.1 : sur iPad, toucher un bouton pendant que le clavier est ouvert ferme le clavier, la fenêtre bouge et le « clic » était perdu : on valide dès que le doigt se lève sur le bouton */
   let tb=null;
   let tx0=0,ty0=0;
-  root.ontouchstart=e=>{tb=e.target.closest&&e.target.closest('.dlgbox [data-v]');const t=e.touches&&e.touches[0];if(t){tx0=t.screenX;ty0=t.screenY}};
+  root.ontouchstart=e=>{tb=e.target.closest&&(e.target.closest('.dlgbox [data-v]')||e.target.closest('.dlgbox [data-close]'));const t=e.touches&&e.touches[0];if(t){tx0=t.screenX;ty0=t.screenY}};
   root.ontouchmove=e=>{const t=e.touches&&e.touches[0];if(t&&Math.abs(t.screenX-tx0)+Math.abs(t.screenY-ty0)>14)tb=null};
   root.ontouchend=e=>{const b=tb;tb=null;if(!b||!root.contains(b))return;
-   e.preventDefault();root.dispatchEvent(new CustomEvent('dlgsync'));done(btns[+b.dataset.v].value)};
+   e.preventDefault();if(b.dataset.close){done(null);return}root.dispatchEvent(new CustomEvent('dlgsync'));done(btns[+b.dataset.v].value)};
  });
 }
 let SHEET_OPEN=false;
@@ -13708,21 +13713,27 @@ async function amSendLink(ids,pre){
  const who=P.length===1?P[0].tx:P.length+' personnes';
  let x=pre&&L.find(y=>y.k===pre.k&&(pre.e?(y.e&&y.e.id===pre.e.id):!y.e));if(!x){const c=await ask({title:'📲 Envoyer un lien à '+esc(who),text:'Quel lien ?',btns:L.map((x,i)=>({label:x.l,value:String(i)})).concat([{label:'Annuler',value:null}])});if(c==null)return;x=L[+c]}
  const AQH_D='🎉 Cette année encore, l’amicale t’attend : soirée de Noël, repas, sorties, Beaujolais, Saint-Éloi… et des cadeaux pour les grands moments de ta vie. Ton adhésion fait vivre l’amicale, on compte sur toi ! 💪';
- const V={hook:S.amAqHook!=null?String(S.amAqHook):AQH_D,sig:'',tl:''};
+ const INT_D='Petit rappel : les adhésions à '+(a.nm||'l’amicale')+' pour la saison '+amSaCur()+' sont ouvertes !';
+ const V={aq:S.amAddAq==='1',hook:S.amAqHook!=null?String(S.amAqHook):AQH_D,intro:S.amAqIntro!=null&&String(S.amAqIntro).trim()?String(S.amAqIntro):INT_D,sig:'',tl:''};const AQON=!!(A&&A.o&&A.o.pk);
  const dfr=d=>{try{return new Date(d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}catch(e){return d}};
- const msg=(m)=>{const pn=m?(amNomSplit(m.tx)[0]||''):'',hi='Bonjour'+(pn?' '+pn:'')+',\n';
+ const msg=m=>msg0(m)+(x.e&&A&&V.aq?'\n\n🎖 Pas encore adhérent ? L’adhésion à '+(a.nm||'l’amicale')+' ('+amSaCur()+') est toujours possible, en 2 minutes :\n'+amAqUrl():'');
+ const msg0=(m)=>{const pn=m?(amNomSplit(m.tx)[0]||''):'',hi='Bonjour'+(pn?' '+pn:'')+',\n';
   const hk=String(V.hook).trim();
-  if(x.k==='ra')return hi+'Petit rappel : les adhésions à '+(a.nm||'l’amicale')+' pour la saison '+amSaCur()+' sont ouvertes !'+(hk?'\n'+hk:'')+'\n\n👉 Ça prend 2 minutes sur ton téléphone : remplis ton bulletin, puis passe voir le bureau pour régler et signer :\n'+amAqUrl();
-  if(x.k==='a')return hi+(hk?hk+'\n\n':'')+'👉 Pour adhérer à '+(a.nm||'l’amicale')+' (saison '+amSaCur()+'), remplis ton bulletin sur ton téléphone (2 minutes), puis passe voir le bureau pour régler et signer :\n'+amAqUrl();
+  const how=AQON?'remplis et signe ton bulletin en ligne, puis règle ta cotisation (virement, carte, chèque ou espèces)':'remplis ton bulletin, puis passe voir le bureau pour régler et signer';
+  if(x.k==='ra')return hi+String(V.intro).trim()+(hk?'\n'+hk:'')+'\n\n👉 Ça prend 2 minutes sur ton téléphone : '+how+' :\n'+amAqUrl();
+  if(x.k==='a')return hi+(hk?hk+'\n\n':'')+'👉 Pour adhérer à '+(a.nm||'l’amicale')+' (saison '+amSaCur()+'), '+how+' (2 minutes) :\n'+amAqUrl();
   const e=x.e,inf='« '+e.tx+' »'+(e.d?' le '+dfr(e.d):'')+(e.pl?' à '+e.pl:'');
   if(x.k==='r'){const n=amQlDays(e);return hi+'Petit rappel pour '+inf+(e.ql&&n>=0?' : les inscriptions se terminent '+(n===0?'aujourd’hui':n===1?'demain':'le '+amQlTxt(e)+' (plus que '+n+' jours)'):'')+'.\nSi ce n’est pas déjà fait, inscris-toi ici (2 minutes) :\n'+amQrUrl(e)+(e.qm?'\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e):'')}
   if(x.k==='im')return hi+'Tu es invité(e) à '+inf+'.\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e)+'\n\n📲 Inscris-toi ici (2 minutes) :\n'+amQrUrl(e);
   return x.k==='i'?hi+'Tu es invité(e) à '+inf+'. Inscris-toi ici (2 minutes) :\n'+amQrUrl(e):hi+'Le menu et les tarifs de '+inf+' :\n'+amQmUrl(e)};
  const tel=P.map(m=>amTelHref((m.o||{}).tl)).filter(Boolean),ml=P.map(m=>String((m.o||{}).ml||'').trim()).filter(v=>/@/.test(v));
- const one=P.length===1?P[0]:null,B=[],askTl=!!(one&&!tel.length);let body=msg(one);const isA=x.k==='a'||x.k==='ra',hook0=V.hook;
+ const one=P.length===1?P[0]:null,B=[],askTl=!!(one&&!tel.length);let body=msg(one);const isA=x.k==='a'||x.k==='ra',hook0=V.hook,intro0=V.intro;
  /* 2.82.22 : ta signature à la fin du message (gardée sur ce téléphone), et son numéro tapé ici s'il manque dans sa fiche */
- const sig0=S.amSig!=null?String(S.amSig):((a.me&&a.me.n?a.me.n:'')+(a.nm?(a.me&&a.me.n?' – ':'')+a.nm:''));V.sig=sig0;
- const full=()=>body+(String(V.sig).trim()?'\n\n'+String(V.sig).trim():'');
+ /* 2.82.31 : signature = ton grade et ton nom (gardés) + ton titre au bureau, ajouté tout seul (« Président de l’amicale … ») */
+ const myT=((amList().find(p=>p.self)||{}).t||'').trim(),deL=/^amicale\b/i.test(String(a.nm||''))?'de l’'+a.nm:'de l’amicale '+(a.nm||''),roleL=myT&&!/^(Membre du bureau|Fonction \+\+|Aide extérieur)$/.test(myT)?myT+' '+deL:(myT==='Membre du bureau'?'Membre du bureau '+deL:(a.nm||''));
+ const sig0=S.amSigN!=null?String(S.amSigN):(S.amSig!=null?String(S.amSig).split(/\s+[–-]\s+/)[0]:(a.me&&a.me.n?a.me.n:''));V.sig=sig0;
+ const sigFull=()=>[String(V.sig).trim(),roleL.trim()].filter(Boolean).join(' – ');
+ const full=()=>body+(sigFull()?'\n\n'+sigFull():'');
  if(tel.length||askTl)B.push({label:'💬 SMS (le lien seul)'+(P.length>1?' ('+tel.length+')':''),value:'sms',cls:(x.k==='a'||x.k==='ra')?'pri':''});
  B.push({label:one?'🟢 WhatsApp':'🟢 WhatsApp (tu choisis la personne ou le groupe)',value:'wa'});
  if(ml.length)B.push({label:'✉️ Mail'+(P.length>1?' ('+ml.length+')':''),value:'ml'});
@@ -13736,14 +13747,19 @@ async function amSendLink(ids,pre){
  const pr=ask({title:esc(x.l),html:(x.k!=='a'&&x.k!=='ra'?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">Avec l’affiche : tu choisis ensuite WhatsApp ou Messages, puis la personne (le téléphone ne permet pas de mettre une image dans un SMS tout prêt).</p>':'')
   +grpN+'<div class="card" id="sl-pv" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem;max-height:30vh;overflow:auto">'+pv()+'</div>'
   +(askTl?'<label class="lbl">📞 Son numéro <span class="mut" style="font-weight:400;text-transform:none">(pas dans sa fiche : facultatif, il y sera ajouté)</span></label><input class="in" id="sl-tl" type="tel" inputmode="tel" placeholder="06 12 34 56 78" autocomplete="off">':'')
+  +(x.e&&A?'<label style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-weight:700"><input type="checkbox" id="sl-aq"'+(V.aq?' checked':'')+' style="width:22px;height:22px;flex:none"><span>🎖 Ajouter le lien d’adhésion à l’amicale</span></label>':'')
+  +(x.k==='ra'?'<label class="lbl" style="margin-top:.4rem">📝 Début du message <span class="mut" style="font-weight:400;text-transform:none">(modifie-le selon le moment : « reste encore ouvert », « plus que 15 jours »… il est gardé)</span></label><textarea class="in" id="sl-in" rows="2" style="width:100%;min-height:3.4rem">'+esc(V.intro)+'</textarea>':'')
   +(isA?'<label class="lbl" style="margin-top:.4rem">🎉 Phrase d’accroche <span class="mut" style="font-weight:400;text-transform:none">(pour donner envie : modifie-la, elle est gardée)</span></label><textarea class="in" id="sl-hk" rows="3" style="width:100%;min-height:4.6rem">'+esc(V.hook)+'</textarea>':'')
-  +'<label class="lbl" style="margin-top:.4rem">✍️ Ta signature <span class="mut" style="font-weight:400;text-transform:none">(gardée pour la prochaine fois)</span></label><textarea class="in" id="sl-sig" rows="2" style="width:100%;min-height:3.4rem" placeholder="Prénom NOM – Amicale – 06…">'+esc(sig0)+'</textarea>'
+  +'<label class="lbl" style="margin-top:.4rem">✍️ Signé par <span class="mut" style="font-weight:400;text-transform:none">(ton grade et ton nom, gardés)</span></label><input class="in" id="sl-sig" value="'+esc(sig0)+'" placeholder="ADC DUPONT Jean" autocomplete="off">'+(roleL?'<small class="mut" style="display:block;margin-top:.2rem">+ « '+esc(roleL)+' » ajouté tout seul (ton titre au bureau)</small>':'')
   +(miss.length?'<p class="mut" style="font-size:.82rem">Sans téléphone ni mail : '+esc(miss.slice(0,8).join(', '))+(miss.length>8?'…':'')+'</p>':''),btns:B});
- const rd=()=>{const t=root.querySelector('#sl-tl'),g=root.querySelector('#sl-sig'),hh=root.querySelector('#sl-hk');if(t)V.tl=t.value;if(g)V.sig=g.value;if(hh){V.hook=hh.value;body=msg(one)}};
- root.oninput=()=>{rd();const e=root.querySelector('#sl-pv');if(e)e.innerHTML=pv()};root.addEventListener('click',rd,true);root.addEventListener('dlgsync',rd);
- const v=await pr;root.removeEventListener('click',rd,true);root.removeEventListener('dlgsync',rd);root.oninput=null;if(!v)return;
- if(String(V.sig)!==sig0){S.amSig=String(V.sig).trim().slice(0,200);saveSet()}
+ const rd=()=>{const t=root.querySelector('#sl-tl'),g=root.querySelector('#sl-sig'),hh=root.querySelector('#sl-hk'),ii=root.querySelector('#sl-in'),cq=root.querySelector('#sl-aq');if(t)V.tl=t.value;if(g)V.sig=g.value;if(ii)V.intro=ii.value;if(hh)V.hook=hh.value;if(cq)V.aq=cq.checked;body=msg(one)};
+ root.oninput=root.onchange=()=>{rd();const e=root.querySelector('#sl-pv');if(e)e.innerHTML=pv()};root.addEventListener('click',rd,true);root.addEventListener('dlgsync',rd);
+ const v=await pr;root.removeEventListener('click',rd,true);root.removeEventListener('dlgsync',rd);root.oninput=root.onchange=null;
+ if(x.e&&A&&(V.aq?'1':'')!==(S.amAddAq||'')){S.amAddAq=V.aq?'1':'';saveSet()}
+ if(String(V.sig)!==sig0||S.amSigN==null){S.amSigN=String(V.sig).trim().slice(0,120);saveSet()}
+ if(x.k==='ra'&&String(V.intro)!==intro0){S.amAqIntro=String(V.intro).trim().slice(0,300);saveSet()}
  if(isA&&String(V.hook)!==hook0){S.amAqHook=String(V.hook).trim().slice(0,600);saveSet()}
+ if(!v)return;
  const tT=askTl?amTelHref(V.tl):'';if(tT){try{amItemSave(Object.assign({},one,{o:Object.assign({},one.o||{},{tl:String(V.tl).trim().slice(0,30)})}));toast('📞 Numéro ajouté à sa fiche',2500)}catch(e){}}
  const T=tT?[tT]:tel,body2=full(),waN=one&&T.length?amWaNum(one===P[0]&&tT?V.tl:(one.o||{}).tl):'';
  try{await navigator.clipboard.writeText(body2)}catch(e){}
@@ -14953,7 +14969,7 @@ function amAmHTML(){
  h+='<div class="btns" style="margin-top:.4rem">'+(amc().apriv||demo?'<button class="btn grow" data-act="am-season">🔄 Nouvelle saison : rouvrir les inscriptions</button>':'')+'<button class="btn grow" data-act="an-edit">📣 Annonce « Inscriptions ouvertes »</button></div><button class="btn blk" data-act="am-prix" style="margin-top:.4rem">💶 Remettre les prix à jour (d’après les tarifs)</button>';
  h+='<div class="chips tk-chips am-stt" style="margin:.6rem 0 0"><button class="chip'+(AM_ST!=='n'?' on':'')+'" data-act="am-st" data-v="a">🎖 Amicalistes <b>'+n+'</b></button><button class="chip'+(AM_ST==='n'?' on':'')+'" data-act="am-st" data-v="n">👤 Non-amicalistes connus <b>'+NN+'</b></button></div>';
  h+='<div class="chips tk-chips" style="margin:.6rem 0 .3rem">'+[['nom','Nom'],['grade','Grade'],['cat','Catégorie']].map(x=>'<button class="chip'+(AM_SORT===x[0]?' on':'')+'" data-act="am-amsort" data-v="'+x[0]+'">Tri : '+x[1]+'</button>').join('')+'</div>';
- h+='<div class="chips tk-chips" style="margin:0 0 .3rem">'+[['cot','💶 À payer'],['patch','🧵 Sans patch'],['rg','🍽 Régimes'],['k8','🎁 Coffret 8 ans'],['nobg','🪪 Sans badge']].map(x=>'<button class="chip'+(AM_FLT===x[0]?' on':'')+'" data-act="am-amflt" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+(AM_FLT?'<div class="btns" style="margin:0 0 .4rem"><button class="btn grow" data-act="am-fexp">📤 Exporter cette liste</button><button class="btn grow" data-act="am-badges" data-v="f">🪪 Leurs badges</button></div>':'');
+ h+='<div class="chips tk-chips" style="margin:0 0 .3rem">'+(()=>{/* 2.82.31 : le nombre de personnes à côté de chaque filtre */const B=AM_ST==='n'?amNons():amAms(),F={cot:m=>(m.o||{}).cf!=='1',patch:m=>(m.o||{}).pc!=='1',rg:m=>!!(m.o||{}).rg,k8:m=>(m.o||{}).k8==='1',nobg:m=>!(m.o||{}).bg};return [['cot','💶 À payer'],['patch','🧵 Sans patch'],['rg','🍽 Régimes'],['k8','🎁 Coffret 8 ans'],['nobg','🪪 Sans badge']].map(x=>{const c=B.filter(F[x[0]]).length;return '<button class="chip'+(AM_FLT===x[0]?' on':'')+'" data-act="am-amflt" data-v="'+x[0]+'">'+x[1]+' <b class="fltn">'+c+'</b></button>'}).join('')})()+'</div>'+(AM_FLT?'<div class="btns" style="margin:0 0 .4rem"><button class="btn grow" data-act="am-fexp">📤 Exporter cette liste</button><button class="btn grow" data-act="am-badges" data-v="f">🪪 Leurs badges</button></div>':'');
  h+='<div style="display:flex;gap:.4rem;align-items:center"><input class="in" id="am-q" placeholder="Chercher un nom, un grade…" value="'+esc(AM_Q)+'" autocomplete="off" style="margin:.2rem 0 .4rem;flex:1">'+(AM_SEL?'':'<button class="chip" data-act="am-selon" style="flex:none">☑ Sélectionner</button>')+'</div><div id="am-selbar">'+amSelBar()+'</div><div id="am-list">'+amAmRows()+'</div>';
  return h;
 }
@@ -16061,6 +16077,7 @@ async function init(){
  setTimeout(()=>famPull(false),1800);
  setInterval(()=>{if(document.visibilityState==='visible')famPull(false)},150000);
  setInterval(()=>{if(document.visibilityState==='visible'){try{if(amc()&&amAq())amAqFetch()}catch(e){}}},60000);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){const r=$('#dlg');if(r&&r._close&&r.innerHTML){e.preventDefault();r._close()}}});
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){try{if(amc()&&amAq())amAqFetch(true)}catch(e){}}});
  window.addEventListener('online',()=>{if(demo)return;setTimeout(()=>{try{if(amc())amPull(true).then(()=>amFlush()).then(()=>render()).catch(()=>{});famPull(false);if(V.view!=='settings')toast('Connexion retrouvée : mise à jour…',2500)}catch(e){}},1200)});
  setInterval(tick,30000);tick();
