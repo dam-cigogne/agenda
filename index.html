@@ -2951,7 +2951,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.60';
+const APP_VERSION='2.82.61';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2959,6 +2959,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.61',d:'17/11/2026',items:['📲 « Lier mon PC / ma tablette » : le code ne se créait pas (« trop de données ») quand tu as une photo de profil. Corrigé : la photo suit à part']},
  {v:'2.82.60',d:'15/11/2026',items:['📇 Contacts iPhone pour WhatsApp : l’appli dit maintenant <b>qui n’est pas dans le fichier et pourquoi</b> (pas de numéro, numéro qui n’est pas un portable valide, ne souhaite pas, pas WhatsApp), avec les noms','📱 Les numéros dont Excel a enlevé le 0 du début (612345678) ou le + (33612345678) sont reconnus comme des portables : ils entrent dans les contacts et les SMS']},
  {v:'2.82.59',d:'15/11/2026',items:['🧊 QR 3D : les <b>petites écritures</b> s’impriment mieux. L’appli épaissit toute seule les traits trop fins pour l’imprimante (surtout avec la police élégante) et espace un peu les lettres ; l’aperçu montre le résultat. Conseils d’impression ajoutés dans « Comment l’imprimer »','🧊 Le dossier « Plusieurs couleurs » contient maintenant un fichier REGLAGES-BAMBU-STUDIO.txt : les réglages exacts à mettre dans Bambu Studio pour une buse de 0,4 mm, <b>calculés pour ta plaque</b> (forme, taille, épaisseur, police, relief ou creux, aimants, pied) : vitesses, parois, et comment ralentir seulement les écritures']},
  {v:'2.82.58',d:'15/11/2026',items:['🛍️ Vente partenaire : quand on envoie l’affiche avec les liens, le message est maintenant complet (dates de la vente, remise, lien pour créer son compte, lien du site, mot de passe oublié, paiement, livraison) au lieu du seul lien de création de compte','🔎 Amicalistes et non-amicalistes : la recherche trouve aussi une personne par son <b>numéro de téléphone</b> (avec ou sans espaces, en 06… ou en +33…, même avec seulement une partie du numéro) et par son mail']},
@@ -12914,6 +12915,7 @@ async function amJoinData(d){
  go('amicale');amPull(true);toast('Bienvenue dans « '+S.amc.nm+' »',3000);
 }
 const amCode12=()=>{let c='';for(const b of crypto.getRandomValues(new Uint8Array(12)))c+=FAM_ABC[b%FAM_ABC.length];return c};
+const amLinkPid=async(code,i)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('agendam-invit-ph:'+code+':'+i)))].slice(0,16).map(b=>b.toString(16).padStart(2,'0')).join('');
 async function amLinkOut(){
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a||!famUrl())return;
@@ -12924,9 +12926,13 @@ async function amLinkOut(){
  const code=amCode12();
  try{
   const FK=await famCodeKeys(code),iv=crypto.getRandomValues(new Uint8Array(12));
+  /* 2.82.61 : la photo de profil (jusqu’à 12 Ko) part à côté, en morceaux, sinon le code dépassait la taille permise */
+  const ph=String((pay.me&&pay.me.ph)||'');if(ph){pay.me=Object.assign({},pay.me,{ph:''});pay.phn=Math.ceil(ph.length/2400)}
   const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},FK.key,new TextEncoder().encode(JSON.stringify(pay))));
   const body=JSON.stringify({c:shB64.enc(c),iv:shB64.enc(iv)});if(body.length>4000)throw new Error('trop de données');
   const res=await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body});if(!res.ok)throw new Error('Serveur : '+res.status);
+  for(let i=0;i<(pay.phn||0);i++){const iv2=crypto.getRandomValues(new Uint8Array(12)),c2=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:iv2},FK.key,new TextEncoder().encode(ph.slice(i*2400,(i+1)*2400))));
+   const r2=await fetch(famUrl()+'/i/'+(await amLinkPid(code,i)),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:shB64.enc(c2),iv:shB64.enc(iv2)})});if(!r2.ok)throw new Error('Serveur : '+r2.status)}
  }catch(e){toast('Impossible de créer le code : '+(e.message||'hors connexion'),5000);return}
  const sh=code.slice(0,4)+'-'+code.slice(4,8)+'-'+code.slice(8);
  const r=await ask({title:'📲 Lier un autre appareil',html:'<p style="margin:.2rem 0 .4rem">Sur l’autre appareil (iPad, PC, nouveau téléphone…), '+(AMI?'ouvre l’appli <b>Amicale</b> (dam-cigogne.github.io/amicale) → <b>🔢 Rejoindre avec un code</b>':'ouvre <b>AgenDam</b> → Réglages → Famille et contacts → <b>👥 Groupe</b> → <b>🔢 Rejoindre avec un code</b> (ou l’appli Amicale)')+', puis tape :</p><p style="font-size:1.6rem;font-weight:800;letter-spacing:.08em;text-align:center;margin:.4rem 0 .3rem">'+sh+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">⚠️ Ce code donne accès à <b>toi</b> (fiche, droits, clés) : ne le donne à personne. À usage unique, valable 15 minutes.</p>',btns:[{label:'Copier le code',value:'copy',cls:'pri'},{label:'Fermer',value:null}]});
@@ -12942,6 +12948,7 @@ async function amLinkIn(code){
   const d=JSON.parse(new TextDecoder().decode(pl));
   if(!d.link||!d.me||!d.kA||!d.ap){toast('Ce code n’est pas un code de liaison',5000);return}
   if(Date.now()-(d.t0||0)>15*60e3){toast('Ce code a expiré (15 minutes). Génère-en un nouveau.',6000);return}
+  if(d.phn>0&&d.phn<=8){try{let ph='';for(let i=0;i<d.phn;i++){const pid=await amLinkPid(code,i),r2=await fetch(famUrl()+'/i/'+pid,{cache:'no-store'});if(!r2.ok)throw 0;const o2=await r2.json();ph+=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(o2.iv)},FK.key,shB64.dec(o2.c)));fetch(famUrl()+'/i/'+pid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:'x',iv:'x'})}).catch(()=>{})}if(/^data:image\//.test(ph))d.me.ph=ph}catch(e){}}
   if(already){if(amGid(amc())!==String((d.ap||{}).x||'').slice(0,40)){toast('Cet appareil fait déjà partie d’un autre groupe',4500);return}
    if(!AMI&&Array.isArray(d.fam)&&d.fam.length){if(!meName()){S.me=String(d.pn||d.me.n||'Moi').slice(0,30);S.meOk=1}S.famLt=String(d.lt||'').slice(0,20);for(const g of d.fam){if(g&&/^[A-Za-z0-9_-]{40,50}$/.test(g.k)&&!famAll().some(x=>x.k===g.k))famAdd(famNew(g.k,String(g.nm||'Famille').slice(0,24),g.ic||'👪'))}saveSet();try{await famPush();await famPull(false)}catch(e){}}
    try{await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:'x',iv:'x'})})}catch(e){}
@@ -16764,7 +16771,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amLinkIn,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
