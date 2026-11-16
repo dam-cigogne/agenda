@@ -190,6 +190,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am-tabs{display:flex;gap:.3rem;margin:.2rem 0 .5rem;flex-wrap:nowrap;overflow-x:auto}
 .am-tabs .chip{padding:.4rem .6rem;font-size:.85rem;white-space:nowrap;flex:none}
 .am-tabs .chip.on{background:var(--k-am);border-color:var(--k-am);color:#fff}
+.am-cols-w{display:grid;grid-template-columns:repeat(auto-fill,minmax(21rem,1fr));gap:0 .6rem;align-items:start}.am-cols-w>.am-it{margin:.2rem 0}
 .am-it{display:flex;align-items:center;gap:.6rem;background:var(--surface);border:1px solid var(--line2);border-left:5px solid var(--k-am);border-radius:.9rem;padding:.5rem .6rem;margin:.35rem 0}
 .am-it.done{opacity:.55}.am-it.done .am-itx b{text-decoration:line-through}
 .am-ck{width:2rem;height:2rem;border-radius:50%;border:2px solid var(--k-am);flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:transparent}.am-it.done .am-ck{background:var(--k-am)}
@@ -754,6 +755,7 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 .po-tabs{position:sticky;top:0;z-index:3;background:var(--surface);padding:.35rem 0;margin:0 0 .2rem;flex-wrap:wrap}.po-tabs .chip{font-weight:800}.po-tip{font-size:.78rem;margin:0 0 .4rem}.po-bc{padding:.6rem .7rem;margin:.2rem 0 .6rem;border:2px solid var(--accent)}
 .ov{position:fixed;inset:0;background:rgba(8,12,18,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .ov.dlgov{z-index:80;align-items:center}
+.pt-tw{overflow-x:auto;margin:.3rem 0}.pt-t{width:100%;border-collapse:collapse;font-size:.86rem}.pt-t th,.pt-t td{padding:.35rem .5rem;border-bottom:1px solid var(--line,#e5e0d4);text-align:left;vertical-align:middle}.pt-t th{position:sticky;top:0;background:var(--surface,#fff)}.pt-t td.c,.pt-t th.c{text-align:center}.pt-t tr.done{opacity:.6}.pt-t tbody tr:nth-child(even){background:rgba(0,0,0,.025)}.pt-th,.pt-nm{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left}.pt-th{font-weight:800;white-space:nowrap}.pt-th.on{color:var(--accent,#7c3aed)}.pt-ck{width:1.6rem;height:1.6rem;border-radius:50%;border:2px solid var(--accent,#7c3aed);background:transparent;color:#fff;font-weight:900;cursor:pointer}.pt-ck.on{background:var(--accent,#7c3aed)}.pt-mo-c{font-style:italic;max-width:14rem}
 .pt-mo{display:block;margin:.2rem 0;padding:.3rem .55rem;border-radius:.6rem;background:#eef2ff;color:#3730a3;font-style:italic;white-space:normal}[data-theme=dark] .pt-mo{background:#312e81;color:#e0e7ff}.rl-log{margin:.5rem 0 .2rem;padding:.55rem .7rem;border-radius:.8rem;background:#ecfdf5;border:2px solid #34d399;color:#064e3b}.rl-log>b{display:block;font-size:1.05rem;margin-bottom:.2rem}.rl-it{font-size:.95rem;margin:.15rem 0}.rl-x{border:0;background:rgba(0,0,0,.08);color:inherit;border-radius:50%;width:1.6rem;height:1.6rem;font-size:.8rem;margin-left:.3rem;cursor:pointer;vertical-align:middle}[data-theme=dark] .rl-log{background:#064e3b;color:#ecfdf5}.fltn{display:inline-block;min-width:1.4em;padding:0 .35em;margin-left:.15rem;border-radius:999px;background:rgba(0,0,0,.08);font-size:.85em;text-align:center}.chip.on .fltn{background:rgba(255,255,255,.28)}.dlg-x{position:sticky;top:0;float:right;z-index:3;width:2.4rem;height:2.4rem;margin:-.35rem -.35rem .2rem .5rem;border-radius:50%;border:0;background:var(--surface2,#eee);color:var(--text);font-size:1.15rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 /* 2.82.19 : sur iPhone/iPad, toucher une case de moins de 16 px fait zoomer Safari tout seul (l'écran « part dans tous les sens ») ; et la page derrière une fiche ne bouge plus */
 @supports(-webkit-touch-callout:none){input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea{font-size:max(16px,1em)!important}}
@@ -2951,7 +2953,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.72';
+const APP_VERSION='2.82.73';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2959,6 +2961,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.73',d:'16/11/2026',items:['▦ Liste des inscrits : bouton « Tableau » (colonnes Nom, Grade, Personnes, Téléphone, Régime, Menu, Paiement, Remarque). On touche un titre de colonne pour trier (touche encore pour inverser). Sur grand écran, le tableau s’affiche tout seul','🪟 Sur grand écran (PC, tablette en large), les longues listes (inscrits, patchs, amicalistes, tâches…) se rangent en plusieurs colonnes au lieu d’une seule colonne pleine de blanc','🍽 Repas (plats de l’événement) : la section est repliée en une ligne, on la déplie quand on en a besoin','💾 Sauvegarde : le message disait « 0 événement » alors que tout le groupe était bien dans le fichier (il ne comptait que l’agenda personnel). Il indique maintenant le nombre d’amicalistes et d’événements du groupe','📲 Menu à choisir : bouton « QR » à côté de chaque inscrit pour lui faire scanner son lien personnel']},
  {v:'2.82.72',d:'16/11/2026',items:['🔔 Notifications : on ne confond plus inscription et adhésion. Une inscription arrive en « 🎉 Nouvelle inscription » avec le nom de l’événement (« Nouvelle inscription pour « Repas du midi » »), une demande d’adhésion en « 🎖 Nouvelle adhésion ». Nécessite la mise à jour du serveur (worker)']},
  {v:'2.82.71',d:'16/11/2026',items:['🍽 Menu à choisir : nouvel éditeur au doigt, plus pratique sur téléphone. Un cadre par temps (Entrée, Plat, Dessert, Fromage…), un champ par choix, boutons « Ajouter un choix » et ✕ pour retirer ; la touche Entrée ajoute le choix suivant']},
  {v:'2.82.70',d:'16/11/2026',items:['📨 Relances : le bloc vert « Relances déjà faites » prenait trop de place. Il est maintenant replié sur une seule ligne (« Déjà relancé 3 fois · dernière dim. 15 nov par … ») ; on le déplie pour voir le détail et qui a relancé']},
@@ -8540,6 +8543,10 @@ async function bkName(base,had){
  const r=await ask({title:'💾 Une sauvegarde existe déjà',text:'Remplacer la précédente (même nom de fichier : ton appareil te demande de confirmer le remplacement) ou garder les deux (nom avec la date et l’heure) ?',btns:[{label:'♻️ Remplacer la précédente',value:'r',cls:'pri'},{label:'📚 Garder les deux',value:'k'},{label:'Annuler',value:null}]});
  if(!r)return null;if(r==='r')return base;
  const d=new Date(),hh=String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0');return base.replace(/(\.[a-z0-9]+)$/i,'-'+today()+'-'+hh+'$1')}
+function bkSum(){const g=S&&S.amc,L=g&&g.it?Object.values(g.it).filter(i=>i&&!i.del):[],ne=L.filter(i=>i.kind==='ee').length,nm=L.filter(i=>i.kind==='am').length,P=[];
+ if(!AMI||EV.length)P.push(EV.length+' événement'+(EV.length>1?'s':'')+' d’agenda');
+ if(nm)P.push(nm+' amicaliste'+(nm>1?'s':''));if(ne)P.push(ne+' événement'+(ne>1?'s':'')+(AMI?'':' de groupe'));
+ return P.join(' · ')||'rien à sauvegarder'}
 async function doBackup(share){
  if(demo){toast('Quitte d’abord le mode démo');return}
  const fn=await bkName(BACKUP_FILE,!!META.lastBackup);if(!fn)return;
@@ -8555,7 +8562,7 @@ async function doBackup(share){
  else if(share){const r=await shareFile(fn,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(fn,'application/json',text)}}
  else downloadFile(fn,'application/json',text);
  backupDone();
- await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+fn+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
+ await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+fn+'</b> ('+bkSum()+').</p>'+(AMI?'<p class="hint">Il contient tout le groupe : amicalistes, événements, inscrits, menus, bulletins… (le « 0 événement » d’avant ne comptait que l’agenda personnel, vide ici).</p>':'')+'<div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
  if(V.view==='settings')render();
 }
 const BACKUP_EV_FILE='agenda-evenements.json';
@@ -9088,6 +9095,8 @@ async function act(a,el,e){
   case 'pr-ed':amPrEdit();break;
   case 'pt-f':AM_PTF=AM_PTF===ds_.v?'':ds_.v;render();break;
   case 'pt-g':AM_PTG=ds_.v;render();break;
+  case 'pt-view':AM_PTV=amPtView()==='t'?'l':'t';try{localStorage.setItem('agd-pt-v',AM_PTV)}catch(e){}render();break;
+  case 'pt-sort':AM_PTS=AM_PTS.k===ds_.k?{k:ds_.k,d:-AM_PTS.d}:{k:ds_.k,d:1};render();break;
   case 'pt-nopay':amPtNoPay();break;
   case 'ee-ptadd':amPtPick();break;
   case 'ee-ptnames':amPtNames();break;
@@ -12610,7 +12619,14 @@ function amCarInit(){const c=document.querySelector('.am2-cart');if(!c||c._ok)re
  ['touchstart','pointerdown'].forEach(ev=>c.addEventListener(ev,()=>{t0=Date.now()},{passive:true}));
  D.forEach((d,i)=>d.addEventListener('click',()=>{t0=Date.now();c.scrollTo({left:i*c.clientWidth,behavior:'smooth'})}));
  const tm=setInterval(()=>{if(!document.body.contains(c)){clearInterval(tm);return}if(document.hidden||Date.now()-t0<12000||$('#dlg .dlgbox')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const k=(cur()+1)%n;c.scrollTo({left:k*c.clientWidth,behavior:'smooth'})},6500)}
-function amSnFit(){amDockFit();amWideFix();amCarInit();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
+/* 2.82.73 : sur grand écran, les longues listes de lignes (inscrits, patchs, amicalistes, tâches…) se rangent en colonnes */
+function amColsFit(){try{const M=document.querySelector('#main');if(!M)return;
+ M.querySelectorAll('.am-cols-w').forEach(w=>{while(w.firstChild)w.parentNode.insertBefore(w.firstChild,w);w.remove()});
+ if(window.innerWidth<820)return;const seen=new Set();
+ M.querySelectorAll('.am-it').forEach(e=>{const P=e.parentNode;if(!P||seen.has(P)||P.classList.contains('am-cols-w'))return;seen.add(P);let run=[];
+  const flush=()=>{if(run.length>=4){const w=document.createElement('div');w.className='am-cols-w';P.insertBefore(w,run[0]);run.forEach(x=>w.appendChild(x))}run=[]};
+  [...P.children].forEach(c=>{if(c.classList.contains('am-it')&&!c.closest('[draggable="true"]'))run.push(c);else flush()});flush()})}catch(e){}}
+function amSnFit(){amColsFit();amDockFit();amWideFix();amCarInit();const n=document.querySelector('.co-tabs.am-sn');if(!n)return;n.classList.remove('am-snl');if(n.scrollHeight>n.clientHeight+3)n.classList.add('am-snl')}
 window.addEventListener('resize',()=>setTimeout(amSnFit,200));window.addEventListener('orientationchange',()=>setTimeout(amSnFit,400));
 let AML_OK=false,AML_H=0;
 const amlDelay=()=>S.amlDelay==null?300:+S.amlDelay;
@@ -13854,8 +13870,9 @@ async function amMxSend(){
  const pt=(it.pt||[]).map((p,i)=>({p,i})).sort((x,y)=>(x.p.mc?1:0)-(y.p.mc?1:0)),dt=it.d?new Date(it.d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'';
  let h='<p class="mut" style="margin:.1rem 0 .5rem;font-size:.9rem">Chaque inscrit reçoit <b>son propre lien</b> (son nom et son nombre de personnes sont déjà dedans). Les ⏳ sont ceux qui n’ont pas encore répondu.</p>';
  pt.forEach(({p,i})=>{const u=amMxUrl(it,p);U[i]=u;const pr=String(p.n||'').trim().split(/\s+/).slice(-1)[0]||'',msg='Bonjour '+pr+' ! Pour « '+(it.tx||'')+' »'+(dt?' ('+dt+')':'')+', choisis ton menu en une minute : '+u,wa=p.tl?amWaNum(p.tl):'';
-  h+='<div style="padding:.5rem 0;border-bottom:1px solid var(--line,#eee)"><b>'+(p.mc?'✅':'⏳')+' '+esc(p.n)+'</b> <small class="mut">'+amMxPN(p)+' pers.</small><div class="btns" style="margin-top:.3rem">'+(wa?'<a class="btn" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(msg)+'">WhatsApp</a><a class="btn" href="sms:'+esc(String(p.tl).replace(/[^0-9+]/g,''))+'?&body='+encodeURIComponent(msg)+'">SMS</a>':'')+(p.ml?'<a class="btn" href="mailto:'+esc(p.ml)+'?subject='+encodeURIComponent('Ton menu : '+(it.tx||''))+'&body='+encodeURIComponent(msg)+'">Mail</a>':'')+'<button class="btn" data-mnc="'+i+'" data-msg="'+esc(msg)+'">🔗 Copier</button></div>'+(!wa&&!p.ml?'<small class="mut">Pas de téléphone ni de mail : copie le lien.</small>':'')+'</div>'});
- const on=e=>{const b=e.target.closest&&e.target.closest('[data-mnc]');if(!b)return;e.stopPropagation();navigator.clipboard.writeText(b.dataset.msg).then(()=>toast('🔗 Lien copié',1800),()=>toast('Copie impossible',2500))};
+  h+='<div style="padding:.5rem 0;border-bottom:1px solid var(--line,#eee)"><b>'+(p.mc?'✅':'⏳')+' '+esc(p.n)+'</b> <small class="mut">'+amMxPN(p)+' pers.</small><div class="btns" style="margin-top:.3rem">'+(wa?'<a class="btn" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(msg)+'">WhatsApp</a><a class="btn" href="sms:'+esc(String(p.tl).replace(/[^0-9+]/g,''))+'?&body='+encodeURIComponent(msg)+'">SMS</a>':'')+(p.ml?'<a class="btn" href="mailto:'+esc(p.ml)+'?subject='+encodeURIComponent('Ton menu : '+(it.tx||''))+'&body='+encodeURIComponent(msg)+'">Mail</a>':'')+'<button class="btn" data-mnc="'+i+'" data-msg="'+esc(msg)+'">🔗 Copier</button><button class="btn" data-mnq="'+i+'">📲 QR</button></div><div id="mnq-'+i+'" hidden style="text-align:center;margin-top:.4rem"></div>'+(!wa&&!p.ml?'<small class="mut">Pas de téléphone ni de mail : copie le lien.</small>':'')+'</div>'});
+ const on=e=>{const q=e.target.closest&&e.target.closest('[data-mnq]');if(q){e.stopPropagation();const bx=root.querySelector('#mnq-'+q.dataset.mnq);if(!bx)return;if(!bx.hidden){bx.hidden=true;return}if(!bx.innerHTML){const im=amQrImg(U[q.dataset.mnq]);if(!im){toast('Menu trop long pour un QR : utilise le lien',3500);return}bx.innerHTML='<img src="'+im+'" alt="QR code" style="width:min(15rem,70vw);height:auto;border-radius:12px"><div class="mut" style="font-size:.85rem">Fais-le scanner par la personne : son choix de menu s’ouvre.</div>'}bx.hidden=false;return}
+  const b=e.target.closest&&e.target.closest('[data-mnc]');if(!b)return;e.stopPropagation();navigator.clipboard.writeText(b.dataset.msg).then(()=>toast('🔗 Lien copié',1800),()=>toast('Copie impossible',2500))};
  root.addEventListener('click',on,true);await ask({title:'📤 Envoyer « Choisis ton menu »',html:h,btns:[{label:'Fermer',value:null}]});root.removeEventListener('click',on,true);
 }
 async function amMxManual(i){
@@ -16064,14 +16081,14 @@ function amRpQ(i,f){if(i.q==null)return null;let q=i.q*f;if(!i.u&&q>1)q=Math.cei
 function amRpHTML(it,rw){
  const r=it.rp||{},M=r.m||[];if(!M.length&&!rw)return '';
  const nb=amRpNb(it),auto=!(r.nb>0);
- let h='<h4 class="am-h">🍽 Repas'+(M.length?' · '+M.length+' plat'+(M.length>1?'s':''):'')+'</h4>';
+ let h='<details class="qr-dt" data-id="rp'+esc(it.id)+'"'+(AMQR_OPEN['rp'+it.id]?' open':'')+'><summary>🍽 Repas'+(M.length?' · '+M.length+' plat'+(M.length>1?'s':''):'')+(nb?' · '+nb+' repas':'')+'</summary><div class="qr-2">';
  h+='<button class="am-it" '+(rw?'data-act="rp-nb"':'disabled')+'><span class="am-itx"><b>👥 '+(nb||'?')+' repas</b><small>'+(auto?(nb?'Calculé avec les inscrits (tickets repas)':'Pas encore d’inscrits : touche pour donner le nombre'):'Nombre choisi à la main')+'</small></span></button>';
  {const RG=amRpRgList(it);if(RG.length){const cover=k=>M.some(x=>x.k!=='c'&&x.fo&&amRpFoOk(x.fo,k)),miss=RG.filter(r=>!cover(r.k));
   h+='<div class="rp-rg"><b>⚠️ Régimes particuliers</b> '+RG.map(r=>'<span title="'+esc(r.who.join(', '))+'">🥗 '+esc(r.k)+' <b>'+r.n+'</b> <small>('+esc(r.who.slice(0,4).join(', '))+(r.who.length>4?'…':'')+')</small></span>').join(' ')+(M.length&&miss.length&&M.some(x=>x.k!=='c')?'<small class="rp-miss">Rien de prévu pour : '+esc(miss.map(r=>r.k).join(', '))+'. Ajoute un plat « Pour qui ? → Seulement les régimes particuliers », et mets le plat principal sur « sauf régimes ».</small>':'')+'</div>'}}
  h+=M.map((x,i)=>{if(x.k==='c'){const c=amRpCnt(it,x),nch=Object.keys(x.ch||{}).filter(k=>(it.pt||[]).some(p=>p.n===k)).length;return '<div class="am-it rp-c"><button class="am-itx" '+(rw?'data-act="rp-ed" data-i="'+i+'"':'disabled')+'><b>🥪 '+esc(x.t)+' <small class="mut">(à composer)</small></b><small class="rp-ing">Base ×'+(amRpBase(it,x)||'?')+' : '+(x.ing.map(g=>{const bn=amRpBase(it,x);return esc((g.q!=null&&bn?amRpFmt(amRpQ(g,bn),g.u)+' ':'')+g.n)}).join(' · ')||'—')+'</small><small class="rp-ing">Choix : '+(x.op.map((g,k)=>esc(g.n)+' <span class="rp-n">'+c[k]+'</span>').join(' · ')||'—')+'</small></button><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="rp-ch" data-i="'+i+'">👆 Choix de chacun'+((it.pt||[]).length?' · '+nch+'/'+(it.pt||[]).length:'')+'</button><button class="btn grow" data-act="rp-pr" data-i="'+i+'">🖨 Récap cuisine</button></div></div>'}const nx=amRpNbFor(it,x),f=nx?nx/x.pp:1;return '<button class="am-it" '+(rw?'data-act="rp-ed" data-i="'+i+'"':'disabled')+'><span class="am-itx"><b>'+esc(x.t)+'</b><small>'+(x.fo?'<span class="rp-fo">'+esc(amRpFoLbl(x.fo))+'</span> · ':'')+(x.pp===1?'Par personne':'Recette pour '+x.pp)+(nx?' → ×'+fmtQ(Math.round(f*100)/100)+' pour '+nx:'')+'</small><small class="rp-ing">'+x.ing.map(g=>{const q=nx?amRpQ(g,f):g.q;return esc((q!=null?amRpFmt(q,g.u)+' ':'')+g.n)}).join(' · ')+'</small></span></button>'}).join('');
  if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="rp-rc">📖 Une recette de l’onglet Repas</button><button class="btn grow" data-act="rp-add">✏️ Un plat tapé à la main</button></div><button class="btn blk" data-act="mn-sync" data-id="'+esc(it.id)+'" style="margin-top:.4rem">🔄 Mettre à jour le menu de l’affiche</button><button class="btn blk" data-act="rp-addc" style="margin-top:.4rem">🥪 Un plat à composer (sandwich, croque, kebab…)</button>';
   if(M.length)h+='<button class="btn pri blk" data-act="rp-send" style="margin-top:.4rem">🛒 Envoyer dans les courses du groupe</button><button class="btn blk" data-act="rp-recap" style="margin-top:.4rem">🖨 Récap des repas (régimes compris)</button>'}
- return h;
+ return h+'</div></details>';
 }
 function amRpMut(fn){amEeMut(o=>{const r=amRpClean(o.rp)||{nb:0,m:[]};fn(r);o.rp=r})}
 async function amRpNbEdit(){
@@ -16159,7 +16176,28 @@ function amPtDueTx(it,x){const p=x.p,r=it.pr;if(!r||!r.on)return '';if(p.du!=nul
  amTy(it).forEach(t=>{const pz=((r.t||{})[t.k]||{})[w]||0,q=amQ(p,t.k);if(pz&&q)L.push(q+' '+t.l.toLowerCase()+' × '+amEur(pz))});return L.join(' + ')+' = '+amEur(amPtDue(it,x))}
 function amPtSt(it,x){const d=amPtDue(it,x),pa=x.p.pa||0;if(!d)return pa?{k:'ok',d,pa,r:0}:{k:'free',d,pa,r:0};if(pa>=d)return{k:'ok',d,pa,r:0};return{k:pa?'part':'no',d,pa,r:Math.round((d-pa)*100)/100}}
 function amPayTot(it){const L=(it.pt||[]).map(p=>({p,m:amPtMember(p)})),t={du:0,pa:0,no:[],part:[],ok:0};L.forEach(x=>{const s=amPtSt(it,x);t.du+=s.d;t.pa+=x.p.pa||0;if(s.k==='no')t.no.push(x);else if(s.k==='part')t.part.push(x);else if(s.k==='ok')t.ok++});t.re=Math.max(0,Math.round((t.du-t.pa)*100)/100);return t}
-let AM_PTF='',AM_PTG='a';
+let AM_PTF='',AM_PTG='a',AM_PTS={k:'n',d:1};
+let AM_PTV='';try{AM_PTV=localStorage.getItem('agd-pt-v')||''}catch(e){}
+const amPtView=()=>AM_PTV||(window.innerWidth>=900?'t':'l');
+/* 2.82.73 : liste des inscrits en tableau (colonnes triables) : plus de monde sur la même page */
+function amPtTable(it,rw,L){
+ const C=[['p','✓',0],['n','Nom'],['gr','Grade'],['pe','Pers.'],['tl','Téléphone'],['rg','Régime']];if(it.mn)C.push(['mn','🍽 Menu']);const PY=(it.pr&&it.pr.on)||L.some(x=>x.p.pa);if(PY)C.push(['py','Paiement']);if(L.some(x=>x.p.mo))C.push(['mo','Remarque']);
+ const V=(x,k)=>{const p=x.p;switch(k){case 'p':return p.p?1:0;case 'n':return norm(p.n);case 'gr':return norm((x.m&&(x.m.o||{}).gr)||'');case 'pe':return (+p.na||0)+(+p.ne||0)||1;case 'tl':return String(p.tl||'').replace(/\D/g,'');case 'rg':return norm(amRgOf(x)||'');case 'mn':return p.mc?norm(amMxSum(p)):'~';case 'py':return amPtSt(it,x).r||0;case 'mo':return norm(p.mo||'');}return ''};
+ const S=AM_PTS,k0=C.some(c=>c[0]===S.k)?S.k:'n',R=L.slice().sort((a,b)=>{const x=V(a,k0),y=V(b,k0);const c=(typeof x==='number'&&typeof y==='number')?x-y:String(x).localeCompare(String(y),'fr',{numeric:true});return (c||V(a,'n').localeCompare(V(b,'n'),'fr'))*S.d});
+ const th=C.map(c=>'<th><button type="button" class="pt-th'+(k0===c[0]?' on':'')+'" data-act="pt-sort" data-k="'+c[0]+'">'+esc(c[1])+(k0===c[0]?(S.d>0?' ▲':' ▼'):'')+'</button></th>').join('');
+ const td=x=>{const p=x.p,rg=amRgOf(x),st=PY?amPtSt(it,x):null,g=x.m&&(x.m.o||{}).gr;
+  const cell={p:'<td class="c">'+(rw?'<button class="pt-ck'+(p.p?' on':'')+'" data-act="pt-p" data-i="'+x.i+'" aria-label="Présent">'+(p.p?'✓':'')+'</button>':(p.p?'✓':''))+'</td>',
+   n:'<td><button class="pt-nm" '+(rw?'data-act="pt-ed" data-i="'+x.i+'"':'disabled')+'><b>'+esc(p.n)+'</b></button></td>',
+   gr:'<td>'+esc(g||'')+'</td>',
+   pe:'<td class="c">'+((p.na||p.ne)?(p.na||0)+(p.ne?' + '+p.ne+' 🧒':''):'1')+'</td>',
+   tl:'<td>'+esc(p.tl||'')+'</td>',
+   rg:'<td>'+(rg?'<span class="rg-b">🥗 '+esc(rg)+'</span>':'')+'</td>',
+   mn:'<td>'+(p.mc?esc(amMxSum(p)||'sans plat'):'<span class="mut">⏳</span>')+'</td>',
+   py:'<td>'+(st?(st.k==='ok'?'<span style="color:#15803d">✅ '+(st.d?esc(amEur(st.pa)):'gratuit')+'</span>':st.k==='part'?'<span style="color:#c2410c">🟠 reste '+esc(amEur(st.r))+'</span>':'<span style="color:#b91c1c">🔴 '+esc(amEur(st.r))+'</span>'):'')+'</td>',
+   mo:'<td class="pt-mo-c">'+esc(p.mo||'')+'</td>'};
+  return '<tr class="'+(p.p?'done':'')+'">'+C.map(c=>cell[c[0]]).join('')+'</tr>'};
+ return '<div class="pt-tw"><table class="pt-t"><thead><tr>'+th+'</tr></thead><tbody>'+R.map(td).join('')+'</tbody></table></div>';
+}
 async function amPrEdit(){
  const a=amc(),it=a&&a.it[AMC_EE];if(!it||!a.kB)return;const r=it.pr||{on:0,f:{a:0,n:0},t:{}},TY=amTy(it),f=x=>x?String(x).replace('.',','):'';
  const F=[{k:'on',l:'Cet événement est-il payant ?',t:'select',v:r.on?'1':'0',o:[['1','💶 Oui, payant'],['0','Non, gratuit (pas de suivi de paiement)']]},{k:'fa',l:'Prix par personne – amicaliste (€)',v:f((r.f||{}).a),ph:'0'},{k:'fn',l:'Prix par personne – non-amicaliste (€)',v:f((r.f||{}).n),ph:'0'},{k:'fc',l:'Prix – accompagnant d’un amicaliste (€)',v:(r.f||{}).c!=null?f((r.f||{}).c)||'0':'',ph:'vide = prix non-amicaliste'},{k:'fe',l:'Prix – enfant (€)',v:(r.f||{}).e!=null?f((r.f||{}).e)||'0':'',ph:'vide = même prix que l’adulte'}];
@@ -16210,7 +16248,7 @@ function amPtHTML(it,rw){
  {const FA=flt(A),FN=flt(N);let g=AM_PTG==='n'?'n':'a';if(g==='a'&&!FA.length&&FN.length)g='n';else if(g==='n'&&!FN.length&&FA.length)g='a';
   const tb=(k,l,L)=>'<button class="chip'+(g===k?' on':'')+'" data-act="pt-g" data-v="'+k+'">'+l+' <b>'+L.length+'</b> <small>(présents '+L.filter(x=>x.p.p).length+')</small></button>';
   PT_VIS=(g==='a'?FA:FN).map(x=>x.i);
-  if(FA.length||FN.length)h+=amPtSelBar(it,rw)+'<div class="chips tk-chips pt-tabs">'+tb('a','🎖 Amicalistes',FA)+tb('n','👤 Non-amicalistes',FN)+(rw&&!amPtSel()?'<button class="chip" data-act="pt-son">☑ Sélectionner</button>':'')+'</div>'+(g==='a'?FA:FN).map(row).join('');
+  if(FA.length||FN.length)h+=amPtSelBar(it,rw)+'<div class="chips tk-chips pt-tabs">'+tb('a','🎖 Amicalistes',FA)+tb('n','👤 Non-amicalistes',FN)+(rw&&!amPtSel()?'<button class="chip" data-act="pt-son">☑ Sélectionner</button>':'')+(pt.length>=6?'<button class="chip" data-act="pt-view">'+(amPtView()==='t'?'☰ Liste':'▦ Tableau')+'</button>':'')+'</div>'+(amPtView()==='t'&&!amPtSel()?amPtTable(it,rw,g==='a'?FA:FN):(g==='a'?FA:FN).map(row).join(''));
   else if((AM_PTF||toks.length)&&pt.length)h+='<p class="empty">'+(toks.length?'Personne ne correspond à « '+esc(q0)+' ».':'Personne dans ce filtre.')+'</p>'}
  if(!pt.length)h+='<p class="empty">Repas, loto, sortie… : ajoute les participants pour pointer les présents, compter les tickets et suivre les paiements.</p>';
  if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-ptadd">🎖 Ajouter des amicalistes</button><button class="btn grow" data-act="ee-ptimp">📥 Importer une liste d’inscrits</button></div><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="ee-ptnames">✍️ Ajouter des noms</button></div>';
