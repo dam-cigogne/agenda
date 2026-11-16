@@ -2951,7 +2951,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.66';
+const APP_VERSION='2.82.67';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2959,6 +2959,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.67',d:'16/11/2026',items:['💾 Toutes les sauvegardes en fichier (Amicale, agenda complet, agenda seul) : tu choisis maintenant « Remplacer la précédente » (même nom de fichier, l’appareil te demande de confirmer le remplacement) ou « Garder les deux » (nom avec la date et l’heure). Fini les sauvegardes qui s’empilent']},
  {v:'2.82.66',d:'16/11/2026',items:['🕘 « Qui a fait quoi » beaucoup plus précis : pour chaque action on voit ce qui a changé (ex. « Grade : Adjudant → Colonel », « Cotisation : non → oui », « MARTIN — payé 0 → 20 € », « DUPONT — présent ✓ », « inscrits : … », « retiré : … », import Excel, modification en lot), qui l’a fait et quand. Les 6 dernières actions de chaque élément sont gardées, pour retrouver une erreur ou un mauvais geste']},
  {v:'2.82.65',d:'16/11/2026',items:['👥 Fiche d’un inscrit (événement) : tu peux maintenant corriger toi-même le nombre d’adultes et d’enfants (avant, seul le formulaire QR les donnait). Le montant à payer se recalcule tout seul avec les tarifs de l’événement','📥 Import d’amicalistes depuis Excel : le fichier ne prend plus le dessus sur l’appli. Il complète seulement les cases vides ; s’il dit autre chose que l’appli, l’appli garde sa valeur et une liste des différences s’affiche (tu choisis de garder l’appli ou d’appliquer le fichier)','📋 Import d’une liste d’inscrits dans un événement : le nombre de personnes (colonne « Repas », « Nombre », « Personnes »…, et « Boisson ») est maintenant lu. Un nom déjà inscrit n’est jamais mis en double ; son nombre est complété s’il est vide, sinon l’appli garde le sien']},
  {v:'2.82.64',d:'15/11/2026',items:['🎨 Mac / Safari ancien : le bouton « Ajouter un amicaliste », les bandeaux et les onglets apparaissaient pâles ou vides (couleurs mélangées non reconnues). Des couleurs de secours sont maintenant prévues partout','📇 Contacts WhatsApp : dans « voir pourquoi », on voit maintenant parmi ceux sans numéro valide qui a un mail et qui n’a rien du tout. Nouveau bouton « ✉️ Demander leur numéro par mail » : un message est préparé pour tous ceux qui ont un mail (adresses en copie cachée) pour leur expliquer et leur demander leur portable']},
@@ -8528,36 +8529,45 @@ document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='s-opt')V.optO
 function backupDone(){
  META.lastBackup=Date.now();META.dirtySince=null;META.snooze=0;saveMeta();
 }
+/* 2.82.67 : une sauvegarde existe déjà → remplacer la précédente (même nom) ou garder les deux (nom avec date et heure) */
+async function bkName(base,had){
+ if(!had)return base;
+ const r=await ask({title:'💾 Une sauvegarde existe déjà',text:'Remplacer la précédente (même nom de fichier : ton appareil te demande de confirmer le remplacement) ou garder les deux (nom avec la date et l’heure) ?',btns:[{label:'♻️ Remplacer la précédente',value:'r',cls:'pri'},{label:'📚 Garder les deux',value:'k'},{label:'Annuler',value:null}]});
+ if(!r)return null;if(r==='r')return base;
+ const d=new Date(),hh=String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0');return base.replace(/(\.[a-z0-9]+)$/i,'-'+today()+'-'+hh+'$1')}
 async function doBackup(share){
  if(demo){toast('Quitte d’abord le mode démo');return}
+ const fn=await bkName(BACKUP_FILE,!!META.lastBackup);if(!fn)return;
  const bo=backupObj();try{const ph=await PH.all();Object.keys(ph).forEach(k=>{if(k.indexOf('adc-')===0)delete ph[k]});if(Object.keys(ph).length)bo.photos=ph}catch(e){}
  const text=JSON.stringify(bo,null,1);
  if(!share&&canShareFiles())share=true;
  let done=false;
  if(!share&&window.showSaveFilePicker){
-  try{const h=await window.showSaveFilePicker({suggestedName:BACKUP_FILE,id:'agd-sauvegarde',startIn:'documents',types:[{description:'Sauvegarde AgenDam',accept:{'application/json':['.json']}}]});
+  try{const h=await window.showSaveFilePicker({suggestedName:fn,id:'agd-sauvegarde',startIn:'documents',types:[{description:'Sauvegarde AgenDam',accept:{'application/json':['.json']}}]});
    const w=await h.createWritable();await w.write(text);await w.close();done=true}
   catch(e){if(e&&e.name==='AbortError')return}}
  if(done){}
- else if(share){const r=await shareFile(BACKUP_FILE,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(BACKUP_FILE,'application/json',text)}}
- else downloadFile(BACKUP_FILE,'application/json',text);
+ else if(share){const r=await shareFile(fn,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(fn,'application/json',text)}}
+ else downloadFile(fn,'application/json',text);
  backupDone();
- await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+BACKUP_FILE+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
+ await ask({title:'Sauvegarde créée ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+fn+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><div class="warn"><b>Pour un autre appareil</b>Il ne se synchronise pas tout seul : envoie ce fichier dessus, puis ouvre Réglages → <b>Restaurer</b>.</div>',btns:[{label:'Compris',value:1,cls:'pri'}]});
  if(V.view==='settings')render();
 }
 const BACKUP_EV_FILE='agenda-evenements.json';
 async function doBackupAgenda(){
  if(demo){toast('Quitte d’abord le mode démo');return}
+ const fn=await bkName(BACKUP_EV_FILE,!!META.lastBkEv);if(!fn)return;
  const text=JSON.stringify({app:'agd-agenda',format:1,only:'events',appVersion:APP_VERSION,exportedAt:new Date().toISOString(),events:EV},null,1);
  let share=canShareFiles(),done=false;
  if(!share&&window.showSaveFilePicker){
-  try{const h=await window.showSaveFilePicker({suggestedName:BACKUP_EV_FILE,id:'agd-agenda-seul',startIn:'documents',types:[{description:'Agenda AgenDam',accept:{'application/json':['.json']}}]});
+  try{const h=await window.showSaveFilePicker({suggestedName:fn,id:'agd-agenda-seul',startIn:'documents',types:[{description:'Agenda AgenDam',accept:{'application/json':['.json']}}]});
    const w=await h.createWritable();await w.write(text);await w.close();done=true}
   catch(e){if(e&&e.name==='AbortError')return}}
  if(done){}
- else if(share){const r=await shareFile(BACKUP_EV_FILE,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(BACKUP_EV_FILE,'application/json',text)}}
- else downloadFile(BACKUP_EV_FILE,'application/json',text);
- await ask({title:'Agenda sauvegardé ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+BACKUP_EV_FILE+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><p class="hint">Il ne contient que l’agenda. Pour le remettre : Réglages → Sauvegarde → <b>Restaurer l’agenda</b>, puis « Fusionner » (ajoute ce qui manque) ou « Remplacer ».</p>',btns:[{label:'Compris',value:1,cls:'pri'}]});
+ else if(share){const r=await shareFile(fn,'application/json',text);if(r==='cancel')return;if(!r){toast('Partage impossible, enregistrement du fichier…');downloadFile(fn,'application/json',text)}}
+ else downloadFile(fn,'application/json',text);
+ META.lastBkEv=Date.now();saveMeta();
+ await ask({title:'Agenda sauvegardé ✔',html:'<p style="margin:.3rem 0">Fichier : <b>'+fn+'</b> ('+EV.length+' événement'+(EV.length>1?'s':'')+').</p><p class="hint">Il ne contient que l’agenda. Pour le remettre : Réglages → Sauvegarde → <b>Restaurer l’agenda</b>, puis « Fusionner » (ajoute ce qui manque) ou « Remplacer ».</p>',btns:[{label:'Compris',value:1,cls:'pri'}]});
 }
 async function restoreFile(file){
  let text;try{text=await file.text()}catch(e){toast('Lecture du fichier impossible');return}
@@ -15377,7 +15387,7 @@ async function amPwKey(pw,salt){const b=await crypto.subtle.importKey('raw',new 
 const amB64e=u=>{let s='';const c=0x8000;for(let i=0;i<u.length;i+=c)s+=String.fromCharCode.apply(null,u.subarray(i,i+c));return btoa(s)};
 async function amFileSave(){
  const a=amc();if(!a||!a.kB)return;if(demo){toast('Pas de sauvegarde en mode démo',3000);return}
- const v=await amForm('💾 Sauvegarder l’Amicale','Un fichier avec <b>tout le groupe</b> (amicalistes, bulletins, événements, documents, AG, cadeaux…) et ses clés. Il est <b>chiffré par un mot de passe</b> : sans lui, impossible de l’ouvrir, même pour toi. Note-le bien. Range le fichier dans iCloud Drive, sur le PC ou une clé USB.',[{k:'p1',l:'Mot de passe (8 caractères ou plus)',t:'password',v:''},{k:'p2',l:'Le même, encore une fois',t:'password',v:''}],'Créer le fichier');
+ const v=await amForm('💾 Sauvegarder l’Amicale','Un fichier avec <b>tout le groupe</b> (amicalistes, bulletins, événements, documents, AG, cadeaux…) et ses clés. Il est <b>chiffré par un mot de passe</b> : sans lui, impossible de l’ouvrir, même pour toi. Note-le bien. Range le fichier dans iCloud Drive, sur le PC ou une clé USB.',[{k:'p1',l:'Mot de passe (8 caractères ou plus)',t:'password',v:''},{k:'p2',l:'Le même, encore une fois',t:'password',v:''},{k:'m',l:'Si tu as déjà une sauvegarde',t:'select',v:'r',o:[['r','♻️ Remplacer la précédente (même nom de fichier : ton appareil te demandera de confirmer)'],['k','📚 Garder les deux (nom avec la date et l’heure)']]}],'Créer le fichier');
  if(!v)return;if(String(v.p1||'').length<8){toast('Mot de passe trop court (8 caractères minimum)',3500);return}if(v.p1!==v.p2){toast('Les deux mots de passe ne sont pas pareils',3500);return}
  toast('Préparation de la sauvegarde…',20000);
  const docs={};for(const d of Object.values(a.it||{}).filter(i=>i&&i.kind==='ad')){const m=amAdMeta(d);for(let k=0;k<(m.n||1);k++){const c=await PH.get('adc-'+d.id+'c'+k);if(c!=null)docs[d.id+'c'+k]=c}}
@@ -15385,7 +15395,7 @@ async function amFileSave(){
  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await amPwKey(v.p1,salt);
  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,body));
  const out=JSON.stringify({app:'agd-amicale-sauvegarde',v:1,nm:a.nm,at:new Date().toISOString(),salt:amB64e(salt),iv:amB64e(iv),data:amB64e(ct)});
- const nm='sauvegarde-'+amSlug(a.nm)+'-'+today()+'.amicale';
+ const d9=new Date(),hh=String(d9.getHours()).padStart(2,'0')+'h'+String(d9.getMinutes()).padStart(2,'0'),nm='sauvegarde-'+amSlug(a.nm)+(v.m==='k'?'-'+today()+'-'+hh:'')+'.amicale';
  await amSaveBlob(new Blob([out],{type:'application/octet-stream'}),nm,'application/octet-stream');
  S.amBkAt=Date.now();amSave();render();
 }
