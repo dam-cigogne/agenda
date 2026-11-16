@@ -2951,7 +2951,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.71';
+const APP_VERSION='2.82.72';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2959,6 +2959,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+ {v:'2.82.72',d:'16/11/2026',items:['🔔 Notifications : on ne confond plus inscription et adhésion. Une inscription arrive en « 🎉 Nouvelle inscription » avec le nom de l’événement (« Nouvelle inscription pour « Repas du midi » »), une demande d’adhésion en « 🎖 Nouvelle adhésion ». Nécessite la mise à jour du serveur (worker)']},
  {v:'2.82.71',d:'16/11/2026',items:['🍽 Menu à choisir : nouvel éditeur au doigt, plus pratique sur téléphone. Un cadre par temps (Entrée, Plat, Dessert, Fromage…), un champ par choix, boutons « Ajouter un choix » et ✕ pour retirer ; la touche Entrée ajoute le choix suivant']},
  {v:'2.82.70',d:'16/11/2026',items:['📨 Relances : le bloc vert « Relances déjà faites » prenait trop de place. Il est maintenant replié sur une seule ligne (« Déjà relancé 3 fois · dernière dim. 15 nov par … ») ; on le déplie pour voir le détail et qui a relancé']},
  {v:'2.82.69',d:'16/11/2026',items:['🍽 Événement : « Menu à choisir » (entrée, plat, dessert…). Tu écris le menu, puis « Envoyer à chacun » : chaque inscrit reçoit son propre lien (WhatsApp, SMS, mail ou copie) pour choisir un plat par personne. Les choix arrivent tout seuls (chiffrés), on voit qui a répondu ou pas, et « Totaux pour le traiteur » donne le nombre de chaque plat (copie ou Excel)','Dans la fiche d’un inscrit, on peut saisir ou corriger son menu à sa place']},
@@ -13743,9 +13744,12 @@ async function amQrOn(id){
  const a=amc(),it=a&&a.it&&a.it[id];if(!it)return;if(demo){toast('Non disponible en mode démo',2500);return}
  try{const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']),j=await crypto.subtle.exportKey('jwk',kp.privateKey),qid=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
   amEeMut(o=>{o.qr={id:qid,x:j.x,y:j.y,d:j.d};o.qd=[]});
-  try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space})})}catch(e){}
+  try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,t:String(it.tx||'').slice(0,60)})})}catch(e){}
   toast('✅ QR code d’inscription créé',3000)}catch(e){toast('Impossible : '+(e&&e.message||'erreur'),5000)}
 }
+/* 2.82.72 : le serveur retient le nom de l'événement pour écrire « Nouvelle inscription pour … » dans la notification */
+const AMQR_REG={};
+async function amQrReg(it){const a=amc();if(!it||!it.qr||demo||!a||!a.kB)return;const k=it.qr.id+'|'+it.tx;if(AMQR_REG[k])return;AMQR_REG[k]=1;try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+it.qr.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,t:String(it.tx||'').slice(0,60)})})}catch(e){}}
 async function amQrFetch(id,force){
  const a=amc(),it=a&&a.it&&a.it[id];if(!it||!it.qr||demo)return;const c=AMQR[id]||(AMQR[id]={L:[],last:0,at:0,busy:0});
  if(c.busy||(!force&&Date.now()-c.at<25000))return;c.busy=1;
@@ -13948,6 +13952,7 @@ function amQrHTML(it,rw){
  let h='';
  if(!it.qr)return h+'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">Un QR code à mettre sur l’affiche : on le scanne, on remplit un petit formulaire (nom, nombre de personnes, téléphone, régime…) et l’inscription arrive ici. Tu la valides, et la personne rejoint les inscrits. Les infos sont chiffrées : seuls les organisateurs peuvent les lire.</p><button class="btn blk" data-act="qr-on" data-id="'+esc(it.id)+'">📲 Créer le QR code d’inscription</button>'+amQmCard(it);
  setTimeout(()=>amQrFetch(it.id),50);
+ setTimeout(()=>amQrReg(it),400);
  const P=amQrPend(it),u=amQrUrl(it);
  /* 2.82.33 : rattrapage des inscriptions déjà validées : petit mot remis sous le nom, régime recopié dans la fiche (si elle n'en a pas) */
  try{if(rw&&AMC_EE===it.id){const A0=amc(),L=((AMQR[it.id]||{}).L||[]),miss=[];L.forEach(x=>{const v=x.v||{};if(!v.mo)return;const nm=amQrName(v),k=amNk(nm),C=amQrCheck(v),k2=C.m?amNk(C.m.tx):'';const q=(it.pt||[]).find(z=>amNk(z.n)===k||(k2&&amNk(z.n)===k2));if(q&&!q.mo)miss.push([amNk(q.n),String(v.mo).trim().slice(0,200)])});
