@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.119';
+const APP_VERSION='2.82.120';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.120',d:'17/11/2026',items:['🎁 <b>Gratuit pour une personne</b> : dans la fenêtre 💶 d’un inscrit, choisis « Gratuit pour cette personne ? → Oui ». Elle passe à 0 € (plus rien à encaisser), sans toucher au tarif des autres.']},
 {v:'2.82.119',d:'17/11/2026',items:['↕️ <b>Déplacer les tâches en les faisant glisser</b> : dans la préparation d’un événement, appuie longtemps sur une tâche (ou sur un bloc avec ses étapes), puis glisse-la où tu veux : avant ou après une autre, ou dans une autre partie (la veille, jour J, autres tâches…). L’ordre est gardé pour tout le bureau. Le « fait par » des tâches cochées n’est pas modifié.']},
 {v:'2.82.118',d:'17/11/2026',items:['✨ <b>Sous-tâches plus claires</b> : une tâche avec ses étapes forme maintenant un bloc encadré ; les étapes sont rangées sous un trait de couleur, avec des petites cases carrées arrondies (différentes du grand rond du titre), séparées par un fin pointillé.']},
 {v:'2.82.117',d:'17/11/2026',items:['⭕ <b>Sous-tâches avec leur petit rond</b> : dans les détails d’une tâche, chaque ligne commençant par un tiret devient une petite tâche à cocher (« - lettre au maire », « - joindre le modèle - Anne » pour la confier à quelqu’un). Le titre affiche « 2/3 », se coche tout seul quand tout est fait, et on voit qui a fait quoi. Les aides peuvent aussi les cocher dans « Autres tâches ».']},
@@ -16664,9 +16665,11 @@ function amPayBar(it,rw){
 async function amPtPay(i){
  const a=amc(),it=a&&a.it[AMC_EE],p=it&&(it.pt||[])[i];if(!p||!a.kB)return;const x={p,m:amPtMember(p)},st=amPtSt(it,x),m0=st.r?String(st.r).replace('.',','):'',pa0=st.pa?String(st.pa).replace('.',','):'';
  const F=[{k:'m',l:'Montant reçu maintenant (€)',v:m0,ph:'0'},{k:'pm',l:'Moyen de paiement',t:'select',v:p.pm||'cb',o:AM_PM.filter(z=>z[0])},{k:'du',l:'Montant à payer pour cette personne (€) – vide = tarif normal',v:p.du!=null?String(p.du).replace('.',','):'',ph:st.d?String(st.d).replace('.',','):'0'}];
+ F.unshift({k:'gr',l:'🎁 Gratuit pour cette personne ?',t:'select',v:(p.du===0&&!st.pa)?'1':'',o:[['','Non, tarif normal'],['1','Oui, gratuit (0 €)']]});
  if(st.pa||p.du!=null)F.push({k:'pa',l:'✏️ Total déjà payé (€) – corrige ici si tu t’es trompé',v:pa0,ph:'0'},{k:'rz',l:'↩ Tout annuler (comme au début : rien payé, tarif normal)',t:'select',v:'',o:[['','Non'],['1','Oui, tout remettre comme au début']]});
  const v=await amForm('💶 '+p.n,(st.d?'<small class="mut">'+esc(amPtDueTx(it,x))+'</small><br>':'')+(st.d?'À payer : <b>'+esc(amEur(st.d))+'</b> · déjà payé : <b>'+esc(amEur(st.pa))+'</b>'+(st.r?' · <b>reste '+esc(amEur(st.r))+'</b>':' · ✅ réglé'):'Pas de montant prévu.')+(p.eb?'<br><small class="mut">Encaissé par '+esc(p.eb)+(p.et?' le '+esc(new Date(p.et).toLocaleDateString('fr-FR')):'')+'</small>':''),F,'Valider');
- if(!v)return;const num=t=>parseFloat(String(t||'0').replace(',','.'))||0,du=String(v.du||'').trim();
+ if(!v)return;const num=t=>parseFloat(String(t||'0').replace(',','.'))||0;
+ const gratuit=v.gr==='1'&&v.rz!=='1';if(gratuit){v.du='0';v.m='0'}const du=String(v.du||'').trim();
  const reset=v.rz==='1',paNew=v.pa!=null?String(v.pa).trim():pa0,paChanged=v.pa!=null&&paNew!==pa0;
  let m=num(v.m);if(paChanged&&String(v.m||'').trim()===m0)m=0; /* total corrigé : on n’ajoute pas le « reste » proposé */
  amEeMut(o=>{const c=o.pt[i];if(!c)return;
@@ -16674,7 +16677,7 @@ async function amPtPay(i){
   if(paChanged){c.pa=Math.max(0,Math.round(num(paNew)*100)/100);if(!c.pa&&!m){c.pm='';delete c.eb;delete c.et}}
   if(m){c.pa=Math.round(((c.pa||0)+m)*100)/100;c.pm=v.pm||c.pm||'';c.eb=a.me.n;c.et=Date.now()}
   c.du=du===''?null:Math.max(0,num(du))});
- if(reset)toast('↩ Paiement annulé pour '+p.n,3000);else if(paChanged)toast('✏️ Paiement corrigé : '+amEur(num(paNew)+m),3000);else if(m)toast('💶 '+amEur(m)+' encaissés par '+a.me.n,2500);
+ if(reset)toast('↩ Paiement annulé pour '+p.n,3000);else if(gratuit)toast('🎁 '+p.n+' : gratuit',2500);else if(paChanged)toast('✏️ Paiement corrigé : '+amEur(num(paNew)+m),3000);else if(m)toast('💶 '+amEur(m)+' encaissés par '+a.me.n,2500);
 }
 /* message tout fait « les paiements sont ouverts » : modifiable (le texte modifié est gardé), à envoyer dans un groupe WhatsApp */
 async function amPrAnn(){
