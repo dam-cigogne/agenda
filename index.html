@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.97';
+const APP_VERSION='2.82.99';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.99',d:'17/11/2026',items:['✏️ Administrateur : « Corriger le nom / le surnom » dans la fiche d’un membre. Le nom corrigé s’affiche pour tout le groupe (liste, Challenge…) à la place de ce que la personne a écrit.']},
+{v:'2.82.98',d:'17/11/2026',items:['🔒 Un aide qui touche un autre membre ne voit plus rien (plus de « Retirer du groupe »). Les membres du bureau voient la fiche mais seul l’administrateur peut retirer quelqu’un.']},
 {v:'2.82.97',d:'17/11/2026',items:['📝 Patch de bienvenue : un petit bouton 📝 à côté de chaque personne pour écrire une note (ex. « mis de côté pour l’adjudant-chef »). La note s’affiche sous son grade et se synchronise.']},
 {v:'2.82.96',d:'17/11/2026',items:['🎁 Jour J : cocher le cadeau ne fait plus disparaître la personne ; elle passe dans « Terminés » seulement quand tout est valide (billets, cadeau et paiement).','↩ Paiement : « ✏️ Total déjà payé » pour corriger une faute et « Tout annuler » pour remettre la personne comme au début.','📣 Nouveau bouton « Annoncer l’ouverture des paiements » : message tout fait, modifiable (gardé sur l’appareil), à envoyer dans un groupe WhatsApp ou à copier.','💬 Boîte à idées : « Envoyer sur WhatsApp » prépare un message modifiable, avec l’image du QR code (menu de partage) ou le lien.','🔔 Plus de fausse notification « Nouveau message dans la boîte à idées » quand quelqu’un ouvre simplement la boîte.','👥 Retirer du groupe : message clair sur un téléphone non administrateur ; les fiches fantômes (anciennes inscriptions) sont masquées sur les téléphones des aides.']},
 {v:'2.82.95',d:'17/11/2026',items:['🎨 Vieux Safari (Mac, anciens iPhone) : les boutons, icônes et bandeaux ne sont plus transparents (couleurs de secours automatiques).','🖼 Accueil : sur Mac et PC, flèches ‹ › et glisser à la souris pour changer d’affiche, défilement automatique plus fiable.']},
@@ -12825,16 +12827,16 @@ function amList(){
   const r=a.apriv?(rl[id]||{}):(R[id]||{});
   /* 2.82.96 : sur un téléphone non administrateur, une fiche absente de la liste signée par l’admin ET plus ancienne que cette liste = fantôme (ancienne inscription, personne retirée) → masquée */
   if(!a.apriv&&!R[id]&&a.roles&&a.roles.at&&Object.keys(R).length>1&&(+c.at||0)<a.roles.at)continue;
-  out.push({id,n:c.n||(R[id]&&R[id].n)||'?',sn:c.sn||'',tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
+  out.push({id,n:r.on||c.n||(R[id]&&R[id].n)||'?',sn:(r.os||c.sn||''),tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
- for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.n||'?',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
+ for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.on||r.n||'?',sn:r.os||'',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
  return out.filter(p=>!p.x);
 }
 async function amRolesPut(){
  const a=amc();if(!a||!a.apriv)return;
  const rl=a.rl||{},list=[];
- const add=(id,n,l,adm)=>list.push({id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0});
+ const add=(id,n,l,adm)=>{const e={id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0};if(rl[id]&&rl[id].on)e.on=String(rl[id].on).slice(0,30);if(rl[id]&&rl[id].os)e.os=String(rl[id].os).slice(0,30);list.push(e)};
  add(a.me.id,a.me.n,'b',1);
  for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',(a.admIds||[]).includes(id))}
  const at=Date.now(),sig=await amSign(list,at,a.apriv);
@@ -13153,9 +13155,18 @@ async function amRemove(id){
  render();toast('Retiré. Clés renouvelées pour '+n+' membre'+(n>1?'s':''),4500);
  setTimeout(()=>ask({title:'✅ '+esc(p.n)+' est retiré',html:'<p style="margin:.2rem 0 .5rem">Les clés du groupe ont été renouvelées pour '+n+' membre'+(n>1?'s':'')+'.</p><div class="card" style="padding:.6rem .7rem;margin:.3rem 0;border-left:4px solid #f59e0b"><b>📲 Tu as d’autres appareils liés à toi (PC, tablette, Mac) ?</b><ol style="margin:.3rem 0 0;padding-left:1.2rem;line-height:1.45;font-size:.92rem"><li>Ouvre l’appli sur cet appareil.</li><li>Regarde la liste des membres : '+esc(p.n)+' doit avoir disparu.</li><li>S’il ou elle est <b>encore là</b> : sur ce téléphone, Réglages › Groupe › <b>📲 Lier mon PC / ma tablette</b>, puis tape le code sur l’autre appareil. Il se remet à jour.</li></ol></div>',btns:[{label:'Compris',value:1,cls:'pri'}]}),600)
 }
+async function amRename(id){
+ const a=amc();if(!a||!a.apriv)return;const p=amList().find(x=>x.id===id);if(!p)return;
+ const v=await amForm('✏️ Corriger '+p.n,'Visible par tout le groupe à la place de ce que la personne a écrit. Laisse vide pour revenir à son propre nom.',[{k:'n',l:'Nom affiché',v:p.n||''},{k:'s',l:'Surnom (facultatif)',v:p.sn||''}],'Enregistrer');
+ if(!v)return;const n=String(v.n||'').trim().slice(0,30),sn=String(v.s||'').trim().slice(0,30);
+ a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{on:n,os:sn});a.rolesDirty=1;amSave();render();
+ try{await amPush(true)}catch(e){}
+ toast('✅ Nom corrigé pour tout le groupe',3000);
+}
 async function amFiche(id){
  const a=amc();if(!a)return;
  const p=amList().find(x=>x.id===id);if(!p)return;
+ if(!p.self&&!a.apriv&&!a.kB&&!demo)return; /* 2.82.98 : un aide (sans clé Bureau) ne peut rien ouvrir en touchant un autre membre */
  if(p.self){
   const r0=await ask({title:p.n,html:'<p style="margin:.2rem 0 .5rem">'+(a.apriv?'Tu es l’administrateur'+(p.t?' · titre actuel : <b>'+esc(p.t)+'</b>':' · tu n’as pas encore de titre')+'.':'C’est ta fiche.')+'</p>',btns:(a.apriv?[{label:'🏷️ Changer mon titre (Président…)',value:'title',cls:'pri'}]:[]).concat([{label:'✏️ Modifier ma fiche',value:'me',cls:a.apriv?'':'pri'},{label:'🎨 Mon rond (couleur, emoji, photo)',value:'ring'},{label:'Fermer',value:null}])});
   if(r0==='me')amEditMe();else if(r0==='title')amSetTitle(id);else if(r0==='ring')amEditRing();
@@ -13167,13 +13178,14 @@ async function amFiche(id){
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
- if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});btns.push({label:'Retirer du groupe',value:'rm',cls:'dng'});
+ if(a.apriv)btns.push({label:'✏️ Corriger le nom / le surnom',value:'ren'});if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});if(a.apriv)btns.push({label:'Retirer du groupe',value:'rm',cls:'dng'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
  if(r==='tel')amOpen('tel:'+telN(p.tel));
  else if(r==='sms')famSms({tel:p.tel},'');
  else if(r==='mp')amOpen('mailto:'+p.mp);
  else if(r==='mw')amOpen('mailto:'+p.mw);
+ else if(r==='ren')amRename(id);
  else if(r==='title')amSetTitle(id);
  else if(r==='adm')amMakeAdmin(id);
  else if(r==='lvl')amSetLevel(id);
