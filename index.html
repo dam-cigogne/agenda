@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.110';
+const APP_VERSION='2.82.111';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.111',d:'17/11/2026',items:['📋 <b>Message de la carte Cloudflare</b> : sur Mac, le bouton « Envoyer / copier ce message » copie maintenant directement le texte, et le texte se sélectionne à la souris.']},
 {v:'2.82.110',d:'17/11/2026',items:['🤝 <b>Prestataires</b> (DJ, photobooth, structure gonflable, traiteur…) : une fiche par interlocuteur, créée une fois dans 📁 Administratif (téléphone, mail, site, tarif, notes). Dans un événement, « Importer un prestataire » l’ajoute avec ses coordonnées (appeler, SMS, mail d’un clic) et une note pour cet événement. Copié automatiquement l’an prochain.','📎 <b>Document joint à une tâche</b> : choisis un document d’Administratif (modèle de lettre, formulaire…) dans la tâche : un bouton « 📎 Modèle mairie » l’ouvre ou le télécharge. Repris tel quel quand tu copies l’événement pour l’an prochain.']},
 {v:'2.82.109',d:'17/11/2026',items:['🗂 <b>Préparation d’un événement en parties</b> : « Organiser en parties » crée Une semaine avant / La veille / Le jour J (titres et dates modifiables, parties à ajouter). Dans chaque partie : une liste de petits ronds à cocher, « ➕ Ajouter des tâches » (une par ligne, d’un coup), « en retard » si la date est passée. Quand quelqu’un coche : « fait par X le 17 nov. à 19h05 ». En bas, « 📌 Autres tâches » pour les choses hors préparation. « 📂 Déplacer vers… » range les tâches déjà écrites. Les tâches peuvent maintenant faire 200 caractères (avant 100) et il y en a jusqu’à 150.']},
 {v:'2.82.108',d:'17/11/2026',items:['🚨 <b>Valider une inscription par QR</b> : la fenêtre de vérification est maintenant en rouge, avec de grosses cases, quand quelque chose cloche : nom écrit autrement que dans ta liste (tu dois répondre), numéro de téléphone faux (le 0 du début oublié : l’appli propose de l’ajouter, garder l’ancien ou ne rien mettre), mail qui n’en est pas un. Un numéro faux n’écrase plus jamais la fiche.','🎖 Le formulaire d’inscription demande le <b>grade</b> (facultatif) : s’il a changé, tu peux mettre la fiche à jour d’une case à cocher. Le formulaire vérifie aussi le numéro et le mail avant l’envoi.','📤 Carte « Serveur Cloudflare » : message prêt à envoyer au groupe quand la limite du jour est atteinte (bouton envoyer / copier)']},
@@ -13208,11 +13209,11 @@ function amUsageCard(a){if(!a||!a.apriv||demo||!famUrl())return '';const u=AM_US
  else b='<p class="mut" style="margin:.2rem 0;font-size:.88rem">Info indisponible pour le moment.</p>';
  return '<div class="card"><h3>📊 Serveur Cloudflare</h3>'+b+'<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-usage">🔄 Actualiser</button><button class="btn grow" data-act="am-usage-i">ℹ️ Comprendre</button></div>'+
  '<p class="mut" style="margin:.7rem 0 .3rem;font-size:.85rem"><b>Message à envoyer au groupe si la limite est atteinte :</b></p>'+
- '<p style="margin:0 0 .4rem;font-size:.85rem;white-space:pre-line;background:var(--bg2,#f1efe8);border-radius:10px;padding:.5rem .6rem">'+esc(AM_USMSG)+'</p>'+
+ '<p style="margin:0 0 .4rem;font-size:.85rem;white-space:pre-line;-webkit-user-select:text;user-select:text;background:var(--bg2,#f1efe8);border-radius:10px;padding:.5rem .6rem">'+esc(AM_USMSG)+'</p>'+
  '<button class="btn blk" data-act="am-usage-msg">📤 Envoyer / copier ce message</button></div>'}
 const AM_USMSG='Bonjour à tous 👋 Le serveur de l’appli a atteint sa limite gratuite du jour. Si vos changements ne se mettent pas à jour tout de suite chez les autres, c’est normal : rien n’est perdu, tout se synchronisera tout seul cette nuit vers 1 h. Continuez comme d’habitude et ne désinstallez pas l’appli. Merci !';
 async function amUsageMsg(){
- if(navigator.share){try{await navigator.share({text:AM_USMSG});return}catch(e){if(e&&e.name==='AbortError')return}}
+ if(navigator.share&&matchMedia('(pointer:coarse)').matches){try{await navigator.share({text:AM_USMSG});return}catch(e){if(e&&e.name==='AbortError')return}}
  ficheCopy(AM_USMSG,'Message copié');
 }
 let AM_USSIG='';
