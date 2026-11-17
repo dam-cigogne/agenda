@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.101';
+const APP_VERSION='2.82.102';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.102',d:'17/11/2026',items:['🔧 « Corriger le nom / le surnom » ouvre enfin le bon formulaire','✅ Touche « N tâches » sous une personne pour voir ses tâches (et celles de ses événements)']},
 {v:'2.82.101',d:'17/11/2026',items:['📝 Chaque événement a une « Note du bureau » : explications, consignes, divers. Visible seulement par le bureau (pas par les aides), modifiable par tout le bureau.']},
 {v:'2.82.100',d:'17/11/2026',items:['💻 Un deuxième appareil administrateur (Mac, PC, tablette) masque lui aussi les anciennes fiches en double et reprend les noms corrigés par l’autre appareil.']},
 {v:'2.82.99',d:'17/11/2026',items:['✏️ Administrateur : « Corriger le nom / le surnom » dans la fiche d’un membre. Le nom corrigé s’affiche pour tout le groupe (liste, Challenge…) à la place de ce que la personne a écrit.']},
@@ -9015,6 +9016,7 @@ async function act(a,el,e){
   case 'am-new':amCreate();break;
   case 'am-join':amJoinCode();break;
   case 'am-mb':amFiche(ds_.id);break;
+  case 'am-mbtk':amMbTasks(ds_.id);break;
   case 'am-mbs':{const e=document.getElementById('am-mbs');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'am-tab':AMC_TAB=ds_.k;AMC_MB=ds_.k==='mb'?1:0;render();break;
   case 'am-more':await amMore();break;
@@ -13158,7 +13160,16 @@ async function amRemove(id){
  render();toast('Retiré. Clés renouvelées pour '+n+' membre'+(n>1?'s':''),4500);
  setTimeout(()=>ask({title:'✅ '+esc(p.n)+' est retiré',html:'<p style="margin:.2rem 0 .5rem">Les clés du groupe ont été renouvelées pour '+n+' membre'+(n>1?'s':'')+'.</p><div class="card" style="padding:.6rem .7rem;margin:.3rem 0;border-left:4px solid #f59e0b"><b>📲 Tu as d’autres appareils liés à toi (PC, tablette, Mac) ?</b><ol style="margin:.3rem 0 0;padding-left:1.2rem;line-height:1.45;font-size:.92rem"><li>Ouvre l’appli sur cet appareil.</li><li>Regarde la liste des membres : '+esc(p.n)+' doit avoir disparu.</li><li>S’il ou elle est <b>encore là</b> : sur ce téléphone, Réglages › Groupe › <b>📲 Lier mon PC / ma tablette</b>, puis tape le code sur l’autre appareil. Il se remet à jour.</li></ol></div>',btns:[{label:'Compris',value:1,cls:'pri'}]}),600)
 }
-async function amRename(id){
+function amMbTk(p){
+ const L=amItems('tk').filter(i=>!i.x&&i.w&&i.w===p.n).map(i=>({tx:i.tx,d:i.d,h:i.h}));
+ amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(c&&!c.ok&&c.w&&c.w===p.n)L.push({tx:c.t,d:e.d,ev:e.tx})}));
+ return L}
+function amMbTasks(id){
+ const p=amList().find(x=>x.id===id);if(!p)return;
+ const L=amMbTk(p).sort((x,y)=>String(x.d||'9').localeCompare(String(y.d||'9')));
+ ask({title:'✅ Tâches de '+esc(p.sn||p.n),html:L.length?'<ul style="margin:.2rem 0 .4rem;padding-left:1.1rem">'+L.map(i=>'<li style="margin:.35rem 0"><b>'+esc(i.tx||'')+'</b>'+(i.ev?'<br><small class="mut">🎉 '+esc(i.ev)+'</small>':'')+(i.d?'<br><small class="mut">📅 '+esc(fShort?fShort(i.d):i.d)+(i.h?' · '+esc(i.h):'')+'</small>':'')+'</li>').join('')+'</ul>':'<p>Aucune tâche attribuée.</p>',btns:[{label:'Fermer',value:null}]});
+}
+async function amRenameMember(id){
  const a=amc();if(!a||!a.apriv)return;const p=amList().find(x=>x.id===id);if(!p)return;
  const v=await amForm('✏️ Corriger '+p.n,'Visible par tout le groupe à la place de ce que la personne a écrit. Laisse vide pour revenir à son propre nom.',[{k:'n',l:'Nom affiché',v:p.n||''},{k:'s',l:'Surnom (facultatif)',v:p.sn||''}],'Enregistrer');
  if(!v)return;const n=String(v.n||'').trim().slice(0,30),sn=String(v.s||'').trim().slice(0,30);
@@ -13188,7 +13199,7 @@ async function amFiche(id){
  else if(r==='sms')famSms({tel:p.tel},'');
  else if(r==='mp')amOpen('mailto:'+p.mp);
  else if(r==='mw')amOpen('mailto:'+p.mw);
- else if(r==='ren')amRename(id);
+ else if(r==='ren')amRenameMember(id);
  else if(r==='title')amSetTitle(id);
  else if(r==='adm')amMakeAdmin(id);
  else if(r==='lvl')amSetLevel(id);
@@ -17484,7 +17495,7 @@ function amView0(){
   const RC=['#6B4EFF','#FF5C6C','#12B5A0','#2D8CFF','#FFB020','#B25CFF','#FF7A45','#0EA5B7','#7C8CFF'],hs=t=>{let x=0;for(const c of String(t))x=(x*31+c.charCodeAt(0))>>>0;return x};
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
-    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amItems('tk').filter(i=>!i.x&&i.w&&i.w===p.n).length;return nt?'<small class="am2-nt">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+'</button>'}).join('')+'</div></section>'};
+    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
   h+=isAc?amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem">'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
   {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
