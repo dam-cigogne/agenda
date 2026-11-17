@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.103';
+const APP_VERSION='2.82.104';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.104',d:'17/11/2026',items:['🥖 Repas d’un événement : une note explique quand utiliser « Un plat tapé à la main » (casse-croûte simple) ou « Un plat à composer » (grand repas)','🧀 Un plat tapé à la main réaffiche la parenthèse « (8 par fromage) » quand on le rouvre']},
 {v:'2.82.103',d:'17/11/2026',items:['🧀 Plat à composer : « 1 morceau de fromage (8 par fromage) » calcule le nombre de fromages entiers à acheter (aussi dans les courses)','🥗 Touche un régime (Sans porc, Allergie…) pour voir les noms des personnes']},
 {v:'2.82.102',d:'17/11/2026',items:['🔧 « Corriger le nom / le surnom » ouvre enfin le bon formulaire','✅ Touche « N tâches » sous une personne pour voir ses tâches (et celles de ses événements)']},
 {v:'2.82.101',d:'17/11/2026',items:['📝 Chaque événement a une « Note du bureau » : explications, consignes, divers. Visible seulement par le bureau (pas par les aides), modifiable par tout le bureau.']},
@@ -16291,7 +16292,7 @@ function amRpHTML(it,rw){
  {const RG=amRpRgList(it);if(RG.length){const cover=k=>M.some(x=>x.k!=='c'&&x.fo&&amRpFoOk(x.fo,k)),miss=RG.filter(r=>!cover(r.k));
   h+='<div class="rp-rg"><b>⚠️ Régimes particuliers</b> '+RG.map(r=>'<span title="'+esc(r.who.join(', '))+'">🥗 '+esc(r.k)+' <b>'+r.n+'</b> <small>('+esc(r.who.slice(0,4).join(', '))+(r.who.length>4?'…':'')+')</small></span>').join(' ')+(M.length&&miss.length&&M.some(x=>x.k!=='c')?'<small class="rp-miss">Rien de prévu pour : '+esc(miss.map(r=>r.k).join(', '))+'. Ajoute un plat « Pour qui ? → Seulement les régimes particuliers », et mets le plat principal sur « sauf régimes ».</small>':'')+'</div>'}}
  h+=M.map((x,i)=>{if(x.k==='c'){const c=amRpCnt(it,x),nch=Object.keys(x.ch||{}).filter(k=>(it.pt||[]).some(p=>p.n===k)).length;return '<div class="am-it rp-c"><button class="am-itx" '+(rw?'data-act="rp-ed" data-i="'+i+'"':'disabled')+'><b>🥪 '+esc(x.t)+' <small class="mut">(à composer)</small></b><small class="rp-ing">Base ×'+(amRpBase(it,x)||'?')+' : '+(x.ing.map(g=>{const bn=amRpBase(it,x);return esc(g.pk>0&&g.q!=null&&bn?amRpPkShow(g,g.q*bn):(g.q!=null&&bn?amRpFmt(amRpQ(g,bn),g.u)+' ':'')+g.n)}).join(' · ')||'—')+'</small><small class="rp-ing">Choix : '+(x.op.map((g,k)=>esc(g.n)+' <span class="rp-n">'+c[k]+'</span>').join(' · ')||'—')+'</small></button><div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="rp-ch" data-i="'+i+'">👆 Choix de chacun'+((it.pt||[]).length?' · '+nch+'/'+(it.pt||[]).length:'')+'</button><button class="btn grow" data-act="rp-pr" data-i="'+i+'">🖨 Récap cuisine</button></div></div>'}const nx=amRpNbFor(it,x),f=nx?nx/x.pp:1;return '<button class="am-it" '+(rw?'data-act="rp-ed" data-i="'+i+'"':'disabled')+'><span class="am-itx"><b>'+esc(x.t)+'</b><small>'+(x.fo?'<span class="rp-fo">'+esc(amRpFoLbl(x.fo))+'</span> · ':'')+(x.pp===1?'Par personne':'Recette pour '+x.pp)+(nx?' → ×'+fmtQ(Math.round(f*100)/100)+' pour '+nx:'')+'</small><small class="rp-ing">'+x.ing.map(g=>{const q=nx?amRpQ(g,f):g.q;return esc((q!=null?amRpFmt(q,g.u)+' ':'')+g.n)}).join(' · ')+'</small></span></button>'}).join('');
- if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="rp-rc">📖 Une recette de l’onglet Repas</button><button class="btn grow" data-act="rp-add">✏️ Un plat tapé à la main</button></div><button class="btn blk" data-act="mn-sync" data-id="'+esc(it.id)+'" style="margin-top:.4rem">🔄 Mettre à jour le menu de l’affiche</button><button class="btn blk" data-act="rp-addc" style="margin-top:.4rem">🥪 Un plat à composer (sandwich, croque, kebab…)</button>';
+ if(rw){h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="rp-rc">📖 Une recette de l’onglet Repas</button><button class="btn grow" data-act="rp-add">✏️ Un plat tapé à la main</button></div><p class="mut" style="font-size:.82rem;margin:.35rem 0 0"><b>🥖 Casse-croûte simple</b> (tout le monde mange pareil) : « ✏️ Un plat tapé à la main ».<br><b>🍽 Grand repas</b> (chacun choisit son plat ou son sandwich) : « 🥪 Un plat à composer ».</p><button class="btn blk" data-act="mn-sync" data-id="'+esc(it.id)+'" style="margin-top:.4rem">🔄 Mettre à jour le menu de l’affiche</button><button class="btn blk" data-act="rp-addc" style="margin-top:.4rem">🥪 Un plat à composer (sandwich, croque, kebab…)</button>';
   if(M.length)h+='<button class="btn pri blk" data-act="rp-send" style="margin-top:.4rem">🛒 Envoyer dans les courses du groupe</button><button class="btn blk" data-act="rp-recap" style="margin-top:.4rem">🖨 Récap des repas (régimes compris)</button>'}
  return h+'</div></details>';
 }
@@ -16345,7 +16346,7 @@ function amRpPrint(i){
 }
 async function amRpEdit(i){
  const a=amc(),it=a&&a.it[AMC_EE];if(!it)return;const x=i!=null?((it.rp||{}).m||[])[i]:null;
- const F=[{k:'t',l:'Plat',v:x?x.t:'',ph:'Chapon aux marrons'},{k:'pp',l:'Pour combien de personnes ? (1 = par personne : 1 croque, 1 boisson…)',v:x?String(x.pp):'1'},amRpFoField(it,x),{k:'ing',l:'Ingrédients (un par ligne)',t:'area',v:x?x.ing.map(g=>(g.q!=null?fmtQ(g.q)+(g.u?' '+g.u:'')+' ':'')+g.n).join('\n'):'',ph:'2 kg pommes de terre\n500 g lardons\n1 l crème\n3 baguettes'}];
+ const F=[{k:'t',l:'Plat',v:x?x.t:'',ph:'Chapon aux marrons'},{k:'pp',l:'Pour combien de personnes ? (1 = par personne : 1 croque, 1 boisson…)',v:x?String(x.pp):'1'},amRpFoField(it,x),{k:'ing',l:'Ingrédients (un par ligne)',t:'area',v:x?x.ing.map(g=>(g.q!=null?fmtQ(g.q)+(g.u?' '+g.u:'')+' ':'')+g.n+amRpPkTxt(g)).join('\n'):'',ph:'2 kg pommes de terre\n500 g lardons\n1 l crème\n3 baguettes\n1 morceau fromage (8 par fromage)'}];
  if(x)F.push({k:'act',l:'Action',t:'select',v:'',o:[['','Garder ce plat'],['del','🗑 Retirer ce plat']]});
  const v=await amForm(x?'Modifier le plat':'🍽 Nouveau plat','Les quantités se calculent ensuite pour le nombre de repas de l’événement.',F,x?'Enregistrer':'Ajouter');
  if(!v)return;if(x&&v.act==='del'){amRpMut(r=>{r.m.splice(i,1)});return}
