@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.95';
+const APP_VERSION='2.82.96';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.96',d:'17/11/2026',items:['🎁 Jour J : cocher le cadeau ne fait plus disparaître la personne ; elle passe dans « Terminés » seulement quand tout est valide (billets, cadeau et paiement).','↩ Paiement : « ✏️ Total déjà payé » pour corriger une faute et « Tout annuler » pour remettre la personne comme au début.','📣 Nouveau bouton « Annoncer l’ouverture des paiements » : message tout fait, modifiable (gardé sur l’appareil), à envoyer dans un groupe WhatsApp ou à copier.','💬 Boîte à idées : « Envoyer sur WhatsApp » prépare un message modifiable, avec l’image du QR code (menu de partage) ou le lien.','🔔 Plus de fausse notification « Nouveau message dans la boîte à idées » quand quelqu’un ouvre simplement la boîte.','👥 Retirer du groupe : message clair sur un téléphone non administrateur ; les fiches fantômes (anciennes inscriptions) sont masquées sur les téléphones des aides.']},
 {v:'2.82.95',d:'17/11/2026',items:['🎨 Vieux Safari (Mac, anciens iPhone) : les boutons, icônes et bandeaux ne sont plus transparents (couleurs de secours automatiques).','🖼 Accueil : sur Mac et PC, flèches ‹ › et glisser à la souris pour changer d’affiche, défilement automatique plus fiable.']},
 {v:'2.82.94',d:'17/11/2026',items:['🏠 Accueil (Amicale) : la grande carte ne montre plus que les événements à venir (onglet Fêtes), les 4 prochains, sans les rendez-vous et réunions de l’Agenda.']},
 {v:'2.82.93',d:'17/11/2026',items:['🏆 Challenge : touche une personne dans le classement pour voir d’où viennent ses points (ajouts, tâches, courses, bar…).','🖼 Affiche : une ligne indique si l’affiche et ses images sont bien partagées avec le groupe, ou seulement sur cet appareil (image trop lourde).']},
@@ -9016,6 +9017,7 @@ async function act(a,el,e){
   case 'id-part':AM_IDP=ds_.v==='a'?'a':'b';render();break;
   case 'cx-on':await amCxOn();break;
   case 'cx-f':AM_CXF=ds_.v||'';render();break;
+  case 'cx-wa':amCxWa();break;
   case 'cx-copy':{const u=amCxUrl();try{await navigator.clipboard.writeText(u);toast('🔗 Lien copié',2500)}catch(e){toast('Copie impossible',2500)}break}
   case 'cx-test':{const u=amCxUrl();if(u)window.open(u,'_blank','noopener');break}
   case 'cx-po':{const C=amCx();if(C)amEePoster(C.it);break}
@@ -9130,12 +9132,13 @@ async function act(a,el,e){
   case 'jj-open':amJjOpen();break;
   case 'jj-zoom':{S.jjCp=S.jjCp?0:1;saveSet();const sh=document.querySelector('.sh.jj');if(sh)sh.classList.toggle('jjcp',!!S.jjCp);const z=$('#jj-zm');if(z)z.textContent=S.jjCp?'🔍 Voir en grand':'🔍 Vue d’ensemble';amJjList();break}
   case 'jj-pay':amPtPay(+ds_.i).then(()=>amJjList());break;
-  case 'jj-sv':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)amJjSet(c,amTy(o),!amDone(c,amTy(o)))});amJjList();break;
+  case 'jj-sv':amEeMut(o=>{const c=o.pt[+ds_.i];if(c)amJjSet(c,amTy(o),!amDoneJ(o,c,amTy(o)))});amJjList();break;
   case 'jj-tab':JJ.tab=ds_.v;amJjOpen();break;
-  case 'jj-all':amEeMut(o=>{const TY=amTy(o);amJjFilter(o).filter(x=>JJ.tab==='s'?amDone(x.p,TY):!amDone(x.p,TY)).forEach(x=>amJjSet(o.pt[x.i],TY,JJ.tab!=='s'))});amJjList();break;
+  case 'jj-all':amEeMut(o=>{const TY=amTy(o);amJjFilter(o).filter(x=>JJ.tab==='s'?amDoneJ(o,x.p,TY):!amDoneJ(o,x.p,TY)).forEach(x=>amJjSet(o.pt[x.i],TY,JJ.tab!=='s'))});amJjList();break;
   case 'pt-ed':amPtEdit(+ds_.i);break;
   case 'pt-pay':amPtPay(+ds_.i);break;
   case 'pr-ed':amPrEdit();break;
+  case 'pr-ann':amPrAnn();break;
   case 'pt-f':AM_PTF=AM_PTF===ds_.v?'':ds_.v;render();break;
   case 'pt-g':AM_PTG=ds_.v;render();break;
   case 'pt-view':AM_PTV=amPtView()==='t'?'l':'t';try{localStorage.setItem('agd-pt-v',AM_PTV)}catch(e){}render();break;
@@ -12818,6 +12821,8 @@ function amList(){
  for(const id of Object.keys(a.mem||{})){
   const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};
   const r=a.apriv?(rl[id]||{}):(R[id]||{});
+  /* 2.82.96 : sur un téléphone non administrateur, une fiche absente de la liste signée par l’admin ET plus ancienne que cette liste = fantôme (ancienne inscription, personne retirée) → masquée */
+  if(!a.apriv&&!R[id]&&a.roles&&a.roles.at&&Object.keys(R).length>1&&(+c.at||0)<a.roles.at)continue;
   out.push({id,n:c.n||(R[id]&&R[id].n)||'?',sn:c.sn||'',tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
@@ -13135,7 +13140,7 @@ async function amSetTitle(id){
  try{await amRolesPut();amSave()}catch(e){toast('Enregistré ici, envoi plus tard',3500)}
 }
 async function amRemove(id){
- const a=amc();if(!a||!a.apriv||id===a.me.id)return;
+ const a=amc();if(a&&!a.apriv&&!demo){toast('Seul un administrateur peut retirer quelqu’un du groupe (depuis son téléphone d’administrateur)',6000);return}if(!a||!a.apriv||id===a.me.id)return;
  const p=amList().find(x=>x.id===id);if(!p)return;
  const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">📲 Tes autres appareils (PC, tablette) : vérifie ensuite qu’ils sont à jour ; sinon, refais « Lier mon PC / ma tablette ».</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « ✅ Clés à jour ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
@@ -13200,7 +13205,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
+   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -14150,6 +14155,21 @@ const CX_ID='cxboxqr';
 function amCx(){const a=amc(),it=a&&a.it&&a.it[CX_ID];if(!it||it.del||it.kind!=='cx')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],o}}
 const amCxBase=()=>'https://dam-cigogne.github.io/amicale/contact.html';
 function amCxUrl(){const C=amCx(),a=amc()||{};if(!C)return '';const q=C.qr,inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40)})));return amCxBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
+/* message tout fait + QR code, modifiable, à envoyer sur WhatsApp (menu de partage : image du QR + texte) */
+async function amCxWa(){
+ const a=amc(),C=amCx();if(!a||!C)return;const u=amCxUrl();
+ let tpl='';try{tpl=localStorage.getItem('agd-cx-msg')||''}catch(e){}
+ if(!tpl)tpl='📬 Une idée, une question, un problème ? Écris directement au bureau de l’amicale : scanne le QR code (ou ouvre ce lien) et laisse ton message.\n{lien}\nMerci !';
+ const v=await amForm('💬 Message pour WhatsApp','Le message est prêt, modifie-le si tu veux. « {lien} » est remplacé par le lien du QR. Ton texte modifié est gardé pour la prochaine fois.',[{k:'t',l:'Message',t:'area',v:tpl},{k:'w',l:'Comment l’envoyer ?',t:'select',v:'qr',o:[['qr','📲 Message + image du QR code (je choisis WhatsApp puis le groupe)'],['tx','💬 Message + lien seulement (WhatsApp)'],['cp','📋 Seulement copier le message']]}],'Valider');
+ if(!v||!String(v.t||'').trim())return;const raw=String(v.t).trim();
+ try{localStorage.setItem('agd-cx-msg',raw)}catch(e){}
+ const msg=raw.indexOf('{lien}')>-1?raw.split('{lien}').join(u):raw+'\n'+u;
+ if(v.w==='cp'){try{await navigator.clipboard.writeText(msg);toast('Message copié',2500)}catch(e){toast('Copie impossible',2500)}return}
+ if(v.w==='qr'){try{const bl=await (await fetch(amQrImg(u))).blob(),f=new File([bl],'QR-contacter-amicale.png',{type:'image/png'});
+   if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:msg});return}
+   toast('Envoi de l’image impossible ici : j’envoie le message avec le lien',4500)}catch(e){if(e&&e.name==='AbortError')return;toast('Envoi de l’image impossible : j’envoie le message avec le lien',4500)}}
+ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+}
 async function amCxOn(){const a=amc();if(!a||!a.kB)return;if(demo){toast('Non disponible en mode démo',2500);return}if(amCx())return;
  try{const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']),j=await crypto.subtle.exportKey('jwk',kp.privateKey),qid=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
   amItemSave({id:CX_ID,kind:'cx',x:0,z:'b',tx:'Contacter l’amicale',d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify({qr:{id:qid,x:j.x,y:j.y,d:j.d},qd:[]}),del:0});
@@ -14180,7 +14200,7 @@ function amCxHTML(){const a=amc();if(!a||!a.kB)return '';const C=amCx();
  let h='<div class="card"><h3 style="margin:0 0 .3rem">📬 Les amicalistes nous écrivent</h3>';
  if(!C)return h+'<p class="mut" style="margin:.1rem 0 .5rem;font-size:.9rem">Un QR code à afficher partout : un amicaliste (ou n’importe qui) le scanne et écrit au bureau. Une idée, une question, un problème… Il laisse son mail, et tu lui réponds depuis ton appli Mail. Les messages sont chiffrés : seul le bureau peut les lire.</p><button class="btn pri blk" data-act="cx-on">📲 Créer le QR « Contacter l’amicale »</button></div>';
  setTimeout(()=>amCxFetch(),60);const u=amCxUrl();
- h+='<div class="qr-card" style="display:flex;gap:.7rem;align-items:center"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code Contacter l’amicale"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.9rem">On scanne, on écrit, ça arrive ici.</p><div class="chips" style="margin:0"><button class="chip" data-act="cx-po">🖼 Affiche</button><button class="chip" data-act="cx-3d">🧊 Version 3D</button><button class="chip" data-act="cx-copy">🔗 Copier le lien</button><button class="chip" data-act="cx-test">👀 Voir la page</button></div></div></div></div>';
+ h+='<div class="qr-card" style="display:flex;gap:.7rem;align-items:center"><img class="qr-img" src="'+amQrImg(u)+'" alt="QR code Contacter l’amicale"><div style="min-width:0"><p style="margin:0 0 .3rem;font-size:.9rem">On scanne, on écrit, ça arrive ici.</p><div class="chips" style="margin:0"><button class="chip" data-act="cx-po">🖼 Affiche</button><button class="chip" data-act="cx-3d">🧊 Version 3D</button><button class="chip on" data-act="cx-wa">💬 Envoyer sur WhatsApp</button><button class="chip" data-act="cx-copy">🔗 Copier le lien</button><button class="chip" data-act="cx-test">👀 Voir la page</button></div></div></div></div>';
  const L=amItems('cm').filter(i=>!i.del).map(it=>({it,m:amCmP(it)})).sort((p,q)=>(q.m.at||0)-(p.m.at||0));
  const F={n:x=>!x.m.st,r:x=>x.m.st==='r',d:x=>x.m.st==='d','':x=>true},V=L.filter(F[AM_CXF]||F['']);
  h+='<div class="chips tk-chips" style="margin:.5rem 0 .3rem">'+[['n','🆕 À traiter'],['r','✉️ Répondus'],['d','✔️ Traités'],['','Tous']].map(([k,l])=>'<button class="chip'+(AM_CXF===k?' on':'')+'" data-act="cx-f" data-v="'+k+'">'+l+' <b>'+L.filter(F[k]).length+'</b></button>').join('')+'</div>';
@@ -16365,14 +16385,33 @@ function amPayBar(it,rw){
  if(!it.pr||!it.pr.on)return rw?'<button class="btn blk" data-act="pr-ed" style="margin:.3rem 0">💶 Événement payant ? Mettre les tarifs (facultatif)</button>':'';
  const T=amPayTot(it);
  return '<div class="pay-bar"><div><b>💶 À encaisser '+esc(amEur(T.du))+'</b> · encaissé <b>'+esc(amEur(T.pa))+'</b> · reste <b class="'+(T.re?'pay-no':'pay-ok')+'">'+esc(amEur(T.re))+'</b></div><div class="chips" style="margin:.3rem 0 0"><button class="chip'+(AM_PTF==='no'?' on':'')+'" data-act="pt-f" data-v="no">🔴 Pas payé · '+T.no.length+'</button><button class="chip'+(AM_PTF==='part'?' on':'')+'" data-act="pt-f" data-v="part">🟠 Reste à payer · '+T.part.length+'</button><button class="chip'+(AM_PTF==='ok'?' on':'')+'" data-act="pt-f" data-v="ok">✅ Payé · '+T.ok+'</button></div>'+
-  (rw?'<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="pt-nopay">📋 Qui n’a pas payé ?</button><button class="btn grow" data-act="pr-ed">⚙️ Tarifs</button></div>':'')+'</div>';
+  (rw?'<div class="btns" style="margin-top:.3rem"><button class="btn grow" data-act="pt-nopay">📋 Qui n’a pas payé ?</button><button class="btn grow" data-act="pr-ed">⚙️ Tarifs</button></div><div class="btns" style="margin-top:.3rem"><button class="btn blk" data-act="pr-ann">📣 Annoncer l’ouverture des paiements (WhatsApp)</button></div>':'')+'</div>';
 }
 async function amPtPay(i){
- const a=amc(),it=a&&a.it[AMC_EE],p=it&&(it.pt||[])[i];if(!p||!a.kB)return;const x={p,m:amPtMember(p)},st=amPtSt(it,x);
- const v=await amForm('💶 '+p.n,(st.d?'<small class="mut">'+esc(amPtDueTx(it,x))+'</small><br>':'')+(st.d?'À payer : <b>'+esc(amEur(st.d))+'</b> · déjà payé : <b>'+esc(amEur(st.pa))+'</b>'+(st.r?' · <b>reste '+esc(amEur(st.r))+'</b>':' · ✅ réglé'):'Pas de montant prévu.')+(p.eb?'<br><small class="mut">Encaissé par '+esc(p.eb)+(p.et?' le '+esc(new Date(p.et).toLocaleDateString('fr-FR')):'')+'</small>':''),[{k:'m',l:'Montant reçu maintenant (€)',v:st.r?String(st.r).replace('.',','):'',ph:'0'},{k:'pm',l:'Moyen de paiement',t:'select',v:p.pm||'cb',o:AM_PM.filter(z=>z[0])},{k:'du',l:'Montant à payer pour cette personne (€) – vide = tarif normal',v:p.du!=null?String(p.du).replace('.',','):'',ph:st.d?String(st.d).replace('.',','):'0'}],'Encaisser');
- if(!v)return;const m=parseFloat(String(v.m||'0').replace(',','.'))||0,du=String(v.du||'').trim();
- amEeMut(o=>{const c=o.pt[i];if(!c)return;if(m){c.pa=Math.round(((c.pa||0)+m)*100)/100;c.pm=v.pm||c.pm||'';c.eb=a.me.n;c.et=Date.now()}c.du=du===''?null:Math.max(0,parseFloat(du.replace(',','.'))||0)});
- if(m)toast('💶 '+amEur(m)+' encaissés par '+a.me.n,2500);
+ const a=amc(),it=a&&a.it[AMC_EE],p=it&&(it.pt||[])[i];if(!p||!a.kB)return;const x={p,m:amPtMember(p)},st=amPtSt(it,x),m0=st.r?String(st.r).replace('.',','):'',pa0=st.pa?String(st.pa).replace('.',','):'';
+ const F=[{k:'m',l:'Montant reçu maintenant (€)',v:m0,ph:'0'},{k:'pm',l:'Moyen de paiement',t:'select',v:p.pm||'cb',o:AM_PM.filter(z=>z[0])},{k:'du',l:'Montant à payer pour cette personne (€) – vide = tarif normal',v:p.du!=null?String(p.du).replace('.',','):'',ph:st.d?String(st.d).replace('.',','):'0'}];
+ if(st.pa||p.du!=null)F.push({k:'pa',l:'✏️ Total déjà payé (€) – corrige ici si tu t’es trompé',v:pa0,ph:'0'},{k:'rz',l:'↩ Tout annuler (comme au début : rien payé, tarif normal)',t:'select',v:'',o:[['','Non'],['1','Oui, tout remettre comme au début']]});
+ const v=await amForm('💶 '+p.n,(st.d?'<small class="mut">'+esc(amPtDueTx(it,x))+'</small><br>':'')+(st.d?'À payer : <b>'+esc(amEur(st.d))+'</b> · déjà payé : <b>'+esc(amEur(st.pa))+'</b>'+(st.r?' · <b>reste '+esc(amEur(st.r))+'</b>':' · ✅ réglé'):'Pas de montant prévu.')+(p.eb?'<br><small class="mut">Encaissé par '+esc(p.eb)+(p.et?' le '+esc(new Date(p.et).toLocaleDateString('fr-FR')):'')+'</small>':''),F,'Valider');
+ if(!v)return;const num=t=>parseFloat(String(t||'0').replace(',','.'))||0,du=String(v.du||'').trim();
+ const reset=v.rz==='1',paNew=v.pa!=null?String(v.pa).trim():pa0,paChanged=v.pa!=null&&paNew!==pa0;
+ let m=num(v.m);if(paChanged&&String(v.m||'').trim()===m0)m=0; /* total corrigé : on n’ajoute pas le « reste » proposé */
+ amEeMut(o=>{const c=o.pt[i];if(!c)return;
+  if(reset){c.pa=0;c.pm='';delete c.eb;delete c.et;c.du=null;return}
+  if(paChanged){c.pa=Math.max(0,Math.round(num(paNew)*100)/100);if(!c.pa&&!m){c.pm='';delete c.eb;delete c.et}}
+  if(m){c.pa=Math.round(((c.pa||0)+m)*100)/100;c.pm=v.pm||c.pm||'';c.eb=a.me.n;c.et=Date.now()}
+  c.du=du===''?null:Math.max(0,num(du))});
+ if(reset)toast('↩ Paiement annulé pour '+p.n,3000);else if(paChanged)toast('✏️ Paiement corrigé : '+amEur(num(paNew)+m),3000);else if(m)toast('💶 '+amEur(m)+' encaissés par '+a.me.n,2500);
+}
+/* message tout fait « les paiements sont ouverts » : modifiable (le texte modifié est gardé), à envoyer dans un groupe WhatsApp */
+async function amPrAnn(){
+ const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;
+ let tpl='';try{tpl=localStorage.getItem('agd-pr-msg')||''}catch(e){}
+ if(!tpl)tpl='💶 Les paiements pour l’événement « {x} » sont ouverts.\nMerci de passer voir une personne du bureau de l’amicale afin de régler, s’il vous plaît.\nMerci !';
+ const v=await amForm('📣 Paiements ouverts','Le message est prêt : change-le si tu veux. Au moment d’envoyer, WhatsApp te laisse choisir le groupe. Ton texte modifié est gardé pour la prochaine fois.',[{k:'t',l:'Message',t:'area',v:tpl.split('{x}').join(it.tx)},{k:'w',l:'Que faire ?',t:'select',v:'wa',o:[['wa','📲 Envoyer sur WhatsApp (je choisis le groupe)'],['cp','📋 Seulement copier le message']]}],'Valider');
+ if(!v||!String(v.t||'').trim())return;const msg=String(v.t).trim();
+ try{localStorage.setItem('agd-pr-msg',msg.split(it.tx).join('{x}'))}catch(e){}
+ if(v.w==='cp'){try{await navigator.clipboard.writeText(msg);toast('Message copié',2500)}catch(e){toast('Copie impossible',2500)}return}
+ window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
 }
 async function amPtNoPay(){
  const a=amc(),it=a&&a.it[AMC_EE];if(!it)return;const T=amPayTot(it),L=T.no.concat(T.part).sort((p,q)=>String(p.p.n).localeCompare(String(q.p.n),'fr'));
@@ -16387,7 +16426,7 @@ function amPtHTML(it,rw){
  const tk=it.sv==='r'||(it.ty&&it.ty.length>0)||pt.some(p=>p.tr||p.tb);
  const [A,N]=amPtGroups(it),T=amPtTot(pt);
  let h='<h4 class="am-h">Inscrits et suivi'+(pt.length?' · '+pt.length:'')+'</h4>';
- if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Terminés <b>'+pt.filter(p=>amDone(p,amTy(it))).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
+ if(pt.length)h+='<p class="mut" style="margin:.1rem 0 .4rem;font-size:.9rem">✅ Présents <b>'+T.p+'/'+T.n+'</b>'+(tk?amTy(it).map(t=>' · '+esc(t.e||'')+' Tickets '+esc(String(t.l).toLowerCase())+' <b>'+pt.reduce((n,p)=>n+amQ(p,t.k),0)+'</b>').join(''):'')+(pt.length?' · ✅ Terminés <b>'+pt.filter(p=>amDoneJ(it,p,amTy(it))).length+'</b>':'')+(T.pa?' · 💶 Encaissé <b>'+esc(amEur(T.pa))+'</b> (CB '+esc(amEur(T.cb))+' · espèces '+esc(amEur(T.esp))+' · chèques '+esc(amEur(T.chq))+(T.vir?' · virements '+esc(amEur(T.vir)):'')+')':'')+'</p>';
  {const rb=amRgBar(it,A.concat(N));if(rb)h+='<p class="rg-bar"><b>Régimes particuliers</b> '+rb+'</p>'}
  h+=amPayBar(it,rw);
  h+=amMxCard(it,rw);
@@ -16575,12 +16614,12 @@ async function amTrashEmpty(){
 function amPtExport(sel){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length){toast('Aucun inscrit');return}
  let [A,N]=amPtGroups(it);if(sel){A=A.filter(x=>sel.has(x.i));N=N.filter(x=>sel.has(x.i))}
- const _u=0,TY=amTy(it),PY=!!(it.pr&&it.pr.on),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{},s=amPtSt(it,x);return [st,p.n,o.gr||'',o.bg||'',p.p?'Oui':'Non'].concat(TY.map(t=>amQ(p,t.k)),[amDone(p,TY)?'Oui':'Non'],PY?[s.d,s.r,s.k==='no'?'Pas payé':s.k==='part'?'Reste à payer':s.k==='free'?'Gratuit':'Payé']:[],[p.pa||'',amPmLb(p.pm),p.eb||'',amRgOf(x)])};
+ const _u=0,TY=amTy(it),PY=!!(it.pr&&it.pr.on),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{},s=amPtSt(it,x);return [st,p.n,o.gr||'',o.bg||'',p.p?'Oui':'Non'].concat(TY.map(t=>amQ(p,t.k)),[amDoneJ(it,p,TY)?'Oui':'Non'],PY?[s.d,s.r,s.k==='no'?'Pas payé':s.k==='part'?'Reste à payer':s.k==='free'?'Gratuit':'Payé']:[],[p.pa||'',amPmLb(p.pm),p.eb||'',amRgOf(x)])};
  const rows=[[it.tx+' · '+it.d],['Statut','Nom','Grade','N° badge','Présent'].concat(TY.map(t=>'Tickets '+String(t.l).toLowerCase()),['Servi'],PY?['À payer','Reste','Paiement']:[],['Montant payé','Payé par','Encaissé par','Régime particulier'])];
  A.concat(N).forEach(x=>rows.push(line(A.includes(x)?'Amicaliste':'Non-amicaliste',x)));
  const T=g=>amPtTot(g.map(x=>x.p));rows.push([]);
- [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>g.reduce((n,x)=>n+amQ(x.p,y.k),0)),[g.filter(x=>amDone(x.p,TY)).length,t.pa,'','']))});
- const PP=A.concat(N).map(x=>x.p),t=amPtTot(PP);rows.push(['TOTAL',t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>PP.reduce((n,p)=>n+amQ(p,y.k),0)),[PP.filter(p=>amDone(p,TY)).length,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']));
+ [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>g.reduce((n,x)=>n+amQ(x.p,y.k),0)),[g.filter(x=>amDoneJ(it,x.p,TY)).length,t.pa,'','']))});
+ const PP=A.concat(N).map(x=>x.p),t=amPtTot(PP);rows.push(['TOTAL',t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>PP.reduce((n,p)=>n+amQ(p,y.k),0)),[PP.filter(p=>amDoneJ(it,p,TY)).length,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']));
  const rgc=amRgCount(it,A.concat(N));if(rgc.length){rows.push([]);rows.push(['Régimes particuliers','Personnes','Repas']);rgc.forEach(r=>rows.push([r.k,r.pers,r.n]))}
  amExport('Suivi : '+it.tx+(sel?' (sélection : '+A.concat(N).length+')':''),rows,'suivi-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24));
 }
@@ -16606,6 +16645,8 @@ const amHM=t=>{try{return new Date(t).toLocaleTimeString('fr-FR',{hour:'2-digit'
 const AM_TY0=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'}];
 const AM_TYP=[{k:'tr',l:'Repas',e:'🍽'},{k:'tb',l:'Boisson',e:'🍷'},{k:'ds',l:'Dessert',e:'🍰'},{k:'cf',l:'Café',e:'☕'},{k:'ar',l:'Arrivé',e:'✅'},{k:'cd',l:'Cadeau',e:'🎁'}];
 const amTy=it=>Array.isArray(it.ty)&&it.ty.length?it.ty:(it.sv==='p'?[]:AM_TY0);
+/* une personne n’est « terminée » que si tout est donné ET, pour un événement payant, tout est payé */
+const amDoneJ=(it,p,TY)=>amDone(p,TY)&&(!(it&&it.pr&&it.pr.on)||['ok','free'].includes(amPtSt(it,{p,m:amPtMember(p)}).k));
 const amDone=(p,TY)=>{const nd=TY.filter(t=>amQ(p,t.k)>0);return nd.length?nd.every(t=>((p.gv||{})[t.k]||0)>=amQ(p,t.k)):!!p.sd};
 const amQ0=(p,k)=>k==='tr'||k==='tb'?(p[k]||0):((p.xt||{})[k]||0);
 /* 2.82.3 : inscrit par QR avec adultes + enfants : 1 ticket par personne tant qu'on n'a rien réglé à la main */
@@ -16642,7 +16683,7 @@ function amJjSet(c,TY,on){c.gv=c.gv||{};TY.forEach(t=>{if(amQ(c,t.k)>0)c.gv[t.k]
 function amJjList(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE],box=$('#jj-list');if(!it||!box)return;
  const TY=amTy(it),PT=it.pt||[],all=amJjFilter(it),[A0,N0]=amPtGroups(it),tot=PT.length;
- const dn=p=>amDone(p,TY),sv=PT.filter(dn).length;
+ const dn=p=>amDoneJ(it,p,TY),sv=PT.filter(dn).length;
  const L=all.filter(x=>JJ.tab==='s'?dn(x.p):(!dn(x.p)&&(JJ.tab==='a'?x.isA:!x.isA)));
  const cnt=t=>PT.filter((p,i)=>t==='s'?dn(p):(!dn(p)&&(t==='a'?A0.some(x=>x.i===i):N0.some(x=>x.i===i)))).length;
  const st=$('#jj-st');if(st)st.innerHTML=TY.map(t=>{const T=PT.reduce((n,p)=>n+amQ(p,t.k),0),G=PT.reduce((n,p)=>n+Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0),0);return T?'<span class="jj-cn'+(G===T?' ok':'')+'">'+esc(t.e||'')+' '+esc(t.l)+' <b>'+G+'/'+T+'</b> <small>reste '+(T-G)+'</small></span>':''}).join('')+'<span class="jj-cn">✅ Personnes terminées <b>'+sv+'/'+tot+'</b></span>'+(it.pr&&it.pr.on?(()=>{const P=amPayTot(it);return '<span class="jj-cn'+(P.re?'':' ok')+'">💶 Payé <b>'+P.ok+'/'+tot+'</b> <small>reste '+esc(amEur(P.re))+'</small></span>'})():'')+amRgBar(it,A0.concat(N0));
