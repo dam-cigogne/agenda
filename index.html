@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.99';
+const APP_VERSION='2.82.101';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.101',d:'17/11/2026',items:['📝 Chaque événement a une « Note du bureau » : explications, consignes, divers. Visible seulement par le bureau (pas par les aides), modifiable par tout le bureau.']},
+{v:'2.82.100',d:'17/11/2026',items:['💻 Un deuxième appareil administrateur (Mac, PC, tablette) masque lui aussi les anciennes fiches en double et reprend les noms corrigés par l’autre appareil.']},
 {v:'2.82.99',d:'17/11/2026',items:['✏️ Administrateur : « Corriger le nom / le surnom » dans la fiche d’un membre. Le nom corrigé s’affiche pour tout le groupe (liste, Challenge…) à la place de ce que la personne a écrit.']},
 {v:'2.82.98',d:'17/11/2026',items:['🔒 Un aide qui touche un autre membre ne voit plus rien (plus de « Retirer du groupe »). Les membres du bureau voient la fiche mais seul l’administrateur peut retirer quelqu’un.']},
 {v:'2.82.97',d:'17/11/2026',items:['📝 Patch de bienvenue : un petit bouton 📝 à côté de chaque personne pour écrire une note (ex. « mis de côté pour l’adjudant-chef »). La note s’affiche sous son grade et se synchronise.']},
@@ -9269,6 +9271,7 @@ async function act(a,el,e){
   case 'vp-copy':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(!it)break;try{await navigator.clipboard.writeText('Bonjour,\n'+amVpMsg(it,amVpPh(it)));toast('📋 Message copié',2500)}catch(e){toast('Copie impossible',2500)}break}
   case 'vp-test':{const a=amc(),it=a&&a.it&&a.it[ds_.id];const u=it&&it.vp&&(it.vp.uc||amVpHref(it.vp.u));if(u)window.open(u,'_blank','noopener');break}
   case 'ee-addpg':amEeAddPg(-1);break;
+  case 'ee-bn':amEeBnEdit(AMC_EE);break;
   case 'ee-edit':{const a=amc(),it=a&&a.it[AMC_EE];if(it&&a.kB)amItemForm('ee',it);break}
   case 'ee-copy':amEeCopy();break;
   case 'ee-print':amEePrint();break;
@@ -12826,7 +12829,7 @@ function amList(){
   const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};
   const r=a.apriv?(rl[id]||{}):(R[id]||{});
   /* 2.82.96 : sur un téléphone non administrateur, une fiche absente de la liste signée par l’admin ET plus ancienne que cette liste = fantôme (ancienne inscription, personne retirée) → masquée */
-  if(!a.apriv&&!R[id]&&a.roles&&a.roles.at&&Object.keys(R).length>1&&(+c.at||0)<a.roles.at)continue;
+  if(!R[id]&&!(a.apriv&&rl[id])&&a.roles&&a.roles.at&&Object.keys(R).length>1&&(+c.at||0)<a.roles.at)continue;
   out.push({id,n:r.on||c.n||(R[id]&&R[id].n)||'?',sn:(r.os||c.sn||''),tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
@@ -12875,7 +12878,7 @@ async function amPull(manual){
     if(d.doc==='roles'){
      if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
       /* 2.82.63 : un autre appareil administrateur a retiré quelqu’un → on fusionne les retraits (x) et on efface la fiche locale */
-      if(a.apriv){for(const r of P.list){if(r&&r.x&&r.id&&r.id!==a.me.id&&!(a.rl&&a.rl[r.id]&&a.rl[r.id].x)){a.rl=a.rl||{};a.rl[r.id]=Object.assign(a.rl[r.id]||{},{x:1});if(a.mem&&a.mem[r.id])delete a.mem[r.id];chg=true}}}
+      if(a.apriv){for(const r of P.list){if(r&&r.id&&r.id!==a.me.id&&(r.on||r.os)&&!(a.rl&&a.rl[r.id]&&(a.rl[r.id].on||a.rl[r.id].os))){a.rl=a.rl||{};a.rl[r.id]=Object.assign(a.rl[r.id]||{},{on:String(r.on||'').slice(0,30),os:String(r.os||'').slice(0,30)});chg=true}if(r&&r.x&&r.id&&r.id!==a.me.id&&!(a.rl&&a.rl[r.id]&&a.rl[r.id].x)){a.rl=a.rl||{};a.rl[r.id]=Object.assign(a.rl[r.id]||{},{x:1});if(a.mem&&a.mem[r.id])delete a.mem[r.id];chg=true}}}
       if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};if(a.apriv)a.admIds=Array.from(new Set(P.list.filter(r=>r.adm).map(r=>r.id).concat([a.me.id])));chg=true}
       if(+P.jz>(a.jz||0)){a.jz=+P.jz;chg=true}}
      continue}
@@ -13449,7 +13452,7 @@ function amNotePage(it){
 
  let h=(kind==='ev'?'<div class="seg" style="margin-bottom:.4rem"><button data-act="am-agv" data-v="m">Mois</button><button data-act="am-agv" data-v="l" class="on">Liste</button></div>':'')+'<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='ev'?'Nouvel événement':'Nouvelle note')+'</button>';
  if(kind==='nt'){
-  const N=L.slice().sort((p,q)=>(q.at||0)-(p.at||0));
+  const N=L.filter(i=>!String(i.pl||'').startsWith('ee:')).sort((p,q)=>(q.at||0)-(p.at||0));
   h+=N.length?N.map(i=>'<button class="am-it am-nt" data-act="am-ntopen" data-id="'+esc(i.id)+'"><span class="am-itx"><b>'+esc(i.tx)+'</b><small>'+esc((i.bd||'').split('\n')[0].slice(0,70))+'</small></span></button>').join(''):'<p class="empty">Aucune note. Comptes rendus, idées, listes : visibles par le bureau seulement.</p>';
   return h;
  }
@@ -16767,6 +16770,14 @@ function amPkDone(){
  const ids=[...PK.sel];closeSheet();
  amEeMut(o=>{ids.forEach(id=>{const m=amItems('am').find(x=>x.id===id);if(m&&o.pt.length<250)o.pt.push({n:m.tx,m:m.id,a:1,p:0,tr:0,tb:0,pa:0,pm:''})})});PK=null;
 }
+const amEeBnId=it=>'ne'+String(it&&it.id||'').slice(0,14);
+const amEeBn=it=>{const a=amc(),n=a&&a.it&&a.it[amEeBnId(it)];return n&&!n.del&&n.kind==='nt'?n:null};
+async function amEeBnEdit(id){
+ const a=amc(),it=a&&a.it&&a.it[id];if(!it||!a.kB)return;const cur=amEeBn(it);
+ const v=await amForm('📝 Note du bureau · '+it.tx,'Visible seulement par le bureau (pas par les aides). Laisse vide pour effacer la note.',[{k:'t',l:'Note',t:'area',v:cur?cur.bd:'',ph:'Explications, consignes, divers…'}],'Enregistrer');
+ if(!v)return;const t=String(v.t||'').trim().slice(0,4000);if(!t&&!cur)return;
+ amItemSave({id:amEeBnId(it),kind:'nt',x:0,z:'b',tx:('📝 '+it.tx).slice(0,200),d:'',w:'',qt:'',tm:'',pl:'ee:'+it.id,bd:t,del:t?0:1});
+ toast(t?'📝 Note enregistrée':'Note effacée',2000)}
 function amEeHTML(){
  const a=amc(),L=amItems('ee'),today=new Date().toISOString().slice(0,10),rw=!!a.kB;
  const it=AMC_EE&&a.it&&a.it[AMC_EE];
@@ -16776,6 +16787,7 @@ function amEeHTML(){
   let h='<button class="btn blk" data-act="ee-back" style="margin-bottom:.5rem">‹ Tous les événements</button>';
   h+=amPoSign(it);
   h+='<div class="card"><h3>'+esc(it.tx)+'</h3><p style="margin:.2rem 0"><b>📅 '+esc(fShort(it.d))+' '+esc(String(it.d).slice(0,4))+'</b>'+(it.pl?'<br>📍 '+esc(it.pl):'')+'</p><p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(it.z==='b'?'🔒 Bureau seulement':'👥 Visible par les aides')+(it.by?' · modifié par '+esc(it.by):'')+'</p>'+(it.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(it.bd)+'</div>':'')+(rw?'<button class="btn blk" data-act="ee-edit">✏️ Modifier les infos</button>':'')+'<button class="btn blk" data-act="ee-poster" style="margin-top:.4rem">🖼 Affiche et 📜 menu</button><button class="btn blk" data-act="ee-send" style="margin-top:.4rem">📲 Envoyer l’affiche (WhatsApp, Messages…)</button><button class="btn pri blk" data-act="ee-print" style="margin-top:.4rem">🖨 Imprimer · affiche · PDF</button></div>';
+  if(rw){const bn=amEeBn(it);h+='<div class="card" style="border-left:4px solid #f59e0b"><b>📝 Note du bureau</b> <small class="mut">🔒 bureau seulement</small>'+(bn&&bn.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(bn.bd)+'</div>'+(bn.by?'<small class="mut">modifié par '+esc(bn.by)+'</small>':''):'<p class="mut" style="margin:.3rem 0;font-size:.88rem">Explications, consignes, divers : visible seulement par le bureau.</p>')+'<button class="btn blk" data-act="ee-bn" style="margin-top:.4rem">✏️ '+(bn&&bn.bd?'Modifier':'Écrire')+' la note</button></div>'}
   h+='<h4 class="am-h">Préparation'+(ck.length?' · '+nok+'/'+ck.length:'')+'</h4>';
   const CS=rw&&!!amCkSel();if(rw&&ck.length)h+=CS?amCkSelBar(ck):'<div class="chips" style="margin:.1rem 0 .3rem"><button class="chip" data-act="ck-son">☑ Sélectionner des tâches</button></div>';
   h+=ck.length?ck.map((c,i)=>{const sl=CS&&CK_SEL.has(i);return '<div class="am-it'+(c.ok?' done':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(CS?' am-cks':'')+'" '+(CS?'data-act="ck-sel" data-i="'+i+'" aria-label="Choisir">'+(sl?'☑':''):(rw?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':''))+'</button><button class="am-itx" '+(CS?'data-act="ck-sel" data-i="'+i+'"':rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+'</b>'+(c.w||(c.ok&&c.ob)?'<small>'+[c.w?'👤 '+esc(c.w):'',c.ok&&c.ob?'✅ fait par <b>'+esc(c.ob)+'</b>'+(c.ot?' · '+esc(amHM(c.ot)):''):''].filter(Boolean).join(' · ')+'</small>':'')+'</button></div>'}).join(''):'<p class="empty">Rien à préparer pour l’instant.</p>';
