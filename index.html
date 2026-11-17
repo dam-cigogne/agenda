@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.106';
+const APP_VERSION='2.82.107';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.107',d:'17/11/2026',items:['📊 Réglages (administrateur) : carte « Serveur Cloudflare » avec l’usage du jour (barre, bouton actualiser, explications) et pop-up d’alerte à partir de 70 %']},
 {v:'2.82.106',d:'17/11/2026',items:['🔔 Plus de pop-ups répétés à chaque ouverture : les titres préparés (Préparatifs) ne sont plus ré-annoncés, et « Les clés du groupe ont été renouvelées » n’apparaît plus chez l’administrateur']},
 {v:'2.82.105',d:'17/11/2026',items:['🛒 Repas d’un événement : liste d’articles claire (une ligne par article, « 9 baguettes », « 18 tranches de jambon »…), calculée pour le nombre de personnes, avec aperçu clair avant l’envoi dans la liste de courses de l’événement']},
 {v:'2.82.104',d:'17/11/2026',items:['🥖 Repas d’un événement : une note explique quand utiliser « Un plat tapé à la main » (casse-croûte simple) ou « Un plat à composer » (grand repas)','🧀 Un plat tapé à la main réaffiche la parenthèse « (8 par fromage) » quand on le rouvre']},
@@ -9021,6 +9022,8 @@ async function act(a,el,e){
   case 'am-join':amJoinCode();break;
   case 'am-mb':amFiche(ds_.id);break;
   case 'am-mbtk':amMbTasks(ds_.id);break;
+  case 'am-usage':amUsageLoad(true).then(()=>{AM_USSIG=JSON.stringify(AM_US);render()});break;
+  case 'am-usage-i':amUsageLoad().then(amUsageInfo);break;
   case 'rg-who':{const a=amc(),it=a&&a.it[AMC_EE];if(!it)break;const [A,N]=amPtGroups(it),r=amRgCount(it,A.concat(N)).find(z=>z.k===ds_.k);if(!r)break;ask({title:'🥗 '+esc(r.k)+' · '+r.pers+(r.pers>1?' personnes':' personne'),html:'<ul style="margin:.2rem 0 .4rem;padding-left:1.1rem">'+r.who.slice().sort((x,y)=>String(x).localeCompare(String(y),'fr')).map(n=>'<li style="margin:.3rem 0"><b>'+esc(n)+'</b></li>').join('')+'</ul>',btns:[{label:'Fermer',value:null}]});break}
   case 'am-mbs':{const e=document.getElementById('am-mbs');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'am-tab':AMC_TAB=ds_.k;AMC_MB=ds_.k==='mb'?1:0;render();break;
@@ -12937,6 +12940,7 @@ async function amPull(manual){
    }catch(e){a.syncErr=(d&&d.doc||'')+' : '+String(e&&e.message||e).slice(0,100);try{console.warn('amPull',e)}catch(z){}}}
   }
   if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);if(!a.apriv)toast('Les clés du groupe ont été renouvelées',3500)}
+  try{if(a.apriv&&!AM_USBUSY&&Date.now()-AM_USAT>36e5)setTimeout(amUsageCheck,2500)}catch(e){}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
@@ -13175,6 +13179,26 @@ function amMbTasks(id){
  const L=amMbTk(p).sort((x,y)=>String(x.d||'9').localeCompare(String(y.d||'9')));
  ask({title:'✅ Tâches de '+esc(p.sn||p.n),html:L.length?'<ul style="margin:.2rem 0 .4rem;padding-left:1.1rem">'+L.map(i=>'<li style="margin:.35rem 0"><b>'+esc(i.tx||'')+'</b>'+(i.ev?'<br><small class="mut">🎉 '+esc(i.ev)+'</small>':'')+(i.d?'<br><small class="mut">📅 '+esc(fShort?fShort(i.d):i.d)+(i.h?' · '+esc(i.h):'')+'</small>':'')+'</li>').join('')+'</ul>':'<p>Aucune tâche attribuée.</p>',btns:[{label:'Fermer',value:null}]});
 }
+/* ---- 📊 usage du serveur Cloudflare (limite gratuite : 5 millions de lectures par jour) ---- */
+let AM_US=null,AM_USBUSY=0,AM_USAT=0;
+async function amUsageLoad(force){if(demo||!famUrl()||AM_USBUSY)return AM_US;if(!force&&AM_US&&Date.now()-AM_USAT<6e5)return AM_US;AM_USBUSY=1;try{const r=await fetch(famUrl()+'/usage',{cache:'no-store'});AM_US=r.ok?await r.json():{ok:false,err:'http'}}catch(e){AM_US={ok:false,err:'net'}}AM_USAT=Date.now();AM_USBUSY=0;return AM_US}
+const amUsagePct=u=>u&&u.ok&&u.lim?Math.round(u.read/u.lim*100):null;
+const amUsageCol=p=>p>=90?'#dc2626':p>=70?'#f59e0b':'#16a34a';
+function amUsageReset(){const d=new Date();const t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()+1));return t.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}).replace(':','h')}
+function amUsageBar(u){const p=amUsagePct(u);if(p==null)return '';return '<div style="height:12px;border-radius:7px;background:rgba(127,127,127,.22);overflow:hidden;margin:.45rem 0"><div style="width:'+Math.min(100,p)+'%;height:100%;border-radius:7px;background:'+amUsageCol(p)+'"></div></div><p style="margin:.1rem 0"><b style="font-size:1.15rem;color:'+amUsageCol(p)+'">'+p+' %</b> de la limite gratuite du jour<br><small class="mut">'+Number(u.read).toLocaleString('fr-FR')+' lectures sur '+Number(u.lim).toLocaleString('fr-FR')+'</small></p>'}
+function amUsageInfo(){const u=AM_US,p=amUsagePct(u);
+ ask({title:'📊 Usage du serveur',html:(p!=null?amUsageBar(u):'')+'<p style="margin:.5rem 0 .3rem"><b>Qu’est-ce que c’est ?</b><br>Le serveur Cloudflare qui synchronise l’appli entre les téléphones est gratuit, avec une limite de <b>5 millions de lectures par jour</b>. Chaque ouverture ou actualisation de l’appli en consomme un peu.</p><p style="margin:.3rem 0"><b>Et si on arrive à 100 % ?</b><br>La synchronisation s’arrête jusqu’à la remise à zéro (vers <b>'+amUsageReset()+'</b>, heure de Paris). Les données restent sur chaque téléphone, rien n’est perdu.</p><p style="margin:.3rem 0"><b>Que faire ?</b><br>Rien tant que c’est vert ou orange. Si ça reste souvent au-dessus de 70 %, il faut soit passer Cloudflare en offre payante (5 $ par mois), soit alléger l’appli.</p>',btns:[{label:'Fermer',value:null}]})}
+async function amUsageCheck(){const a=amc();if(!a||!a.apriv||demo)return;const u=await amUsageLoad();const p=amUsagePct(u);if(p==null||p<70)return;
+ const k='agd-us-'+(u.day||'')+(p>=90?'9':'7');try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(e){}
+ amUsageInfo()}
+function amUsageCard(a){if(!a||!a.apriv||demo||!famUrl())return '';const u=AM_US,old=!u||Date.now()-AM_USAT>6e5;
+ if(old&&!AM_USBUSY)amUsageLoad().then(()=>{if(JSON.stringify(AM_US)!==AM_USSIG){AM_USSIG=JSON.stringify(AM_US);render()}});
+ let b;if(!u)b='<p class="mut" style="margin:.2rem 0">Chargement…</p>';
+ else if(u.ok)b=amUsageBar(u);
+ else if(u.err==='config')b='<p class="mut" style="margin:.2rem 0;font-size:.88rem">Pas encore branché : le serveur a besoin d’un jeton Cloudflare en lecture seule pour connaître son usage. Demande la marche à suivre à Claude.</p>';
+ else b='<p class="mut" style="margin:.2rem 0;font-size:.88rem">Info indisponible pour le moment.</p>';
+ return '<div class="card"><h3>📊 Serveur Cloudflare</h3>'+b+'<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-usage">🔄 Actualiser</button><button class="btn grow" data-act="am-usage-i">ℹ️ Comprendre</button></div></div>'}
+let AM_USSIG='';
 async function amRenameMember(id){
  const a=amc();if(!a||!a.apriv)return;const p=amList().find(x=>x.id===id);if(!p)return;
  const v=await amForm('✏️ Corriger '+p.n,'Visible par tout le groupe à la place de ce que la personne a écrit. Laisse vide pour revenir à son propre nom.',[{k:'n',l:'Nom affiché',v:p.n||''},{k:'s',l:'Surnom (facultatif)',v:p.sn||''}],'Enregistrer');
@@ -17539,7 +17563,7 @@ function amGrHTML(a,nu,navm,ami){
   if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
    h+=(ami?'\x01bul\x01':'')+'<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
     :'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">'+(shm?'✅ Modèle et tarifs réglés par <b>'+esc((itm&&itm.by)||'l’administrateur')+'</b>, reçus automatiquement.':'Modèle de l’appli. L’administrateur du groupe peut le personnaliser : il arrivera ici tout seul.')+'</p>'+mrow('bm-exp','📤 Exporter le modèle','Fichier .json ou Word'))+'</div>'}
-  h+=(ami?'\x01sec\x01':'')+amSyncCard();
+  h+=(ami?'\x01sec\x01':'')+amSyncCard()+amUsageCard(a);
   if(a.kB)h+=amSafeCard();
   if(a.kB)h+=(ami?'\x01grp\x01':'')+'<div class="card"><h3>Mes coordonnées</h3><div class="tgl-row"><b>Visibles par les aides</b><label class="tgl"><input type="checkbox" data-chg="am-vis"'+(a.me.vis?' checked':'')+'></label></div><p class="mut" style="font-size:.85rem;margin:.2rem 0 0">Les aides voient toujours ton nom et ton titre. Active ce réglage pour qu’ils voient aussi ton téléphone et tes mails.</p></div>';
   h+=(ami?'\x01hist\x01':'')+amJournalHTML();
