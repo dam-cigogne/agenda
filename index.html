@@ -2972,7 +2972,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.105';
+const APP_VERSION='2.82.106';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2980,6 +2980,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.106',d:'17/11/2026',items:['🔔 Plus de pop-ups répétés à chaque ouverture : les titres préparés (Préparatifs) ne sont plus ré-annoncés, et « Les clés du groupe ont été renouvelées » n’apparaît plus chez l’administrateur']},
 {v:'2.82.105',d:'17/11/2026',items:['🛒 Repas d’un événement : liste d’articles claire (une ligne par article, « 9 baguettes », « 18 tranches de jambon »…), calculée pour le nombre de personnes, avec aperçu clair avant l’envoi dans la liste de courses de l’événement']},
 {v:'2.82.104',d:'17/11/2026',items:['🥖 Repas d’un événement : une note explique quand utiliser « Un plat tapé à la main » (casse-croûte simple) ou « Un plat à composer » (grand repas)','🧀 Un plat tapé à la main réaffiche la parenthèse « (8 par fromage) » quand on le rouvre']},
 {v:'2.82.103',d:'17/11/2026',items:['🧀 Plat à composer : « 1 morceau de fromage (8 par fromage) » calcule le nombre de fromages entiers à acheter (aussi dans les courses)','🥗 Touche un régime (Sans porc, Allergie…) pour voir les noms des personnes']},
@@ -12935,7 +12936,7 @@ async function amPull(manual){
     if(a.apriv)a.rolesDirty=1;
    }catch(e){a.syncErr=(d&&d.doc||'')+' : '+String(e&&e.message||e).slice(0,100);try{console.warn('amPull',e)}catch(z){}}}
   }
-  if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);toast('Les clés du groupe ont été renouvelées',3500)}
+  if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);if(!a.apriv)toast('Les clés du groupe ont été renouvelées',3500)}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
@@ -12991,6 +12992,7 @@ function amPrepApply(){
  for(const p of a.prep){if(!p.t||p.applied)continue;
   const m=amList().find(x=>!x.self&&((p.tel&&x.tel&&telN(x.tel)===telN(p.tel))||(amNorm(x.n)&&amNorm(x.n)===amNorm(p.nm))));
   if(!m)continue;
+  if(((a.rl&&a.rl[m.id]&&a.rl[m.id].t)||m.t||'')===p.t){p.applied=m.id;amSave();continue}
   a.rl=a.rl||{};a.rl[m.id]=Object.assign(a.rl[m.id]||{},{t:p.t});a.rolesDirty=1;p.applied=m.id;did++;toast('✅ '+m.n+' : '+p.t,4000)}
  if(did){amSave();amRolesPut().then(()=>amSave()).catch(()=>{})}
 }
