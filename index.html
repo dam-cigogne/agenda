@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.121';
+const APP_VERSION='2.82.122';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.122',d:'18/11/2026',items:['☑️ <b>Restauration au choix</b> : dans Copies automatiques, touche une copie puis « Choisir ce que je remets ». Tu vois la liste des éléments supprimés ou modifiés depuis (événements, prestataires, amicalistes, notes…), rangés par type, et tu coches seulement ce que tu veux retrouver. Une copie « avant restauration » est faite d’abord.']},
 {v:'2.82.121',d:'18/11/2026',items:['🔀 <b>Fini les validations qui reviennent</b> : quand deux téléphones modifient la même fiche, la liste des inscriptions et demandes déjà traitées est fusionnée au lieu d’être écrasée. Une inscription ou une demande traitée sur un téléphone ne revient plus « à valider » sur un autre.','🛟 <b>Inscriptions par QR code</b> : une personne déjà dans la liste des inscrits n’apparaît plus « à valider », même si la liste des inscriptions traitées a été perdue (elle reste visible dans l’historique).','📥 <b>Demandes d’adhésion : la page ne saute plus</b>. Avant, la liste affichait « Aucune nouvelle demande » puis la demande apparaissait d’un coup et faisait bouger la page. Maintenant : « Vérification… » le temps du chargement, puis la demande apparaît sans déplacer l’écran.']},
 {v:'2.82.120',d:'17/11/2026',items:['🎁 <b>Gratuit pour une personne</b> : dans la fenêtre 💶 d’un inscrit, choisis « Gratuit pour cette personne ? → Oui ». Elle passe à 0 € (plus rien à encaisser), sans toucher au tarif des autres.']},
 {v:'2.82.119',d:'17/11/2026',items:['↕️ <b>Déplacer les tâches en les faisant glisser</b> : dans la préparation d’un événement, appuie longtemps sur une tâche (ou sur un bloc avec ses étapes), puis glisse-la où tu veux : avant ou après une autre, ou dans une autre partie (la veille, jour J, autres tâches…). L’ordre est gardé pour tout le bureau. Le « fait par » des tâches cochées n’est pas modifié.']},
@@ -15866,12 +15867,12 @@ const amSnapSig=o=>{const cl=v=>{if(v&&typeof v==='object'&&!Array.isArray(v)){c
 function amSnapDiff(snap){const a=amc(),cur=a.it||{},back=[],chg=[];
  Object.values(snap.it||{}).forEach(o=>{if(o.del||o.kind==='ac')return;const c=cur[o.id];if(!c||c.del)back.push(o);else if(amSnapSig(c)!==amSnapSig(o))chg.push(o)});
  const nw=Object.values(cur).filter(c=>c&&!c.del&&c.kind!=='ac'&&!(snap.it||{})[c.id]);return{back,chg,nw}}
-async function amSnapApply(snap,full,src){
+async function amSnapApply(snap,full,src,pick){
  const a=amc();if(!a||!a.apriv){toast('Seul l’administrateur peut restaurer une sauvegarde',4000);return}
- const D=amSnapDiff(snap),L=D.back.concat(full?D.chg:[]);
+ const D=amSnapDiff(snap),L=pick||D.back.concat(full?D.chg:[]);
  if(!L.length){toast('Rien à restaurer : tout est déjà comme dans la sauvegarde',3500);return}
  const lst=x=>x.slice(0,8).map(o=>esc((AM_TRK[o.kind]||o.kind)+' '+(o.tx||''))).join(', ')+(x.length>8?'…':'');
- const v=await amForm('⚠️ Restaurer la sauvegarde du '+new Date(snap.at).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}),'<b>'+D.back.length+'</b> élément'+(D.back.length>1?'s':'')+' supprimé'+(D.back.length>1?'s':'')+' depuis reviennent'+(D.back.length?' ('+lst(D.back)+')':'')+'.'+(full?' <b>'+D.chg.length+'</b> modifié'+(D.chg.length>1?'s':'')+' depuis reprennent leur ancienne version'+(D.chg.length?' ('+lst(D.chg)+')':'')+'.':'')+' Ce qui a été <b>ajouté depuis</b> ('+D.nw.length+') est gardé. Le changement part chez <b>tout le bureau</b>. Une copie « avant restauration » est faite d’abord. Pour confirmer, tape RESTAURER.',[{k:'c',l:'Tape RESTAURER',v:'',ph:'RESTAURER'}],'Restaurer');
+ const v=await amForm('⚠️ Restaurer la sauvegarde du '+new Date(snap.at).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}),(pick?'<b>'+L.length+'</b> élément'+(L.length>1?'s':'')+' choisi'+(L.length>1?'s':'')+' reprennent leur version de la copie ('+lst(L)+').':'<b>'+D.back.length+'</b> élément'+(D.back.length>1?'s':'')+' supprimé'+(D.back.length>1?'s':'')+' depuis reviennent'+(D.back.length?' ('+lst(D.back)+')':'')+'.')+(full&&!pick?' <b>'+D.chg.length+'</b> modifié'+(D.chg.length>1?'s':'')+' depuis reprennent leur ancienne version'+(D.chg.length?' ('+lst(D.chg)+')':'')+'.':'')+' Ce qui a été <b>ajouté depuis</b> ('+D.nw.length+') est gardé. Le changement part chez <b>tout le bureau</b>. Une copie « avant restauration » est faite d’abord. Pour confirmer, tape RESTAURER.',[{k:'c',l:'Tape RESTAURER',v:'',ph:'RESTAURER'}],'Restaurer');
  if(!v)return;if(String(v.c||'').trim().toUpperCase()!=='RESTAURER'){toast('Restauration annulée (mot de confirmation)',3500);return}
  await amSnapTake('avant');const now=Date.now();L.forEach((o,i)=>{const c=a.it[o.id];a.it[o.id]=Object.assign({},o,{at:Math.max(now+i,((c&&c.at)||0)+1),by:a.me.n,dirty:1})});
  amSave();render();amFlush();await amSnapPrune();toast('✅ '+L.length+' élément'+(L.length>1?'s':'')+' restauré'+(L.length>1?'s':'')+(src?' depuis '+src:''),5000);
@@ -15881,9 +15882,21 @@ async function amSnapOpen(){
  const lb=o=>o.lb==='avant'?' (avant restauration)':o.lb==='fichier'?' (avant import du fichier)':'';
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">📅 Copies automatiques</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .5rem">Sur cet appareil : une copie par jour (7 jours), une par semaine (4 semaines) et, dans la journée, une toutes les 3 h entre 8 h et 17 h (quand l’appli est ouverte et que quelque chose a changé). '+(a.apriv?'Touche une copie pour voir ce qui a changé et, si besoin, revenir en arrière.':'<b>Seul l’administrateur fait des copies automatiques et peut restaurer</b> : sur ton appareil, il n’y en a pas de nouvelle.')+'</p>'+(S0.length?S0.map(({k,o})=>'<button class="am-it" data-act="sn-pick" data-k="'+esc(k)+'"'+(a.apriv?'':' disabled')+'><span class="am-itx"><b>'+esc(new Date(o.at).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+esc(lb(o))+'</b><small>'+o.n+' éléments</small></span></button>').join(''):'<p class="empty">Pas encore de copie.</p>'),'full');
 }
+async function amSnapChoose(o){const D=amSnapDiff(o),it=[];
+ D.back.forEach(x=>it.push({x,t:'🗑 supprimé'}));D.chg.forEach(x=>it.push({x,t:'✏️ modifié'}));
+ if(!it.length){toast('Rien à choisir : tout est déjà comme dans cette copie',3500);return}
+ const G={};it.forEach((r,i)=>{r.i=i;const g=(AM_TRK[r.x.kind]||r.x.kind||'Autre');(G[g]=G[g]||[]).push(r)});
+ const nm=x=>{let t=x.tx||'';if(!t&&x.bd){try{const j=JSON.parse(x.bd);t=j.nm||j.n||j.t||''}catch(e){}}return t||'(sans titre)'};
+ const h='<p class="mut" style="font-size:.84rem;margin:.1rem 0 .4rem">Coche ce que tu veux remettre <b>comme dans la copie</b>. Les éléments supprimés sont déjà cochés, les modifiés non (ils reprendraient leur ancienne version).</p><div class="sn-ch" style="max-height:48vh;overflow:auto;text-align:left">'+Object.keys(G).map(g=>'<div class="sn-g" style="margin:.3rem 0"><label style="font-weight:700"><input type="checkbox" data-sg="1"> '+esc(g)+' ('+G[g].length+')</label>'+G[g].map(r=>'<label style="display:block;padding:.15rem 0 .15rem 1.4rem;font-size:.9rem"><input type="checkbox" data-i="'+r.i+'"'+(r.t[0]==='🗑'?' checked':'')+'> '+esc(nm(r.x))+' <small class="mut">'+r.t+'</small></label>').join('')+'</div>').join('')+'</div>';
+ const lis=e=>{const c=e.target;if(c&&c.dataset&&c.dataset.sg){c.closest('.sn-g').querySelectorAll('input[data-i]').forEach(z=>z.checked=c.checked)}};
+ document.addEventListener('change',lis);
+ const sel={get value(){return[...document.querySelectorAll('.sn-ch input[data-i]:checked')].map(z=>+z.dataset.i)}};
+ let r;try{r=await ask({title:'☑️ Choisir ce que je remets',html:h,btns:[{label:'↩ Remettre les éléments cochés',value:sel,cls:'pri'},{label:'Annuler',value:null}]})}finally{document.removeEventListener('change',lis)}
+ if(!r)return;if(!r.length){toast('Rien de coché',3000);return}
+ await amSnapApply(o,false,'la copie',r.map(i=>it[i].x))}
 async function amSnapPick(k){const o=await PH.get(k);if(!o)return;const D=amSnapDiff(o);
- const r=await ask({title:'📅 Copie du '+new Date(o.at).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}),html:'<p style="margin:.2rem 0 .4rem">Depuis cette copie :</p><ul style="margin:.2rem 0 .6rem;padding-left:1.2rem"><li><b>'+D.back.length+'</b> supprimé'+(D.back.length>1?'s':'')+'</li><li><b>'+D.chg.length+'</b> modifié'+(D.chg.length>1?'s':'')+'</li><li><b>'+D.nw.length+'</b> ajouté'+(D.nw.length>1?'s':'')+' (toujours gardés)</li></ul>',btns:[{label:'↩ Remettre seulement ce qui a été supprimé',value:'b',cls:'pri'},{label:'⏪ Tout remettre comme à cette date (sauf les ajouts)',value:'f'},{label:'Annuler',value:null}]});
- if(r)await amSnapApply(o,r==='f')}
+ const r=await ask({title:'📅 Copie du '+new Date(o.at).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}),html:'<p style="margin:.2rem 0 .4rem">Depuis cette copie :</p><ul style="margin:.2rem 0 .6rem;padding-left:1.2rem"><li><b>'+D.back.length+'</b> supprimé'+(D.back.length>1?'s':'')+'</li><li><b>'+D.chg.length+'</b> modifié'+(D.chg.length>1?'s':'')+'</li><li><b>'+D.nw.length+'</b> ajouté'+(D.nw.length>1?'s':'')+' (toujours gardés)</li></ul>',btns:[{label:'↩ Remettre seulement ce qui a été supprimé',value:'b',cls:'pri'},{label:'⏪ Tout remettre comme à cette date (sauf les ajouts)',value:'f'},{label:'☑️ Choisir ce que je remets',value:'c'},{label:'Annuler',value:null}]});
+ if(r==='c')await amSnapChoose(o);else if(r)await amSnapApply(o,r==='f')}
 /* fichier de sauvegarde chiffré par mot de passe (PBKDF2 + AES-GCM) */
 async function amPwKey(pw,salt){const b=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},b,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
 const amB64e=u=>{let s='';const c=0x8000;for(let i=0;i<u.length;i+=c)s+=String.fromCharCode.apply(null,u.subarray(i,i+c));return btoa(s)};
