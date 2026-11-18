@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.124';
+const APP_VERSION='2.82.125';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.125',d:'18/11/2026',items:['⚠️ <b>Plus de doublons à l’inscription</b> : si quelqu’un tape son code d’invitation depuis le <b>site</b> (Safari ou navigateur du téléphone) au lieu de l’appli installée, un message l’arrête : « Ne t’inscris pas ici, installe d’abord l’appli ». Le même message s’affiche à l’ouverture du site sur un téléphone quand on n’a pas encore de groupe. Une personne qui s’inscrit deux fois (site puis appli) apparaissait en double dans le groupe.']},
 {v:'2.82.124',d:'18/11/2026',items:['🆘 <b>Onglet Dépannage</b> (Groupe › Synchronisation › « Dépannage ») : l’état de l’appareil (version, rôle, dernière mise à jour, éléments en attente), les 5 règles pour que tout le monde reste d’accord, des remèdes dans l’ordre selon le problème (actualiser, tout recharger, repartir du serveur, copies automatiques, sauvegarde fichier) et la procédure pour repartir à zéro proprement.']},
 {v:'2.82.123',d:'18/11/2026',items:['🧹 <b>Repartir du serveur</b> (Groupe › Synchronisation, administrateur) : si un téléphone montre des données fausses que les autres n’ont pas (inscription déjà validée qui revient, paiement non encaissé…), il oublie ses données locales et reprend exactement celles du serveur. Une copie de sécurité est faite avant. Le bouton « Tout recharger » ne corrigeait pas ce cas.']},
 {v:'2.82.122',d:'18/11/2026',items:['☑️ <b>Restauration au choix</b> : dans Copies automatiques, touche une copie puis « Choisir ce que je remets ». Tu vois la liste des éléments supprimés ou modifiés depuis (événements, prestataires, amicalistes, notes…), rangés par type, et tu coches seulement ce que tu veux retrouver. Une copie « avant restauration » est faite d’abord.']},
@@ -12648,6 +12649,9 @@ async function famInvCode(f){
 }
 async function famCodeJoin(pre){
  if(!famUrl())return;
+ if(!isStandalone()&&(isIOS()||/Android/i.test(navigator.userAgent))&&!demo){
+  const g=await ask({title:'⚠️ Ne t’inscris pas ici',html:'<p style="margin:.2rem 0 .5rem;text-align:left">Tu es sur le <b>site</b> (dans Safari ou le navigateur), pas dans l’<b>appli installée</b>. Si tu t’inscris ici avec ton code, puis que tu installes l’appli et t’inscris encore, tu seras <b>deux fois dans le groupe</b> et ça met le désordre pour tout le monde.</p><p style="margin:.2rem 0 .6rem;text-align:left"><b>À faire :</b> 1) installe l’appli sur l’écran d’accueil (Partager › Sur l’écran d’accueil) ; 2) ouvre-la depuis l’écran d’accueil ; 3) c’est <b>là</b> que tu tapes ton code, une seule fois.</p>',btns:[{label:'OK, j’installe d’abord l’appli',value:'n',cls:'pri'},{label:'Continuer quand même (je sais ce que je fais)',value:'y'}]});
+  if(g!=='y')return}
  let code=famCodeFind(pre||'');
  if(!code){
   const v={t:''};const pr=ask({title:'🔢 Rejoindre avec un code',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2), ou colle tout le message reçu : l’appli trouve le code.</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center;text-transform:uppercase;margin-bottom:.5rem"><button type="button" class="btn blk" id="fc-paste" style="margin-bottom:.6rem">📋 Coller le message reçu</button>',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
@@ -17910,6 +17914,8 @@ async function init(){
  if(!cvCheckHash()&&!famHash2())shareCheckHash();
  window.addEventListener('hashchange',()=>{if(!cvCheckHash()&&!famHash2())shareCheckHash()});
  setTimeout(()=>famPull(false),1800);
+ /* 2.82.125 : site ouvert dans le navigateur d’un téléphone, sans groupe : on prévient avant toute inscription */
+ try{if(!demo&&!isStandalone()&&(isIOS()||/Android/i.test(navigator.userAgent))&&!amc()&&!fam()&&!sessionStorage.getItem('agd-webwarn')){sessionStorage.setItem('agd-webwarn','1');setTimeout(()=>{if(!SHEET_OPEN)ask({title:'📲 Tu as reçu une invitation ?',html:'<p style="margin:.2rem 0 .5rem;text-align:left"><b>Ne t’inscris pas ici.</b> Ce site s’ouvre dans le navigateur : si tu t’inscris ici puis dans l’appli installée, tu seras <b>deux fois</b> dans le groupe.</p><p style="margin:.2rem 0 .6rem;text-align:left"><b>À faire :</b> installe d’abord l’appli sur l’écran d’accueil (Partager › Sur l’écran d’accueil), ouvre-la depuis là, puis tape ton code <b>une seule fois</b>.</p>',btns:[{label:'OK, j’installe d’abord l’appli',value:1,cls:'pri'}]})},1200)}}catch(e){}
  setInterval(()=>{if(document.visibilityState==='visible')famPull(false)},150000);
  setInterval(()=>{if(document.visibilityState==='visible'){try{if(amc()&&amAq())amAqFetch()}catch(e){}try{if(amc()&&amCx())amCxFetch()}catch(e){}}},60000);
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){const r=$('#dlg');if(r&&r._close&&r.innerHTML){e.preventDefault();r._close()}}});
