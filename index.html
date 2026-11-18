@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.127';
+const APP_VERSION='2.82.128';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.128',d:'18/11/2026',items:['📌 <b>Modèles d’événement</b> : dans un événement, « 📌 Garder comme modèle » enregistre à part la préparation (tâches et sous-tâches), les prestataires utilisés, les frais, les parties et le programme, sans les inscrits. Dans la liste des événements, « 📚 Mes modèles » recrée un événement depuis un modèle en changeant juste le nom et la date, et permet d’exporter les modèles dans un fichier et de les importer.','↳ <b>Ranger sous une tâche</b> : dans « Sélectionner des tâches », choisis des tâches puis « Ranger sous une tâche… » : elles deviennent de petites tâches à cocher sous le titre que tu désignes. Les modèles restent sur l’appareil et dans le fichier de sauvegarde, à l’abri des restaurations.']},
 {v:'2.82.127',d:'18/11/2026',items:['👥 <b>Dépannage › Choisir les personnes</b> (administrateur) : la liste des personnes rangée par rôle (administrateurs, bureau, aides), avec un bouton WhatsApp à côté de chaque nom qui ouvre sa conversation avec le message de remise à zéro adapté. Un « ✅ envoyé » se met à côté de ceux déjà faits.']},
 {v:'2.82.126',d:'18/11/2026',items:['📣 <b>Dépannage › Envoyer la consigne au groupe</b> (administrateur) : trois boutons (aides, bureau, administrateurs) qui ouvrent WhatsApp ou le partage du téléphone avec le message de remise à zéro déjà écrit, avec le bon numéro de version.']},
 {v:'2.82.125',d:'18/11/2026',items:['⚠️ <b>Plus de doublons à l’inscription</b> : si quelqu’un tape son code d’invitation depuis le <b>site</b> (Safari ou navigateur du téléphone) au lieu de l’appli installée, un message l’arrête : « Ne t’inscris pas ici, installe d’abord l’appli ». Le même message s’affiche à l’ouverture du site sur un téléphone quand on n’a pas encore de groupe. Une personne qui s’inscrit deux fois (site puis appli) apparaissait en double dans le groupe.']},
@@ -9307,6 +9308,7 @@ async function act(a,el,e){
   case 'ee-addck':amEeAddCk(-1);break;
   case 'ps-org':amPartAct('org');break;case 'ps-add':amPartAct('add');break;case 'ps-edit':amPartAct('edit',ds_.s);break;case 'ps-addck':amPartAct('addck',ds_.s);break;
   case 'ck-smv':amCkSelAct('mv');break;
+  case 'ck-ssub':amCkSelAct('sub');break;
   case 'vp-edit':amVpEdit(ds_.id);break;
   case 'vp-paste':amVpEdit(ds_.id,true);break;
   case 'vp-ai':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(!it)break;amEePoster(it);setTimeout(()=>{if(PO)amPoPrompt()},400);break}
@@ -9317,6 +9319,12 @@ async function act(a,el,e){
   case 'ee-bn':amEeBnEdit(AMC_EE);break;
   case 'ee-edit':{const a=amc(),it=a&&a.it[AMC_EE];if(it&&a.kB)amItemForm('ee',it);break}
   case 'ee-copy':amEeCopy();break;
+  case 'ee-tpl':amTplSave();break;
+  case 'am-tpl':amTplOpen();break;
+  case 'am-tpl-use':amTplUse(ds_.id);break;
+  case 'am-tpl-del':amTplDel(ds_.id);break;
+  case 'am-tpl-exp':amTplExport();break;
+  case 'am-tpl-imp':amTplImport();break;
   case 'ee-print':amEePrint();break;
   case 'po':amPoSet(ds_.k,ds_.v);break;
   case 'po-go':amPoGo();break;
@@ -15263,6 +15271,39 @@ async function amEeRow(kind,i){
  if(r==='ed')return kind==='ck'?amEeAddCk(i):amEeAddPg(i);
  if(r==='del')amEeMut(o=>{o[kind].splice(i,1)});
 }
+/* 2.82.128 : modèles d’événement (prépa, prestataires, frais, parties, programme) gardés d’une année à l’autre */
+const amEeClone=it=>({z:it.z||'b',pl:it.pl||'',bd:it.bd||'',sv:it.sv||'',ty:JSON.parse(JSON.stringify(it.ty||[])),ck:(it.ck||[]).map(c=>({t:c.t,ok:0,w:c.w||'',s:c.s||'',d:c.d||'',x:c.x||'',sb:(c.sb||[]).map(q=>({t:q.t,ok:0,w:q.w||''}))})),pv:(it.pv||[]).map(c=>({p:c.p,n:'',m:c.m||0})),dp:(it.dp||[]).map(c=>({t:c.t,m:c.m||0})),cs:(it.cs||[]).map(c=>({id:c.id,t:c.t,o:c.o})),pg:(it.pg||[]).map(c=>({tm:c.tm,t:c.t}))});
+async function amTplSave(){
+ const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
+ const v=await amForm('📌 Garder comme modèle','La préparation (tâches et sous-tâches, cases décochées), les prestataires utilisés, les frais, les parties et le programme sont gardés à part, sans les inscrits. Tu pourras recréer cet événement l’an prochain en un geste. Le modèle reste sur cet appareil et dans le fichier de sauvegarde.',[{k:'nm',l:'Nom du modèle',v:it.tx}],'Garder');
+ if(!v||!String(v.nm||'').trim())return;
+ a.tpl=a.tpl||[];const nm=v.nm.trim().slice(0,80),old=a.tpl.findIndex(t=>t.nm===nm),o={id:amId(),nm,at:Date.now(),tx:it.tx,data:amEeClone(it)};
+ if(old>=0)a.tpl[old]=o;else a.tpl.push(o);amSave();toast('📌 Modèle « '+nm+' » gardé ('+(it.ck||[]).length+' tâches, '+(it.pv||[]).length+' prestataires)',4500)}
+function amTplOpen(){
+ const a=amc();if(!a||!a.kB)return;const L=(a.tpl||[]).slice().sort((x,y)=>y.at-x.at);
+ openSheet('<div class="sh-h"><b style="font-size:1.15rem">📚 Mes modèles d’événement</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Ouvre un événement puis touche « 📌 Garder comme modèle ». Ici, tu recrées l’événement avec sa préparation.</p>'+(L.length?L.map(t=>'<div class="mrow" style="cursor:default"><span><b>'+esc(t.nm)+'</b><small>'+(t.data.ck||[]).length+' tâches · '+(t.data.pv||[]).length+' prestataires · '+(t.data.dp||[]).length+' frais · gardé le '+new Date(t.at).toLocaleDateString('fr-FR')+'</small></span><span style="display:flex;gap:.3rem"><button type="button" class="btn pri" data-act="am-tpl-use" data-id="'+esc(t.id)+'">Créer</button><button type="button" class="btn dng" data-act="am-tpl-del" data-id="'+esc(t.id)+'" aria-label="Supprimer">🗑</button></span></div>').join(''):'<p class="empty">Aucun modèle pour l’instant.</p>')+'<div style="display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap"><button type="button" class="btn grow" data-act="am-tpl-exp">📤 Exporter (fichier)</button><button type="button" class="btn grow" data-act="am-tpl-imp">📥 Importer (fichier)</button></div>','full')}
+async function amTplUse(id){
+ const a=amc();if(!a||!a.kB)return;const t=(a.tpl||[]).find(x=>x.id===id);if(!t)return;
+ const D=new Date();D.setMonth(D.getMonth()+1);
+ const v=await amForm('Créer depuis « '+t.nm+' »','La préparation, les prestataires, les frais et le programme sont recopiés, sans inscrits.',[{k:'tx',l:'Nom de l’événement',v:t.tx||t.nm},{k:'d',l:'Date',v:D.toISOString().slice(0,10),t:'date'}],'Créer');
+ if(!v||!String(v.tx||'').trim()||!v.d)return;
+ const c=JSON.parse(JSON.stringify(t.data)),o=Object.assign({id:amId(),kind:'ee',x:0,tx:v.tx.trim().slice(0,200),d:v.d,w:'',qt:'',tm:'',pt:[]},c);
+ closeSheet();AMC_TAB='ee';AMC_EE=o.id;amItemSave(o);toast('Événement créé depuis le modèle',3000)}
+async function amTplDel(id){
+ const a=amc();if(!a)return;const t=(a.tpl||[]).find(x=>x.id===id);if(!t)return;
+ const r=await ask({title:'🗑 Supprimer ce modèle ?',text:'« '+t.nm+' » sera supprimé de cet appareil. Les événements déjà créés ne changent pas.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;a.tpl=a.tpl.filter(x=>x.id!==id);amSave();amTplOpen()}
+function amTplExport(){
+ const a=amc();if(!a||!(a.tpl||[]).length){toast('Aucun modèle à exporter',3000);return}
+ const blob=new Blob([JSON.stringify({app:'agd-amicale-modeles',v:1,at:Date.now(),tpl:a.tpl},null,1)],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
+ l.href=u;l.download='amicale-modeles-'+today()+'.json';document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000)}
+function amTplImport(){
+ const a=amc();if(!a||!a.kB)return;const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;let J;try{J=JSON.parse(await f.text())}catch(e){toast('Fichier illisible',3500);return}
+  if(!J||J.app!=='agd-amicale-modeles'||!Array.isArray(J.tpl)){toast('Ce n’est pas un fichier de modèles Amicale',4000);return}
+  a.tpl=a.tpl||[];let n=0;J.tpl.forEach(t=>{if(!t||!t.nm||!t.data)return;const i=a.tpl.findIndex(x=>x.nm===t.nm),o={id:amId(),nm:String(t.nm).slice(0,80),at:Date.now(),tx:String(t.tx||t.nm).slice(0,200),data:t.data};if(i>=0)a.tpl[i]=o;else a.tpl.push(o);n++});
+  amSave();amTplOpen();toast('📥 '+n+' modèle'+(n>1?'s':'')+' importé'+(n>1?'s':''),3500)};
+ inp.click()}
 async function amEeCopy(){
  const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
  const D=new Date(it.d+'T12:00');D.setFullYear(D.getFullYear()+1);
@@ -16816,7 +16857,7 @@ function amPtSelBar(it,rw){
 }
 function amCkSelBar(ck){
  const n=amCkSel().size;
- return '<div class="card am-selbar"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"><b style="flex:1;min-width:8rem">☑ '+n+' tâche'+(n>1?'s':'')+'</b><button class="chip" data-act="ck-sall">Tout</button><button class="chip" data-act="ck-snone">Aucune</button><button class="chip on" data-act="ck-soff">Terminer</button></div>'+(n?'<div class="btns" style="margin-top:.5rem"><button class="btn grow" data-act="ck-swho">👤 Donner à…</button><button class="btn grow" data-act="ck-smv">📂 Déplacer vers…</button><button class="btn grow" data-act="ck-srem">📨 Envoyer un rappel</button><button class="btn grow dng" data-act="ck-sdel">🗑 Supprimer</button></div>':'<p class="mut" style="margin:.4rem 0 0;font-size:.85rem">Touche les tâches à choisir, ou « Tout ».</p>')+'</div>';
+ return '<div class="card am-selbar"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"><b style="flex:1;min-width:8rem">☑ '+n+' tâche'+(n>1?'s':'')+'</b><button class="chip" data-act="ck-sall">Tout</button><button class="chip" data-act="ck-snone">Aucune</button><button class="chip on" data-act="ck-soff">Terminer</button></div>'+(n?'<div class="btns" style="margin-top:.5rem"><button class="btn grow" data-act="ck-swho">👤 Donner à…</button><button class="btn grow" data-act="ck-ssub">↳ Ranger sous une tâche…</button><button class="btn grow" data-act="ck-smv">📂 Déplacer vers…</button><button class="btn grow" data-act="ck-srem">📨 Envoyer un rappel</button><button class="btn grow dng" data-act="ck-sdel">🗑 Supprimer</button></div>':'<p class="mut" style="margin:.4rem 0 0;font-size:.85rem">Touche les tâches à choisir, ou « Tout ».</p>')+'</div>';
 }
 const amEvWhen=it=>{let d='';try{d=new Date(it.d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){d=it.d||''}return d+(it.tm?' à '+it.tm.replace(':','h'):'')};
 function amSmsMany(tels,body){const t=tels.map(telN).join(',');const a=document.createElement('a');a.href=isIOS()?'sms:/open?addresses='+t+'&body='+encodeURIComponent(body):'sms:'+t+'?body='+encodeURIComponent(body);document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),800)}
@@ -16845,6 +16886,11 @@ async function amCkSelAct(k){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE],S=amCkSel();if(!it||!S||!a.kB)return;const I=[...S].filter(i=>(it.ck||[])[i]).sort((p,q)=>p-q);if(!I.length)return;const n=I.length,pl=n>1?'s':'';
  if(k==='del'){const r=await ask({title:'Supprimer '+n+' tâche'+pl+' ?',html:'<p>'+I.slice(0,12).map(i=>esc(it.ck[i].t)).join(', ')+(n>12?'…':'')+'</p>',btns:[{label:'🗑 Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')return;
   amEeMut(o=>{I.slice().reverse().forEach(i=>o.ck.splice(i,1))});CK_SEL=null;render();toast(n+' tâche'+pl+' supprimée'+pl,2500);return}
+ if(k==='sub'){const Z=new Set(I),opts=(it.ck||[]).map((c,i)=>Z.has(i)?null:[String(i),c.t.slice(0,70)]).filter(Boolean);if(!opts.length){toast('Il faut une autre tâche pour y ranger celles-ci',3500);return}
+  const v=await amForm('↳ Ranger '+n+' tâche'+pl+' sous…','Les tâches choisies deviennent de petites tâches (avec leur rond à cocher) sous la tâche que tu désignes, et ne sont plus des tâches à part.',[{k:'p',l:'Sous quelle tâche ?',t:'select',v:opts[0][0],o:opts}],'Ranger');
+  if(!v||v.p==null||v.p==='')return;const P=+v.p;
+  amEeMut(o=>{const par=o.ck[P];if(!par)return;par.sb=par.sb||[];const mv=I.map(i=>o.ck[i]).filter(Boolean);mv.forEach(c=>{par.sb.push({t:c.t,ok:c.ok?1:0,w:c.w||''});(c.sb||[]).forEach(q=>par.sb.push({t:q.t,ok:q.ok?1:0,w:q.w||''}))});o.ck=o.ck.filter(c=>mv.indexOf(c)<0)});
+  CK_SEL=null;render();toast('↳ '+n+' tâche'+pl+' rangée'+pl+' dessous',3000);return}
  if(k==='mv'){const cs=it.cs||[];if(!cs.length){toast('Crée d’abord des parties : « Organiser en parties »',3500);return}
   const v=await amForm('📂 Déplacer '+n+' tâche'+pl+' vers…','',[{k:'s',l:'Partie',t:'select',v:'',o:[['','📌 Autres tâches (hors préparation)']].concat(cs.map(x=>[x.id,x.t]))}],'Déplacer');
   if(!v)return;amEeMut(o=>I.forEach(i=>{const c=o.ck[i];if(!c)return;if(v.s)c.s=v.s;else delete c.s}));CK_SEL=null;render();toast('📂 '+n+' tâche'+pl+' déplacée'+pl,2500);return}
@@ -17148,14 +17194,14 @@ function amEeHTML(){
   if(rw)h+=amAdEvHTML(it);
   h+='<h4 class="am-h">Programme'+(pg.length?' · '+pg.length:'')+'</h4>';
   h+=pg.length?pg.map(p=>'<button class="am-it am-ev" '+(rw?'data-act="ee-pg" data-i="'+p.i+'"':'disabled')+'><span class="am-dt am-tm"><b>'+esc(p.tm||'–')+'</b></span><span class="am-itx"><b>'+esc(p.t)+'</b></span></button>').join(''):'<p class="empty">Programme vide.</p>';
-  if(rw)h+='<button class="btn blk" data-act="ee-addpg" style="margin-top:.4rem">'+ic('plus')+' Ajouter un créneau</button><button class="btn blk" data-act="ee-copy" style="margin-top:.8rem">📋 Copier pour l’an prochain</button><button class="btn blk dng" data-act="ee-del" style="margin-top:.4rem">🗑️ Supprimer l’événement</button>';
+  if(rw)h+='<button class="btn blk" data-act="ee-addpg" style="margin-top:.4rem">'+ic('plus')+' Ajouter un créneau</button><button class="btn blk" data-act="ee-copy" style="margin-top:.8rem">📋 Copier pour l’an prochain</button><button class="btn blk" data-act="ee-tpl" style="margin-top:.4rem">📌 Garder comme modèle</button><button class="btn blk dng" data-act="ee-del" style="margin-top:.4rem">🗑️ Supprimer l’événement</button>';
   return h;
  }
  AMC_EE='';
  const prog=i=>{const c=i.ck||[];return c.length?' · ✅ '+c.filter(x=>x.ok).length+'/'+c.length:''};
  const row=i=>{const D=new Date(i.d+'T12:00');return '<button class="am-it am-ev" data-act="ee-open" data-id="'+esc(i.id)+'"><span class="am-dt'+(i.d===today?' now':'')+'"><b>'+D.getDate()+'</b>'+D.toLocaleDateString('fr-FR',{month:'short'}).replace('.','')+'</span><span class="am-itx"><b>'+esc(i.tx)+'</b><small>'+esc(D.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(i.tm?' · '+i.tm:''))+(i.pl?' · 📍 '+esc(i.pl):'')+prog(i)+(rw&&i.z==='b'?' · 🔒 bureau':'')+'</small></span>'+amEePth(i)+'</button>'};
  const up=L.filter(i=>(i.d||'')>=today).sort((p,q)=>p.d<q.d?-1:1),past=L.filter(i=>(i.d||'')<today).sort((p,q)=>q.d<p.d?-1:1);
- let h=rw?'<button class="btn pri blk" data-act="am-add" data-k="ee">'+ic('plus')+' Nouvel événement</button>':'';
+ let h=rw?'<button class="btn pri blk" data-act="am-add" data-k="ee">'+ic('plus')+' Nouvel événement</button>':''+(rw?'<button class="btn blk" data-act="am-tpl" style="margin-top:.4rem">📚 Mes modèles ('+(((amc()||{}).tpl)||[]).length+')</button>':'');
  h+=up.length?up.map(row).join(''):'<p class="empty">'+(rw?'Aucun événement à venir. Crée la fête, le loto, le vide-grenier… avec sa liste de préparation et son programme.':'Aucun événement partagé pour l’instant.')+'</p>';
  if(past.length)h+='<h4 class="am-h">Passés · '+past.length+'</h4>'+past.slice(0,20).map(row).join('');
  if(L.length)h+='<button class="btn blk" data-act="ee-year" style="margin-top:.8rem">🖨 Imprimer le calendrier de l’année</button>';
