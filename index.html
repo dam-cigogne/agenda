@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.123';
+const APP_VERSION='2.82.124';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.124',d:'18/11/2026',items:['🆘 <b>Onglet Dépannage</b> (Groupe › Synchronisation › « Dépannage ») : l’état de l’appareil (version, rôle, dernière mise à jour, éléments en attente), les 5 règles pour que tout le monde reste d’accord, des remèdes dans l’ordre selon le problème (actualiser, tout recharger, repartir du serveur, copies automatiques, sauvegarde fichier) et la procédure pour repartir à zéro proprement.']},
 {v:'2.82.123',d:'18/11/2026',items:['🧹 <b>Repartir du serveur</b> (Groupe › Synchronisation, administrateur) : si un téléphone montre des données fausses que les autres n’ont pas (inscription déjà validée qui revient, paiement non encaissé…), il oublie ses données locales et reprend exactement celles du serveur. Une copie de sécurité est faite avant. Le bouton « Tout recharger » ne corrigeait pas ce cas.']},
 {v:'2.82.122',d:'18/11/2026',items:['☑️ <b>Restauration au choix</b> : dans Copies automatiques, touche une copie puis « Choisir ce que je remets ». Tu vois la liste des éléments supprimés ou modifiés depuis (événements, prestataires, amicalistes, notes…), rangés par type, et tu coches seulement ce que tu veux retrouver. Une copie « avant restauration » est faite d’abord.']},
 {v:'2.82.121',d:'18/11/2026',items:['🔀 <b>Fini les validations qui reviennent</b> : quand deux téléphones modifient la même fiche, la liste des inscriptions et demandes déjà traitées est fusionnée au lieu d’être écrasée. Une inscription ou une demande traitée sur un téléphone ne revient plus « à valider » sur un autre.','🛟 <b>Inscriptions par QR code</b> : une personne déjà dans la liste des inscrits n’apparaît plus « à valider », même si la liste des inscriptions traitées a été perdue (elle reste visible dans l’historique).','📥 <b>Demandes d’adhésion : la page ne saute plus</b>. Avant, la liste affichait « Aucune nouvelle demande » puis la demande apparaissait d’un coup et faisait bouger la page. Maintenant : « Vérification… » le temps du chargement, puis la demande apparaît sans déplacer l’écran.']},
@@ -9226,6 +9227,7 @@ async function act(a,el,e){
   case 'tr-open':amTrashOpen();break;
   case 'am-full':amFullReload();break;
   case 'am-reset':amResetFromServer();break;
+  case 'am-sos':amSosOpen();break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
   case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
@@ -15932,11 +15934,25 @@ function amFileRestore(){
   if(r)await amSnapApply({at:new Date(o.at).getTime(),it},r==='f','le fichier')};
  inp.click();
 }
+function amSosOpen(){
+ const a=amc();if(!a)return;const adm=!!a.apriv,ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
+ const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
+ const h=t=>'<h4 style="margin:1rem 0 .3rem">'+t+'</h4>',li=x=>'<li style="margin:.25rem 0">'+x+'</li>',ul=x=>'<ul style="margin:.2rem 0 .4rem;padding-left:1.2rem;font-size:.92rem">'+x+'</ul>';
+ openSheet('<div class="sh-h"><b style="font-size:1.15rem">🆘 Dépannage</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>'+
+ '<div class="card" style="margin:.3rem 0"><b>Cet appareil</b><br><span class="mut" style="font-size:.88rem">Version <b>'+esc(APP_VERSION)+'</b> · '+(adm?'administrateur':'membre')+' · '+n+' éléments · dernière mise à jour '+ago(a.syncOk)+(pend?' · <b>'+pend+' en attente d’envoi</b>':'')+(a.syncErr?'<br><span class="pay-no">Problème : '+esc(a.syncErr)+'</span>':'')+'</span></div>'+
+ h('📌 Les 5 règles')+ul(li('<b>Même version partout</b> : après une mise à jour, fermer complètement l’appli puis la rouvrir (le numéro est en haut de Réglages).')+li('<b>Un seul appareil à la fois</b> pour une manipulation (restauration, changement de clés, tests). Les autres restent fermés.')+li('<b>Attendre « ✅ Clés à jour »</b> avant de toucher à quoi que ce soit après un changement de clés ou une restauration.')+li('<b>Ne jamais « réparer » sur deux appareils en même temps.</b> Se mettre d’accord, un seul agit.')+li('<b>En cas de doute, ne rien toucher</b> et prévenir l’administrateur.'))+
+ h('🔎 Que se passe-t-il ?')+
+ '<p class="mut" style="font-size:.88rem;margin:.1rem 0 .3rem"><b>Cet appareil ne montre pas la même chose que les autres</b> (une inscription validée qui revient, un paiement manquant, un membre en trop…) :</p>'+
+ mrow('am-sync','1️⃣ Actualiser maintenant','Le plus simple, à essayer d’abord')+mrow('am-full','2️⃣ Tout recharger depuis le serveur','Relit tout, sans rien effacer')+
+ (adm?mrow('am-reset','3️⃣ Repartir du serveur (cet appareil)','Cet appareil oublie ses données et reprend celles du serveur. À faire sur l’appareil FAUX, après avoir vérifié qu’un autre est juste'):'<p class="mut" style="font-size:.84rem;margin:.2rem 0">3️⃣ Toujours faux : demande à l’administrateur.</p>')+
+ (adm?'<p class="mut" style="font-size:.88rem;margin:.7rem 0 .3rem"><b>Quelque chose a été supprimé ou écrasé</b> (événement, prestataires, amicalistes…) :</p>'+mrow('sn-open','📅 Copies automatiques','Touche une copie puis « Choisir ce que je remets »')+mrow('bk-am','💾 Sauvegarde (fichier de secours)','À faire AVANT toute grosse manipulation'):'')+
+ h('🧯 Repartir à zéro, proprement (bureau)')+ul(li('<b>L’administrateur</b> vérifie sur l’appareil qui est juste (ex. le Mac) : nombre d’amicalistes, inscrits, paiements.')+li('Il fait une <b>sauvegarde fichier</b>, puis garde les <b>copies automatiques</b> (7 jours).')+li('<b>Tous les autres ferment l’appli</b>, la mettent à jour, la rouvrent, <b>sans rien modifier</b>.')+li('<b>Un par un</b>, chaque appareil faux fait « Repartir du serveur ». On compare au bon appareil avant de passer au suivant.')+li('Quand tout concorde : on reprend le travail normalement.'))+
+ h('☎️ Si ça ne marche pas')+'<p class="mut" style="font-size:.88rem">Note l’heure, ce que tu as touché et le « Problème » affiché en haut, puis préviens l’administrateur avant de refaire quelque chose.</p>','full')}
 function amSyncCard(){
  const a=amc();if(!a)return '';const ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
  return '<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+(a.dg&&a.dg.f?'<br><span class="pay-no">'+a.dg.f+' document'+(a.dg.f>1?'s':'')+' sur '+a.dg.n+' illisible'+(a.dg.f>1?'s':'')+' sur cet appareil'+(a.dg.e?' ('+esc(a.dg.e)+')':'')+'</span>':'')+'</p>'+
-  mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+(a&&a.apriv?mrow('am-reset','🧹 Repartir du serveur (cet appareil)','Si cet appareil montre des choses fausses que les autres n’ont pas : il oublie ses données et reprend celles du serveur'):'')+'</div>';
+  mrow('am-sos','🆘 Dépannage : que faire si ça ne va pas ?','Règles, remèdes et procédure pour repartir à zéro')+mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+(a&&a.apriv?mrow('am-reset','🧹 Repartir du serveur (cet appareil)','Si cet appareil montre des choses fausses que les autres n’ont pas : il oublie ses données et reprend celles du serveur'):'')+'</div>';
 }
 async function amFullReload(){const a=amc();if(!a)return;const r=await ask({title:'⤵ Tout recharger ?',text:'L’appli relit tout le groupe depuis le serveur (sans rien effacer ici). À faire si cet appareil ne montre pas les mêmes choses que les autres.',btns:[{label:'Tout recharger',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;
  await amFlush();a.last={};a.syncErr='';toast('Rechargement…',3000);await amPull(true);render();toast('✅ Tout est rechargé',3000)}
