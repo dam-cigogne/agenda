@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.125';
+const APP_VERSION='2.82.126';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.126',d:'18/11/2026',items:['📣 <b>Dépannage › Envoyer la consigne au groupe</b> (administrateur) : trois boutons (membres et aides, bureau, administrateurs) qui ouvrent WhatsApp ou le partage du téléphone avec le message de remise à zéro déjà écrit, avec le bon numéro de version.']},
 {v:'2.82.125',d:'18/11/2026',items:['⚠️ <b>Plus de doublons à l’inscription</b> : si quelqu’un tape son code d’invitation depuis le <b>site</b> (Safari ou navigateur du téléphone) au lieu de l’appli installée, un message l’arrête : « Ne t’inscris pas ici, installe d’abord l’appli ». Le même message s’affiche à l’ouverture du site sur un téléphone quand on n’a pas encore de groupe. Une personne qui s’inscrit deux fois (site puis appli) apparaissait en double dans le groupe.']},
 {v:'2.82.124',d:'18/11/2026',items:['🆘 <b>Onglet Dépannage</b> (Groupe › Synchronisation › « Dépannage ») : l’état de l’appareil (version, rôle, dernière mise à jour, éléments en attente), les 5 règles pour que tout le monde reste d’accord, des remèdes dans l’ordre selon le problème (actualiser, tout recharger, repartir du serveur, copies automatiques, sauvegarde fichier) et la procédure pour repartir à zéro proprement.']},
 {v:'2.82.123',d:'18/11/2026',items:['🧹 <b>Repartir du serveur</b> (Groupe › Synchronisation, administrateur) : si un téléphone montre des données fausses que les autres n’ont pas (inscription déjà validée qui revient, paiement non encaissé…), il oublie ses données locales et reprend exactement celles du serveur. Une copie de sécurité est faite avant. Le bouton « Tout recharger » ne corrigeait pas ce cas.']},
@@ -9229,6 +9230,7 @@ async function act(a,el,e){
   case 'am-full':amFullReload();break;
   case 'am-reset':amResetFromServer();break;
   case 'am-sos':amSosOpen();break;
+  case 'am-sos-send':amSosSend(ds_.k);break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
   case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
@@ -15938,6 +15940,13 @@ function amFileRestore(){
   if(r)await amSnapApply({at:new Date(o.at).getTime(),it},r==='f','le fichier')};
  inp.click();
 }
+function amSosText(k){const v=APP_VERSION,ctx='Hier, certains se sont inscrits à la fois sur le SITE et dans l’APPLI installée avec le même code : ça a créé des doublons et mis le désordre dans les données. On repart propre à zéro.';
+ if(k==='a')return '🛠 Amicale : remise à zéro côté administrateurs (version '+v+')\n\n'+ctx+' Un seul administrateur agit à la fois, on se prévient avant chaque étape.\n\n1️⃣ Fermer l’appli sur TOUS tes appareils puis les rouvrir un par un. Sur chacun : Réglages > « Version '+v+' ».\n2️⃣ Référence : l’appareil qui est juste. On note ensemble : membres, amicalistes, inscrits, paiements.\n3️⃣ Sauvegarde : Réglages > Sauvegarde et code > « Sauvegarder (Fichier de secours) » > « Garder les deux ». Ne supprime PAS les copies automatiques.\n4️⃣ Réglages > Sauvegarde et code > « 🆘 Dépannage » : sur chaque appareil faux, « 1️⃣ Actualiser », puis « 2️⃣ Tout recharger », puis seulement si c’est encore faux « 3️⃣ Repartir du serveur ». Un appareil à la fois.\n5️⃣ Attendre « ✅ Clés à jour » avant toute autre action.\n6️⃣ Quand les deux administrateurs concordent : « OK général » aux autres.\n\n⛔ Interdit tant que ce n’est pas fini : restaurer, changer les clés, retirer un membre, valider une inscription, encaisser.\nPréviens-moi quand c’est fait.';
+ const bur=k==='b';
+ return '📲 Amicale : remise à zéro'+(bur?' du bureau':'')+', à faire aujourd’hui\n\n'+ctx+' Fais EXACTEMENT ça, dans l’ordre :\n\n1️⃣ Ferme complètement l’appli (balaye-la vers le haut), puis rouvre-la depuis l’écran d’accueil (pas depuis Safari).\n2️⃣ Roue crantée ⚙️ (Réglages) : en haut, vérifie « Version '+v+' ». Sinon ferme et rouvre encore.\n3️⃣ Réglages > Sauvegarde et code > « 🆘 Dépannage ».\n4️⃣ Touche « 1️⃣ Actualiser maintenant », puis « 2️⃣ Tout recharger depuis le serveur » et confirme. Attends « ✅ Tout est rechargé ».\n5️⃣ Envoie-moi « Fait » + le nombre de membres affiché en haut'+(bur?', le nombre d’inscrits aux soirées et si les paiements encaissés sont bien marqués payés':'')+'.\n\n⚠️ Ne t’inscris PAS une 2e fois (si tu t’es inscrit(e) par le site hier, dis-le-moi). Ne modifie rien et ne valide rien'+(bur?', n’encaisse rien, ne supprime rien, ne restaure rien':'')+' tant que je n’ai pas dit « OK général ». Si quelque chose est faux, ne le répare pas : capture d’écran.\n\nMerci !'}
+async function amSosSend(k){const t=amSosText(k);
+ if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
+ window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
 function amSosOpen(){
  const a=amc();if(!a)return;const adm=!!a.apriv,ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
@@ -15949,6 +15958,7 @@ function amSosOpen(){
  '<p class="mut" style="font-size:.88rem;margin:.1rem 0 .3rem"><b>Cet appareil ne montre pas la même chose que les autres</b> (une inscription validée qui revient, un paiement manquant, un membre en trop…) :</p>'+
  mrow('am-sync','1️⃣ Actualiser maintenant','Le plus simple, à essayer d’abord')+mrow('am-full','2️⃣ Tout recharger depuis le serveur','Relit tout, sans rien effacer')+
  (adm?mrow('am-reset','3️⃣ Repartir du serveur (cet appareil)','Cet appareil oublie ses données et reprend celles du serveur. À faire sur l’appareil FAUX, après avoir vérifié qu’un autre est juste'):'<p class="mut" style="font-size:.84rem;margin:.2rem 0">3️⃣ Toujours faux : demande à l’administrateur.</p>')+
+ (adm?h('📣 Envoyer la consigne au groupe')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Ouvre WhatsApp (ou le partage du téléphone) avec le message tout prêt : choisis le groupe ou les personnes.</p>'+mrow('am-sos-send','💬 Aux membres et aides','Remise à zéro en 5 étapes',' data-k="m"')+mrow('am-sos-send','💬 Au bureau','Mêmes étapes + chiffres à vérifier',' data-k="b"')+mrow('am-sos-send','💬 Aux administrateurs','Procédure complète, un à la fois',' data-k="a"'):'')+
  (adm?'<p class="mut" style="font-size:.88rem;margin:.7rem 0 .3rem"><b>Quelque chose a été supprimé ou écrasé</b> (événement, prestataires, amicalistes…) :</p>'+mrow('sn-open','📅 Copies automatiques','Touche une copie puis « Choisir ce que je remets »')+mrow('bk-am','💾 Sauvegarde (fichier de secours)','À faire AVANT toute grosse manipulation'):'')+
  h('🧯 Repartir à zéro, proprement (bureau)')+ul(li('<b>L’administrateur</b> vérifie sur l’appareil qui est juste (ex. le Mac) : nombre d’amicalistes, inscrits, paiements.')+li('Il fait une <b>sauvegarde fichier</b>, puis garde les <b>copies automatiques</b> (7 jours).')+li('<b>Tous les autres ferment l’appli</b>, la mettent à jour, la rouvrent, <b>sans rien modifier</b>.')+li('<b>Un par un</b>, chaque appareil faux fait « Repartir du serveur ». On compare au bon appareil avant de passer au suivant.')+li('Quand tout concorde : on reprend le travail normalement.'))+
  h('☎️ Si ça ne marche pas')+'<p class="mut" style="font-size:.88rem">Note l’heure, ce que tu as touché et le « Problème » affiché en haut, puis préviens l’administrateur avant de refaire quelque chose.</p>','full')}
