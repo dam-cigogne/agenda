@@ -2974,7 +2974,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.122';
+const APP_VERSION='2.82.123';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,6 +2982,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.123',d:'18/11/2026',items:['🧹 <b>Repartir du serveur</b> (Groupe › Synchronisation, administrateur) : si un téléphone montre des données fausses que les autres n’ont pas (inscription déjà validée qui revient, paiement non encaissé…), il oublie ses données locales et reprend exactement celles du serveur. Une copie de sécurité est faite avant. Le bouton « Tout recharger » ne corrigeait pas ce cas.']},
 {v:'2.82.122',d:'18/11/2026',items:['☑️ <b>Restauration au choix</b> : dans Copies automatiques, touche une copie puis « Choisir ce que je remets ». Tu vois la liste des éléments supprimés ou modifiés depuis (événements, prestataires, amicalistes, notes…), rangés par type, et tu coches seulement ce que tu veux retrouver. Une copie « avant restauration » est faite d’abord.']},
 {v:'2.82.121',d:'18/11/2026',items:['🔀 <b>Fini les validations qui reviennent</b> : quand deux téléphones modifient la même fiche, la liste des inscriptions et demandes déjà traitées est fusionnée au lieu d’être écrasée. Une inscription ou une demande traitée sur un téléphone ne revient plus « à valider » sur un autre.','🛟 <b>Inscriptions par QR code</b> : une personne déjà dans la liste des inscrits n’apparaît plus « à valider », même si la liste des inscriptions traitées a été perdue (elle reste visible dans l’historique).','📥 <b>Demandes d’adhésion : la page ne saute plus</b>. Avant, la liste affichait « Aucune nouvelle demande » puis la demande apparaissait d’un coup et faisait bouger la page. Maintenant : « Vérification… » le temps du chargement, puis la demande apparaît sans déplacer l’écran.']},
 {v:'2.82.120',d:'17/11/2026',items:['🎁 <b>Gratuit pour une personne</b> : dans la fenêtre 💶 d’un inscrit, choisis « Gratuit pour cette personne ? → Oui ». Elle passe à 0 € (plus rien à encaisser), sans toucher au tarif des autres.']},
@@ -9224,6 +9225,7 @@ async function act(a,el,e){
   case 'cd-new':amCdEdit(null,'');break;
   case 'tr-open':amTrashOpen();break;
   case 'am-full':amFullReload();break;
+  case 'am-reset':amResetFromServer();break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
   case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
@@ -15934,10 +15936,15 @@ function amSyncCard(){
  const a=amc();if(!a)return '';const ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
  return '<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+(a.dg&&a.dg.f?'<br><span class="pay-no">'+a.dg.f+' document'+(a.dg.f>1?'s':'')+' sur '+a.dg.n+' illisible'+(a.dg.f>1?'s':'')+' sur cet appareil'+(a.dg.e?' ('+esc(a.dg.e)+')':'')+'</span>':'')+'</p>'+
-  mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+'</div>';
+  mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+(a&&a.apriv?mrow('am-reset','🧹 Repartir du serveur (cet appareil)','Si cet appareil montre des choses fausses que les autres n’ont pas : il oublie ses données et reprend celles du serveur'):'')+'</div>';
 }
 async function amFullReload(){const a=amc();if(!a)return;const r=await ask({title:'⤵ Tout recharger ?',text:'L’appli relit tout le groupe depuis le serveur (sans rien effacer ici). À faire si cet appareil ne montre pas les mêmes choses que les autres.',btns:[{label:'Tout recharger',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;
  await amFlush();a.last={};a.syncErr='';toast('Rechargement…',3000);await amPull(true);render();toast('✅ Tout est rechargé',3000)}
+async function amResetFromServer(){const a=amc();if(!a||demo)return;
+ const r=await ask({title:'🧹 Repartir du serveur ?',html:'<p style="margin:.2rem 0 .5rem;text-align:left">Cet appareil <b>oublie ses données locales</b> (y compris ce qui n’était pas encore envoyé) et reprend <b>exactement</b> ce que le serveur contient, comme sur les autres appareils. Une copie « avant restauration » est faite d’abord : rien n’est perdu, tu pourras tout re-choisir dedans. <b>Vérifie que ton Mac affiche les bonnes infos</b> avant.</p>',btns:[{label:'Repartir du serveur',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;
+ toast('Copie de sécurité…',3000);await amSnapTake('avant');
+ Object.keys(a.it||{}).forEach(id=>{const i=a.it[id];if(i&&i.kind!=='ac')delete a.it[id]});a.last={};a.syncErr='';a.mem={};amSave();
+ toast('Rechargement depuis le serveur…',4000);await amPull(true);render();toast('✅ Cet appareil est reparti du serveur',4000)}
 function amSafeCard(){
  const a=amc();if(!a||!a.kB)return '';setTimeout(()=>{amSnapAuto();amTrashPurge()},400);const n=amTrash().length,bk=S.amBkAt,old=!bk||Date.now()-bk>30*AM_DAY;
  return '<div class="card" id="am-safe"><h3>🛡 Sauvegarde de l’Amicale</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Contre les fausses manips : une suppression part chez tout le bureau, mais on peut toujours revenir en arrière.'+(a.apriv?' <b>Tu es administrateur</b> : les restaurations demandent de taper RESTAURER.':'')+'</p>'+
