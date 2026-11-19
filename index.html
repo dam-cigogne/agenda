@@ -214,6 +214,16 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am-side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;margin-left:auto;max-width:44%}.am-bdg{display:inline-block;font-size:.74rem;font-weight:700;line-height:1.2;padding:.22rem .55rem;border-radius:999px;white-space:nowrap;background:#eef2f7;color:#334155;text-align:center}.am-wa{cursor:pointer;border:1.5px solid transparent}.am-wa:active{transform:scale(.95)}.am-bdg.wok{background:#dcfce7;color:#166534}.am-bdg.wmv{background:#ffedd5;color:#9a3412;border-color:#fb923c}.am-bdg.wad{background:#dbeafe;color:#1e40af}.am-bdg.wx{background:#fee2e2;color:#991b1b}.am-bdg.wnw{background:#f1f5f9;color:#64748b}.am-bdg.wq{background:transparent;color:#64748b;border-color:#cbd5e1;border-style:dashed}.am-bdg.wsc{background:#ede9fe;color:#5b21b6}.am-bdg.wau{background:#fef3c7;color:#92400e}@media (max-width:420px){.am-bdg{font-size:.68rem;padding:.18rem .45rem;white-space:normal}}
 .am-dt>summary{cursor:pointer;font-weight:700;padding:.25rem 0;list-style-position:inside}.am-tools{padding:.55rem .75rem!important;margin:.5rem 0}.am-tools .am-tg{margin:.6rem 0 .15rem;font-weight:800;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.am-tools .am-tl{margin:.25rem 0;text-align:left;justify-content:flex-start}
 #am-alert{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:1.2rem}#am-alert .am-al-box{background:var(--surface,#fff);color:var(--text,#111);border-radius:1.2rem;padding:1.4rem 1.2rem;max-width:30rem;text-align:center;box-shadow:0 1rem 3rem rgba(0,0,0,.4)}#am-albar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + .4rem);z-index:9999;padding:.35rem .8rem;border-radius:999px;font-weight:700;font-size:.82rem;display:flex;gap:.5rem;align-items:center;box-shadow:0 .3rem 1rem rgba(0,0,0,.2)}#am-albar.al{background:#dc2626;color:#fff}#am-albar.sec{background:#334155;color:#fff;pointer-events:none;opacity:.92}
+.am2-abs{display:block;margin-top:.2rem;font-size:.72rem;font-weight:700;white-space:nowrap}.am2-abs.ab-off{color:#dc2626}.am2-abs.ab-soon{color:#d97706}.am2-abs.ab-ok{color:#16a34a}
+.ab-warn{font-size:.85rem;font-weight:700;margin:.25rem 0 0;color:#b45309}.ab-warn:empty{display:none}
+.ab-plan{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line2,#ddd);border-radius:.8rem}.ab-plan table{border-collapse:collapse;font-size:.72rem}.ab-plan th,.ab-plan td{border:1px solid var(--line2,#e5e5e5);min-width:1.45rem;height:1.6rem;text-align:center;padding:0 .1rem}.ab-plan tbody th{position:sticky;left:0;background:var(--surface,#fff);text-align:left;white-space:nowrap;padding:0 .4rem;font-size:.78rem;z-index:1}.ab-plan .ab-we{background:rgba(127,127,127,.1)}.ab-plan .ab-td{outline:2px solid #2D8CFF;outline-offset:-2px}.ab-plan td.ab-x{background:#fecaca;color:#991b1b;font-size:.8rem}
+.am2-news{position:relative;overflow:hidden;width:100%;min-height:13.5rem;border:0;border-radius:1.4rem;padding:1.1rem 1rem 1rem;color:#fff;text-align:left;display:flex;flex-direction:column;gap:.4rem;background:linear-gradient(120deg,#6B4EFF,#E94F9B,#FF7A45,#6B4EFF);background-size:300% 300%;animation:nwBg 9s ease infinite;box-shadow:0 .5rem 1.4rem rgba(107,78,255,.35)}
+.am2-news .nw-t{font-size:1.45rem;font-weight:900;letter-spacing:.01em;text-shadow:0 2px 6px rgba(0,0,0,.25)}.am2-news .nw-l{position:relative;flex:1;min-height:6.2rem}.am2-news .nw-i{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:0;animation-name:nwIt;animation-iteration-count:infinite;animation-timing-function:ease}.am2-news .nw-i i{font-style:normal;font-size:2.2rem;line-height:1}.am2-news .nw-i b{font-size:1.15rem;margin:.2rem 0 .1rem}.am2-news .nw-i small{font-size:.92rem;opacity:.95;line-height:1.3}.am2-news .nw-m{font-size:.78rem;opacity:.85;font-weight:700}
+.am2-news .nw-sp{position:absolute;font-size:1.4rem;animation:nwFl 4s ease-in-out infinite;pointer-events:none}.am2-news .nw-a{top:.8rem;right:1rem}.am2-news .nw-b{bottom:1rem;right:2.4rem;animation-delay:1.3s}.am2-news .nw-c{top:45%;right:.6rem;animation-delay:2.6s}
+@keyframes nwBg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes nwIt{0%{opacity:0;transform:translateY(.8rem)}6%,22%{opacity:1;transform:none}27%,100%{opacity:0;transform:translateY(-.6rem)}}
+@keyframes nwFl{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-.6rem) rotate(12deg)}}
+@media (prefers-reduced-motion:reduce){.am2-news,.am2-news .nw-sp{animation:none}.am2-news .nw-i{animation:none;opacity:0}.am2-news .nw-i:first-child{opacity:1}}
 .in.in-grow{resize:none;overflow:hidden;min-height:2.9rem;line-height:1.35;border-radius:1rem!important;white-space:pre-wrap;word-break:break-word;display:block;width:100%}
 .am-itx{flex:1;min-width:0;text-align:left;padding:.2rem 0}.am-itx b{display:block;font-weight:700}.am-itx small{color:var(--muted)}
 .am-ev .am-dt{width:2.9rem;flex:none;text-align:center;border-radius:.7rem;background:var(--surface2);padding:.25rem 0;font-size:.7rem;text-transform:uppercase;font-weight:800;color:var(--muted);line-height:1.1}.am-dt b{display:block;font-size:1.25rem;color:var(--text)}.am-dt.now{background:var(--k-am);color:#fff}.am-dt.now b{color:#fff}
@@ -2976,7 +2986,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.131';
+const APP_VERSION='2.82.132';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2984,7 +2994,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.131',d:'18/11/2026',items:['🏠 Accueil : « Du nouveau » (qui a coché quoi) est remplacé par « 📋 À suivre » pour le bureau : demandes d’adhésion à valider, bulletins à signer et cotisations à encaisser, tâches en retard, et pour les prochains événements : inscrits, inscriptions à valider, reste à encaisser, préparation faite. Un appui ouvre le bon endroit.','🛡 Protections : tes appareils (Mac, PC, iPad) fonctionnent normalement, mais retirer un membre ou changer son niveau se fait seulement depuis ton appareil principal (téléphone) ; 🚨 « Alerte générale » pour l’administrateur (bloque tout le monde puis recharge) ; avant d’envoyer, l’appli relit le serveur ; le renouvellement des clés relit tout le serveur et n’est possible que si tous les membres ont la dernière version','👤 Fiche d’un membre : appli installée ou site, dernière activité, version','🔕 Plus de notification quand quelqu’un modifie une affiche','✏️ Fiches à remplir : les champs de texte deviennent un grand rectangle qui s’agrandit, on voit tout le texte (plus de « château… » coupé)']},
+{v:'2.82.132',d:'19/11/2026',items:['📅 Absences : chacun note quand il n’est pas là (vacances, mission, pas disponible…) depuis sa fiche ou sa pastille ; le motif n’est visible que par le bureau','🟢 Pastille sous chaque membre : dispo / absent / absent bientôt ; un appui → « Pas dispo jusqu’au 23 août »','📅 « Disponibilités : qui est là ? » : planning de tout le monde sur 4 semaines','⚠️ En choisissant la date d’un événement ou d’un rendez-vous : qui est absent ce jour-là','✨ Affiche animée « Quoi de neuf ? » en tête de l’accueil pendant quelques semaines']},
+ {v:'2.82.131',d:'18/11/2026',items:['🏠 Accueil : « Du nouveau » (qui a coché quoi) est remplacé par « 📋 À suivre » pour le bureau : demandes d’adhésion à valider, bulletins à signer et cotisations à encaisser, tâches en retard, et pour les prochains événements : inscrits, inscriptions à valider, reste à encaisser, préparation faite. Un appui ouvre le bon endroit.','🛡 Protections : tes appareils (Mac, PC, iPad) fonctionnent normalement, mais retirer un membre ou changer son niveau se fait seulement depuis ton appareil principal (téléphone) ; 🚨 « Alerte générale » pour l’administrateur (bloque tout le monde puis recharge) ; avant d’envoyer, l’appli relit le serveur ; le renouvellement des clés relit tout le serveur et n’est possible que si tous les membres ont la dernière version','👤 Fiche d’un membre : appli installée ou site, dernière activité, version','🔕 Plus de notification quand quelqu’un modifie une affiche','✏️ Fiches à remplir : les champs de texte deviennent un grand rectangle qui s’agrandit, on voit tout le texte (plus de « château… » coupé)']},
  {v:'2.82.130',d:'18/11/2026',items:['🧭 <b>Dépannage</b> : nouvelle fiche « Si ça recommence à se dérégler » (quoi faire dans l’ordre selon le cas).']},
 {v:'2.82.129',d:'18/11/2026',items:['⚠️ <b>Messages de remise à zéro</b> : ils rappellent en gros que si on a déjà ouvert le lien d’invitation, il faut l’ouvrir en navigation privée, et que le code se tape uniquement dans l’appli installée, jamais sur le site.']},
 {v:'2.82.128',d:'18/11/2026',items:['📌 <b>Modèles d’événement</b> : dans un événement, « 📌 Garder comme modèle » enregistre à part la préparation (tâches et sous-tâches), les prestataires utilisés, les frais, les parties et le programme, sans les inscrits. Dans la liste des événements, « 📚 Mes modèles » recrée un événement depuis un modèle en changeant juste le nom et la date, et permet d’exporter les modèles dans un fichier et de les importer.','↳ <b>Ranger sous une tâche</b> : dans « Sélectionner des tâches », choisis des tâches puis « Ranger sous une tâche… » : elles deviennent de petites tâches à cocher sous le titre que tu désignes. Les modèles restent sur l’appareil et dans le fichier de sauvegarde, à l’abri des restaurations.']},
@@ -9059,7 +9070,11 @@ async function act(a,el,e){
   case 'am-dev':amDevAsk(true);break;
   case 'am-alert':{const a=amc();amAlertSet(!(a&&a.alert&&a.alert.on));break}
   case 'am-al-end':amAlertSet(false);break;
-  case 'am-hgo':{const k=ds_.k;if(k==='aq'){AMC_TAB='am';AQ_OPEN=true}else if(k==='ee'){AMC_TAB='ee';AMC_EE=ds_.id||null;PT_SEL=CK_SEL=null}else AMC_TAB=k;AMC_MB=0;render();try{window.scrollTo(0,0)}catch(e){}break}
+  case 'am-abst':amAbOpen(ds_.id);break;
+  case 'am-abdel':{amAbDel(ds_.k);const row=el.closest('.am-it');if(row)row.remove();break}
+  case 'am-abplan':amAbPlan(0);break;
+  case 'am-news':amNewsOpen();break;
+  case 'am-hgo':{const k=ds_.k;if(k==='ab'){amAbPlan(0);break}if(k==='aq'){AMC_TAB='am';AQ_OPEN=true}else if(k==='ee'){AMC_TAB='ee';AMC_EE=ds_.id||null;PT_SEL=CK_SEL=null}else AMC_TAB=k;AMC_MB=0;render();try{window.scrollTo(0,0)}catch(e){}break}
   case 'am-more':await amMore();break;
   case 'cx-open':AM_IDP='a';AM_CXF='n';AMC_TAB='id';render();window.scrollTo(0,0);break;
   case 'id-part':AM_IDP=ds_.v==='a'?'a':'b';render();break;
@@ -12737,7 +12752,9 @@ async function amForm(title,intro,fields,ok){
  const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':(!f.t||f.t==='text')&&!/€/.test(f.l)?'<textarea class="in in-grow" data-amf="'+f.k+'" rows="1" placeholder="'+esc(f.ph||'')+'" autocomplete="off">'+esc(f.v||'')+'</textarea>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'"'+(/€/.test(f.l)?' inputmode="decimal"':'')+' value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
  const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const grow=el=>{el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'};setTimeout(()=>root.querySelectorAll('.in-grow').forEach(grow),40);
- root.oninput=root.onchange=e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('in-grow')){if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' ');grow(t)}const k=t.dataset&&t.dataset.amf;if(k)v[k]=t.value};
+ const abw=()=>fields.forEach(f=>{if(!f.ab)return;const el=root.querySelector('[data-amf="'+f.k+'"]'),w=root.querySelector('[data-abw="'+f.k+'"]');if(el&&w)w.textContent=amAbWarn(el.value)});
+ setTimeout(()=>{fields.forEach(f=>{if(!f.ab)return;const el=root.querySelector('[data-amf="'+f.k+'"]');if(el&&!root.querySelector('[data-abw="'+f.k+'"]')){const w=document.createElement('div');w.className='ab-warn';w.dataset.abw=f.k;el.insertAdjacentElement('afterend',w)}});abw()},50);
+ root.oninput=root.onchange=e=>{const t=e.target;try{abw()}catch(x){}if(t&&t.classList&&t.classList.contains('in-grow')){if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' ');grow(t)}const k=t.dataset&&t.dataset.amf;if(k)v[k]=t.value};
  const sync=()=>fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});root.addEventListener('click',sync,true);root.addEventListener('dlgsync',sync);
  root.onkeydown=e=>{if(e.key==='Enter'&&(e.target.tagName==='INPUT'||(e.target.classList&&e.target.classList.contains('in-grow')))){e.preventDefault();fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});const b=root.querySelector('.dlgbox .btn.pri');if(b)b.click()}};
  const r=await pr;root.removeEventListener('click',sync,true);root.removeEventListener('dlgsync',sync);root.oninput=root.onchange=root.onkeydown=null;return r==='ok'?v:null;
@@ -12998,7 +13015,7 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','pv','an','lg','dl','id','aq','cx','cm','ch','rn','rv','cs'].includes(P.kind))continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','pv','an','lg','dl','id','aq','cx','cm','ch','rn','rv','cs','ab'].includes(P.kind))continue;
      if(P.kind==='cs'&&!P.del){if(!/^cs20[0-9]{4}$/.test(P.id)||x.z!=='b'||String(P.bd||'').length>12000)continue;try{const q=JSON.parse(String(P.bd||'{}'));if(!q||!/^20[0-9]{2}-[0-9]{2}$/.test(q.m||'')||!q.s)continue}catch(e){continue}}
      if(P.kind==='rn'&&!P.del){if(!/^rn20[0-9]{4}$/.test(P.id)||String(P.bd||'').length>12000)continue;try{const q=JSON.parse(String(P.bd||'{}'));if(!q||!/^20[0-9]{2}-[0-9]{2}$/.test(q.m||''))continue}catch(e){continue}}
      if(P.kind==='rv'&&!P.del){if(!/^rv[0-9]{4}[a-z0-9]{6,10}$/.test(P.id)||String(P.bd||'').length>1500)continue;try{const q=JSON.parse(String(P.bd||'{}'));if(!q||!/^20[0-9]{2}-[0-9]{2}$/.test(q.m||'')||!Array.isArray(q.y))continue}catch(e){continue}}
@@ -13323,7 +13340,8 @@ async function amFiche(id){
  const p=amList().find(x=>x.id===id);if(!p)return;
  if(!p.self&&!a.apriv&&!a.kB&&!demo)return; /* 2.82.98 : un aide (sans clé Bureau) ne peut rien ouvrir en touchant un autre membre */
  if(p.self){
-  const r0=await ask({title:p.n,html:'<p style="margin:.2rem 0 .5rem">'+(a.apriv?'Tu es l’administrateur'+(p.t?' · titre actuel : <b>'+esc(p.t)+'</b>':' · tu n’as pas encore de titre')+'.':'C’est ta fiche.')+'</p>',btns:(a.apriv?[{label:'🏷️ Changer mon titre (Président…)',value:'title',cls:'pri'}]:[]).concat([{label:'✏️ Modifier ma fiche',value:'me',cls:a.apriv?'':'pri'},{label:'🎨 Mon rond (couleur, emoji, photo)',value:'ring'},{label:'Fermer',value:null}])});
+  const r0=await ask({title:p.n,html:'<p style="margin:.2rem 0 .5rem">'+(a.apriv?'Tu es l’administrateur'+(p.t?' · titre actuel : <b>'+esc(p.t)+'</b>':' · tu n’as pas encore de titre')+'.':'C’est ta fiche.')+'</p>',btns:(a.apriv?[{label:'🏷️ Changer mon titre (Président…)',value:'title',cls:'pri'}]:[]).concat([{label:'📅 Mes absences',value:'abs'},{label:'✏️ Modifier ma fiche',value:'me',cls:a.apriv?'':'pri'},{label:'🎨 Mon rond (couleur, emoji, photo)',value:'ring'},{label:'Fermer',value:null}])});
+  if(r0==='abs'){amAbOpen(a.me.id);return}
   if(r0==='me')amEditMe();else if(r0==='title')amSetTitle(id);else if(r0==='ring')amEditRing();
   return}
  const row=(l,v)=>v?'<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--line2)"><span class="mut">'+l+'</span><b style="text-align:right;word-break:break-all">'+esc(v)+'</b></div>':'';
@@ -13334,8 +13352,10 @@ async function amFiche(id){
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
  if(a.apriv)btns.push({label:'✏️ Corriger le nom / le surnom',value:'ren'});if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});if(a.apriv)btns.push({label:'Retirer du groupe',value:'rm',cls:'dng'});
+ btns.push({label:'📅 Absences / disponibilité',value:'abs'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
+ if(r==='abs'){amAbOpen(id);return}
  if(r==='tel')amOpen('tel:'+telN(p.tel));
  else if(r==='sms')famSms({tel:p.tel},'');
  else if(r==='mp')amOpen('mailto:'+p.mp);
@@ -13379,7 +13399,7 @@ async function amFlush(){
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||it.kind==='po'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
+   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||it.kind==='po'||it.kind==='ab'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -13454,9 +13474,9 @@ async function amItemForm(kind,it,def){
  const F=[{k:'tx',l:kind==='tk'?'Tâche':'Article',v:it?it.tx:'',ph:kind==='tk'?'Ce qu’il faut faire':'Ce qu’il faut acheter'}];
  if(kind==='co'){F.push({k:'qt',l:'Quantité (facultatif)',v:it?it.qt:'',ph:'2 kg, 3 packs…'});F.push({k:'l',l:'Liste',t:'select',v:it?(it.l||amDL()):AMC_CL,o:amCoLists().map(x=>[x,x])})}
  if(kind==='tk'){F.push({k:'d',l:'Pour le (facultatif)',v:it?it.d:'',t:'date'});F.push({k:'w',l:'Qui s’en occupe',t:'select',v:it?it.w:'',o:[['','Personne en particulier']].concat(mem)})}
- if(kind==='ev'){F[0]={k:'tx',l:'Titre',v:it?it.tx:'',ph:'Réunion, repas, assemblée…'};F.push({k:'d',l:'Date',v:it?it.d:(def||''),t:'date'},{k:'tm',l:'Heure (facultatif)',v:it?it.tm:'',t:'time'},{k:'pl',l:'Lieu (facultatif)',v:it?it.pl:''},{k:'bd',l:'Détails (facultatif)',v:it?it.bd:'',t:'area'})}
+ if(kind==='ev'){F[0]={k:'tx',l:'Titre',v:it?it.tx:'',ph:'Réunion, repas, assemblée…'};F.push({k:'d',l:'Date',v:it?it.d:(def||''),t:'date',ab:1},{k:'tm',l:'Heure (facultatif)',v:it?it.tm:'',t:'time'},{k:'pl',l:'Lieu (facultatif)',v:it?it.pl:''},{k:'bd',l:'Détails (facultatif)',v:it?it.bd:'',t:'area'})}
  if(kind==='nt'){F[0]={k:'tx',l:'Titre',v:it?it.tx:'',ph:'Compte rendu, idées…'};F.push({k:'bd',l:'Note',v:it?it.bd:'',t:'area'})}
- if(kind==='ee'){F[0]={k:'tx',l:'Nom de l’événement',v:it?it.tx:'',ph:'Fête de l’amicale, loto, vide-grenier…'};F.push({k:'d',l:'Date',v:it?it.d:'',t:'date'},{k:'pl',l:'Lieu (facultatif)',v:it?it.pl:''},{k:'bd',l:'Description (facultatif)',v:it?it.bd:'',t:'area'},{k:'sv',l:'Type d’événement',t:'select',v:it&&it.sv?it.sv:'',o:[['','Événement simple (préparation, programme)'],['r','🍽 Repas : inscrits, tickets repas / boisson, paiement'],['p','👥 Avec liste d’inscrits : présence et paiement'],['v','🛍️ Vente partenaire (parfums, chocolats, vins…) : annonce et relances']]})}
+ if(kind==='ee'){F[0]={k:'tx',l:'Nom de l’événement',v:it?it.tx:'',ph:'Fête de l’amicale, loto, vide-grenier…'};F.push({k:'d',l:'Date',v:it?it.d:'',t:'date',ab:1},{k:'pl',l:'Lieu (facultatif)',v:it?it.pl:''},{k:'bd',l:'Description (facultatif)',v:it?it.bd:'',t:'area'},{k:'sv',l:'Type d’événement',t:'select',v:it&&it.sv?it.sv:'',o:[['','Événement simple (préparation, programme)'],['r','🍽 Repas : inscrits, tickets repas / boisson, paiement'],['p','👥 Avec liste d’inscrits : présence et paiement'],['v','🛍️ Vente partenaire (parfums, chocolats, vins…) : annonce et relances']]})}
  if(a.kB&&(!it||kind==='ee')&&kind!=='nt')F.push({k:'z',l:'Visible par',t:'select',v:it&&it.z?it.z:'b',o:[['b','Bureau seulement'],[ 'a',kind==='ee'?'Visible par les aides':'Tout le monde (bureau et aides)']]});
  const TT={tk:['Nouvelle tâche'],co:['Nouvel article'],ev:['Nouvel événement'],nt:['Nouvelle note'],ee:['Nouvel événement de l’année']};
  const v=await amForm(it?'Modifier':TT[kind][0],'',F,it?'Enregistrer':'Ajouter');
@@ -17425,12 +17445,58 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 
 /* Amicale 2.73 : en-tête coloré de l'accueil (logo, chiffres, prochain événement) et barre d'onglets du bas */
 function amAgo(t){const m=Math.max(0,Math.round((Date.now()-t)/60000));if(m<2)return 'à l’instant';if(m<60)return 'il y a '+m+' min';const h=Math.round(m/60);if(h<24)return 'il y a '+h+' h';const d=Math.round(h/24);return d===1?'hier':'il y a '+d+' jours'}
+/* 2.82.132 : absences / disponibilités. Bureau : élément 'ab'+k en zone b (motif + note) ; tout le monde : 'ap'+k en zone a (dates seulement) */
+const AB_T={v:['🏖','Vacances'],m:['🎖','Mission'],i:['🚫','Pas disponible'],a:['📌','Autre']};
+const amAbK=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>'abcdefghijklmnopqrstuvwxyz0123456789'[b%36]).join('');
+const amAbD=d=>{try{return new Date(d+'T12:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}catch(e){return d}};
+const amAbDiff=d=>Math.round((new Date(d+'T12:00')-new Date(today()+'T12:00'))/864e5);
+function amAbs(){const a=amc();if(!a)return [];const M={};
+ Object.values(a.it||{}).forEach(i=>{if(!i||i.kind!=='ab'||i.del||!/^a[bp][a-z0-9]{8}$/.test(i.id))return;const k=i.id.slice(2),o={k,w:String(i.w||''),n:String(i.tx||''),d1:String(i.d||''),d2:String(i.qt||i.d||''),t:i.z==='b'&&AB_T[i.pl]?i.pl:'',nt:i.z==='b'?String(i.bd||''):'',z:i.z};if(!/^\d{4}-\d{2}-\d{2}$/.test(o.d1))return;if(!/^\d{4}-\d{2}-\d{2}$/.test(o.d2)||o.d2<o.d1)o.d2=o.d1;if(!M[k]||(o.z==='b'&&M[k].z!=='b'))M[k]=o});
+ return Object.values(M).sort((x,y)=>x.d1.localeCompare(y.d1))}
+function amAbSt(id){const td=today(),L=amAbs().filter(o=>o.w===id&&o.d2>=td),now=L.find(o=>o.d1<=td);if(now){let e=now.d2;L.forEach(o=>{if(o.d1<=amAbAdd(e,1)&&o.d2>e)e=o.d2});return {k:'off',o:now,e}}const soon=L.find(o=>amAbDiff(o.d1)<=7);return soon?{k:'soon',o:soon}:{k:'ok'}}
+const amAbAdd=(d,n)=>{const x=new Date(d+'T12:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+function amAbBadge(id){const S=amAbSt(id),a=amc(),em=S.o&&a&&a.kB&&S.o.t?AB_T[S.o.t][0]+' ':'';
+ return '<small class="am2-abs ab-'+S.k+'" data-act="am-abst" data-id="'+esc(id)+'" role="button">'+(S.k==='off'?'🔴 '+em+'Absent':S.k==='soon'?'🟠 Absent le '+esc(amAbD(S.o.d1)):'🟢 Dispo')+'</small>'}
+const amAbTxt=(o,full)=>{const a=amc(),T=full&&a&&a.kB&&o.t?AB_T[o.t]:null;return (T?T[0]+' '+T[1]+' · ':'🔴 ')+(o.d1===o.d2?'le '+amAbD(o.d1):'du '+amAbD(o.d1)+' au '+amAbD(o.d2))+(full&&a&&a.kB&&o.nt?' — '+o.nt:'')};
+async function amAbOpen(id){const a=amc();if(!a)return;const p=amList().find(x=>x.id===id);if(!p)return;
+ for(;;){const td=today(),L=amAbs().filter(o=>o.w===id&&o.d2>=td),S=amAbSt(id),me=p.self||id===a.me.id,can=me||!!a.apriv;
+  const st=S.k==='off'?'🔴 <b>Pas dispo jusqu’au '+esc(amAbD(S.e))+'</b>':S.k==='soon'?'🟠 <b>Disponible</b>, absent à partir du '+esc(amAbD(S.o.d1)):'🟢 <b>Disponible</b>';
+  const r=await ask({title:'📅 '+esc(p.n),html:'<p style="margin:.2rem 0 .5rem;font-size:1.02rem">'+st+'</p>'+(L.length?'<div style="margin:.2rem 0 .4rem">'+L.map(o=>'<div class="am-it" style="padding:.4rem .6rem"><span class="am-itx">'+esc(amAbTxt(o,1))+'</span>'+(can?'<button class="chip" data-act="am-abdel" data-k="'+o.k+'" aria-label="Supprimer">✕</button>':'')+'</div>').join('')+'</div>':'<p class="mut" style="margin:.2rem 0 .4rem">Aucune absence prévue.</p>')+(!a.kB?'<p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Le motif n’est visible que par le bureau.</p>':''),
+   btns:(can?[{label:'＋ Ajouter une absence',value:'add',cls:'pri'}]:[]).concat([{label:'📅 Planning de tout le monde',value:'plan'},{label:'Fermer',value:null}])});
+  if(r==='add'){await amAbEdit(id,p.n);continue}if(r==='plan'){amAbPlan(0);return}return}}
+async function amAbEdit(id,nm){const a=amc();if(!a)return;const td=today();
+ const F=[{k:'d1',l:'Absent à partir du',t:'date',v:td},{k:'d2',l:'Jusqu’au (inclus, vide = un seul jour)',t:'date',v:''}];
+ if(a.kB)F.push({k:'t',l:'Motif (visible par le bureau seulement)',t:'select',v:'v',o:Object.entries(AB_T).map(([k,v])=>[k,v[0]+' '+v[1]])},{k:'nt',l:'Petite note (facultatif, bureau seulement)',v:'',ph:'Ex. joignable par téléphone'});
+ const v=await amForm('📅 Absence de '+nm,'',F,'Enregistrer');if(!v)return;
+ const d1=String(v.d1||''),d2=String(v.d2||'')||d1;if(!/^\d{4}-\d{2}-\d{2}$/.test(d1)){toast('Choisis la date de début',3000);return}if(d2<d1){toast('La date de fin est avant la date de début',3500);return}
+ const k=amAbK(),base={kind:'ab',x:0,tx:String(nm||'').slice(0,60),w:id,d:d1,qt:d2,tm:'',del:0};
+ if(a.kB)amItemSave(Object.assign({id:'ab'+k,z:'b',pl:AB_T[v.t]?v.t:'a',bd:String(v.nt||'').trim().slice(0,200)},base));
+ amItemSave(Object.assign({id:'ap'+k,z:'a',pl:'',bd:''},base));toast('📅 Absence enregistrée',2500)}
+function amAbDel(k){const a=amc();if(!a)return;['ab','ap'].forEach(px=>{const it=a.it&&a.it[px+k];if(it&&!it.del)amItemSave(Object.assign({},it,{del:1}))});toast('Absence supprimée',2500)}
+async function amAbPlan(off){const a=amc();if(!a)return;
+ for(;;){const t0=new Date(today()+'T12:00');t0.setDate(t0.getDate()-((t0.getDay()+6)%7)+off*7);const D=[];for(let i=0;i<28;i++){const x=new Date(t0);x.setDate(x.getDate()+i);D.push(x.toISOString().slice(0,10))}
+  const A=amAbs(),P=amList().filter(p=>!p.x),td=today(),JR=['L','M','M','J','V','S','D'];
+  const cell=(p,d,i)=>{const o=A.find(o=>o.w===p.id&&o.d1<=d&&o.d2>=d),we=i%7>4;return '<td class="'+(o?'ab-x':'')+(we?' ab-we':'')+(d===td?' ab-td':'')+'" title="'+(o?esc(amAbTxt(o,1)):'')+'">'+(o?(a.kB&&o.t?AB_T[o.t][0]:'●'):'')+'</td>'};
+  const tbl='<div class="ab-plan"><table><thead><tr><th></th>'+D.map((d,i)=>'<th class="'+(i%7>4?'ab-we':'')+(d===td?' ab-td':'')+'"><small>'+JR[i%7]+'</small><br>'+(+d.slice(8))+'</th>').join('')+'</tr></thead><tbody>'+P.map(p=>'<tr><th>'+esc(p.sn||String(p.n||'?').split(/\s+/).slice(0,2).join(' '))+'</th>'+D.map((d,i)=>cell(p,d,i)).join('')+'</tr>').join('')+'</tbody></table></div>';
+  const up=A.filter(o=>o.d2>=td).slice(0,30);
+  const r=await ask({title:'📅 Disponibilités',html:'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Du '+esc(amAbD(D[0]))+' au '+esc(amAbD(D[27]))+'. Une case colorée = absent'+(a.kB?' (motif dans la liste dessous)':'')+'.</p>'+tbl+'<h4 style="margin:.7rem 0 .3rem">Absences à venir</h4>'+(up.length?up.map(o=>'<div style="font-size:.9rem;margin:.2rem 0"><b>'+esc(o.n||'?')+'</b> · '+esc(amAbTxt(o,1))+'</div>').join(''):'<p class="mut" style="margin:0">Aucune absence prévue.</p>'),
+   btns:[{label:'＋ Noter une absence',value:'add',cls:'pri'},{label:'◀ Avant',value:'prev'},{label:'Après ▶',value:'next'},{label:'Fermer',value:null}]});
+  if(r==='prev'){off-=4;continue}if(r==='next'){off+=4;continue}
+  if(r==='add'){let id=a.me.id,nm=a.me.n;if(a.apriv){const ps=P.map(p=>({label:(p.self?'Moi ('+p.n+')':p.n),value:p.id}));const c=await ask({title:'Absence de qui ?',btns:ps.concat([{label:'Annuler',value:null}])});if(!c)continue;id=c;nm=(P.find(p=>p.id===c)||{}).n||nm}await amAbEdit(id,nm);continue}
+  return}}
+const amAbWarn=d=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(d||''))return '';const A=amAbs().filter(o=>o.d1<=d&&o.d2>=d);return A.length?'⚠️ '+A.length+' absent'+(A.length>1?'s':'')+' ce jour-là : '+A.map(o=>o.n.split(/\s+/).slice(0,2).join(' ')).join(', '):(amAbs().length?'✅ Personne n’a noté d’absence ce jour-là':'')};
+/* 2.82.132 : affiche animée « Quoi de neuf ? » en tête du carrousel de l’accueil, pendant quelques semaines */
+const AM_NEWS={v:'132',until:'2026-12-20',t:'✨ Quoi de neuf ?',L:[['📅','Note tes absences','Touche ta pastille sous ton profil. Le motif et la note ne sont visibles que par le bureau'],['🟢','Qui est là ?','Une pastille dispo / absent sous chaque membre, et le planning de tous'],['📋','« À suivre » sur l’accueil','Adhésions, tâches en retard, prochains événements'],['✏️','Textes en entier','Les champs s’agrandissent pour tout voir']]};
+const amNewsOn=()=>today()<=AM_NEWS.until&&S.newsHid!==AM_NEWS.v;
+function amNewsSlide(){return '<button class="am2-news" data-act="am-news" aria-label="Quoi de neuf ?"><span class="nw-sp nw-a">✨</span><span class="nw-sp nw-b">🎉</span><span class="nw-sp nw-c">⭐</span><b class="nw-t">'+AM_NEWS.t+'</b><span class="nw-l">'+AM_NEWS.L.map((x,i)=>'<span class="nw-i" style="animation-delay:'+(i*3)+'s;animation-duration:'+(AM_NEWS.L.length*3)+'s"><i>'+x[0]+'</i><b>'+esc(x[1])+'</b><small>'+esc(x[2])+'</small></span>').join('')+'</span><small class="nw-m">Touche pour tout voir</small></button>'}
+async function amNewsOpen(){const r=await ask({title:AM_NEWS.t,html:AM_NEWS.L.map(x=>'<div style="display:flex;gap:.7rem;align-items:flex-start;margin:.5rem 0"><span style="font-size:1.7rem;line-height:1">'+x[0]+'</span><span><b>'+esc(x[1])+'</b><br><span class="mut" style="font-size:.9rem">'+esc(x[2])+'</span></span></div>').join(''),btns:[{label:'👍 Compris',value:'ok',cls:'pri'},{label:'Ne plus afficher sur l’accueil',value:'hide'}]});if(r==='hide'){S.newsHid=AM_NEWS.v;saveSet();render()}}
 function amSuiviHTML(a){
  const td=today(),go=(k,id,ic,t,sub)=>'<button class="am2-row" data-act="am-hgo" data-k="'+k+'"'+(id?' data-id="'+esc(id)+'"':'')+'><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>',pl=(n,u,us)=>n+' '+(n>1?(us||u+'s'):u),R=[];
  try{const P=amAqPend(),T=amAqToSign(),Y=amAqToPay();if(amAq())setTimeout(()=>amAqFetch(),300);
   if(P.length)R.push(go('aq','','📥',pl(P.length,'demande d’adhésion','demandes d’adhésion')+' à valider',P.slice(0,3).map(x=>amQrName(x.v||{})).filter(Boolean).join(' · ')));
   const S=[T.length?'✍️ '+pl(T.length,'bulletin')+' à signer':'',Y.length?'💶 '+pl(Y.length,'cotisation')+' à encaisser':''].filter(Boolean);
   if(S.length)R.push(go('aq','','🎖','Adhésions en cours',S.join(' · ')))}catch(e){}
+ {const ab=amAbs().filter(o=>o.d1<=td&&o.d2>=td);if(ab.length)R.push(go('ab','','📅',pl(ab.length,'absent')+' aujourd’hui',ab.slice(0,4).map(o=>o.n.split(/\s+/).slice(0,2).join(' ')).join(' · ')))}
  const late=amItems('tk').filter(i=>!i.x&&i.d&&i.d<td);
  if(late.length)R.push(go('tk','','⏰',pl(late.length,'tâche')+' en retard',late.slice(0,2).map(i=>i.tx).join(' · ')));
  const E=amItems('ee').filter(i=>(i.d||'')>=td||(i.sv==='v'&&i.vp&&(i.vp.d1||'')>=td)).sort((p,q)=>String(p.d||'').localeCompare(q.d||'')).slice(0,3);
@@ -17509,8 +17575,9 @@ function amHome(a,nTk,nEv){
  {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],a.kB?(()=>{const ni=amItems('id').filter(i=>!i.del&&!amIdP(i).s).length,nc=amCxNew().length;return ['#FFB020','id',ni+nc,'idée'+(ni+nc>1?'s':'')+' à voir',nc,'📬 '+nc+' reçue'+(nc>1?'s':'')]})():['#FFB020','co',nCo,'courses']];
   if(a.kB){try{if(amAq())setTimeout(()=>amAqFetch(),300)}catch(e){}T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':''),amAq()?amAqPend().length:0]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
   h+='<div class="am2-st">'+T.map(t=>'<button style="position:relative;background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':t[1]==='id'&&t[4]?'cx-open':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span>'+(t[4]?'<i class="am2-req">'+(t[5]||('📥 '+t[4]+' demande'+(t[4]>1?'s':'')))+'</i>':'')+'</button>').join('')+'</div>'}
- const slide=x=>{const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
- if(NX.length===1)h+=slide(nxt);
+ if(amNewsOn())NX.unshift({kind:'news'});
+ const slide=x=>{if(x.kind==='news')return amNewsSlide();const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
+ if(NX.length===1)h+=slide(NX[0]);
  else if(NX.length>1)h+='<div class="am2-car"><div class="am2-cart">'+NX.map((x,i)=>'<div class="am2-sl" data-i="'+i+'">'+slide(x)+'</div>').join('')+'</div><div class="am2-dots">'+NX.map((x,i)=>'<i data-i="'+i+'"'+(i?'':' class="on"')+' role="button" aria-label="Événement '+(i+1)+'"></i>').join('')+'</div></div>';
  return h;
 }
@@ -17954,9 +18021,9 @@ function amView0(){
   const RC=['#6B4EFF','#FF5C6C','#12B5A0','#2D8CFF','#FFB020','#B25CFF','#FF7A45','#0EA5B7','#7C8CFF'],hs=t=>{let x=0;for(const c of String(t))x=(x*31+c.charCodeAt(0))>>>0;return x};
   const grp=(lv,lbl)=>{const G=L.filter(p=>p.l===lv).sort((x,y)=>ord(x.t)-ord(y.t)||String(x.n).localeCompare(String(y.n),'fr'));if(!G.length)return '';
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
-    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+'</button>'}).join('')+'</div></section>'};
+    return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+amAbBadge(p.id)+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
-  h+=isAc?amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem">'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
+  h+=isAc?amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
   {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>'}
@@ -18080,7 +18147,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
