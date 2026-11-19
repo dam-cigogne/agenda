@@ -217,7 +217,7 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am2-abs{display:block;margin-top:.2rem;font-size:.72rem;font-weight:700;white-space:nowrap}.am2-abs.ab-off{color:#dc2626}.am2-abs.ab-soon{color:#d97706}.am2-abs.ab-ok{color:#16a34a}
 .ab-warn{font-size:.85rem;font-weight:700;margin:.25rem 0 0;color:#b45309}.ab-warn:empty{display:none}
 .ab-plan{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line2,#ddd);border-radius:.8rem}.ab-plan table{border-collapse:collapse;font-size:.72rem}.ab-plan th,.ab-plan td{border:1px solid var(--line2,#e5e5e5);min-width:1.45rem;height:1.6rem;text-align:center;padding:0 .1rem}.ab-plan tbody th{position:sticky;left:0;background:var(--surface,#fff);text-align:left;white-space:nowrap;padding:0 .4rem;font-size:.78rem;z-index:1}.ab-plan .ab-we{background:rgba(127,127,127,.1)}.ab-plan .ab-td{outline:2px solid #2D8CFF;outline-offset:-2px}.ab-plan td.ab-x{background:#fecaca;color:#991b1b;font-size:.8rem}
-.am2-news{position:relative;overflow:hidden;width:100%;min-height:13.5rem;border:0;border-radius:1.4rem;padding:1.1rem 1rem 1rem;color:#fff;text-align:left;display:flex;flex-direction:column;gap:.4rem;background:linear-gradient(120deg,#6B4EFF,#E94F9B,#FF7A45,#6B4EFF);background-size:300% 300%;animation:nwBg 9s ease infinite;box-shadow:0 .5rem 1.4rem rgba(107,78,255,.35)}
+.am2-newsw{margin:.2rem 0 .8rem}.am2-news{position:relative;overflow:hidden;width:100%;min-height:13.5rem;border:0;border-radius:1.4rem;padding:1.1rem 1rem 1rem;color:#fff;text-align:left;display:flex;flex-direction:column;gap:.4rem;background:linear-gradient(120deg,#6B4EFF,#E94F9B,#FF7A45,#6B4EFF);background-size:300% 300%;animation:nwBg 9s ease infinite;box-shadow:0 .5rem 1.4rem rgba(107,78,255,.35)}
 .am2-news .nw-t{font-size:1.45rem;font-weight:900;letter-spacing:.01em;text-shadow:0 2px 6px rgba(0,0,0,.25)}.am2-news .nw-l{position:relative;flex:1;min-height:6.2rem}.am2-news .nw-i{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:0;animation-name:nwIt;animation-iteration-count:infinite;animation-timing-function:ease}.am2-news .nw-i i{font-style:normal;font-size:2.2rem;line-height:1}.am2-news .nw-i b{font-size:1.15rem;margin:.2rem 0 .1rem}.am2-news .nw-i small{font-size:.92rem;opacity:.95;line-height:1.3}.am2-news .nw-m{font-size:.78rem;opacity:.85;font-weight:700}
 .am2-news .nw-sp{position:absolute;font-size:1.4rem;animation:nwFl 4s ease-in-out infinite;pointer-events:none}.am2-news .nw-a{top:.8rem;right:1rem}.am2-news .nw-b{bottom:1rem;right:2.4rem;animation-delay:1.3s}.am2-news .nw-c{top:45%;right:.6rem;animation-delay:2.6s}
 @keyframes nwBg{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
@@ -2986,7 +2986,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.132';
+const APP_VERSION='2.82.133';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2994,7 +2994,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.132',d:'19/11/2026',items:['📅 Absences : chacun note quand il n’est pas là (vacances, mission, pas disponible…) depuis sa fiche ou sa pastille ; le motif n’est visible que par le bureau','🟢 Pastille sous chaque membre : dispo / absent / absent bientôt ; un appui → « Pas dispo jusqu’au 23 août »','📅 « Disponibilités : qui est là ? » : planning de tout le monde sur 4 semaines','⚠️ En choisissant la date d’un événement ou d’un rendez-vous : qui est absent ce jour-là','✨ Affiche animée « Quoi de neuf ? » en tête de l’accueil pendant quelques semaines']},
+{v:'2.82.133',d:'19/11/2026',items:['🏠 Accueil remis dans l’ordre : les événements, puis l’affiche « Quoi de neuf ? », puis « 📋 À suivre », et « Ce qui t’attend » en dernier']},
+ {v:'2.82.132',d:'19/11/2026',items:['📅 Absences : chacun note quand il n’est pas là (vacances, mission, pas disponible…) depuis sa fiche ou sa pastille ; le motif n’est visible que par le bureau','🟢 Pastille sous chaque membre : dispo / absent / absent bientôt ; un appui → « Pas dispo jusqu’au 23 août »','📅 « Disponibilités : qui est là ? » : planning de tout le monde sur 4 semaines','⚠️ En choisissant la date d’un événement ou d’un rendez-vous : qui est absent ce jour-là','✨ Affiche animée « Quoi de neuf ? » en tête de l’accueil pendant quelques semaines']},
  {v:'2.82.131',d:'18/11/2026',items:['🏠 Accueil : « Du nouveau » (qui a coché quoi) est remplacé par « 📋 À suivre » pour le bureau : demandes d’adhésion à valider, bulletins à signer et cotisations à encaisser, tâches en retard, et pour les prochains événements : inscrits, inscriptions à valider, reste à encaisser, préparation faite. Un appui ouvre le bon endroit.','🛡 Protections : tes appareils (Mac, PC, iPad) fonctionnent normalement, mais retirer un membre ou changer son niveau se fait seulement depuis ton appareil principal (téléphone) ; 🚨 « Alerte générale » pour l’administrateur (bloque tout le monde puis recharge) ; avant d’envoyer, l’appli relit le serveur ; le renouvellement des clés relit tout le serveur et n’est possible que si tous les membres ont la dernière version','👤 Fiche d’un membre : appli installée ou site, dernière activité, version','🔕 Plus de notification quand quelqu’un modifie une affiche','✏️ Fiches à remplir : les champs de texte deviennent un grand rectangle qui s’agrandit, on voit tout le texte (plus de « château… » coupé)']},
  {v:'2.82.130',d:'18/11/2026',items:['🧭 <b>Dépannage</b> : nouvelle fiche « Si ça recommence à se dérégler » (quoi faire dans l’ordre selon le cas).']},
 {v:'2.82.129',d:'18/11/2026',items:['⚠️ <b>Messages de remise à zéro</b> : ils rappellent en gros que si on a déjà ouvert le lien d’invitation, il faut l’ouvrir en navigation privée, et que le code se tape uniquement dans l’appli installée, jamais sur le site.']},
@@ -17511,6 +17512,7 @@ function amSuiviHTML(a){
 function amAcHTML(a){
  const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x),mine=pend.filter(i=>i.w&&i.w===me),buy=amItems('co').filter(i=>!i.x);
  const row=(k,ic,t,sub)=>'<button class="am2-row" data-act="am-tab" data-k="'+k+'"><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>';
+ /* 2.82.133 : ordre de l’accueil = affiche « Quoi de neuf » → « À suivre » → « Ce qui t’attend » */
  let h='<div class="am2-card"><h3>Ce qui t’attend</h3>';
  const R=[];
  if(mine.length)R.push(row('tk','✅',mine.length+(mine.length>1?' tâches pour toi':' tâche pour toi'),mine.slice(0,2).map(i=>i.tx).join(' · ')));
@@ -17519,8 +17521,7 @@ function amAcHTML(a){
  if(buy.length)R.push(row('co','🛒',buy.length+(buy.length>1?' articles à acheter':' article à acheter'),buy.slice(0,3).map(i=>i.tx).join(', ')));
  h+=(R.length?R.join(''):'<p class="mut" style="margin:.3rem 0">Rien en attente pour toi 🎉</p>')+'</div>';
  /* 2.82.131 : « Du nouveau » (qui a coché quoi) remplacé par « 📋 À suivre » : ce qu’il y a à faire, pour le bureau */
- if(a.kB)h+=amSuiviHTML(a);
- return h;
+ return (amNewsOn()?'<div class="am2-newsw">'+amNewsSlide()+'</div>':'')+(a.kB?amSuiviHTML(a):'')+h;
 }
 const AM_COLS=[['','Automatique'],['#E5384F','Rouge'],['#FF7A45','Orange'],['#F5A300','Jaune'],['#5DB43A','Vert'],['#12B5A0','Turquoise'],['#2D8CFF','Bleu'],['#6B4EFF','Violet'],['#B25CFF','Mauve'],['#E94F9B','Rose'],['#8B6B4A','Marron'],['#5B6573','Gris']];
 const amAvIn=(p,c1)=>{const ph=p.ph&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{20,12000}$/.test(p.ph);
@@ -17575,8 +17576,7 @@ function amHome(a,nTk,nEv){
  {const nCo=amItems('co').filter(x=>!x.x).length,T=[[amAc(),'mb',L.length,'membre'+(L.length>1?'s':'')],['#12B5A0','tk',nTk,'tâche'+(nTk>1?'s':'')],['#2D8CFF','ee',nEv,'à venir'],a.kB?(()=>{const ni=amItems('id').filter(i=>!i.del&&!amIdP(i).s).length,nc=amCxNew().length;return ['#FFB020','id',ni+nc,'idée'+(ni+nc>1?'s':'')+' à voir',nc,'📬 '+nc+' reçue'+(nc>1?'s':'')]})():['#FFB020','co',nCo,'courses']];
   if(a.kB){try{if(amAq())setTimeout(()=>amAqFetch(),300)}catch(e){}T.push(['#6B4EFF','am',amAms().length,'amicaliste'+(amAms().length>1?'s':''),amAq()?amAqPend().length:0]);T.push(['#FF7A45','ad',amItems('ad').length,'administratif'])}
   h+='<div class="am2-st">'+T.map(t=>'<button style="position:relative;background:'+t[0]+'" data-act="'+(t[1]==='mb'?'am-mbs':t[1]==='id'&&t[4]?'cx-open':'am-tab')+'" data-k="'+t[1]+'"><b>'+t[2]+'</b><span>'+t[3]+'</span>'+(t[4]?'<i class="am2-req">'+(t[5]||('📥 '+t[4]+' demande'+(t[4]>1?'s':'')))+'</i>':'')+'</button>').join('')+'</div>'}
- if(amNewsOn())NX.unshift({kind:'news'});
- const slide=x=>{if(x.kind==='news')return amNewsSlide();const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
+ const slide=x=>{const d=new Date((x.d||td)+'T12:00:00'),sg=x.kind==='ee'?amPoSign(x):'';return sg||'<button class="am2-hero" data-act="'+(x.kind==='ee'?'ee-sign" data-id="'+esc(x.id):'am-tab" data-k="ev')+'"><div class="am2-date"><i>'+MO[d.getMonth()]+'</i><b>'+d.getDate()+'</b></div><div style="min-width:0"><h3>'+esc(x.tx)+'</h3><p>'+esc([x.tm,x.pl].filter(Boolean).join(' · ')||'Prochain rendez-vous')+'</p></div></button>'};
  if(NX.length===1)h+=slide(NX[0]);
  else if(NX.length>1)h+='<div class="am2-car"><div class="am2-cart">'+NX.map((x,i)=>'<div class="am2-sl" data-i="'+i+'">'+slide(x)+'</div>').join('')+'</div><div class="am2-dots">'+NX.map((x,i)=>'<i data-i="'+i+'"'+(i?'':' class="on"')+' role="button" aria-label="Événement '+(i+1)+'"></i>').join('')+'</div></div>';
  return h;
