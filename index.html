@@ -213,6 +213,8 @@ body[data-ls="ardoise"] #main .co-tab.on,.lsth[data-ls="ardoise"] .co-tab.on{bac
 .am-ckw{margin:.55rem 0;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.am-ckw.am-dgsrc{opacity:.3}.am-ckw.am-dgb{box-shadow:0 -4px 0 0 var(--k-am)}.am-ckw.am-dga{box-shadow:0 4px 0 0 var(--k-am)}.am-cs.am-dgp{outline:3px dashed var(--k-am);outline-offset:2px;border-radius:14px}.am-dgh{position:fixed;z-index:9999;pointer-events:none;opacity:.92;box-shadow:0 10px 28px rgba(0,0,0,.3);border-radius:16px;background:var(--bg,#fff);transform:scale(1.02)}.am-ckw.has{border:2px solid color-mix(in srgb,var(--k-am) 55%,transparent);border-radius:18px;padding:.3rem .4rem .45rem;background:color-mix(in srgb,var(--k-am) 7%,transparent)}.am-ckw.has>.am-it{background:transparent;border:0;box-shadow:none;margin-bottom:0}.am-sbl{margin:.15rem 0 0 1.2rem;padding-left:.9rem;border-left:4px solid var(--k-am);border-radius:2px}.am-sbr{display:flex;align-items:center;gap:.65rem;padding:.4rem 0;font-size:.93rem;border-bottom:1px dashed #8885}.am-sbr:last-child{border-bottom:0}.am-sbr.done .am-sbt{opacity:.55;text-decoration:line-through}.am-sbr small{display:block!important;margin-top:.1rem}.am-sbr small{opacity:.85;text-decoration:none;display:inline}.am-ck.am-sbk{width:1.45rem;height:1.45rem;border-radius:7px;font-size:.85rem;border-width:2px}.am-ck{width:2rem;height:2rem;border-radius:50%;border:2px solid var(--k-am);flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:transparent}.am-it.done .am-ck{background:var(--k-am)}
 .am-side{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;margin-left:auto;max-width:44%}.am-bdg{display:inline-block;font-size:.74rem;font-weight:700;line-height:1.2;padding:.22rem .55rem;border-radius:999px;white-space:nowrap;background:#eef2f7;color:#334155;text-align:center}.am-wa{cursor:pointer;border:1.5px solid transparent}.am-wa:active{transform:scale(.95)}.am-bdg.wok{background:#dcfce7;color:#166534}.am-bdg.wmv{background:#ffedd5;color:#9a3412;border-color:#fb923c}.am-bdg.wad{background:#dbeafe;color:#1e40af}.am-bdg.wx{background:#fee2e2;color:#991b1b}.am-bdg.wnw{background:#f1f5f9;color:#64748b}.am-bdg.wq{background:transparent;color:#64748b;border-color:#cbd5e1;border-style:dashed}.am-bdg.wsc{background:#ede9fe;color:#5b21b6}.am-bdg.wau{background:#fef3c7;color:#92400e}@media (max-width:420px){.am-bdg{font-size:.68rem;padding:.18rem .45rem;white-space:normal}}
 .am-dt>summary{cursor:pointer;font-weight:700;padding:.25rem 0;list-style-position:inside}.am-tools{padding:.55rem .75rem!important;margin:.5rem 0}.am-tools .am-tg{margin:.6rem 0 .15rem;font-weight:800;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}.am-tools .am-tl{margin:.25rem 0;text-align:left;justify-content:flex-start}
+#am-alert{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.92);display:flex;align-items:center;justify-content:center;padding:1.2rem}#am-alert .am-al-box{background:var(--surface,#fff);color:var(--text,#111);border-radius:1.2rem;padding:1.4rem 1.2rem;max-width:30rem;text-align:center;box-shadow:0 1rem 3rem rgba(0,0,0,.4)}#am-albar{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + .4rem);z-index:9999;padding:.35rem .8rem;border-radius:999px;font-weight:700;font-size:.82rem;display:flex;gap:.5rem;align-items:center;box-shadow:0 .3rem 1rem rgba(0,0,0,.2)}#am-albar.al{background:#dc2626;color:#fff}#am-albar.sec{background:#334155;color:#fff;pointer-events:none;opacity:.92}
+.in.in-grow{resize:none;overflow:hidden;min-height:2.9rem;line-height:1.35;border-radius:1rem!important;white-space:pre-wrap;word-break:break-word;display:block;width:100%}
 .am-itx{flex:1;min-width:0;text-align:left;padding:.2rem 0}.am-itx b{display:block;font-weight:700}.am-itx small{color:var(--muted)}
 .am-ev .am-dt{width:2.9rem;flex:none;text-align:center;border-radius:.7rem;background:var(--surface2);padding:.25rem 0;font-size:.7rem;text-transform:uppercase;font-weight:800;color:var(--muted);line-height:1.1}.am-dt b{display:block;font-size:1.25rem;color:var(--text)}.am-dt.now{background:var(--k-am);color:#fff}.am-dt.now b{color:#fff}
 .am-nt,.am-it.am-ev{width:100%;text-align:left}
@@ -2974,7 +2976,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.130';
+const APP_VERSION='2.82.131';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2982,7 +2984,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.130',d:'18/11/2026',items:['🧭 <b>Dépannage</b> : nouvelle fiche « Si ça recommence à se dérégler » (quoi faire dans l’ordre selon le cas).']},
+{v:'2.82.131',d:'18/11/2026',items:['🏠 Accueil : « Du nouveau » (qui a coché quoi) est remplacé par « 📋 À suivre » pour le bureau : demandes d’adhésion à valider, bulletins à signer et cotisations à encaisser, tâches en retard, et pour les prochains événements : inscrits, inscriptions à valider, reste à encaisser, préparation faite. Un appui ouvre le bon endroit.','🛡 Protections : tes appareils (Mac, PC, iPad) fonctionnent normalement, mais retirer un membre ou changer son niveau se fait seulement depuis ton appareil principal (téléphone) ; 🚨 « Alerte générale » pour l’administrateur (bloque tout le monde puis recharge) ; avant d’envoyer, l’appli relit le serveur ; le renouvellement des clés relit tout le serveur et n’est possible que si tous les membres ont la dernière version','👤 Fiche d’un membre : appli installée ou site, dernière activité, version','🔕 Plus de notification quand quelqu’un modifie une affiche','✏️ Fiches à remplir : les champs de texte deviennent un grand rectangle qui s’agrandit, on voit tout le texte (plus de « château… » coupé)']},
+ {v:'2.82.130',d:'18/11/2026',items:['🧭 <b>Dépannage</b> : nouvelle fiche « Si ça recommence à se dérégler » (quoi faire dans l’ordre selon le cas).']},
 {v:'2.82.129',d:'18/11/2026',items:['⚠️ <b>Messages de remise à zéro</b> : ils rappellent en gros que si on a déjà ouvert le lien d’invitation, il faut l’ouvrir en navigation privée, et que le code se tape uniquement dans l’appli installée, jamais sur le site.']},
 {v:'2.82.128',d:'18/11/2026',items:['📌 <b>Modèles d’événement</b> : dans un événement, « 📌 Garder comme modèle » enregistre à part la préparation (tâches et sous-tâches), les prestataires utilisés, les frais, les parties et le programme, sans les inscrits. Dans la liste des événements, « 📚 Mes modèles » recrée un événement depuis un modèle en changeant juste le nom et la date, et permet d’exporter les modèles dans un fichier et de les importer.','↳ <b>Ranger sous une tâche</b> : dans « Sélectionner des tâches », choisis des tâches puis « Ranger sous une tâche… » : elles deviennent de petites tâches à cocher sous le titre que tu désignes. Les modèles restent sur l’appareil et dans le fichier de sauvegarde, à l’abri des restaurations.']},
 {v:'2.82.127',d:'18/11/2026',items:['👥 <b>Dépannage › Choisir les personnes</b> (administrateur) : la liste des personnes rangée par rôle (administrateurs, bureau, aides), avec un bouton WhatsApp à côté de chaque nom qui ouvre sa conversation avec le message de remise à zéro adapté. Un « ✅ envoyé » se met à côté de ceux déjà faits.']},
@@ -9053,6 +9056,10 @@ async function act(a,el,e){
   case 'rg-who':{const a=amc(),it=a&&a.it[AMC_EE];if(!it)break;const [A,N]=amPtGroups(it),r=amRgCount(it,A.concat(N)).find(z=>z.k===ds_.k);if(!r)break;ask({title:'🥗 '+esc(r.k)+' · '+r.pers+(r.pers>1?' personnes':' personne'),html:'<ul style="margin:.2rem 0 .4rem;padding-left:1.1rem">'+r.who.slice().sort((x,y)=>String(x).localeCompare(String(y),'fr')).map(n=>'<li style="margin:.3rem 0"><b>'+esc(n)+'</b></li>').join('')+'</ul>',btns:[{label:'Fermer',value:null}]});break}
   case 'am-mbs':{const e=document.getElementById('am-mbs');if(e)e.scrollIntoView({behavior:'smooth',block:'start'});break}
   case 'am-tab':AMC_TAB=ds_.k;AMC_MB=ds_.k==='mb'?1:0;render();break;
+  case 'am-dev':amDevAsk(true);break;
+  case 'am-alert':{const a=amc();amAlertSet(!(a&&a.alert&&a.alert.on));break}
+  case 'am-al-end':amAlertSet(false);break;
+  case 'am-hgo':{const k=ds_.k;if(k==='aq'){AMC_TAB='am';AQ_OPEN=true}else if(k==='ee'){AMC_TAB='ee';AMC_EE=ds_.id||null;PT_SEL=CK_SEL=null}else AMC_TAB=k;AMC_MB=0;render();try{window.scrollTo(0,0)}catch(e){}break}
   case 'am-more':await amMore();break;
   case 'cx-open':AM_IDP='a';AM_CXF='n';AMC_TAB='id';render();window.scrollTo(0,0);break;
   case 'id-part':AM_IDP=ds_.v==='a'?'a':'b';render();break;
@@ -9404,7 +9411,7 @@ async function act(a,el,e){
   case 'ee-del':amEeDel();break;
   case 'am-it':amItemOpen(ds_.id);break;
   case 'am-tick':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amItemSave(Object.assign({},it,{x:it.x?0:1}));break}
-  case 'am-clear':{const a=amc();if(a){for(const it of amItems(ds_.k).filter(i=>i.x&&(!ds_.l||(i.l||amDL())===ds_.l))){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}amSave();render();amFlush()}break}
+  case 'am-clear':{const a=amc();if(a&&amBlocked()){amBlockToast();break}if(a){for(const it of amItems(ds_.k).filter(i=>i.x&&(!ds_.l||(i.l||amDL())===ds_.l))){it.del=1;it.at=Date.now()+1;it.by=a.me.n;it.dirty=1}amSave();render();amFlush()}break}
   case 'loi-script':ficheCopy(loiScript(),'Script copié : colle-le dans une IA');break;
   case 'am-sync':toast('Actualisation…',1200);amPull(true).then(()=>render());break;
   case 'fam-gr':famGrantEdit(ds_.id);break;
@@ -12727,11 +12734,12 @@ async function amVerify(list,at,sig,pub){try{if(!pub||!sig)return false;const k=
 async function amForm(title,intro,fields,ok){
  const v={};fields.forEach(f=>v[f.k]=f.v||'');
  const root=$('#dlg');
- const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'"'+(/€/.test(f.l)?' inputmode="decimal"':'')+' value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
+ const h=(intro?'<p style="margin:.2rem 0 .5rem">'+intro+'</p>':'')+fields.map(f=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(f.l)+'</label>'+(f.t==='area'?'<textarea class="in" data-amf="'+f.k+'" rows="6" placeholder="'+esc(f.ph||'')+'" style="width:100%">'+esc(f.v||'')+'</textarea>':f.t==='select'?'<select class="in" data-amf="'+f.k+'">'+f.o.map(([x,l])=>'<option value="'+esc(x)+'"'+(String(x)===String(f.v||'')?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>':(!f.t||f.t==='text')&&!/€/.test(f.l)?'<textarea class="in in-grow" data-amf="'+f.k+'" rows="1" placeholder="'+esc(f.ph||'')+'" autocomplete="off">'+esc(f.v||'')+'</textarea>':'<input class="in" data-amf="'+f.k+'" type="'+(f.t||'text')+'"'+(/€/.test(f.l)?' inputmode="decimal"':'')+' value="'+esc(f.v||'')+'" placeholder="'+esc(f.ph||'')+'" autocomplete="off" autocapitalize="off" spellcheck="false">')).join('');
  const pr=ask({title,html:h,btns:[{label:ok||'Enregistrer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
- root.oninput=root.onchange=e=>{const k=e.target.dataset&&e.target.dataset.amf;if(k)v[k]=e.target.value};
+ const grow=el=>{el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'};setTimeout(()=>root.querySelectorAll('.in-grow').forEach(grow),40);
+ root.oninput=root.onchange=e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('in-grow')){if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' ');grow(t)}const k=t.dataset&&t.dataset.amf;if(k)v[k]=t.value};
  const sync=()=>fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});root.addEventListener('click',sync,true);root.addEventListener('dlgsync',sync);
- root.onkeydown=e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});const b=root.querySelector('.dlgbox .btn.pri');if(b)b.click()}};
+ root.onkeydown=e=>{if(e.key==='Enter'&&(e.target.tagName==='INPUT'||(e.target.classList&&e.target.classList.contains('in-grow')))){e.preventDefault();fields.forEach(f=>{const el=root.querySelector('[data-amf="'+f.k+'"]');if(el)v[f.k]=el.value});const b=root.querySelector('.dlgbox .btn.pri');if(b)b.click()}};
  const r=await pr;root.removeEventListener('click',sync,true);root.removeEventListener('dlgsync',sync);root.oninput=root.onchange=root.onkeydown=null;return r==='ok'?v:null;
 }
 let AM_QUIET=0;
@@ -12812,7 +12820,7 @@ async function amPut(zone,doc,P,kraw,hint,det){
  const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||hint==='q'||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint&&hint!=='q'?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
-const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,sn:m.sn||'',tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',col:m.col||'',ic:m.ic||'',ph:m.ph||'',pub:m.pub||null,at:Date.now()}};
+const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,sn:m.sn||'',tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',col:m.col||'',ic:m.ic||'',ph:m.ph||'',pub:m.pub||null,v:APP_VERSION,o:amStandalone()?'app':'site',la:today(),at:Date.now()}};
 async function amEnsureKeys(){const a=amc();if(!a||a.me.ek)return;const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveBits']);a.me.ek=await crypto.subtle.exportKey('jwk',kp.privateKey);const p=await crypto.subtle.exportKey('jwk',kp.publicKey);a.me.pub={x:p.x,y:p.y};amSave()}
 async function amDerive(privJwk,pubXY,salt){
  const priv=await crypto.subtle.importKey('jwk',privJwk,{name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
@@ -12842,8 +12850,43 @@ async function amMakeAdmin(id){
   render();toast('👑 '+p.n+' sera administrateur dès qu’elle ou il ouvrira l’appli',5500);
  }catch(e){toast('Pas de connexion au serveur, réessaie',4000)}
 }
+/* 2.82.131 : protections — appareil secondaire (lecture seule), alerte générale, garde-fou avant envoi et avant renouvellement des clés */
+const AM_MINV='2.82.131';let AM_CARDT=0;
+const amVerCmp=(x,y)=>{const A=String(x||'0').split('.').map(n=>+n||0),B=String(y||'0').split('.').map(n=>+n||0);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
+const amIsSec=()=>{const a=amc();return !!(a&&a.dev==='s')};
+const amAlertOn=()=>{const a=amc();return !!(a&&a.alert&&a.alert.on&&a.alert.id!==(a.me&&a.me.id))};
+const amBlocked=()=>amAlertOn(); /* 2.82.131 : seule l’alerte bloque ; un appareil secondaire modifie normalement (le garde-fou relit le serveur avant d’envoyer), seuls retrait/niveau des membres sont réservés au principal */
+let AM_BLT=0;function amBlockToast(){if(Date.now()-AM_BLT<5000)return;AM_BLT=Date.now();toast('🚨 Alerte en cours : ne touche à rien, l’appli se recharge toute seule à la fin',5000)}
+const amStandalone=()=>{try{return !!(matchMedia('(display-mode: standalone)').matches||navigator.standalone)}catch(e){return false}};
+/* avant un renouvellement des clés : relire TOUT le serveur, et tous les membres doivent avoir la dernière version */
+async function amRotCheck(ex){const a=amc();if(!a)return false;
+ if(amIsSec()){toast('📱 Retirer un membre ou changer son niveau se fait depuis ton appareil principal (ton téléphone)',6000);return false}
+ toast('Lecture complète du serveur avant le renouvellement…',3000);a.last={};AMC_BUSY=false;try{await amPull(true)}catch(e){}
+ if(Date.now()-(a.syncOk||0)>20000){await ask({title:'Serveur injoignable',text:'Impossible de relire le serveur. Le renouvellement des clés est annulé pour ne rien écraser. Réessaie avec du réseau.',btns:[{label:'OK',value:1,cls:'pri'}]});return false}
+ const old=amList().filter(p=>!p.self&&!p.x&&p.id!==ex&&a.mem&&a.mem[p.id]&&a.mem[p.id].pub&&amVerCmp(p.v,AM_MINV)<0);
+ if(old.length){await ask({title:'⛔ Pas encore possible',html:'<p style="margin:.2rem 0 .5rem">Ces membres n’ont pas encore la dernière version de l’appli :</p><p style="margin:0 0 .5rem"><b>'+old.map(p=>esc(p.n)).join(', ')+'</b></p><p class="mut" style="font-size:.88rem;margin:0">Renouveler les clés maintenant risquerait de mélanger les données. Demande-leur d’ouvrir l’appli (et de la fermer/rouvrir 2 fois), puis réessaie : leur nom disparaîtra de cette liste.</p>',btns:[{label:'Compris',value:1,cls:'pri'}]});return false}
+ return true}
+/* 🚨 alerte générale (administrateur) : document « al » signé, lu par tous au prochain relevé */
+async function amAlertSet(on){const a=amc();if(!a||!a.apriv||demo)return;
+ let msg='';if(on){const v=await amForm('🚨 Alerte générale','Tous les autres appareils sont bloqués avec ce message, et se rechargent tout seuls à la fin.',[{k:'m',l:'Message affiché',t:'area',v:'Maintenance en cours par l’administrateur : ne touchez à rien. L’appli se recharge toute seule à la fin.'}],'🚨 Lancer l’alerte');if(!v)return;msg=String(v.m||'').trim().slice(0,300)||'Maintenance en cours : ne touchez à rien.'}
+ const at=Date.now(),P={app:'agd',k:'amc',v:1,t:'al',on:on?1:0,msg,id:a.me.id,by:String(a.me.n||'').slice(0,30),at};
+ P.sig=await amSign([P.on,P.msg,P.id,P.at],0,a.apriv);
+ try{await amPut('a','al',P,0,'',on?'a|'+msg.slice(0,40):'')}catch(e){toast('Envoi impossible : '+(e.message||'hors connexion'),5000);return}
+ a.alert={on:P.on,msg,id:P.id,by:P.by,at};amSave();amAlertUI();toast(on?'🚨 Alerte lancée : les autres appareils se bloquent dans quelques secondes':'✅ Fin de l’alerte : les appareils se rechargent',5000)}
+function amAlertUI(){const a=amc();let o=document.getElementById('am-alert'),b=document.getElementById('am-albar');
+ if(amAlertOn()){if(!o){o=document.createElement('div');o.id='am-alert';document.body.appendChild(o)}o.innerHTML='<div class="am-al-box"><div style="font-size:3rem;line-height:1">🚨</div><h2 style="margin:.3rem 0">Alerte en cours</h2><p style="margin:.2rem 0 .6rem;font-size:1.05rem;line-height:1.4">'+esc(a.alert.msg||'')+'</p><p class="mut" style="margin:0;font-size:.85rem">Lancée par '+esc(a.alert.by||'l’administrateur')+'. Ne touche à rien : l’appli se recharge toute seule à la fin.</p>'+(a.apriv?'<button class="btn sm" data-act="am-al-end" style="margin-top:.8rem">Administrateur : terminer l’alerte</button>':'')+'</div>'}else if(o)o.remove();
+ const mine=a&&a.alert&&a.alert.on&&a.alert.id===a.me.id;
+ if(mine){if(!b){b=document.createElement('div');b.id='am-albar';document.body.appendChild(b)}b.innerHTML='🚨 Alerte générale en cours <button class="btn sm pri" data-act="am-al-end">✅ Fin de l’alerte</button>';b.className='al'}else if(b)b.remove()}
+/* appelée après chaque relevé : début d’alerte → tout relire ; fin d’alerte → recharger l’appli */
+function amAlertAfter(prev){const now=amAlertOn();if(now&&!prev){const a=amc();a.last={};amSave();setTimeout(()=>{AMC_BUSY=false;amPull(true)},1500)}if(prev&&!now)setTimeout(()=>{try{location.reload()}catch(e){}},1200);amAlertUI()}
+setInterval(()=>{try{if(amAlertOn()&&!AMC_BUSY)amPull(true)}catch(e){}},12000);
+setTimeout(()=>{try{amAlertUI()}catch(e){}},1500);
+let AM_DEVASK=0;async function amDevAsk(force){const a=amc();if(!a||(a.dev&&!force))return;
+ const r=await ask({title:'📱 Cet appareil',html:'<p style="margin:.2rem 0 .5rem">Sur tous tes appareils tu peux tout faire (jour J, événements, inscrits…). Un seul, ton appareil <b>principal</b> (en général ton téléphone), sert en plus aux opérations sensibles : <b>retirer un membre</b> et <b>changer son niveau</b>. Les autres (Mac, PC, iPad) sont <b>secondaires</b>.</p>',btns:[{label:'📱 C’est mon appareil principal',value:'p',cls:'pri'},{label:'💻 Appareil secondaire (Mac, PC, iPad)',value:'s'}].concat(force?[{label:'Annuler',value:null}]:[])});
+ if(!r)return;if(r==='p'&&a.dev==='s'){const c=await ask({title:'Devenir l’appareil principal ?',text:'À faire seulement si ton téléphone principal est perdu ou remplacé : c’est depuis celui-ci que tu retireras des membres.',btns:[{label:'Oui, il devient principal',value:1,cls:'dng'},{label:'Annuler',value:null}]});if(!c)return}
+ a.dev=r;amSave();amAlertUI();render();toast(r==='p'?'📱 Appareil principal':'💻 Appareil secondaire',3500)}
 async function amRotate(){
- const a=amc();if(!a||!a.apriv)return 0;
+ const a=amc();if(!a||!a.apriv)return 0;if(amIsSec()){toast('📱 Appareil secondaire : fais-le depuis ton téléphone principal',5000);return 0}
  const gen=(a.gen||0)+1,kB2=amRand(),kA2=amRand(),todo=[];let n=0;
  for(const p of amList().filter(p=>!p.self)){
   const m=a.mem&&a.mem[p.id];if(!m||!m.pub)continue;
@@ -12880,7 +12923,7 @@ function amList(){
  const a=amc();if(!a)return[];
  const R={};((a.roles&&a.roles.list)||[]).forEach(x=>{if(x&&x.id)R[x.id]=x});
  const rl=a.rl||{};
- const me={id:a.me.id,n:a.me.n,sn:a.me.sn||'',tel:a.me.tel,mp:a.me.mp,mw:a.me.mw,col:a.me.col||'',ic:a.me.ic||'',ph:a.me.ph||'',l:a.kB?'b':'a',self:1,t:a.apriv?(rl[a.me.id]&&rl[a.me.id].t||''):(R[a.me.id]&&R[a.me.id].t||''),adm:!!a.apriv};
+ const me={id:a.me.id,v:APP_VERSION,o:amStandalone()?'app':'site',la:today(),n:a.me.n,sn:a.me.sn||'',tel:a.me.tel,mp:a.me.mp,mw:a.me.mw,col:a.me.col||'',ic:a.me.ic||'',ph:a.me.ph||'',l:a.kB?'b':'a',self:1,t:a.apriv?(rl[a.me.id]&&rl[a.me.id].t||''):(R[a.me.id]&&R[a.me.id].t||''),adm:!!a.apriv};
  const out=[me];
  const seen=new Set([me.id]);
  for(const id of Object.keys(a.mem||{})){
@@ -12888,14 +12931,14 @@ function amList(){
   const r=a.apriv?(rl[id]||{}):(R[id]||{});
   /* 2.82.96 : sur un téléphone non administrateur, une fiche absente de la liste signée par l’admin ET plus ancienne que cette liste = fantôme (ancienne inscription, personne retirée) → masquée */
   if(!R[id]&&!(a.apriv&&rl[id])&&a.roles&&a.roles.at&&Object.keys(R).length>1&&(+c.at||0)<a.roles.at)continue;
-  out.push({id,n:r.on||c.n||(R[id]&&R[id].n)||'?',sn:(r.os||c.sn||''),tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm)});seen.add(id);
+  out.push({id,n:r.on||c.n||(R[id]&&R[id].n)||'?',sn:(r.os||c.sn||''),tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm),v:c.v||'',o:c.o||'',la:c.la||''});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
  for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.on||r.n||'?',sn:r.os||'',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
  return out.filter(p=>!p.x);
 }
 async function amRolesPut(){
- const a=amc();if(!a||!a.apriv)return;
+ const a=amc();if(!a||!a.apriv)return;if(Date.now()-(a.syncOk||0)>15000)return; /* garde-fou : jamais republier les rôles sans avoir relu le serveur */
  const rl=a.rl||{},list=[];
  const add=(id,n,l,adm)=>{const e={id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0};if(rl[id]&&rl[id].on)e.on=String(rl[id].on).slice(0,30);if(rl[id]&&rl[id].os)e.os=String(rl[id].os).slice(0,30);list.push(e)};
  add(a.me.id,a.me.n,'b',1);
@@ -12926,7 +12969,7 @@ async function amPull(manual){
   const ks=[];for(const [z,k] of [['b',a.kB],['a',a.kA]]){if(!k)continue;const FK=await famKeys({k});ks.push({z,FK,since:Math.max(0,Math.floor(a.last[z]||0))})}
   const r=await fetch(famUrl()+'/m?q='+ks.map(x=>x.FK.space+'.'+x.since).join(','),{cache:'no-store'});
   if(!r.ok)throw new Error('Serveur : '+r.status);
-  const J=await r.json();let chg=false,rot=null;
+  const J=await r.json();let chg=false,rot=null;const alPrev=amAlertOn();
   for(const x of ks){
    const docs=(J.r&&J.r[x.FK.space])||[];
    for(const d of docs){try{
@@ -12940,6 +12983,7 @@ async function amPull(manual){
       if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};if(a.apriv)a.admIds=Array.from(new Set(P.list.filter(r=>r.adm).map(r=>r.id).concat([a.me.id])));chg=true}
       if(+P.jz>(a.jz||0)){a.jz=+P.jz;chg=true}}
      continue}
+    if(d.doc==='al'){if(x.z==='a'&&P.t==='al'&&(!a.alert||(P.at||0)>(a.alert.at||0))&&await amVerify([P.on?1:0,String(P.msg||''),String(P.id||''),P.at],0,P.sig,a.apub)){a.alert={on:P.on?1:0,msg:String(P.msg||'').slice(0,300),id:String(P.id||''),by:String(P.by||'').slice(0,30),at:P.at};chg=true}continue}
     const mr=d.doc.match(/^rk-([a-z0-9]{6,16})$/);
     if(mr){
      if(mr[1]!==a.me.id||x.z!=='a'||P.t!=='rk'||(P.gen||0)<=(a.gen||0)||!a.me.ek||!P.e||!(await amVerify([P.id,P.gen,P.e.x,P.e.y,P.c,P.iv],0,P.sig,a.apub)))continue;
@@ -12987,7 +13031,7 @@ async function amPull(manual){
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
     if(P.pub&&P.pub.x&&P.pub.y)e.pub={x:String(P.pub.x),y:String(P.pub.y)};
-    e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),sn:String(P.sn||'').slice(0,20),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),col:/^#[0-9a-f]{6}$/i.test(P.col||'')?P.col:'',ic:Array.from(String(P.ic||'')).slice(0,2).join(''),ph:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{20,12000}$/.test(P.ph||'')?P.ph:'',at:P.at||0};
+    e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),sn:String(P.sn||'').slice(0,20),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),col:/^#[0-9a-f]{6}$/i.test(P.col||'')?P.col:'',ic:Array.from(String(P.ic||'')).slice(0,2).join(''),ph:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{20,12000}$/.test(P.ph||'')?P.ph:'',v:/^\d+(\.\d+){1,3}$/.test(P.v||'')?P.v:'',o:P.o==='app'||P.o==='site'?P.o:'',la:/^\d{4}-\d{2}-\d{2}$/.test(P.la||'')?P.la:'',at:P.at||0};
     if(x.z==='b')e.z='b';else if(!e.z)e.z='a';
     chg=true;
     if(a.apriv)a.rolesDirty=1;
@@ -12999,6 +13043,9 @@ async function amPull(manual){
   amSave();
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
   a.syncOk=Date.now();a.dg={n:dgN,f:dgF,e:dgE};amSave();
+  try{amAlertAfter(alPrev)}catch(e){}
+  if(Date.now()-(AM_CARDT||0)>36e5){AM_CARDT=Date.now();setTimeout(()=>{amPush().catch(()=>{})},3000)} /* fiche à jour (version, appli/site, dernière activité) */
+  if(!a.dev&&!AM_DEVASK){AM_DEVASK=1;if(/iPhone|Android.*Mobile/i.test(navigator.userAgent||'')){a.dev='p';amSave()}else setTimeout(()=>amDevAsk(),1800)}
   amFlush();
   if(chg&&V.view==='amicale')render();
  }catch(e){a.syncErr='serveur : '+String(e&&e.message||e).slice(0,100);if(manual)toast('Pas de connexion au serveur : '+(e.message||''),4000)}
@@ -13014,7 +13061,7 @@ async function amCreate(){
  if(!v.n.trim()||!v.nm.trim()){toast('Il faut un nom pour le groupe et ton prénom',3500);return}
  const kp=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},true,['sign','verify']);
  const pr=await crypto.subtle.exportKey('jwk',kp.privateKey),pb=await crypto.subtle.exportKey('jwk',kp.publicKey);
- S.amc={on:1,nm:v.nm.trim().slice(0,24),em:'👥',kB:amRand(),kA:amRand(),apub:{kty:pb.kty,crv:pb.crv,x:pb.x,y:pb.y},apriv:pr,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},rl:{},last:{},sent:{},rolesDirty:1};
+ S.amc={on:1,dev:'p',nm:v.nm.trim().slice(0,24),em:'👥',kB:amRand(),kA:amRand(),apub:{kty:pb.kty,crv:pb.crv,x:pb.x,y:pb.y},apriv:pr,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},rl:{},last:{},sent:{},rolesDirty:1};
  amSave();tabsApply();AMC_TAB='mb';
  try{await amPush(true)}catch(e){toast('Groupe créé, mais pas encore envoyé : '+(e.message||'hors connexion'),5000)}
  go('amicale');toast('Groupe « '+S.amc.nm+' » créé',3000);
@@ -13101,7 +13148,7 @@ async function amJoinData(d){
  const p=pplOf(S.meId)||{};
  const v=await amForm((d.em||'👥')+' Rejoindre « '+(d.nm||'le groupe')+' »',(d.by?esc(d.by)+' t’invite. ':'')+'Niveau : <b>'+(d.kB?'Bureau':'Aide')+'</b>. Les autres membres verront ces informations (seulement ceux de ton niveau et au-dessus). Tu peux laisser vide ce que tu ne veux pas partager.',[{k:'n',l:'Ton prénom (tel qu’il apparaîtra)',v:meName()||''},{k:'tel',l:'Ton téléphone',v:p.tel||'',t:'tel'},{k:'mp',l:'Ton mail perso',v:p.mail||'',t:'email'},{k:'mw',l:'Ton mail de travail',v:'',t:'email'}],'Rejoindre');
  if(!v)return;if(!v.n.trim()){toast('Il faut au moins ton prénom',3000);return}
- S.amc={on:1,nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},last:{},sent:{}};
+ S.amc={on:1,dev:'p',nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:{id:amId(),n:v.n.trim().slice(0,30),tel:v.tel.trim(),mp:v.mp.trim(),mw:v.mw.trim(),vis:0},mem:{},last:{},sent:{}};
  amSave();tabsApply();AMC_TAB='mb';
  try{await amPush(true)}catch(e){toast('Pas de connexion : ta fiche sera envoyée plus tard',4000)}
  go('amicale');amPull(true);toast('Bienvenue dans « '+S.amc.nm+' »',3000);
@@ -13150,7 +13197,7 @@ async function amLinkIn(code){
    {const a=amc();let rm=0;if(d.rl&&typeof d.rl==='object'){a.rl=a.rl||{};for(const id of Object.keys(d.rl)){const r=d.rl[id];if(r&&r.x&&id!==a.me.id){if(!(a.rl[id]&&a.rl[id].x)){a.rl[id]=Object.assign(a.rl[id]||{},{x:1});rm++}if(a.mem&&a.mem[id]){delete a.mem[id];rm++}}else if(r&&r.t&&!(a.rl[id]&&a.rl[id].t)){a.rl[id]=Object.assign(a.rl[id]||{},{t:r.t})}}}
     if(rm){a.rolesDirty=1;amSave();render();try{await amPull(true)}catch(e){}render();toast('✅ Appareil remis à jour : '+rm+' retrait'+(rm>1?'s':'')+' repris du téléphone',6000);return}}
    render();toast('✅ Déjà lié au groupe : ton agenda perso est maintenant relié aussi',5000);return}
-  S.amc={on:1,nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:d.me,mem:{},rl:d.rl||{},last:{},sent:{},gen:d.gen||0,it:{}};
+  S.amc={on:1,nm:String(d.nm||'Groupe').slice(0,24),em:d.em||'👥',kB:d.kB||'',kA:d.kA,apub:d.ap,me:d.me,mem:{},rl:d.rl||{},last:{},sent:{},gen:d.gen||0,it:{},dev:'s'};
   if(d.apriv)S.amc.apriv=d.apriv;
   amSave();tabsApply();AMC_TAB='mb';
   try{if(!AMI&&Array.isArray(d.fam)&&d.fam.length){if(!meName()&&d.pn){S.me=String(d.pn).slice(0,30);S.meOk=1}if(!meName()){S.me=String(d.me.n||'Moi').slice(0,30);S.meOk=1}S.famLt=String(d.lt||'').slice(0,20);
@@ -13158,7 +13205,7 @@ async function amLinkIn(code){
    saveSet();setTimeout(async()=>{try{await famPush();await famPull(false);render()}catch(e){}},400)}}catch(e){}
   try{await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:'x',iv:'x'})})}catch(e){}
   try{await amPush(true)}catch(e){}
-  go('amicale');amPull(true);toast('Appareil lié : tu es '+S.amc.me.n,4000);
+  go('amicale');amPull(true);toast('Appareil lié : tu es '+S.amc.me.n,4000);setTimeout(()=>{try{amDevAsk(true)}catch(e){}},2500);
  }catch(e){toast('Impossible de lier : '+(e.message||'hors connexion'),5000)}
 }
 async function amJoinCode(){
@@ -13196,6 +13243,7 @@ async function amSetLevel(id){
  const to=p.l==='b'?'a':'b';
  const r=await ask({title:'Niveau de '+p.n,html:'<p style="margin:.2rem 0 .5rem">Actuellement : <b>'+(p.l==='b'?'Bureau':'Aide extérieur')+'</b>.</p><p style="margin:0 0 .5rem">'+(to==='a'?'Cette personne ne verra plus ce qui est réservé au bureau (amicalistes, bulletins, notes…). Sa copie locale est effacée à sa prochaine connexion. Ce qu’elle a déjà vu ne peut pas être « repris ».':'Cette personne verra tout ce que voit le bureau (amicalistes, bulletins, notes…).')+'</p><p class="mut" style="font-size:.88rem;margin:0">🔑 Les clés du groupe sont renouvelées pour appliquer le changement.</p>',btns:[{label:to==='a'?'Passer en Aide extérieur':'Passer au Bureau',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
+ if(!(await amRotCheck(id)))return;
  a.lvo=a.lvo||{};a.lvo[id]=to;a.rolesDirty=1;amSave();toast('Renouvellement des clés…',3000);
  try{await amRotate()}catch(e){toast('Erreur pendant le renouvellement : '+(e.message||''),5000);return}
  render();toast(p.n+' est maintenant '+(to==='a'?'aide extérieur':'au bureau')+' · clés renouvelées',5000);
@@ -13217,6 +13265,7 @@ async function amRemove(id){
  const p=amList().find(x=>x.id===id);if(!p)return;
  const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">📲 Tes autres appareils (PC, tablette) : vérifie ensuite qu’ils sont à jour ; sinon, refais « Lier mon PC / ma tablette ».</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « ✅ Clés à jour ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
+ if(!(await amRotCheck(id)))return;
  const miss=amList().filter(q=>!q.self&&q.id!==id&&!(a.mem&&a.mem[q.id]&&a.mem[q.id].pub));
  if(miss.length){const r2=await ask({title:'Des membres ne sont pas à jour',html:'<p style="margin:.2rem 0 .5rem">'+miss.map(q=>esc(q.n)).join(', ')+' n’ont pas encore ouvert la dernière version d’AgenDam : ils ne peuvent pas recevoir les nouvelles clés et devraient être <b>ré-invités</b> avec un nouveau code.</p>',btns:[{label:'Renouveler quand même',value:'y',cls:'dng'},{label:'Attendre qu’ils se mettent à jour',value:null}]});if(r2!=='y')return}
  a.rl=a.rl||{};a.rl[id]=Object.assign(a.rl[id]||{},{x:1});a.rolesDirty=1;amSave();
@@ -13279,7 +13328,7 @@ async function amFiche(id){
   return}
  const row=(l,v)=>v?'<div style="display:flex;justify-content:space-between;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--line2)"><span class="mut">'+l+'</span><b style="text-align:right;word-break:break-all">'+esc(v)+'</b></div>':'';
  const html='<p style="margin:.1rem 0 .4rem"><span class="am-tag am-'+p.l+'">'+(p.l==='b'?'Bureau':'Aide')+'</span>'+(p.adm?' <span class="am-tag am-ad">Admin</span>':'')+' '+(p.t?'<b>'+esc(p.t)+'</b>':'<span class="mut">Pas de titre</span>')+'</p>'+
-  (p.tel||p.mp||p.mw?row('📱 Téléphone',p.tel)+row('✉️ Mail perso',p.mp)+row('💼 Mail travail',p.mw):'<p class="mut" style="margin:.4rem 0">'+(p.ro?'Ses coordonnées ne sont pas visibles avec ton niveau d’accès.':'Cette personne n’a pas rempli de coordonnées.')+'</p>');
+  (a.apriv||a.kB?'<div style="margin:.1rem 0 .4rem">'+row('📲 Utilise',p.o==='app'?'l’appli installée':p.o==='site'?'le site (navigateur) ⚠️':'')+row('🕘 Dernière activité',p.la?new Date(p.la+'T12:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}):'')+row('🔢 Version',p.v?p.v+(amVerCmp(p.v,AM_MINV)<0?' (ancienne)':' ✓'):'ancienne (pas encore mise à jour)')+'</div>':'')+(p.tel||p.mp||p.mw?row('📱 Téléphone',p.tel)+row('✉️ Mail perso',p.mp)+row('💼 Mail travail',p.mw):'<p class="mut" style="margin:.4rem 0">'+(p.ro?'Ses coordonnées ne sont pas visibles avec ton niveau d’accès.':'Cette personne n’a pas rempli de coordonnées.')+'</p>');
  const btns=[];
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
@@ -13320,12 +13369,17 @@ async function amLeave(){
 let AMC_FL=0;
 async function amFlush(){
  try{amCfgMig()}catch(e){}try{amSnapAuto()}catch(e){}
- const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
+ const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;
+ if(amBlocked())return;
+ /* garde-fou : on relit le serveur juste avant d’envoyer ; une donnée plus récente sur le serveur remplace la locale (et n’est donc plus renvoyée) */
+ if(Date.now()-(a.syncOk||0)>15000){if(!AMC_BUSY){try{await amPull(true)}catch(e){}}if(Date.now()-(a.syncOk||0)>15000)return}
+ if(AMC_FL)return;
+ AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
  if(a.rot)amRotFlush();
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
   const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
+   await amPut(it.z,'i-'+it.id,P,0,(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='cs'||it.kind==='po'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind,((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45));if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty);
   for(let k=0;k<todo.length;k+=8){
@@ -13390,7 +13444,7 @@ function amDiff0(it){const o=it.o||{};if(it.kind==='am')return 'ajouté'+(o.gr?'
 function amHs(pv,it,ac,cg,bulk){const a=amc(),now=Date.now(),me=String((a&&a.me&&a.me.n)||'').slice(0,30);let L=((pv&&pv.hs)||it.hs||[]).slice(0,6);const e={t:now,by:me,ac:ac||'m',cg:String(cg||'').slice(0,220)},f=L[0];
  if(f&&!bulk&&f.by===me&&f.ac===e.ac&&e.ac==='m'&&now-f.t<180000){const ps=[];e.cg.split(' ; ').concat(String(f.cg||'').split(' ; ')).forEach(x=>{if(x&&!ps.includes(x))ps.push(x)});e.cg=ps.slice(0,6).join(' ; ').slice(0,240);L=L.slice(1)}
  it.cg=e.cg;it.hs=[e].concat(L).slice(0,6)}
-function amItemSave(it){const a=amc();a.it=a.it||{};/* 2.82.53 : o.jm='1' = dernière modif mineure (WhatsApp…) → pas dans « Qui a fait quoi » */if(it&&it.kind==='am'&&it.o){const mi=!!it._jm;delete it._jm;if(mi)it.o=Object.assign({},it.o,{jm:'1'});else if(it.o.jm)it.o=Object.assign({},it.o,{jm:''})}{const pv=a.it[it.id];it.ac=!pv?'a':it.del?'d':(pv.ac==='a'&&pv.dirty)?'a':(it.x&&!pv.x)?'x':(!it.x&&pv.x)?'u':'m'}{const pv0=a.it[it.id];if(!(it.kind==='am'&&it.o&&it.o.jm==='1')){let cg='';try{cg=it.ac==='a'?amDiff0(it):it.ac==='d'?'supprimé':amDiff(it.kind,pv0,it)}catch(e){}if(it.ac==='x')cg='fait'+(cg?' ; '+cg:'');else if(it.ac==='u')cg='à refaire'+(cg?' ; '+cg:'');amHs(pv0,it,it.ac,cg)}}it.at=Math.max(Date.now(),(a.it[it.id]&&a.it[it.id].at||0)+1);it.by=a.me.n;it.dirty=1;a.it[it.id]=it;amSave();render();amFlush()}
+function amItemSave(it){const a=amc();if(a&&amBlocked()){amBlockToast();return}a.it=a.it||{};/* 2.82.53 : o.jm='1' = dernière modif mineure (WhatsApp…) → pas dans « Qui a fait quoi » */if(it&&it.kind==='am'&&it.o){const mi=!!it._jm;delete it._jm;if(mi)it.o=Object.assign({},it.o,{jm:'1'});else if(it.o.jm)it.o=Object.assign({},it.o,{jm:''})}{const pv=a.it[it.id];it.ac=!pv?'a':it.del?'d':(pv.ac==='a'&&pv.dirty)?'a':(it.x&&!pv.x)?'x':(!it.x&&pv.x)?'u':'m'}{const pv0=a.it[it.id];if(!(it.kind==='am'&&it.o&&it.o.jm==='1')){let cg='';try{cg=it.ac==='a'?amDiff0(it):it.ac==='d'?'supprimé':amDiff(it.kind,pv0,it)}catch(e){}if(it.ac==='x')cg='fait'+(cg?' ; '+cg:'');else if(it.ac==='u')cg='à refaire'+(cg?' ; '+cg:'');amHs(pv0,it,it.ac,cg)}}it.at=Math.max(Date.now(),(a.it[it.id]&&a.it[it.id].at||0)+1);it.by=a.me.n;it.dirty=1;a.it[it.id]=it;amSave();render();amFlush()}
 /* 2.82.56 : une vente partenaire reçue d’un autre appareil perdait son type (sv='v') : on le retrouve grâce à ses infos de vente */
 const amVpHas=it=>!!(it&&it.vp&&(it.vp.pn||it.vp.u||it.vp.uc||it.vp.rm||it.vp.d1));
 const amItems=kind=>{const a=amc();const L=Object.values(a&&a.it||{}).filter(i=>i&&i.kind===kind&&!i.del);if(kind==='ee')L.forEach(i=>{if(!i.sv&&amVpHas(i))i.sv='v'});return L};
@@ -13757,7 +13811,7 @@ async function amPoFade(m){
   g.putImageData(D,0,0);m.src=c.toDataURL('image/png');m.h=h/w}catch(e){toast('Fondu impossible sur cette image')}
 }
 async function amPoBgSmall(src,mx,q){try{if(String(src).length<=150000&&mx>=900)return src;const im=await loadImg(src),k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);const r=c.toDataURL('image/jpeg',q);return r.length<String(src).length?r:src}catch(e){return src}}
-async function amPoShare(id){
+async function amPoShare(id){if(amBlocked()){amBlockToast();return}
  const a=amc(),ev=a&&a.it&&a.it[id],o=S.amPo&&S.amPo[id];if(!ev||!o||demo)return;
  const c=Object.assign({},o);let imgs=Array.isArray(c.imgs)?c.imgs:[];c.imgs=[];
  {const two=!!(c.bgia&&c.bgim),lim=two?85000:170000;for(const k of ['bgia','bgim']){if(!c[k])continue;c[k]=await amPoBgSmall(c[k],two?760:900,two?.66:.72);if(c[k].length>lim)c[k]=await amPoBgSmall(c[k],600,.6);if(c[k].length>lim)c[k]=await amPoBgSmall(c[k],480,.55);if(c[k].length>lim*1.15){c[k]='';toast('Image de fond trop lourde : pas partagée avec le groupe',5000)}}c.bgi=c.md==='menu'?(c.bgim||''):(c.bgia||'')}
@@ -15562,7 +15616,7 @@ function amBsLbl(o){if(!o||!o.bs)return '';const sa=amBsSa(o),cur=amSaCur();if(s
 function amNomSplit(t){const w=String(t||'').trim().split(/\s+/).filter(Boolean);if(!w.length)return['',''];const up=x=>/[A-ZÀ-Þ]/.test(x)&&x===x.toUpperCase()&&x.replace(/[^A-Za-zÀ-ÿ]/g,'').length>1;
  const N=w.filter(up),Pn=w.filter(x=>!up(x));if(N.length&&Pn.length)return[Pn.join(' '),N.join(' ')];return w.length>1?[w.slice(1).join(' '),w[0]]:['',w[0]]}
 /* prépare l'élément signé (sans l'envoyer) */
-async function amBmMake(obj,del,id){
+async function amBmMake(obj,del,id){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.apriv)return null;a.it=a.it||{};id=id||AM_BM_ID;const old=a.it[id];
  const bd=del?'':JSON.stringify(amBmClean(obj)),at=Math.max(Date.now(),(old&&old.at||0)+1);
  const sg=await amSign([bd,del?1:0],at,a.apriv);
@@ -15923,7 +15977,7 @@ const amSnapSig=o=>{const cl=v=>{if(v&&typeof v==='object'&&!Array.isArray(v)){c
 function amSnapDiff(snap){const a=amc(),cur=a.it||{},back=[],chg=[];
  Object.values(snap.it||{}).forEach(o=>{if(o.del||o.kind==='ac')return;const c=cur[o.id];if(!c||c.del)back.push(o);else if(amSnapSig(c)!==amSnapSig(o))chg.push(o)});
  const nw=Object.values(cur).filter(c=>c&&!c.del&&c.kind!=='ac'&&!(snap.it||{})[c.id]);return{back,chg,nw}}
-async function amSnapApply(snap,full,src,pick){
+async function amSnapApply(snap,full,src,pick){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.apriv){toast('Seul l’administrateur peut restaurer une sauvegarde',4000);return}
  const D=amSnapDiff(snap),L=pick||D.back.concat(full?D.chg:[]);
  if(!L.length){toast('Rien à restaurer : tout est déjà comme dans la sauvegarde',3500);return}
@@ -16302,7 +16356,7 @@ const amB64ToU8=b=>{const s2=atob(b),u=new Uint8Array(s2.length);for(let k=0;k<s
 async function amAdThumb(file){
  try{if(!/^image\//.test(file.type))return '';const u=URL.createObjectURL(file),im=await loadImg(u),k=Math.min(1,140/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);return c.toDataURL('image/jpeg',.6)}catch(e){return ''}
 }
-async function amAdAdd(evId){
+async function amAdAdd(evId){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.kB)return;if(demo){toast('Pas d’ajout en mode démo',2500);return}
  const inp=document.createElement('input');inp.type='file';inp.accept='.pdf,.doc,.docx,.xls,.xlsx,.csv,.odt,.ods,.ppt,.pptx,.txt,image/*,application/pdf';
  inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;
@@ -16497,7 +16551,7 @@ function amAmImpX(r,col,yes,dt){
  return X;
 }
 /* doublons : même nom et prénom (ordre et accents ignorés) → une seule fiche, les infos sont réunies */
-async function amDblFix(){
+async function amDblFix(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.kB)return;const G={};amItems('am').forEach(m=>{(G[amNk(m.tx)]=G[amNk(m.tx)]||[]).push(m)});
  const D=Object.values(G).filter(x=>x.length>1);
  if(!D.length){toast('Aucun doublon : chaque nom n’apparaît qu’une fois',3500);return}
@@ -16549,7 +16603,7 @@ async function amFillList(evId){
  else if(r2==='e'){const names=body.map(x=>((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim()).filter(Boolean);amPtAddNames(names)}
 }
 function amPtAddNames(names){const have=new Set();amEeMut(o=>{(o.pt||[]).forEach(p=>have.add(amNk(p.n)));names.forEach(n=>{const k=amNk(n);if(!k||have.has(k)||o.pt.length>=250)return;have.add(k);const m=amItems('am').find(x=>amNk(x.tx)===k);o.pt.push({n:(m?m.tx:n).slice(0,60),m:m?m.id:'',a:m?1:0,p:0,tr:0,tb:0,pa:0,pm:'',rg:''})})});toast('Inscrits ajoutés',2500)}
-function amAmRowsAdd(rows,fn_){const FN=fn_?'« '+esc(fn_)+' »':'le fichier Excel que tu viens d’importer';
+function amAmRowsAdd(rows,fn_){if(amBlocked()){amBlockToast();return}const FN=fn_?'« '+esc(fn_)+' »':'le fichier Excel que tu viens d’importer';
  const a=amc();if(!a||!a.kB)return;
  rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
  const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:/amical|adherent oui|membre oui/,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye|montant cotisation|cotisation montant|montant de la cotisation)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^(date|dates|date (de )?paiement|date d inscription|date inscription|inscrit le|paye le|payee le)$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/(^|\s)(telephone|tel|portable|mobile|gsm)(\s|$)/};
@@ -16593,7 +16647,7 @@ if(col.am!=null&&keepSt)CF.push({id:m.id,nm:m.tx,k:'st',cur:appSt,v:X.st||''});i
    Q.push(()=>ask({title:'🔄 Changements de statut',html:(toA.length?'<p style="margin:.2rem 0"><b>🎖 Devenus amicalistes : '+toA.length+'</b></p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem">'+toA.map(li).join('')+'</ul>':'')+(toN.length?'<p style="margin:.2rem 0"><b>👤 Passés non-amicalistes : '+toN.length+'</b></p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem">'+toN.map(li).join('')+'</ul>':'')+(ok2.length?'<p style="margin:.4rem 0 .1rem"><b>✅ ⏳ Confirmés amicalistes par le fichier Excel : '+ok2.length+'</b></p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem">'+ok2.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'')+(AUno.length?'<p style="margin:.4rem 0 .1rem;color:#b45309"><b>⏳ Dans l’appli ils se sont inscrits comme amicalistes (⏳ en attente), mais dans ton fichier Excel ils sont notés non-amicalistes : '+AUno.length+'</b></p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem">'+AUno.map(x=>'<li>'+esc(x.nm)+'</li>').join('')+'</ul><p class="mut" style="font-size:.8rem;margin:0 0 .3rem">Ils restent en ⏳ dans l’appli, rien n’est changé. Le fichier concerné : '+FN+'. Vérifie s’ils ont bien payé : si oui, mets-les amicalistes dans ton Excel (ou ici).</p>':'')+(wait.length?'<p style="margin:.4rem 0 .1rem;color:#b45309"><b>⏳ Absents du fichier Excel importé : '+wait.length+'</b></p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem">'+wait.map(m=>'<li>'+esc(m.tx)+'</li>').join('')+'</ul>':'')+'<p class="mut" style="font-size:.82rem;margin:.4rem 0 0">Retrouve-les avec le filtre « 🔄 Changements · ⏳ en attente » (45 jours).</p>',btns:[{label:'OK',value:1,cls:'pri'}]}))}}
  if(hasH&&col.am==null)Q.push(()=>ask({title:'⚠️ Pas de colonne « Amicaliste »',html:'<p>Je n’ai pas trouvé de colonne qui dit qui est amicaliste. Tout le monde a été rangé en <b>🎖 Amicalistes</b>.</p><p>Colonnes lues : <i>'+esc((rows0h||[]).filter(Boolean).join(' · '))+'</i></p><p>Pour trier tout seul : une colonne dont le titre contient <b>« Amicale »</b> ou <b>« Amicaliste »</b>, avec « oui » pour les amicalistes et vide (ou « non ») pour les autres. Puis réimporte le fichier : les fiches sont mises à jour.</p>',btns:[{label:'Compris',value:1,cls:'pri'}]}));
 }
-async function amSelEdit(){
+async function amSelEdit(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!AM_SEL||!AM_SEL.size)return;const L=amItems('am').filter(m=>AM_SEL.has(m.id));
  const K=[['','— ne pas changer —']];
  const v=await amForm('✏️ Modifier '+L.length+' amicaliste'+(L.length>1?'s':''),'Seuls les champs choisis sont changés, pour toutes les personnes sélectionnées.',[{k:'ct',l:'Catégorie',t:'select',v:'',o:K.concat(AM_CT)},{k:'cf',l:'Cotisation payée',t:'select',v:'',o:K.concat([['1','Oui'],['0','Non']])},{k:'pm',l:'Payée par',t:'select',v:'',o:K.concat(AM_PM.filter(x=>x[0]))},{k:'pc',l:'Patch reçu',t:'select',v:'',o:K.concat([['1','Oui'],['0','Non']])},{k:'k8',l:'🎁 Coffret 8 ans',t:'select',v:'',o:K.concat([['1','Oui'],['0','Non']])},{k:'bp',l:'Bulletin '+amSaCur()+' signé sur papier',t:'select',v:'',o:K.concat([['1','Oui'],['0','Non']])}],'Appliquer');
@@ -16602,7 +16656,7 @@ async function amSelEdit(){
  const now=Date.now();L.forEach((m,i)=>{const it=Object.assign({},m,{o:Object.assign({},m.o||{},ch,bpf(m.o||{}))});if(ch.cf==='1'&&(m.o||{}).cf!=='1'){it.o.pd=it.o.pd||today();it.o.pb=it.o.pb||a.me.n}it.at=Math.max(now+i,(m.at||0)+1);it.by=a.me.n;it.dirty=1;amHs(m,it,'m','modification en lot · '+amDiff('am',m,it),1);a.it[m.id]=it});
  amSave();render();amFlush();toast(L.length+' fiche'+(L.length>1?'s':'')+' modifiée'+(L.length>1?'s':''),3000);
 }
-async function amSelDel(){
+async function amSelDel(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!AM_SEL||!AM_SEL.size)return;const L=amItems('am').filter(m=>AM_SEL.has(m.id));
  const r=await ask({title:'Supprimer '+L.length+' amicaliste'+(L.length>1?'s':'')+' ?',text:L.slice(0,8).map(m=>m.tx).join(', ')+(L.length>8?'…':'')+'. Ils disparaissent sur tous les appareils du bureau. Exporte la liste avant si besoin.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;const now=Date.now();amBsDropFor(L.map(m=>m.id));L.forEach((m,i)=>{const nw=Object.assign({},m,{del:1,at:Math.max(now+i,(m.at||0)+1),by:a.me.n,dirty:1});amHs(m,nw,'d','suppression en lot',1);a.it[m.id]=nw});
@@ -16724,7 +16778,7 @@ async function amRpFromRc(){
  if(!v)return;const r0=L.find(r=>r.id===v.r);if(!r0)return;
  amRpMut(r=>{r.m.push({t:r0.t,fo:v.fo||'',pp:r0.pp||4,ing:(r0.ing||[]).map(g=>({q:g.q!=null?+g.q:null,u:g.u||'',n:g.n||''})).filter(g=>g.n)})});
 }
-async function amRpSend(){
+async function amRpSend(){if(amBlocked()){amBlockToast();return}
  const a=amc(),it=a&&a.it[AMC_EE];if(!it)return;const M=((it.rp||{}).m)||[],nb=amRpNb(it);
  if(!M.length)return;if(!nb&&M.some(x=>x.k!=='c')){toast('Donne d’abord le nombre de repas',3000);return amRpNbEdit()}
  const sg=u=>{u=String(u||'');return u.length>3&&/^[a-zàâéèêîôûç]+[sx]$/i.test(u)?u.slice(0,-1):u},T={},addI=(g,f)=>{const u0=sg(g.u),k=norm(g.n)+'|'+norm(u0);const o=T[k]||(T[k]={n:g.n,u:u0,q:null,nq:0,pk:g.pk,pw:g.pw});if(g.q!=null)o.q=(o.q||0)+g.q*f;else if(f>0)o.nq=1};M.forEach(x=>{if(x.k==='c'){const c=amRpCnt(it,x);x.ing.forEach(g=>addI(g,amRpBase(it,x)));x.op.forEach((g,k)=>{if(c[k])addI(g,c[k])});return}const f=amRpNbFor(it,x)/x.pp;x.ing.forEach(g=>addI(g,f))});
@@ -16924,7 +16978,7 @@ async function amPrixMiss(miss,none){
  const r=await ask({title:(none?'Rien à changer · ':'')+'⚠️ '+miss.length+' sans tarif trouvé',html:'<p style="margin:.2rem 0 .4rem">Ces amicalistes ont payé, mais je ne trouve pas leur tarif. À ajouter dans les tarifs : <b>'+gl.map(g=>g?esc(g)+' ('+G[g]+')':'sans grade ('+G[g]+')').join(', ')+'</b>.</p><div class="bg-tab" style="max-height:42vh;overflow:auto"><table><tr><th>Nom</th><th>Grade</th><th>Prix noté</th></tr>'+amAmSorted(miss).map(m=>'<tr><td>'+esc(m.tx)+'</td><td>'+(esc((m.o||{}).gr||'')||'<i>aucun</i>')+'</td><td>'+((m.o||{}).pa?esc(amEur(m.o.pa)):'<i>vide</i>')+'</td></tr>').join('')+'</table></div>',btns:[{label:'🖨 Imprimer / exporter la liste',value:'p',cls:'pri'},{label:'💶 Écrire les tarifs manquants',value:'t'},{label:'Fermer',value:null}]});
  if(r==='p')amExport('Prix à vérifier (sans tarif)',rows,'prix-a-verifier-'+today());else if(r==='t')amBmTar();
 }
-async function amPrixRecalc(){
+async function amPrixRecalc(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.kB)return;
  if(!String(amBm().tar||'').split(/\r?\n/).some(l=>/=\s*\d/.test(l))){const r=await ask({title:'💶 Pas encore de tarifs',text:'Il faut d’abord écrire les tarifs (Groupe › Bulletin d’adhésion › Tarifs) : « Sergent = 20 », « Capitaine = 30 »… Ensuite je peux remplir les prix tout seul.',btns:[{label:'Écrire les tarifs',value:'t',cls:'pri'},{label:'Annuler',value:null}]});if(r==='t')amBmTar();return}
  const v=await amForm('💶 Remettre les prix à jour','Pour les amicalistes qui ont <b>payé leur cotisation</b>, je calcule le prix d’après les tarifs : <b>catégorie</b> (si elle a un tarif), sinon <b>grade</b>, sinon le tarif « * ». Sortie d’école = 0 €. Tu vois la liste avant de valider.',[{k:'w',l:'Qui ?',t:'select',v:'all',o:[['all','Tous ceux qui ont payé (corrige les erreurs)'],['empty','Seulement ceux sans prix']]}],'Voir les changements');
@@ -16942,7 +16996,7 @@ async function amPrixRecalc(){
  amSave();render();amFlush();toast('💶 '+nc+' prix mis à jour'+(nk?' · '+nk+' gardé'+(nk>1?'s':'')+' tel'+(nk>1?'s':'')+' quel'+(nk>1?'s':''):''),3500);
 }
 /* ---- 🔄 nouvelle saison : tout le monde redevient non-amicaliste, on garde l'identité ---- */
-async function amSeasonOpen(){
+async function amSeasonOpen(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.kB)return;if(!a.apriv&&!demo){toast('Réservé à l’administrateur',3000);return}
  const L=amAms(),nx=amSaNext(amSaCur());
  const v=await amForm('🔄 Nouvelle saison : rouvrir les inscriptions','<p style="margin:.2rem 0 .4rem">Les <b>'+L.length+' amicalistes</b> repassent en <b>👤 non-amicalistes connus</b>. Pour chacun :</p><ul style="margin:.2rem 0 .5rem;padding-left:1.2rem;font-size:.92rem"><li>✅ gardé : nom, grade, service, catégorie, N° de badge, téléphone, mail, régime, patch, coffret, notes ;</li><li>🧹 remis à zéro : cotisation, prix, moyen et date de paiement.</li></ul><p style="margin:.2rem 0 .4rem;font-size:.92rem">Quand quelqu’un se réinscrit, « Ajouter un amicaliste » retrouve sa fiche et la pré-remplit. Une <b>copie de sauvegarde</b> est faite avant (🛡 Ne rien perdre).</p><p class="mut" style="font-size:.86rem">Pense aussi au bulletin : Groupe › Bulletin d’adhésion › « Préparer la saison '+esc(nx)+' ».</p>',[{k:'c',l:'Pour confirmer, écris SAISON',v:'',ph:'SAISON'}],'Rouvrir les inscriptions');
@@ -17008,7 +17062,7 @@ async function amJournalClear(){
  const r=await ask({title:'Effacer « Qui a fait quoi » ?',text:'La liste repart à zéro chez tout le bureau. Rien d’autre n’est supprimé (amicalistes, événements, tâches… restent).',btns:[{label:'🧹 Effacer la liste',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;a.jz=Date.now();amSave();render();try{await amRolesPut()}catch(e){}toast('Liste « Qui a fait quoi » effacée',2500);
 }
-async function amTrashEmpty(){
+async function amTrashEmpty(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.apriv)return;const L=amTrash();if(!L.length){toast('La corbeille est déjà vide',2500);return}
  const v=await amForm('🗑 Vider la corbeille','<b>'+L.length+' élément'+(L.length>1?'s':'')+'</b> seront effacés <b>pour de bon</b>, chez tout le bureau : on ne pourra plus les restaurer.<br><small class="mut">Les copies automatiques (📅) gardent encore l’état des jours passés.</small>',[{k:'c',l:'Pour confirmer, écris VIDER',v:'',ph:'VIDER'}],'Vider pour de bon');
  if(!v)return;if(String(v.c||'').trim().toUpperCase()!=='VIDER'){toast('Pas confirmé : rien n’a été effacé',3000);return}
@@ -17222,7 +17276,7 @@ function amCqHTML(){
  if(a.kB)h+='<div class="btns" style="margin:.3rem 0 .5rem"><button class="btn grow" data-act="amco-cqadd">＋ Ajouter des habituels</button>'+(Q.length?'<button class="btn grow'+(AMC_CTM?' pri':'')+'" data-act="amco-cqman">'+(AMC_CTM?'✔ Terminé':'✏️ Retirer des habituels')+'</button>':'')+'</div>';
  return h;
 }
-async function amCqAdd(){
+async function amCqAdd(){if(amBlocked()){amBlockToast();return}
  const a=amc();if(!a||!a.kB)return;
  const v=await amForm('＋ Habituels','Les articles que vous achetez souvent. Un par ligne (ou séparés par des virgules). Tu peux regrouper par thème (Boissons, Apéro, Buvette…).',[{k:'g',l:'Thème',v:'Boissons',ph:'Boissons, Apéro, Buvette…'},{k:'t',l:'Articles',t:'area',v:'',ph:'Coca\nGlaçons\nGobelets'}],'Ajouter');
  if(!v||!String(v.t||'').trim())return;
@@ -17244,7 +17298,7 @@ function amCfgDrop(){const a=amc();if(a&&a.it&&a.it.cfgdl)delete a.it.cfgdl}
 function amCfgMig(){const a=amc();if(!a||!a.kB||!a.it||!a.it.cfgdl)return;const o=a.it.cfgdl;if(!a.it.cfgdlist&&!o.del){a.it.cfgdlist=Object.assign({},o,{id:'cfgdlist',at:Date.now(),by:a.me.n,dirty:1})}delete a.it.cfgdl;amSave()}
 function amCfgPut(mut){const c=amDLc(),o={n:c.n||'',b:(c.b||[]).slice(),l:(c.l||[]).slice()};mut(o);if(o.n==='Courses')o.n='';amCfgDrop();amItemSave({id:'cfgdlist',kind:'dl',tx:'Listes',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(o),del:0,z:'a'})}
 const amCoLists=()=>{const a=amc(),L=[amDL()];amItems('co').forEach(i=>{const n=i.l||amDL();if(!L.includes(n))L.push(n)});(amDLc().l||[]).concat((a&&a.cl)||[]).forEach(n=>{if(!L.includes(n))L.push(n)});return a&&!a.kB?L.filter(n=>!amListB(n)):L};
-async function amCoEdit(){
+async function amCoEdit(){if(amBlocked()){amBlockToast();return}
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a||!a.kB)return;
  const old=AMC_CL,isDef=old===amDL(),B0=amListB(old);
@@ -17371,6 +17425,23 @@ function amPendTick(){const a=amc();if(!a)return;const n=amPendN(),e=document.ge
 
 /* Amicale 2.73 : en-tête coloré de l'accueil (logo, chiffres, prochain événement) et barre d'onglets du bas */
 function amAgo(t){const m=Math.max(0,Math.round((Date.now()-t)/60000));if(m<2)return 'à l’instant';if(m<60)return 'il y a '+m+' min';const h=Math.round(m/60);if(h<24)return 'il y a '+h+' h';const d=Math.round(h/24);return d===1?'hier':'il y a '+d+' jours'}
+function amSuiviHTML(a){
+ const td=today(),go=(k,id,ic,t,sub)=>'<button class="am2-row" data-act="am-hgo" data-k="'+k+'"'+(id?' data-id="'+esc(id)+'"':'')+'><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>',pl=(n,u,us)=>n+' '+(n>1?(us||u+'s'):u),R=[];
+ try{const P=amAqPend(),T=amAqToSign(),Y=amAqToPay();if(amAq())setTimeout(()=>amAqFetch(),300);
+  if(P.length)R.push(go('aq','','📥',pl(P.length,'demande d’adhésion','demandes d’adhésion')+' à valider',P.slice(0,3).map(x=>amQrName(x.v||{})).filter(Boolean).join(' · ')));
+  const S=[T.length?'✍️ '+pl(T.length,'bulletin')+' à signer':'',Y.length?'💶 '+pl(Y.length,'cotisation')+' à encaisser':''].filter(Boolean);
+  if(S.length)R.push(go('aq','','🎖','Adhésions en cours',S.join(' · ')))}catch(e){}
+ const late=amItems('tk').filter(i=>!i.x&&i.d&&i.d<td);
+ if(late.length)R.push(go('tk','','⏰',pl(late.length,'tâche')+' en retard',late.slice(0,2).map(i=>i.tx).join(' · ')));
+ const E=amItems('ee').filter(i=>(i.d||'')>=td||(i.sv==='v'&&i.vp&&(i.vp.d1||'')>=td)).sort((p,q)=>String(p.d||'').localeCompare(q.d||'')).slice(0,3);
+ E.forEach(it=>{const dd=it.d?Math.round((new Date(it.d+'T12:00')-new Date(td+'T12:00'))/864e5):null,j=dd==null?'':dd<=0?'en cours':dd===1?'demain':'J-'+dd,info=[];
+  if(it.sv==='v'){try{const t=amVpState(it);if(t.badge)info.push(t.badge)}catch(e){}}
+  else{const pt=it.pt||[];if(pt.length||it.qr){const pers=pt.reduce((t,p)=>t+Math.max(1,+p.na||1)+(+p.ne||0),0);info.push('👥 '+pl(pt.length,'inscrit')+(pers>pt.length?' ('+pers+' pers.)':''))}
+   if(it.qr){setTimeout(()=>amQrFetch(it.id),300);const q=amQrPend(it).length;if(q)info.push('📥 '+q+' à valider')}
+   if(it.pr&&it.pr.on){try{const T=amPayTot(it);if(T.re)info.push('💶 reste '+amEur(T.re))}catch(e){}}}
+  const ck=(it.ck||[]).filter(c=>c&&c.t);if(ck.length){const ok=ck.filter(c=>c.ok).length;info.push('✅ préparation '+ok+'/'+ck.length)}
+  R.push(go('ee',it.id,it.sv==='v'?'🛍️':'🎉',String(it.tx||'Événement').slice(0,50)+(j?' · '+j:''),info.join(' · ')))});
+ return '<div class="am2-card"><h3>📋 À suivre</h3>'+(R.length?R.join(''):'<p class="mut" style="margin:.3rem 0">Rien à suivre pour l’instant 🎉</p>')+'</div>'}
 function amAcHTML(a){
  const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x),mine=pend.filter(i=>i.w&&i.w===me),buy=amItems('co').filter(i=>!i.x);
  const row=(k,ic,t,sub)=>'<button class="am2-row" data-act="am-tab" data-k="'+k+'"><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>';
@@ -17381,9 +17452,8 @@ function amAcHTML(a){
  if(a.kB){try{if(amCx())setTimeout(()=>amCxFetch(),400)}catch(e){}const nc=amCxNew();if(nc.length)R.push('<button class="am2-row" data-act="cx-open"><i>📬</i><span><b>'+nc.length+(nc.length>1?' messages d’amicalistes à traiter':' message d’amicaliste à traiter')+'</b><small>'+esc(nc.slice(0,2).map(i=>(i.w||'Sans nom')+' : '+i.tx.slice(0,40)).join(' · '))+'</small></span></button>')}
  if(buy.length)R.push(row('co','🛒',buy.length+(buy.length>1?' articles à acheter':' article à acheter'),buy.slice(0,3).map(i=>i.tx).join(', ')));
  h+=(R.length?R.join(''):'<p class="mut" style="margin:.3rem 0">Rien en attente pour toi 🎉</p>')+'</div>';
- const IC={tk:['✅','Tâches'],co:['🛒','Courses'],ev:['📅','Agenda'],ee:['🎉','Événements'],nt:['📝','Notes']},lim=Date.now()-7*864e5;
- const N=Object.values(a.it||{}).filter(i=>i&&IC[i.kind]&&!i.del&&i.tx&&i.by&&i.by!==me&&(i.at||0)>lim&&(i.at||0)<=Date.now()+6e4).sort((p,q)=>q.at-p.at).slice(0,5);
- if(N.length)h+='<div class="am2-card"><h3>Du nouveau</h3>'+N.map(i=>row(i.kind,IC[i.kind][0],i.tx,(i.by||'')+' · '+(i.x?'terminé · ':'')+amAgo(i.at))).join('')+'</div>';
+ /* 2.82.131 : « Du nouveau » (qui a coché quoi) remplacé par « 📋 À suivre » : ce qu’il y a à faire, pour le bureau */
+ if(a.kB)h+=amSuiviHTML(a);
  return h;
 }
 const AM_COLS=[['','Automatique'],['#E5384F','Rouge'],['#FF7A45','Orange'],['#F5A300','Jaune'],['#5DB43A','Vert'],['#12B5A0','Turquoise'],['#2D8CFF','Bleu'],['#6B4EFF','Violet'],['#B25CFF','Mauve'],['#E94F9B','Rose'],['#8B6B4A','Marron'],['#5B6573','Gris']];
@@ -17909,7 +17979,7 @@ function amGrHTML(a,nu,navm,ami){
  let h='';
   h+='<div class="card"><h3>'+esc(a.em||'👥')+' '+esc(a.nm)+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.9rem">Ton niveau : <b>'+(a.apriv?'Administrateur':a.kB?'Bureau':'Aide')+'</b>. '+(a.kB?'Tu vois la zone Bureau et la zone Aide.':'Tu vois la zone Aide.')+'</p>'+
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
-   mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+
+   mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+mrow('am-dev','📱 Cet appareil : '+(a.dev==='s'?'secondaire':'principal'),a.dev==='s'?'Tout fonctionne ; seuls retrait et niveau des membres se font sur le principal':'Sert aussi à retirer un membre ou changer son niveau')+(a.apriv?mrow('am-alert',a.alert&&a.alert.on?'✅ Fin de l’alerte générale':'🚨 Alerte générale',a.alert&&a.alert.on?'Débloque tout le monde (rechargement automatique)':'Bloque tous les autres appareils le temps d’une manipulation'):'')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
    (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.apriv&&!ami?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
   if(!ami)h+=amColCard()+pushCard();
@@ -18010,7 +18080,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amLinkIn,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
