@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.151';
+const APP_VERSION='2.82.153';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.153',d:'20/11/2026',items:['🔒 Case d’accord obligatoire sur les formulaires (adhésion, inscription à un événement, choix du menu, boîte à idées) et avant de rejoindre le groupe : données chiffrées sur le téléphone, serveur Cloudflare qui ne peut pas les lire, ni vendues ni partagées, correction ou suppression sur demande','🔑 Plusieurs retraits d’affilée : vérifié sans risque ; les nouvelles clés sont en plus déposées directement là où un appareil resté fermé les cherche (récupération plus rapide)','⚠️ Avant chaque retrait : alerte qui explique le renouvellement des clés et liste ceux qui n’ont pas encore rouvert l’appli depuis le dernier retrait']},
+{v:'2.82.152',d:'20/11/2026',items:['👥 Membre retiré qui réapparaissait sur le Mac / l’iPad : un retrait reste désormais toujours dans la liste envoyée au serveur, et un appareil administrateur cache toujours quelqu’un qu’il sait retiré']},
 {v:'2.82.151',d:'20/11/2026',items:['🔑 Un appareil qui n’a pas reçu les nouvelles clés du groupe (après le retrait d’un membre) le dit maintenant en grand, sur l’accueil et dans Réglages, avec la marche à suivre (le relier depuis le principal) ; ses modifications sont bloquées pour ne rien perdre','🔒 Appareil secondaire (iPad, ordinateur) : « Retirer du groupe » et « Passer en Bureau / Aide extérieur » sont marqués 🔒 et affichent tout de suite « Pas depuis cet appareil, fais-le depuis ton appareil principal » ; rien n’est modifié','👥 Un membre retiré disparaît aussi des autres appareils administrateurs (iPad, Mac), même si leur horloge n’est pas à l’heure ; la carte Synchronisation affiche le n° des clés']},
 {v:'2.82.150',d:'20/11/2026',items:['🔔 Réunions : « Relancer » / « Rappeler » ne préviennent plus ceux qui ont dit « aucune date », ceux qui ne sont pas dispo à la date fixée, ni ceux qui ont noté une absence ce jour-là ; la fenêtre dit qui n’est pas relancé et pourquoi','🙅 Le bureau peut noter « pas dispo » pour quelqu’un qui a répondu non par téléphone ou WhatsApp']},
 {v:'2.82.149',d:'20/11/2026',items:['🛠 « 👍 Bien reçu » s’affiche aussi quand le bureau a donné à la personne un autre nom que le sien (ex. « SGT DEMANNOY Sandrine » sur la tâche, « sand » dans son appli) ; pareil pour « Mes tâches » et sa fiche']},
@@ -12988,7 +12990,9 @@ async function amRotate(){
   todo.push({doc:'rk-'+a.me.id,P:{app:'agd',k:'amc',v:1,t:'rk',id:a.me.id,gen,e:{x:ep.x,y:ep.y},c,iv:ivs,sig}})
  }catch(e){}}
  const oldA=a.kA;
- a.rot={oldA,todo:(a.rot&&a.rot.oldA===oldA?a.rot.todo:[]).concat(todo)};
+ /* 2.82.153 : les paquets de nouvelles clés sont déposés dans les 3 derniers « anciens » espaces, pas seulement le précédent : un appareil resté fermé pendant plusieurs retraits d’affilée retrouve quand même les clés en rouvrant */
+ a.oldAs=[oldA].concat((a.oldAs||[]).filter(k=>k&&k!==oldA)).slice(0,3);a.rotAt=Date.now();
+ a.rot={oldA,oldAs:a.oldAs.slice(),todo:(a.rot&&a.rot.oldA===oldA?a.rot.todo:[]).concat(todo)};
  a.kB=kB2;a.kA=kA2;a.gen=gen;a.last={};a.sent={};a.rolesDirty=1;
  for(const it of Object.values(a.it||{}))it.dirty=1;
  amSave();
@@ -12998,7 +13002,7 @@ async function amRotate(){
 }
 async function amRotFlush(){
  const a=amc();if(!a||!a.rot||!famUrl()||demo)return;
- try{while(a.rot&&a.rot.todo.length){const t=a.rot.todo[0];await amPut('a',t.doc,t.P,a.rot.oldA);a.rot.todo.shift();amSave()}if(a.rot&&!a.rot.todo.length){delete a.rot;amSave()}}catch(e){}
+ try{while(a.rot&&a.rot.todo.length){const t=a.rot.todo[0],K=(a.rot.oldAs&&a.rot.oldAs.length?a.rot.oldAs:[a.rot.oldA]);for(const k of K)await amPut('a',t.doc,t.P,k);a.rot.todo.shift();amSave()}if(a.rot&&!a.rot.todo.length){delete a.rot;amSave()}}catch(e){}
 }
 function amList(){
  const a=amc();if(!a)return[];
@@ -13015,7 +13019,8 @@ function amList(){
   out.push({id,n:r.on||c.n||(R[id]&&R[id].n)||'?',sn:(r.os||c.sn||''),tel:c.tel||'',mp:c.mp||'',mw:c.mw||'',col:c.col||'',ic:c.ic||'',ph:c.ph||'',l:(a.apriv&&a.lvo&&a.lvo[id])||(R[id]&&R[id].l)||m.z||'a',t:r.t||'',x:!!r.x,adm:!!(R[id]&&R[id].adm),v:c.v||'',o:c.o||'',la:c.la||''});seen.add(id);
  }
  // personnes connues seulement par la liste signée (zone Bureau pas lisible : noms et titres seulement)
- for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id];out.push({id,n:r.on||r.n||'?',sn:r.os||'',tel:'',mp:'',mw:'',l:r.l||'b',t:r.t||'',x:!!r.x,adm:!!r.adm,ro:1})}
+ /* 2.82.152 : un membre retiré sur cet appareil administrateur (rl.x) reste caché même si la liste du serveur le montre encore */
+ for(const id of Object.keys(R)){if(seen.has(id))continue;const r=R[id],lx=!!(a.apriv&&rl[id]&&rl[id].x);out.push({id,n:(a.apriv&&rl[id]&&rl[id].on)||r.on||r.n||'?',sn:(a.apriv&&rl[id]&&rl[id].os)||r.os||'',tel:'',mp:'',mw:'',l:r.l||'b',t:(a.apriv&&rl[id]&&rl[id].t)||r.t||'',x:!!r.x||lx,adm:!!r.adm,ro:1})}
  return out.filter(p=>!p.x);
 }
 async function amRolesPut(){
@@ -13024,6 +13029,8 @@ async function amRolesPut(){
  const add=(id,n,l,adm)=>{const e={id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0};if(rl[id]&&rl[id].on)e.on=String(rl[id].on).slice(0,30);if(rl[id]&&rl[id].os)e.os=String(rl[id].os).slice(0,30);list.push(e)};
  add(a.me.id,a.me.n,'b',1);
  for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',(a.admIds||[]).includes(id))}
+ /* 2.82.152 : les retraits restent DANS la liste envoyée (x:1), même si la fiche de la personne n’est plus sur cet appareil : sinon un autre appareil la faisait réapparaître */
+ {const have=new Set(list.map(e=>e.id)),R0={};((a.roles&&a.roles.list)||[]).forEach(r=>{if(r&&r.id)R0[r.id]=r});for(const id of Object.keys(rl)){if(have.has(id)||id===a.me.id||!(rl[id]&&rl[id].x))continue;const r=R0[id]||{};list.push({id,n:String(r.n||'?').slice(0,30),t:'',l:r.l||'a',x:1,adm:0})}}
  /* 2.82.137 : verrou. Jamais republier une liste où il manque des membres du serveur, sauf un vrai retrait (rl[id].x) */
  {const ids=new Set(list.map(e=>e.id)),lost=((a.roles&&a.roles.list)||[]).filter(r=>r&&r.id&&!r.x&&!ids.has(r.id)&&!(rl[r.id]&&rl[r.id].x));
   if(lost.length){a.rolesDirty=1;a.rolesHeld=lost.length;try{toast('🛡 Cet appareil n’a pas tous les membres ('+lost.length+' manquant'+(lost.length>1?'s':'')+') : la liste n’est pas envoyée. Fais Réglages › « Tout recharger depuis le serveur ».',7000)}catch(e){}return}a.rolesHeld=0}
@@ -13126,7 +13133,7 @@ async function amPull(manual){
      chg=true;continue}
     const m=d.doc.match(/^c-([a-z0-9]{6,16})$/);if(!m||P.id!==m[1]||m[1]===a.me.id)continue;
     const e=a.mem[m[1]]||(a.mem[m[1]]={cards:{}});e.cards=e.cards||{};
-    if(P.pub&&P.pub.x&&P.pub.y)e.pub={x:String(P.pub.x),y:String(P.pub.y)};
+    if(P.pub&&P.pub.x&&P.pub.y)e.pub={x:String(P.pub.x),y:String(P.pub.y)};e.gk=a.gen||0;
     e.cards[x.z]=P.off?null:{n:String(P.n||'?').slice(0,30),sn:String(P.sn||'').slice(0,20),tel:String(P.tel||'').slice(0,30),mp:String(P.mp||'').slice(0,80),mw:String(P.mw||'').slice(0,80),col:/^#[0-9a-f]{6}$/i.test(P.col||'')?P.col:'',ic:Array.from(String(P.ic||'')).slice(0,2).join(''),ph:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{20,12000}$/.test(P.ph||'')?P.ph:'',v:/^\d+(\.\d+){1,3}$/.test(P.v||'')?P.v:'',o:P.o==='app'||P.o==='site'?P.o:'',la:/^\d{4}-\d{2}-\d{2}$/.test(P.la||'')?P.la:'',at:P.at||0};
     if(x.z==='b')e.z='b';else if(!e.z)e.z='a';
     chg=true;
@@ -13137,6 +13144,7 @@ async function amPull(manual){
   try{if(a.apriv&&!AM_USBUSY&&Date.now()-AM_USAT>36e5)setTimeout(amUsageCheck,2500)}catch(e){}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
+  if(a.apriv&&!amIsSec()&&!a.rx152){a.rx152=1;if(Object.values(a.rl||{}).some(r=>r&&r.x))a.rolesDirty=1} /* 2.82.152 : le téléphone principal renvoie une fois la liste avec ses retraits */
   if(a.apriv&&a.rolesDirty){try{await amRolesPut();amSave()}catch(e){}}
   a.syncOk=Date.now();if(fpv)a.fpv=APP_VERSION;a.dg={n:dgN,f:dgF,e:dgE};amSave();
   try{amAlertAfter(alPrev)}catch(e){}
@@ -13315,6 +13323,8 @@ async function amJoinCode(){
  setTimeout(()=>{const i=$('#fc-in');if(i)i.focus()},120);
  const r=await pr;root.oninput=null;if(r!=='ok')return;
  {const n=famCodeNorm(v.t);if(n.length===12&&[...n].every(c=>FAM_ABC.includes(c))){await amLinkIn(n);return}}
+ /* 2.82.153 : accord avant de rejoindre un groupe avec un code d’invitation (pas pour la liaison de ses propres appareils) */
+ {const c0=await ask({title:'🔒 Avant de rejoindre',html:'<p style="margin:.2rem 0 .5rem">En rejoignant le groupe, j’accepte que mon nom, mes coordonnées et ce que j’ajoute dans l’appli soient partagés avec les membres du groupe.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔒 Tout est <b>chiffré sur mon téléphone</b> avant l’envoi, puis gardé sur un serveur (Cloudflare) qui <b>ne peut pas le lire</b> : seuls les membres du groupe ont la clé. Rien n’est vendu ni partagé ailleurs, et je peux demander au bureau de corriger ou de supprimer mes informations à tout moment. Aucun système n’étant infaillible à 100 %, je n’indique que ce qui est utile.</p>',btns:[{label:'✅ J’accepte et je rejoins',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(c0!=='y')return}
  const code=famCodeFind(v.t);if(!code){toast('Ce code ne semble pas bon : 8 caractères pour une invitation (K7P4-9QX2), 12 pour lier un appareil',5000);return}
  try{
   const FK=await famCodeKeys(code),res=await fetch(famUrl()+'/i/'+FK.id,{cache:'no-store'});
@@ -13364,6 +13374,11 @@ async function amRemove(id){
  const a=amc();if(a&&!a.apriv&&!demo){toast('Seul un administrateur peut retirer quelqu’un du groupe (depuis son téléphone d’administrateur)',6000);return}if(!a||!a.apriv||id===a.me.id)return;
  if(amIsSec()){await amSecBlock('retirer quelqu’un du groupe');return}
  const p=amList().find(x=>x.id===id);if(!p)return;
+ /* 2.82.153 : alerte avant un retrait : qui n’a pas encore rouvert l’appli depuis le dernier renouvellement des clés */
+ if(!a.gk153){a.gk153=1;Object.values(a.mem||{}).forEach(m=>{if(m&&m.gk==null)m.gk=a.gen||0});amSave()}
+ {const late=amList().filter(q=>!q.self&&!q.x&&q.id!==id&&a.mem&&a.mem[q.id]&&a.mem[q.id].pub&&(+a.mem[q.id].gk||0)<(a.gen||0));
+  const r0=await ask({title:'⚠️ Avant de retirer '+p.n,html:'<p style="margin:.2rem 0 .5rem">Retirer quelqu’un <b>renouvelle les clés</b> du groupe : chaque appareil reçoit les nouvelles en rouvrant l’appli.</p>'+(late.length?'<p style="margin:0 0 .3rem"><b>'+late.length+' personne'+(late.length>1?'s n’ont':' n’a')+' pas encore rouvert l’appli</b> depuis le dernier retrait'+(a.rotAt?' ('+esc(new Date(a.rotAt).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+')':'')+' :</p><p style="margin:0 0 .5rem;font-size:.9rem">'+late.map(q=>esc(q.n)).join(', ')+'</p><p class="mut" style="font-size:.86rem;margin:0 0 .5rem">✅ Ce n’est plus gênant : elles recevront quand même les bonnes clés en rouvrant l’appli, même après plusieurs retraits.</p>':'<p style="margin:0 0 .5rem">✅ Tout le monde a déjà les clés actuelles.</p>')+'<p style="margin:0 0 .3rem"><b>📱 Pense à ouvrir aussi ton iPad et ton Mac</b> après le retrait, pour qu’ils prennent les nouvelles clés.</p>',btns:[{label:'Continuer',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+  if(r0!=='y')return}
  const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">📲 Tes autres appareils (PC, tablette) : vérifie ensuite qu’ils sont à jour ; sinon, refais « Lier mon PC / ma tablette ».</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « ✅ Clés à jour ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
  if(!(await amRotCheck(id)))return;
@@ -18503,7 +18518,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
