@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.146';
+const APP_VERSION='2.82.147';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.147',d:'20/11/2026',items:['🛠 Planning des disponibilités : ✕ et « Fermer » ferment à coup sûr sur iPhone']},
 {v:'2.82.146',d:'20/11/2026',items:['🔴 Onglet Fêtes en bas : le chiffre rouge additionne les nouveautés des événements (2 modifications = 2) et reste jusqu’à ce que tu ouvres chaque événement ; sur l’événement, le nombre de nouveautés, qui a modifié et quoi ; en ouvrant l’événement, un encadré « 🆕 Ce qui a changé depuis ta dernière visite » liste chaque modification (qui, quand, quoi), plus besoin de chercher','📅 Planning des disponibilités : touche une case colorée pour voir qui est absent, les dates et le motif (motif et note visibles par le bureau)']},
 {v:'2.82.145',d:'19/11/2026',items:['👥 Deux appareils administrateurs (ex. iPhone + Mac) : les noms, surnoms et fonctions changés sur l’un arrivent maintenant aussi sur l’autre (avant, chacun gardait les siens)','📅 Planning « Disponibilités » en plein écran, adapté au téléphone, à l’iPad et à l’ordinateur, en portrait comme en paysage (1 semaine sur téléphone en portrait, 3 en paysage ou sur iPad debout, 4 sur grand écran, sans avoir à faire défiler)']},
 {v:'2.82.144',d:'19/11/2026',items:['🟢 Disponibilités : pastilles plus lisibles (Dispo / ⏳ Absent dans 3 j, du 23 au 25 nov. / ⛔ Absent jusqu’au …), elles ne débordent plus sur la personne d’à côté','🔴 Fêtes : un événement modifié (ou créé) par quelqu’un d’autre porte une pastille rouge « 1 » et la mention « Nouveau · modifié par … » dans la liste, jusqu’à ce que tu l’ouvres']},
@@ -17636,10 +17637,11 @@ async function amAbEdit(id,nm){const a=amc();if(!a)return;const td=today();
  if(a.kB)amItemSave(Object.assign({id:'ab'+k,z:'b',pl:AB_T[v.t]?v.t:'a',bd:String(v.nt||'').trim().slice(0,200)},base));
  amItemSave(Object.assign({id:'ap'+k,z:'a',pl:'',bd:''},base));toast('📅 Absence enregistrée',2500)}
 function amAbDel(k){const a=amc();if(!a)return;['ab','ap'].forEach(px=>{const it=a.it&&a.it[px+k];if(it&&!it.del)amItemSave(Object.assign({},it,{del:1}))});toast('Absence supprimée',2500)}
-async function amAbPlan(off){const a=amc();if(!a)return;
+let AB_TOK=0;
+async function amAbPlan(off){const a=amc();if(!a)return;const tok=++AB_TOK;
  /* 2.82.144 : planning en plein écran ; 4 semaines (2 sur téléphone en portrait), se recalcule quand on tourne l’écran */
  let RS=0;const nW=()=>{const w=window.innerWidth||800;return w<600?1:w<1000?3:4};
- for(;;){const NW=nW(),ND=NW*7;const t0=new Date(today()+'T12:00');t0.setDate(t0.getDate()-((t0.getDay()+6)%7)+off*7);const D=[];for(let i=0;i<ND;i++){const x=new Date(t0);x.setDate(x.getDate()+i);D.push(x.toISOString().slice(0,10))}
+ for(;;){if(tok!==AB_TOK)return;const NW=nW(),ND=NW*7;const t0=new Date(today()+'T12:00');t0.setDate(t0.getDate()-((t0.getDay()+6)%7)+off*7);const D=[];for(let i=0;i<ND;i++){const x=new Date(t0);x.setDate(x.getDate()+i);D.push(x.toISOString().slice(0,10))}
   const A=amAbs(),P=amList().filter(p=>!p.x),td=today(),JR=['L','M','M','J','V','S','D'];
   const cell=(p,d,i)=>{const o=A.find(o=>o.w===p.id&&o.d1<=d&&o.d2>=d),we=i%7>4;return '<td class="'+(o?'ab-x':'')+(we?' ab-we':'')+(d===td?' ab-td':'')+'"'+(o?' data-ab="'+A.indexOf(o)+'" data-p="'+esc(p.sn||p.n||'')+'"':'')+' title="'+(o?esc(amAbTxt(o,1)):'')+'">'+(o?(a.kB&&o.t?AB_T[o.t][0]:'●'):'')+'</td>'};
   const tbl='<div class="ab-tip" aria-live="polite">👆 Touche une case colorée pour voir le détail de l’absence</div><div class="ab-plan"><table><thead><tr><th></th>'+D.map((d,i)=>'<th class="'+(i%7>4?'ab-we':'')+(d===td?' ab-td':'')+'"><small>'+JR[i%7]+'</small><br>'+(+d.slice(8))+'</th>').join('')+'</tr></thead><tbody>'+P.map(p=>'<tr><th>'+esc(p.sn||String(p.n||'?').split(/\s+/).slice(0,2).join(' '))+'</th>'+D.map((d,i)=>cell(p,d,i)).join('')+'</tr>').join('')+'</tbody></table></div>';
@@ -17649,8 +17651,11 @@ async function amAbPlan(off){const a=amc();if(!a)return;
   const bx=$('#dlg .dlgbox');if(bx)bx.classList.add('ab-full');
   /* 2.82.146 : toucher une case colorée affiche qui, les dates et le motif (motif + note : bureau seulement) */
   {const pl=bx&&bx.querySelector('.ab-plan'),tip=bx&&bx.querySelector('.ab-tip');if(pl&&tip)pl.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('td[data-ab]');if(!c)return;e.stopPropagation();const o=A[+c.dataset.ab];if(!o)return;pl.querySelectorAll('td.ab-sel').forEach(x=>x.classList.remove('ab-sel'));c.classList.add('ab-sel');tip.classList.add('on');tip.innerHTML='<b>'+esc(c.dataset.p||o.n||'?')+'</b> · '+esc(amAbTxt(o,1))+(!a.kB?'<br><small>(le motif n’est visible que par le bureau)</small>':!o.t?'<br><small>Motif non précisé</small>':'')})}
-  const onRs=()=>{if(nW()!==NW&&$('#dlg .ab-full')){RS=1;const c=$('#dlg')._close;if(c)c()}};window.addEventListener('resize',onRs);window.addEventListener('orientationchange',onRs);
-  let r;try{r=await pr}finally{window.removeEventListener('resize',onRs);window.removeEventListener('orientationchange',onRs)}
+  /* 2.82.147 : fermeture sûre sur iPhone (✕ et Fermer ferment toujours, même si le toucher est mal reconnu) ; on ne recalcule le planning qu’au vrai changement d’orientation (plus sur « resize », que l’iPhone envoie parfois sans raison) */
+  if(bx)bx.querySelectorAll('.dlg-x,[data-v="3"]').forEach(el=>{const cl=e=>{if(e)e.stopPropagation();const c=$('#dlg')._close;if(c)c()};el.addEventListener('click',cl);el.addEventListener('pointerup',e=>{if(e.pointerType==='touch'||e.pointerType==='pen')setTimeout(()=>{if($('#dlg .ab-full')){const c=$('#dlg')._close;if(c)c()}},60)})});
+  let rsT=0;const onRs=()=>{clearTimeout(rsT);rsT=setTimeout(()=>{if(tok===AB_TOK&&nW()!==NW&&$('#dlg .ab-full')){RS=1;const c=$('#dlg')._close;if(c)c()}},450)};window.addEventListener('orientationchange',onRs);
+  let r;try{r=await pr}finally{clearTimeout(rsT);window.removeEventListener('orientationchange',onRs)}
+  if(tok!==AB_TOK)return;
   if(RS){RS=0;continue}
   if(r==='prev'){off-=NW;continue}if(r==='next'){off+=NW;continue}
   if(r==='add'){let id=a.me.id,nm=a.me.n;if(a.apriv){const ps=P.map(p=>({label:(p.self?'Moi ('+p.n+')':p.n),value:p.id}));const c=await ask({title:'Absence de qui ?',btns:ps.concat([{label:'Annuler',value:null}])});if(!c)continue;id=c;nm=(P.find(p=>p.id===c)||{}).n||nm}await amAbEdit(id,nm);continue}
