@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '2.82.147';
+const VERSION = '2.82.148';
 const CACHE = 'agd-cache-v' + VERSION;
 const ASSETS = [
   './',
@@ -67,10 +67,17 @@ self.addEventListener('fetch', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
+  // 2.82.148 : ouvrir directement la bonne page (réunion à voter, tâche confiée)
+  const t = String(e.notification.title || '');
+  const M = [[/Réunion de préparation/, 'rp'], [/Réunion mensuelle/, 'rn'], [/Amicale · Tâche/, 'tk'], [/Amicale · Courses/, 'co'], [/Amicale · Agenda/, 'ev'],
+    [/Amicale · (Événement|Inscription|Affiches)/, 'ee'], [/Amicale · Notes/, 'nt'], [/Amicale · Membres/, 'am'], [/Amicale · Adhésion/, 'aq'], [/📬/, 'cx'], [/Amicale · Boîte à idées/, 'id'],
+    [/Amicale · (Administratif|Cadeaux|Compte rendu|Bulletin)/, 'ad'], [/Amicale/, 'ac']];
+  let go = ''; for (const [r, g] of M) { if (r.test(t)) { go = g; break; } }
+  const nm = (String(e.notification.body || '').match(/«\s*([^»]{1,80}?)\s*»/) || [])[1] || '';
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) { if ('focus' in c) return c.focus(); }
-      return self.clients.openWindow('./');
+      for (const c of list) { if ('focus' in c) { if (go) { try { c.postMessage({ agdGo: go, n: nm }); } catch (x) {} } return c.focus(); } }
+      return self.clients.openWindow('./' + (go ? '?go=' + go : ''));
     })
   );
 });
