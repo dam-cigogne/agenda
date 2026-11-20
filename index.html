@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.148';
+const APP_VERSION='2.82.149';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.149',d:'20/11/2026',items:['🛠 « 👍 Bien reçu » s’affiche aussi quand le bureau a donné à la personne un autre nom que le sien (ex. « SGT DEMANNOY Sandrine » sur la tâche, « sand » dans son appli) ; pareil pour « Mes tâches » et sa fiche']},
 {v:'2.82.148',d:'20/11/2026',items:['🔔 Toucher une notification ouvre directement la bonne page : la réunion avec toutes les dates proposées, l’événement modifié, les tâches, les courses, l’agenda, les notes, les membres, la boîte à idées, les adhésions…','🗳 Carte « À répondre » en haut de l’accueil tant que tu n’as pas voté','🙅 « Aucune date ne me va » : compte comme une réponse, la personne n’est plus relancée','🔔 « Relancer » ne prévient que ceux qui n’ont pas répondu ; « Tout le bureau » / « Tout le monde » ajoutent sans retirer personne et préviennent les nouveaux invités (réunion mensuelle aussi)','🔔 Accueil : grand rappel « Active les notifications ! » tant que le téléphone ne les a pas, et en tête de l’affiche Quoi de neuf']},
 {v:'2.82.147',d:'20/11/2026',items:['🛠 Planning des disponibilités : ✕ et « Fermer » ferment à coup sûr sur iPhone']},
 {v:'2.82.146',d:'20/11/2026',items:['🔴 Onglet Fêtes en bas : le chiffre rouge additionne les nouveautés des événements (2 modifications = 2) et reste jusqu’à ce que tu ouvres chaque événement ; sur l’événement, le nombre de nouveautés, qui a modifié et quoi ; en ouvrant l’événement, un encadré « 🆕 Ce qui a changé depuis ta dernière visite » liste chaque modification (qui, quand, quoi), plus besoin de chercher','📅 Planning des disponibilités : touche une case colorée pour voir qui est absent, les dates et le motif (motif et note visibles par le bureau)']},
@@ -13362,8 +13363,8 @@ async function amRemove(id){
  setTimeout(()=>ask({title:'✅ '+esc(p.n)+' est retiré',html:'<p style="margin:.2rem 0 .5rem">Les clés du groupe ont été renouvelées pour '+n+' membre'+(n>1?'s':'')+'.</p><div class="card" style="padding:.6rem .7rem;margin:.3rem 0;border-left:4px solid #f59e0b"><b>📲 Tu as d’autres appareils liés à toi (PC, tablette, Mac) ?</b><ol style="margin:.3rem 0 0;padding-left:1.2rem;line-height:1.45;font-size:.92rem"><li>Ouvre l’appli sur cet appareil.</li><li>Regarde la liste des membres : '+esc(p.n)+' doit avoir disparu.</li><li>S’il ou elle est <b>encore là</b> : sur ce téléphone, Réglages › Groupe › <b>📲 Lier mon PC / ma tablette</b>, puis tape le code sur l’autre appareil. Il se remet à jour.</li></ol></div>',btns:[{label:'Compris',value:1,cls:'pri'}]}),600)
 }
 function amMbTk(p){
- const L=amItems('tk').filter(i=>!i.x&&i.w&&i.w===p.n).map(i=>({tx:i.tx,d:i.d,h:i.h}));
- amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(c&&!c.ok&&c.w&&c.w===p.n)L.push({tx:c.t,d:e.d,ev:e.tx})}));
+ const L=amItems('tk').filter(i=>!i.x&&i.w&&amWIs(i.w,p)).map(i=>({tx:i.tx,d:i.d,h:i.h}));
+ amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(c&&!c.ok&&c.w&&amWIs(c.w,p))L.push({tx:c.t,d:e.d,ev:e.tx})}));
  return L}
 function amMbTasks(id){
  const p=amList().find(x=>x.id===id);if(!p)return;
@@ -13460,6 +13461,11 @@ async function amLeave(){
 let AMC_FL=0;
 /* 2.82.142 : invitation aux réunions = notification seulement pour les invités (to=…), avec un texte précis (ndt) */
 /* état de la prise en compte d’une tâche attribuée (ak = 'heure|nom') */
+/* 2.82.149 : « est-ce moi ? » : la tâche porte le nom choisi par le bureau (ex. « SGT DEMANNOY Sandrine »), l’appareil connaît son propre nom (ex. « sand ») → on compare avec tous mes noms */
+function amMeNames(){const a=amc(),S0=new Set();if(!a||!a.me)return S0;const add=v=>{const k=amNk(v);if(k)S0.add(k)};add(a.me.n);add(a.me.sn);
+ try{const r=((a.roles&&a.roles.list)||[]).find(x=>x&&x.id===a.me.id);if(r){add(r.n);add(r.on)}const l=(a.rl||{})[a.me.id];if(l)add(l.on);const p=amList().find(x=>x.self);if(p)add(p.n)}catch(e){}return S0}
+const amIsMe=w=>!!w&&amMeNames().has(amNk(w));
+const amWIs=(w,p)=>!!w&&!!p&&(p.self?amIsMe(w):amNk(w)===amNk(p.n));
 function amAkTx(c){if(!c||!c.w)return '';const p=String(c.ak||'').split('|');if(c.ak&&+p[0])return ' <span class="ak ok">✅ reçu le '+esc(new Date(+p[0]).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}))+'</span>';return ' <span class="ak">⏳ pas encore confirmé</span>'}
 const amRiH=it=>(it&&(((it.kind==='rn'||it.kind==='rp')&&/^r[np]i$/.test(it.nh||''))||((it.kind==='tk'||it.kind==='ee')&&it.nh==='tka'))&&it.pto)?it.nh:'';
 async function amFlush(){
@@ -15428,7 +15434,7 @@ const AM_CS_QD=[['','Pas de date'],['-14','2 semaines avant'],['-7','Une semaine
 function amCsDay(it,s){if(!it||!it.d||s.o===''||s.o==null)return '';try{const d=new Date(it.d+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+(+s.o));return d.toISOString().slice(0,10)}catch(e){return ''}}
 const amCkAt=t=>{try{const d=new Date(t),n=new Date(),same=d.toDateString()===n.toDateString();return (same?'aujourd’hui':'le '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'}))+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}).replace(':','h')}catch(e){return ''}};
 function amCkRow(c,i,CS,rw,ap){if(S.ckTodo&&!CS&&c.ok)return '';const nb=(c.sb||[]).length,nd=(c.sb||[]).filter(q=>q.ok).length,subs=nb&&!CS?'<div class="am-sbl">'+c.sb.map((q,j)=>'<div class="am-sbr'+(q.ok?' done':'')+'"><button class="am-ck am-sbk" '+(rw||ap?'data-act="ck-sb" data-i="'+i+'" data-j="'+j+'"':'disabled')+' aria-label="Cocher">'+(q.ok?'✓':'')+'</button><span><span class="am-sbt">'+esc(q.t)+'</span>'+(q.w?' <small>👤 '+esc(q.w)+'</small>':'')+(q.ok&&q.ob?' <small>✅ '+esc(q.ob)+(q.ot?' · '+esc(amCkAt(q.ot)):'')+'</small>':'')+'</span></div>').join('')+'</div>':'';return '<div class="am-ckw'+(nb&&!CS?' has':'')+'" data-ck="'+i+'">'+amCkRow0(c,i,CS,rw,ap,nb,nd)+subs+'</div>'}
-function amCkRow0(c,i,CS,rw,ap,nb,nd){const sl=CS&&CK_SEL.has(i);return '<div class="am-it'+(c.ok?' done':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(CS?' am-cks':'')+'" '+(CS?'data-act="ck-sel" data-i="'+i+'" aria-label="Choisir">'+(sl?'☑':''):(rw||ap?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':''))+'</button><button class="am-itx" '+(CS?'data-act="ck-sel" data-i="'+i+'"':rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+(nb?' <small style="display:inline;font-weight:600">· '+nd+'/'+nb+'</small>':'')+'</b>'+(c.x?'<small style="display:block;white-space:pre-line">'+esc(c.x)+'</small>':'')+(c.w||(c.ok&&c.ob)?'<small>'+[c.w?'👤 '+esc(c.w)+amAkTx(c.ok?null:c):'',c.ok&&c.ob?'✅ fait par <b>'+esc(c.ob)+'</b>'+(c.ot?' · '+esc(amCkAt(c.ot)):''):''].filter(Boolean).join(' · ')+'</small>':'')+'</button>'+amCkDoc(c,rw,CS)+(!CS&&!c.ok&&c.w&&!c.ak&&c.w===String(amc().me.n||'')?'<button class="chip ak-b" data-act="ck-ak" data-i="'+i+'">👍 Bien reçu</button>':'')+'</div>'}
+function amCkRow0(c,i,CS,rw,ap,nb,nd){const sl=CS&&CK_SEL.has(i);return '<div class="am-it'+(c.ok?' done':'')+(sl?' am-sel':'')+'"><button class="am-ck'+(CS?' am-cks':'')+'" '+(CS?'data-act="ck-sel" data-i="'+i+'" aria-label="Choisir">'+(sl?'☑':''):(rw||ap?'data-act="ee-tick" data-i="'+i+'"':'disabled')+' aria-label="Cocher">'+(c.ok?'✓':''))+'</button><button class="am-itx" '+(CS?'data-act="ck-sel" data-i="'+i+'"':rw?'data-act="ee-ck" data-i="'+i+'"':'disabled')+'><b>'+esc(c.t)+(nb?' <small style="display:inline;font-weight:600">· '+nd+'/'+nb+'</small>':'')+'</b>'+(c.x?'<small style="display:block;white-space:pre-line">'+esc(c.x)+'</small>':'')+(c.w||(c.ok&&c.ob)?'<small>'+[c.w?'👤 '+esc(c.w)+amAkTx(c.ok?null:c):'',c.ok&&c.ob?'✅ fait par <b>'+esc(c.ob)+'</b>'+(c.ot?' · '+esc(amCkAt(c.ot)):''):''].filter(Boolean).join(' · ')+'</small>':'')+'</button>'+amCkDoc(c,rw,CS)+(!CS&&!c.ok&&c.w&&!c.ak&&amIsMe(c.w)?'<button class="chip ak-b" data-act="ck-ak" data-i="'+i+'">👍 Bien reçu</button>':'')+'</div>'}
 function amCkDoc(c,rw,CS){if(!c.d||!rw||CS)return '';const a=amc(),d=a&&a.it&&a.it[c.d];if(!d||d.del)return '<span class="am-ckd mut" title="Document supprimé">📎 ?</span>';return '<button class="chip am-ckd" data-act="ad-open" data-id="'+esc(d.id)+'" aria-label="Ouvrir le document">📎 '+esc(d.tx.slice(0,24))+'</button>'}
 function amCsBlock(it,s,ck,CS,rw,today){
  const L=ck.map((c,i)=>({c,i})).filter(x=>x.c.s===s.id),n=L.filter(x=>x.c.ok).length,ds=amCsDay(it,s);let dl='';
@@ -17526,7 +17532,7 @@ function amItemsHTML(kind){
  const a=amc(),L=amItems(kind);
  const open=L.filter(i=>!i.x).sort((p,q)=>(p.d||'9')<(q.d||'9')?-1:(p.d||'9')>(q.d||'9')?1:(p.at||0)-(q.at||0)),done=L.filter(i=>i.x).sort((p,q)=>(q.at||0)-(p.at||0));
  const today=new Date().toISOString().slice(0,10);
- const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w)+amAkTx(i.kind==='tk'&&!i.x?i:null):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':'',i.by?'✍️ '+esc(i.by):''].filter(Boolean).join(' · ')+'</small></button>'+(i.kind==='tk'&&!i.x&&i.w&&!i.ak&&i.w===String(amc().me.n||'')?'<button class="chip ak-b" data-act="tk-ak" data-id="'+esc(i.id)+'">👍 Bien reçu</button>':'')+'</div>';
+ const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w)+amAkTx(i.kind==='tk'&&!i.x?i:null):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':'',i.by?'✍️ '+esc(i.by):''].filter(Boolean).join(' · ')+'</small></button>'+(i.kind==='tk'&&!i.x&&i.w&&!i.ak&&amIsMe(i.w)?'<button class="chip ak-b" data-act="tk-ak" data-id="'+esc(i.id)+'">👍 Bien reçu</button>':'')+'</div>';
  let h='<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='tk'?'Nouvelle tâche':'Nouvel article')+'</button>';
  h+=open.length?open.map(row).join(''):'<p class="empty">'+(kind==='tk'?'Aucune tâche pour l’instant.':'La liste de courses est vide.')+'</p>';
  if(done.length){h+='<h4 class="am-h">'+(kind==='tk'?'Faites':'Achetés')+' · '+done.length+'</h4>'+done.slice(0,30).map(row).join('')+'<button class="btn blk" data-act="am-clear" data-k="'+kind+'" style="margin-top:.5rem">🧹 Vider '+(kind==='tk'?'les tâches faites':'les articles achetés')+'</button>'}
@@ -17703,7 +17709,7 @@ function amSuiviHTML(a){
   R.push(go('ee',it.id,it.sv==='v'?'🛍️':'🎉',String(it.tx||'Événement').slice(0,50)+(j?' · '+j:''),info.join(' · ')))});
  return '<div class="am2-card"><h3>📋 À suivre</h3>'+(R.length?R.join(''):'<p class="mut" style="margin:.3rem 0">Rien à suivre pour l’instant 🎉</p>')+'</div>'}
 function amAcHTML(a){
- const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x),mine=pend.filter(i=>i.w&&i.w===me),buy=amItems('co').filter(i=>!i.x);
+ const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x),mine=pend.filter(i=>i.w&&amIsMe(i.w)),buy=amItems('co').filter(i=>!i.x);
  const row=(k,ic,t,sub)=>'<button class="am2-row" data-act="am-tab" data-k="'+k+'"><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>';
  /* 2.82.133 : ordre de l’accueil = affiche « Quoi de neuf » → « À suivre » → « Ce qui t’attend » */
  let h='<div class="am2-card"><h3>Ce qui t’attend</h3>';
