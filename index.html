@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.149';
+const APP_VERSION='2.82.151';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.151',d:'20/11/2026',items:['🔑 Un appareil qui n’a pas reçu les nouvelles clés du groupe (après le retrait d’un membre) le dit maintenant en grand, sur l’accueil et dans Réglages, avec la marche à suivre (le relier depuis le principal) ; ses modifications sont bloquées pour ne rien perdre','🔒 Appareil secondaire (iPad, ordinateur) : « Retirer du groupe » et « Passer en Bureau / Aide extérieur » sont marqués 🔒 et affichent tout de suite « Pas depuis cet appareil, fais-le depuis ton appareil principal » ; rien n’est modifié','👥 Un membre retiré disparaît aussi des autres appareils administrateurs (iPad, Mac), même si leur horloge n’est pas à l’heure ; la carte Synchronisation affiche le n° des clés']},
+{v:'2.82.150',d:'20/11/2026',items:['🔔 Réunions : « Relancer » / « Rappeler » ne préviennent plus ceux qui ont dit « aucune date », ceux qui ne sont pas dispo à la date fixée, ni ceux qui ont noté une absence ce jour-là ; la fenêtre dit qui n’est pas relancé et pourquoi','🙅 Le bureau peut noter « pas dispo » pour quelqu’un qui a répondu non par téléphone ou WhatsApp']},
 {v:'2.82.149',d:'20/11/2026',items:['🛠 « 👍 Bien reçu » s’affiche aussi quand le bureau a donné à la personne un autre nom que le sien (ex. « SGT DEMANNOY Sandrine » sur la tâche, « sand » dans son appli) ; pareil pour « Mes tâches » et sa fiche']},
 {v:'2.82.148',d:'20/11/2026',items:['🔔 Toucher une notification ouvre directement la bonne page : la réunion avec toutes les dates proposées, l’événement modifié, les tâches, les courses, l’agenda, les notes, les membres, la boîte à idées, les adhésions…','🗳 Carte « À répondre » en haut de l’accueil tant que tu n’as pas voté','🙅 « Aucune date ne me va » : compte comme une réponse, la personne n’est plus relancée','🔔 « Relancer » ne prévient que ceux qui n’ont pas répondu ; « Tout le bureau » / « Tout le monde » ajoutent sans retirer personne et préviennent les nouveaux invités (réunion mensuelle aussi)','🔔 Accueil : grand rappel « Active les notifications ! » tant que le téléphone ne les a pas, et en tête de l’affiche Quoi de neuf']},
 {v:'2.82.147',d:'20/11/2026',items:['🛠 Planning des disponibilités : ✕ et « Fermer » ferment à coup sûr sur iPhone']},
@@ -9302,8 +9304,8 @@ async function act(a,el,e){
   case 'am-sos-wa':amSosWa(ds_.k);break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
-  case 'rp-open':case 'rp-back':case 'rp-new':case 'rp-vote':case 'rp-iv':case 'rp-ivb':case 'rp-ivall':case 'rp-dadd':case 'rp-ddel':case 'rp-pl':case 'rp-launch':case 'rp-fix':case 'rp-reopen':case 'rp-rl':case 'rp-rl1':case 'rp-rlp':case 'rp-pt-add':case 'rp-pt-x':case 'rp-pt-del':case 'rp-del':amRpAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
-  case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':case 'rn-rl':case 'rn-rl1':case 'rn-rlp':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
+  case 'rp-open':case 'rp-back':case 'rp-new':case 'rp-vote':case 'rp-iv':case 'rp-ivb':case 'rp-ivall':case 'rp-dadd':case 'rp-ddel':case 'rp-pl':case 'rp-launch':case 'rp-fix':case 'rp-reopen':case 'rp-rl':case 'rp-rl1':case 'rp-rlp':case 'rp-nop':case 'rp-pt-add':case 'rp-pt-x':case 'rp-pt-del':case 'rp-del':amRpAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
+  case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':case 'rn-rl':case 'rn-rl1':case 'rn-rlp':case 'rn-nop':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'ch-z':case 'ch-zun':chResetAct(a,ds_.m).catch(()=>toast('Action impossible',2500));break;
   case 'cs-imp':case 'cs-add':case 'cs-del':case 'cs-map':amCsAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'ch-m':{const c=chMonth(),n=chShift(CH_M||c,+ds_.v);if(n<=c&&n>='2025-01'){CH_M=n;render()}break}
@@ -12927,10 +12929,13 @@ const AM_MINV='2.82.131';let AM_CARDT=0;
 const amVerCmp=(x,y)=>{const A=String(x||'0').split('.').map(n=>+n||0),B=String(y||'0').split('.').map(n=>+n||0);for(let i=0;i<Math.max(A.length,B.length);i++){const d=(A[i]||0)-(B[i]||0);if(d)return d}return 0};
 const amIsSec=()=>{const a=amc();return !!(a&&a.dev==='s')};
 const amAlertOn=()=>{const a=amc();return !!(a&&a.alert&&a.alert.on&&a.alert.id!==(a.me&&a.me.id))};
-const amBlocked=()=>amAlertOn(); /* 2.82.131 : seule l’alerte bloque ; un appareil secondaire modifie normalement (le garde-fou relit le serveur avant d’envoyer), seuls retrait/niveau des membres sont réservés au principal */
-let AM_BLT=0;function amBlockToast(){if(Date.now()-AM_BLT<5000)return;AM_BLT=Date.now();toast('🚨 Alerte en cours : ne touche à rien, l’appli se recharge toute seule à la fin',5000)}
+const amKeyStale=()=>{const a=amc();return !!(a&&a.keyStale&&(a.keyStale.gen||0)>(a.gen||0))};
+const amBlocked=()=>amAlertOn()||amKeyStale(); /* 2.82.131 : seule l’alerte bloque ; un appareil secondaire modifie normalement (le garde-fou relit le serveur avant d’envoyer), seuls retrait/niveau des membres sont réservés au principal */
+let AM_BLT=0;function amBlockToast(){if(Date.now()-AM_BLT<5000)return;AM_BLT=Date.now();if(amKeyStale()&&!amAlertOn()){toast('🔑 Cet appareil n’a pas les nouvelles clés du groupe : relie-le depuis ton appareil principal (Réglages › Lier un autre appareil). Rien n’est modifié ici.',7000);return}toast('🚨 Alerte en cours : ne touche à rien, l’appli se recharge toute seule à la fin',5000)}
 const amStandalone=()=>{try{return !!(matchMedia('(display-mode: standalone)').matches||navigator.standalone)}catch(e){return false}};
 /* avant un renouvellement des clés : relire TOUT le serveur, et tous les membres doivent avoir la dernière version */
+/* 2.82.151 : sur un appareil secondaire (iPad, ordinateur), retirer quelqu’un ou changer son niveau est refusé AVANT toute confirmation, avec un message clair */
+async function amSecBlock(what){await ask({title:'🔒 Pas depuis cet appareil',html:'<p style="margin:.2rem 0 .5rem">Cet appareil est un <b>appareil secondaire</b> : il n’a pas le droit de <b>'+esc(what)+'</b>.</p><p style="margin:0 0 .5rem">👉 Fais-le depuis ton <b>appareil principal</b> (ton téléphone).</p><p class="mut" style="font-size:.85rem;margin:0">Rien n’a été modifié.</p>',btns:[{label:'Compris',value:1,cls:'pri'}]})}
 async function amRotCheck(ex){const a=amc();if(!a)return false;
  if(amIsSec()){toast('📱 Retirer un membre ou changer son niveau se fait depuis ton appareil principal (ton téléphone)',6000);return false}
  toast('Lecture complète du serveur avant le renouvellement…',3000);a.last={};AMC_BUSY=false;try{await amPull(true)}catch(e){}
@@ -12945,6 +12950,8 @@ async function amAlertSet(on){const a=amc();if(!a||!a.apriv||demo)return;
  P.sig=await amSign([P.on,P.msg,P.id,P.at],0,a.apriv);
  try{await amPut('a','al',P,0,'',on?'a|'+msg.slice(0,40):'')}catch(e){toast('Envoi impossible : '+(e.message||'hors connexion'),5000);return}
  a.alert={on:P.on,msg,id:P.id,by:P.by,at};amSave();amAlertUI();toast(on?'🚨 Alerte lancée : les autres appareils se bloquent dans quelques secondes':'✅ Fin de l’alerte : les appareils se rechargent',5000)}
+/* 2.82.151 : appareil resté sur les anciennes clés (renouvelées sur le principal) → grand bandeau, modifications bloquées (elles seraient perdues) */
+function amKeyStaleHTML(){if(!amKeyStale())return '';return '<div class="card" style="border:3px solid #dc2626;background:#fef2f2;color:#7f1d1d"><h3 style="margin:0 0 .3rem;color:#b91c1c">🔑 Cet appareil n’est plus à jour</h3><p style="margin:.2rem 0 .4rem;font-size:.95rem">Les clés du groupe ont été <b>renouvelées</b> (par exemple après le retrait d’un membre), mais cet appareil n’a pas pu les recevoir. Il montre donc <b>d’anciennes informations</b>, et ce que tu changerais ici serait perdu : les modifications sont bloquées.</p><p style="margin:.2rem 0 .2rem;font-size:.95rem"><b>👉 Pour réparer :</b> sur ton <b>appareil principal</b> (ton téléphone), Réglages › <b>« 📲 Lier un autre appareil »</b>, puis tape le code ici et choisis <b>« 💻 Appareil secondaire »</b>.</p><p class="mut" style="margin:0;font-size:.82rem">Rien n’est perdu : tout est sur le serveur.</p></div>'}
 function amAlertUI(){const a=amc();let o=document.getElementById('am-alert'),b=document.getElementById('am-albar');
  if(amAlertOn()){if(!o){o=document.createElement('div');o.id='am-alert';document.body.appendChild(o)}o.innerHTML='<div class="am-al-box"><div style="font-size:3rem;line-height:1">🚨</div><h2 style="margin:.3rem 0">Alerte en cours</h2><p style="margin:.2rem 0 .6rem;font-size:1.05rem;line-height:1.4">'+esc(a.alert.msg||'')+'</p><p class="mut" style="margin:0;font-size:.85rem">Lancée par '+esc(a.alert.by||'l’administrateur')+'. Ne touche à rien : l’appli se recharge toute seule à la fin.</p>'+(a.apriv?'<button class="btn sm" data-act="am-al-end" style="margin-top:.8rem">Administrateur : terminer l’alerte</button>':'')+'</div>'}else if(o)o.remove();
  const mine=a&&a.alert&&a.alert.on&&a.alert.id===a.me.id;
@@ -13057,21 +13064,24 @@ async function amPull(manual){
     let P;dgN++;try{P=await famDecK(JSON.parse(d.data),x.FK.key)}catch(e){dgF++;dgE=String(e&&(e.name||e.message)||e).slice(0,50);continue}
     if(!P||P.k!=='amc')continue;
     if(d.doc==='roles'){
-     if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at)){
+     /* 2.82.151 : on se fie aussi à l’heure du SERVEUR (un appareil dont l’horloge avance ne doit plus ignorer la liste envoyée ensuite par le téléphone) */
+     const sNew=(+d.at||0)>(+a.rolesD||0);
+     if(x.z==='a'&&Array.isArray(P.list)&&await amVerify(P.list,P.at,P.sig,a.apub)&&(!a.roles||P.at>=a.roles.at||sNew)){a.rolesD=Math.max(+a.rolesD||0,+d.at||0);
       /* 2.82.63 : un autre appareil administrateur a retiré quelqu’un → on fusionne les retraits (x) et on efface la fiche locale */
       if(a.apriv){for(const r of P.list){if(r&&r.id&&r.id!==a.me.id&&(r.on||r.os)&&!(a.rl&&a.rl[r.id]&&(a.rl[r.id].on||a.rl[r.id].os))){a.rl=a.rl||{};a.rl[r.id]=Object.assign(a.rl[r.id]||{},{on:String(r.on||'').slice(0,30),os:String(r.os||'').slice(0,30)});chg=true}if(r&&r.x&&r.id&&r.id!==a.me.id&&!(a.rl&&a.rl[r.id]&&a.rl[r.id].x)){a.rl=a.rl||{};a.rl[r.id]=Object.assign(a.rl[r.id]||{},{x:1});if(a.mem&&a.mem[r.id])delete a.mem[r.id];chg=true}}}
       /* 2.82.145 : deux appareils administrateurs (ex. iPhone + Mac) gardaient chacun leurs propres noms/fonctions. Quand une liste plus récente arrive du serveur, on reprend ses noms, surnoms et fonctions, sauf ce que CET appareil a changé et pas encore envoyé (fusion à 3 voies avec l’ancienne liste) */
-      if(a.apriv&&P.at>(a.roles&&a.roles.at||0)){const B={};((a.roles&&a.roles.list)||[]).forEach(r=>{if(r&&r.id)B[r.id]=r});a.rl=a.rl||{};
+      if(a.apriv&&(P.at>(a.roles&&a.roles.at||0)||sNew)){const B={};((a.roles&&a.roles.list)||[]).forEach(r=>{if(r&&r.id)B[r.id]=r});a.rl=a.rl||{};
        for(const r of P.list){if(!r||!r.id||r.x)continue;const L=a.rl[r.id]||{},bs=B[r.id];for(const f of (r.id===a.me.id?['t']:['t','on','os'])){const sv=String(r[f]||'').slice(0,30),lv=String(L[f]||'');if(sv===lv)continue;const bv=bs?String(bs[f]||''):'';if(!a.rolesDirty||lv===bv){a.rl[r.id]=Object.assign(a.rl[r.id]||{},{[f]:sv});chg=true}}}}
-      if(!a.apriv||P.at>(a.roles&&a.roles.at||0)){a.roles={list:P.list.slice(0,200),at:P.at};if(a.apriv)a.admIds=Array.from(new Set(P.list.filter(r=>r.adm).map(r=>r.id).concat([a.me.id])));chg=true}
+      if(!a.apriv||P.at>(a.roles&&a.roles.at||0)||sNew){a.roles={list:P.list.slice(0,200),at:P.at};if(a.apriv)a.admIds=Array.from(new Set(P.list.filter(r=>r.adm).map(r=>r.id).concat([a.me.id])));chg=true}
       if(+P.jz>(a.jz||0)){a.jz=+P.jz;chg=true}}
      continue}
     if(d.doc==='al'){if(x.z==='a'&&P.t==='al'&&(!a.alert||(P.at||0)>(a.alert.at||0))&&await amVerify([P.on?1:0,String(P.msg||''),String(P.id||''),P.at],0,P.sig,a.apub)){a.alert={on:P.on?1:0,msg:String(P.msg||'').slice(0,300),id:String(P.id||''),by:String(P.by||'').slice(0,30),at:P.at};chg=true}continue}
     const mr=d.doc.match(/^rk-([a-z0-9]{6,16})$/);
     if(mr){
+     if(mr[1]===a.me.id&&x.z==='a'&&P.t==='rk'&&(P.gen||0)>(a.gen||0)&&!a.me.ek&&(!a.keyStale||a.keyStale.gen<P.gen)){a.keyStale={gen:P.gen,at:d.at||Date.now()};chg=true}
      if(mr[1]!==a.me.id||x.z!=='a'||P.t!=='rk'||(P.gen||0)<=(a.gen||0)||!a.me.ek||!P.e||!(await amVerify([P.id,P.gen,P.e.x,P.e.y,P.c,P.iv],0,P.sig,a.apub)))continue;
      try{const key=await amDerive(a.me.ek,P.e,'agendam-rk:'+P.gen+':'+a.me.id),pl=JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:shB64.dec(P.iv)},key,shB64.dec(P.c))));
-      if(pl.kA&&pl.gen===P.gen&&(!rot||pl.gen>rot.gen))rot=pl}catch(e){}
+      if(pl.kA&&pl.gen===P.gen&&(!rot||pl.gen>rot.gen))rot=pl}catch(e){if(!a.keyStale||a.keyStale.gen<P.gen){a.keyStale={gen:P.gen,at:d.at||Date.now()};chg=true}}
      continue}
     const ma=d.doc.match(/^ad-([a-z0-9]{6,16})$/);
     if(ma){
@@ -13328,6 +13338,7 @@ async function amEditMe(){
 async function amSetLevel(id){
  if(demo){toast('Non disponible en mode démo',2500);return}
  const a=amc();if(!a||!a.apriv||id===a.me.id)return;
+ if(amIsSec()){await amSecBlock('changer le niveau d’un membre');return}
  const p=amList().find(x=>x.id===id);if(!p)return;
  const to=p.l==='b'?'a':'b';
  const r=await ask({title:'Niveau de '+p.n,html:'<p style="margin:.2rem 0 .5rem">Actuellement : <b>'+(p.l==='b'?'Bureau':'Aide extérieur')+'</b>.</p><p style="margin:0 0 .5rem">'+(to==='a'?'Cette personne ne verra plus ce qui est réservé au bureau (amicalistes, bulletins, notes…). Sa copie locale est effacée à sa prochaine connexion. Ce qu’elle a déjà vu ne peut pas être « repris ».':'Cette personne verra tout ce que voit le bureau (amicalistes, bulletins, notes…).')+'</p><p class="mut" style="font-size:.88rem;margin:0">🔑 Les clés du groupe sont renouvelées pour appliquer le changement.</p>',btns:[{label:to==='a'?'Passer en Aide extérieur':'Passer au Bureau',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
@@ -13351,6 +13362,7 @@ async function amSetTitle(id){
 }
 async function amRemove(id){
  const a=amc();if(a&&!a.apriv&&!demo){toast('Seul un administrateur peut retirer quelqu’un du groupe (depuis son téléphone d’administrateur)',6000);return}if(!a||!a.apriv||id===a.me.id)return;
+ if(amIsSec()){await amSecBlock('retirer quelqu’un du groupe');return}
  const p=amList().find(x=>x.id===id);if(!p)return;
  const r=await ask({title:'Retirer '+p.n+' du groupe ?',html:'<p style="margin:.2rem 0 .5rem">Il ou elle disparaît de la liste des membres pour tout le monde.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔑 Les clés du groupe sont <b>renouvelées</b> : la personne perd l’accès à tout (tâches, courses, agenda, notes). Les autres reçoivent les nouvelles clés automatiquement à leur prochaine ouverture de l’appli.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">📲 Tes autres appareils (PC, tablette) : vérifie ensuite qu’ils sont à jour ; sinon, refais « Lier mon PC / ma tablette ».</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">⏳ Ça peut prendre <b>quelques minutes</b> : garde l’appli ouverte jusqu’au message « ✅ Clés à jour ».</p>',btns:[{label:'Retirer et renouveler les clés',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
  if(r!=='y')return;
@@ -13423,7 +13435,7 @@ async function amFiche(id){
  if(p.tel)btns.push({label:'📞 Appeler',value:'tel',cls:'pri'},{label:'💬 SMS',value:'sms'});
  if(p.mp)btns.push({label:'✉️ Écrire (mail perso)',value:'mp'});
  if(p.mw)btns.push({label:'💼 Écrire (mail travail)',value:'mw'});
- if(a.apriv)btns.push({label:'✏️ Corriger le nom / le surnom',value:'ren'});if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau'),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});if(a.apriv)btns.push({label:'Retirer du groupe',value:'rm',cls:'dng'});
+ if(a.apriv)btns.push({label:'✏️ Corriger le nom / le surnom',value:'ren'});if(a.apriv)btns.push({label:'🔑 Passer en '+(p.l==='b'?'Aide extérieur':'Bureau')+(amIsSec()?' 🔒':''),value:'lvl'},{label:'🏷️ Changer le titre',value:'title'});if(p.l==='b'&&!p.adm)btns.push({label:'👑 Nommer administrateur',value:'adm'});if(a.apriv)btns.push({label:'Retirer du groupe'+(amIsSec()?' 🔒 (appareil principal)':''),value:'rm',cls:'dng'});
  btns.push({label:'📅 Absences / disponibilité',value:'abs'});
  btns.push({label:'Fermer',value:null});
  const r=await ask({title:p.n,html,btns});
@@ -16231,7 +16243,7 @@ function amSosOpen(){
 function amSyncCard(){
  const a=amc();if(!a)return '';const ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
- return '<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+'<br>💾 Mémoire de l’appli : '+(LS_SZ?(LS_SZ/1048576).toFixed(1)+' Mo':'—')+(LS_FAIL?' · <span class="pay-no">⚠️ pleine : les changements ne sont pas gardés ici</span>':' · ✅ enregistrée')+(a.dg&&a.dg.f?'<br><span class="pay-no">'+a.dg.f+' document'+(a.dg.f>1?'s':'')+' sur '+a.dg.n+' illisible'+(a.dg.f>1?'s':'')+' sur cet appareil'+(a.dg.e?' ('+esc(a.dg.e)+')':'')+'</span>':'')+'</p>'+
+ return amKeyStaleHTML()+'<div class="card" id="am-sync"><h3>🔄 Synchronisation</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Cet appareil : <b>'+esc(APP_VERSION)+'</b> · '+n+' éléments · dernière mise à jour réussie <b>'+ago(a.syncOk)+'</b>'+(pend?' · <b>'+pend+'</b> en attente d’envoi':'')+(a.syncErr?'<br><span class="pay-no">Dernier problème : '+esc(a.syncErr)+'</span>':'')+' · 🔑 clés n° '+(a.gen||0)+'<br>💾 Mémoire de l’appli : '+(LS_SZ?(LS_SZ/1048576).toFixed(1)+' Mo':'—')+(LS_FAIL?' · <span class="pay-no">⚠️ pleine : les changements ne sont pas gardés ici</span>':' · ✅ enregistrée')+(a.dg&&a.dg.f?'<br><span class="pay-no">'+a.dg.f+' document'+(a.dg.f>1?'s':'')+' sur '+a.dg.n+' illisible'+(a.dg.f>1?'s':'')+' sur cet appareil'+(a.dg.e?' ('+esc(a.dg.e)+')':'')+'</span>':'')+'</p>'+
   mrow('am-sos','🆘 Dépannage : que faire si ça ne va pas ?','Règles, remèdes et procédure pour repartir à zéro')+mrow('am-sync','🔄 Actualiser maintenant','Récupère les changements des autres appareils')+mrow('am-full','⤵ Tout recharger depuis le serveur','Si un appareil ne montre pas les mêmes choses : relit tout, sans rien effacer')+(a&&a.apriv?mrow('am-reset','🧹 Repartir du serveur (cet appareil)','Si cet appareil montre des choses fausses que les autres n’ont pas : il oublie ses données et reprend celles du serveur'):'')+'</div>';
 }
 async function amFullReload(){const a=amc();if(!a)return;const r=await ask({title:'⤵ Tout recharger ?',text:'L’appli relit tout le groupe depuis le serveur (sans rien effacer ici). À faire si cet appareil ne montre pas les mêmes choses que les autres.',btns:[{label:'Tout recharger',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='y')return;
@@ -18143,9 +18155,12 @@ async function amRnAct(a0,ds){
   case 'rn-pt-del':{o.pts=o.pts.filter(y=>y.i!==ds.i);rnSave(m,o,false);return}
   case 'rn-bm':{o.bm=ds.v==='cur'?m:'';rnSave(m,o,false);return}
   case 'rn-rlp':{const P=amList(),L=o.iv.filter(id=>id!==a.me.id);if(!L.length)return;const v=await amForm('🔔 Relancer une personne','Elle reçoit à nouveau la notification d’invitation.',[{k:'w',l:'Invité',t:'select',v:L[0],o:L.map(id=>[id,(P.find(x=>x.id===id)||{}).n||'?'])}],'Relancer');if(!v||!v.w)return;return amRnAct('rn-rl1',{id:v.w})}
-  case 'rn-rl':case 'rn-rl1':{const R=rvAll(m),L=a0==='rn-rl1'?[ds.id]:o.iv.filter(id=>id!==a.me.id&&!(o.st==='v'&&R[id]&&R[id].length));if(!L.length){toast('Tout le monde a déjà répondu 👍',2500);return}
+  case 'rn-nop':{if(!adm)return;const R=rvAll(m),it=rnItem(m),P=amList(),nm=id=>(P.find(x=>x.id===id)||{}).n||'?',L=o.iv.filter(id=>id!==a.me.id&&!(R[id]||[]).includes('-'));if(!L.length||!it){toast('Personne à noter',2000);return}
+    const v=await amForm('🙅 Pas dispo','La personne ne sera plus relancée pour cette réunion (elle peut toujours répondre elle-même).',[{k:'w',l:'Invité',t:'select',v:L[0],o:L.map(id=>[id,nm(id)])}],'Noter');if(!v||!v.w)return;
+    amItemSave({id:rvId(m,v.w),kind:'rv',tx:'Vote réunion',bd:JSON.stringify({m,y:['-']}),x:0,del:0,d:'',w:'',qt:'',tm:'',pl:'',l:'',z:it.z||'b'});toast('🙅 '+nm(v.w)+' : noté pas dispo',2500);render();return}
+  case 'rn-rl':case 'rn-rl1':{const R=rvAll(m),PK=rlPick(o,R,id=>id,a.me.id),L=a0==='rn-rl1'?[ds.id]:PK.L;if(!L.length){toast(PK.X.length?'Personne à relancer : les autres ont répondu ou ne sont pas dispo 👍':'Tout le monde a déjà répondu 👍',3000);return}
     const nm=id=>(amList().find(x=>x.id===id)||{}).n||'?',fx=o.ds.find(x=>x.i===o.fd);
-    if(a0==='rn-rl'){const r=await ask({title:'🔔 Relancer ?',text:'Une notification est renvoyée à : '+L.map(nm).join(', ')+'.',btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
+    if(a0==='rn-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
     rnSave(m,o,{to:L,t:o.st==='f'&&fx?'te rappelle la réunion : '+rnDs(fx)+(o.pl?' · '+o.pl.slice(0,25):''):'te relance pour la réunion de '+chName(m)+' : choisis tes dates'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
  }}
 function rnDefM(){const d=new Date(),c=rnMk(d),o=rnGet(c);if(o&&o.st==='f'){const f=o.ds.find(x=>x.i===o.fd);if(f&&f.d<today())return rnMk(new Date(d.getFullYear(),d.getMonth()+1,1))}return c}
@@ -18166,6 +18181,14 @@ function rpSave(o,notify){const a=amc();if(!a)return;const pv=a.it[o.id],z=rnZ(o
  const it=Object.assign({},pv||{id:o.id,kind:'rp',x:0,del:0,d:'',w:'',qt:'',tm:'',pl:'',l:''},{tx:'Préparation · '+rpEvN(o).slice(0,60),bd:JSON.stringify(rpClean(o)),z,nh,ndt,pto,del:0});
  if(pv&&pv.z&&pv.z!==z)it.tz=pv.z;amItemSave(it)}
 /* id du vote : 'rx' + 8 car. de la réunion + 6 car. du membre = 16 car. (longueur maximale d’un document) */
+/* 2.82.150 : qui relancer ? Jamais ceux qui ont dit non (🙅), ni ceux qui ne sont pas dispo à la date fixée, ni ceux qui ont noté une absence ce(s) jour(s)-là */
+function rlPick(o,R,kf,meId){let AB=[];try{AB=amAbs()}catch(e){}const abs=(id,d)=>AB.some(b=>b.w===id&&b.d1<=d&&b.d2>=d),fx=o.st==='f'?(o.ds||[]).find(x=>x.i===o.fd):null,L=[],X=[];
+ (o.iv||[]).forEach(id=>{if(id===meId)return;const y=R[kf(id)]||[];
+  if(y.includes('-'))return X.push([id,'a répondu « aucune date »']);
+  if(fx){if(y.length&&!y.includes(fx.i))return X.push([id,'pas dispo ce jour-là']);if(abs(id,fx.d))return X.push([id,'absence notée ce jour-là'])}
+  else{if(o.st==='v'&&y.length)return X.push([id,'a déjà répondu']);if((o.ds||[]).length&&o.ds.every(x=>abs(id,x.d)))return X.push([id,'absence notée à toutes les dates'])}
+  L.push(id)});return{L,X}}
+const rlAskTxt=(L,X,nm)=>'Une notification est renvoyée à : '+L.map(nm).join(', ')+'.'+(X.length?' — Pas relancés : '+X.map(x=>nm(x[0])+' ('+x[1]+')').join(', ')+'.':'');
 const rxId=(rp,me)=>'rx'+String(rp).slice(2,10)+String(me).slice(0,6);
 function rxAll(rp){const a=amc(),R={};Object.values((a&&a.it)||{}).forEach(i=>{if(!i||i.kind!=='rx'||i.del)return;const o=amIdP(i);if(o.k!==rp||!Array.isArray(o.y)||!o.y.length)return;R[String(i.id).slice(10)]=o.y});return R}
 function rpVote(o,did){const a=amc();if(!a||o.st!=='v')return;const me=a.me.id;let cur=(rxAll(o.id)[String(me).slice(0,6)]||[]).slice();if(did==='-')cur=cur.includes('-')?[]:['-'];else{cur=cur.filter(x=>x!=='-');const k=cur.indexOf(did);if(k>=0)cur.splice(k,1);else cur.push(did)}
@@ -18204,7 +18227,7 @@ function amRpHTML(){
  }
  h+='</div>';
  h+='<div class="card"><h3>👥 Invités</h3>'+(adm?'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Touche un nom pour l’inviter ou le retirer.</p>':'')+'<div style="display:flex;gap:.35rem;flex-wrap:wrap">'+P.filter(p=>!p.x).map(p=>{const on=o.iv.includes(p.id),v=on&&R[String(p.id).slice(0,6)],vi=o.st==='v'&&v?(v.includes('-')?' 🙅':' 🗳'):'';return adm?'<button class="chip'+(on?' on':'')+'" data-act="rp-iv" data-id="'+p.id+'">'+(on?'✔ ':'')+esc(p.n)+vi+'</button>':(on?'<span class="chip on" style="pointer-events:none">'+esc(p.n)+vi+'</span>':'')}).join('')+'</div>'+
-  (adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rp-ivb">Tout le bureau</button><button class="chip" data-act="rp-ivall">Tout le monde</button></div>'+(o.st!=='p'?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rp-rl">🔔 '+(o.st==='f'?'Rappeler la réunion aux invités':'Relancer ceux qui n’ont pas répondu')+'</button><button class="chip" data-act="rp-rlp">🔔 Relancer une personne…</button></div>':''):'')+(o.st==='v'?'<p class="mut" style="margin:.5rem 0 0;font-size:.82rem">🗳 = a répondu · 🙅 = aucune date ne lui va · sans signe = pas encore répondu (c’est eux que « Relancer » prévient).</p>':'')+'</div>';
+  (adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rp-ivb">Tout le bureau</button><button class="chip" data-act="rp-ivall">Tout le monde</button></div>'+(o.st!=='p'?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rp-rl">🔔 '+(o.st==='f'?'Rappeler la réunion aux invités':'Relancer ceux qui n’ont pas répondu')+'</button><button class="chip" data-act="rp-rlp">🔔 Relancer une personne…</button><button class="chip" data-act="rp-nop">🙅 Noter « pas dispo » pour quelqu’un…</button></div>':''):'')+(o.st==='v'?'<p class="mut" style="margin:.5rem 0 0;font-size:.82rem">🗳 = a répondu · 🙅 = aucune date ne lui va · sans signe = pas encore répondu (c’est eux que « Relancer » prévient).</p>':'')+'</div>';
  h+='<div class="card"><h3>📝 À aborder</h3>'+(o.pts.length?o.pts.map(x=>'<div style="display:flex;align-items:center;gap:.4rem;padding:.35rem 0;border-top:1px solid var(--line)">'+(adm?'<button class="chip'+(x.x?' on':'')+'" data-act="rp-pt-x" data-i="'+x.i+'" aria-label="Cocher">'+(x.x?'✔':'○')+'</button>':'<span>'+(x.x?'✔':'•')+'</span>')+'<span style="flex:1'+(x.x?';text-decoration:line-through;opacity:.6':'')+'">'+esc(x.t)+'</span>'+(adm?'<button class="chip" data-act="rp-pt-del" data-i="'+x.i+'" aria-label="Retirer">🗑</button>':'')+'</div>').join(''):'<p class="mut" style="margin:.2rem 0;font-size:.88rem">Rien pour l’instant.</p>')+(adm?'<button class="chip" data-act="rp-pt-add" style="margin-top:.4rem">➕ Ajouter un point</button>':'')+'</div>';
  if(adm)h+='<button class="btn blk dng" data-act="rp-del" style="margin-top:.4rem">🗑 Supprimer cette réunion</button>';
  return h}
@@ -18236,8 +18259,12 @@ async function amRpAct(a0,ds){
     o.st='f';o.fd=d.i;o.fe=eid;rpSave(o,'a fixé la réunion « '+rpN(o)+' » : '+rnDs(d));return}
   case 'rp-reopen':{const r=await ask({title:'Changer la date ?',text:'La réunion est retirée de l’agenda et le vote est rouvert.',btns:[{label:'Rouvrir le vote',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;const pe=o.fe&&a.it[o.fe];if(pe&&!pe.del)amItemSave(Object.assign({},pe,{del:1}));o.st='v';o.fd='';o.fe='';rpSave(o,'change la date de « '+rpN(o)+' » : choisis tes dates');return}
   case 'rp-rlp':{const L=o.iv.filter(id=>id!==a.me.id);if(!L.length)return;const v=await amForm('🔔 Relancer une personne','Elle reçoit à nouveau la notification d’invitation.',[{k:'w',l:'Invité',t:'select',v:L[0],o:L.map(id=>[id,nm(id)])}],'Relancer');if(!v||!v.w)return;return amRpAct('rp-rl1',{id:v.w})}
-  case 'rp-rl':case 'rp-rl1':{const R=rxAll(o.id),L=a0==='rp-rl1'?[ds.id]:o.iv.filter(id=>id!==a.me.id&&!(o.st==='v'&&R[String(id).slice(0,6)]));if(!L.length){toast('Tout le monde a déjà répondu 👍',2500);return}
-    if(a0==='rp-rl'){const r=await ask({title:'🔔 Relancer ?',text:'Une notification est renvoyée à : '+L.map(nm).join(', ')+'.',btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
+  case 'rp-nop':{if(!adm)return;const R=rxAll(o.id),L=o.iv.filter(id=>id!==a.me.id&&!(R[String(id).slice(0,6)]||[]).includes('-'));if(!L.length){toast('Personne à noter',2000);return}
+    /* 2.82.150 : quelqu’un a dit non par téléphone ou WhatsApp → le bureau le note, il n’est plus relancé */
+    const v=await amForm('🙅 Pas dispo','La personne ne sera plus relancée pour cette réunion (elle peut toujours répondre elle-même).',[{k:'w',l:'Invité',t:'select',v:L[0],o:L.map(id=>[id,nm(id)])}],'Noter');if(!v||!v.w)return;
+    amItemSave({id:rxId(o.id,v.w),kind:'rx',tx:'Vote réunion',bd:JSON.stringify({k:o.id,y:['-']}),x:0,del:0,d:'',w:'',qt:'',tm:'',pl:'',l:'',z:(a.it[o.id]||{}).z||'b'});toast('🙅 '+nm(v.w)+' : noté pas dispo',2500);render();return}
+  case 'rp-rl':case 'rp-rl1':{const R=rxAll(o.id),PK=rlPick(o,R,id=>String(id).slice(0,6),a.me.id),L=a0==='rp-rl1'?[ds.id]:PK.L;if(!L.length){toast(PK.X.length?'Personne à relancer : les autres ont répondu ou ne sont pas dispo 👍':'Tout le monde a déjà répondu 👍',3000);return}
+    if(a0==='rp-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
     const fx=o.ds.find(x=>x.i===o.fd);rpSave(o,{to:L,t:o.st==='f'&&fx?'te rappelle la réunion « '+rpN(o)+' » : '+rnDs(fx):'te relance pour la réunion « '+rpN(o)+' » : choisis tes dates'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rp-pt-add':{const v=await amForm('📝 Point à aborder','',[{k:'t',l:'Point',v:'',ph:'Ex. Qui s’occupe des boissons ?'}],'Ajouter');if(!v||!String(v.t||'').trim())return;o.pts.push({i:rnRid(),t:String(v.t).trim().slice(0,120),x:0});rpSave(o,false);return}
   case 'rp-pt-x':{const x=o.pts.find(y=>y.i===ds.i);if(x){x.x=x.x?0:1;rpSave(o,false)}return}
@@ -18297,7 +18324,7 @@ function amRnHTML(){
  else h+='<p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(adm?'Colle le rapport SumUp du mois pour afficher le total, les moyens de paiement, les catégories et les ventes par personne.':'Pas encore de chiffres.')+'</p>'+(adm?'<button class="chip" data-act="cs-imp">📋 Coller le rapport SumUp</button>':'');
  h+='</div></div>';
  /* invités */
- h+='<div class="card"><h3>👥 Invités</h3>'+(adm?'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Touche un nom pour l’inviter ou le retirer.</p>':'')+'<div style="display:flex;gap:.35rem;flex-wrap:wrap">'+P.filter(p=>!p.x).map(p=>{const on=o.iv.includes(p.id),v=o.st==='v'&&on&&R[p.id],vi=v?(v.includes('-')?' 🙅':' 🗳'):'';return adm?'<button class="chip'+(on?' on':'')+'" data-act="rn-iv" data-id="'+p.id+'">'+(on?'✔ ':'')+esc(p.n)+vi+'</button>':(on?'<span class="chip on" style="pointer-events:none">'+esc(p.n)+vi+'</span>':'')}).join('')+'</div>'+(adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rn-ivb">Tout le bureau</button><button class="chip" data-act="rn-ivall">Tout le monde</button></div>'+(o.st!=='p'?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rn-rl">🔔 '+(o.st==='f'?'Rappeler la réunion aux invités':'Relancer ceux qui n’ont pas répondu')+'</button><button class="chip" data-act="rn-rlp">🔔 Relancer une personne…</button></div>':''):'')+(o.st==='v'&&adm?'<p class="mut" style="margin:.5rem 0 0;font-size:.82rem">🗳 = a déjà voté.</p>':'')+'</div>';
+ h+='<div class="card"><h3>👥 Invités</h3>'+(adm?'<p class="mut" style="margin:.1rem 0 .4rem;font-size:.85rem">Touche un nom pour l’inviter ou le retirer.</p>':'')+'<div style="display:flex;gap:.35rem;flex-wrap:wrap">'+P.filter(p=>!p.x).map(p=>{const on=o.iv.includes(p.id),v=o.st==='v'&&on&&R[p.id],vi=v?(v.includes('-')?' 🙅':' 🗳'):'';return adm?'<button class="chip'+(on?' on':'')+'" data-act="rn-iv" data-id="'+p.id+'">'+(on?'✔ ':'')+esc(p.n)+vi+'</button>':(on?'<span class="chip on" style="pointer-events:none">'+esc(p.n)+vi+'</span>':'')}).join('')+'</div>'+(adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rn-ivb">Tout le bureau</button><button class="chip" data-act="rn-ivall">Tout le monde</button></div>'+(o.st!=='p'?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rn-rl">🔔 '+(o.st==='f'?'Rappeler la réunion aux invités':'Relancer ceux qui n’ont pas répondu')+'</button><button class="chip" data-act="rn-rlp">🔔 Relancer une personne…</button><button class="chip" data-act="rn-nop">🙅 Noter « pas dispo » pour quelqu’un…</button></div>':''):'')+(o.st==='v'&&adm?'<p class="mut" style="margin:.5rem 0 0;font-size:.82rem">🗳 = a déjà voté.</p>':'')+'</div>';
  return h}
 function amView(){try{document.body.classList.toggle('am2on',S.amStyle==='new'&&!amTabLocked())}catch(e){}if(amTabLocked())return{html:amLockHTML(),fixed:false};return amView0()}
 function amView0(){
@@ -18334,7 +18361,7 @@ function amView0(){
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
     return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+amAbBadge(p.id)+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
-  h+=isAc?amTodoVoteCard()+amNotifHome()+amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
+  h+=isAc?amKeyStaleHTML()+amTodoVoteCard()+amNotifHome()+amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
   {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>'}
@@ -18476,7 +18503,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
