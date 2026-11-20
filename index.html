@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.154';
+const APP_VERSION='2.82.157';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.157',d:'20/11/2026',items:['🔔 Réunions : bouton « Relancer pour ce créneau » sur chaque date (nouvelle ou changée) : prévient tous les invités qui ne l’ont pas encore cochée, même ceux qui avaient déjà répondu, sauf les absents ce jour-là']},
+{v:'2.82.156',d:'20/11/2026',items:['📄 Avant chaque impression (listes, tâches, programme, repas, bulletins…) : « 🖨 Imprimer », « ✉️ Envoyer par mail à… » (une personne du bureau, mail pro ou perso : l’adresse est copiée, Mail s’ouvre avec le PDF) ou « 📚 Ajouter au dossier » pour réunir plusieurs fiches et les imprimer d’un coup','🔔 Réglages › Notifications : « 🗓 Réunions » et « ✅ Tâche pour moi » apparaissent, toujours activées (invitations, relances, date fixée, lieu, tâche confiée)','🗳 Réunions : « 🙅 Aucune date ne me va » et « 🤔 Je ne connais pas encore mon planning » sont maintenant en haut, avant les dates']},
+{v:'2.82.155',d:'20/11/2026',items:['🖨 Impression des tâches de chacun : aussi quand la préparation est organisée en parties, aussi pour les aides, et dans l’onglet ✅ Tâches (une page par personne ou un tableau)','✏️ Relances et liens envoyés (inscription, menu, adhésion…) : bouton « Modifier le message » pour réécrire le texte comme tu veux avant l’envoi','🚨 Relance d’inscription à 7 jours ou moins de la fin : ligne d’alerte en tête du message (« 🚨⏳ PLUS QUE 3 JOURS POUR T’INSCRIRE ! ⏳🚨 », « DERNIER JOUR… »)']},
 {v:'2.82.154',d:'20/11/2026',items:['🔒 Bulletin d’adhésion (papier, PDF et en ligne) : la phrase « Protection de mes données » (chiffrement, serveur Cloudflare qui ne peut pas lire, ni vendu ni partagé, consulter / corriger / supprimer sur demande) est écrite juste avant la signature : la personne la signe','🛡 Le message « Cet appareil n’a pas tous les membres » ne s’affiche plus en boucle : plus du tout sur l’iPad / le Mac, au plus une fois par jour sur le téléphone (détail dans la carte Synchronisation)','🔕 Le grand rappel « Active les notifications » ne s’affiche plus sur les appareils secondaires (iPad, ordinateur) : les notifications arrivent sur le téléphone principal','🖨 Événements › Préparation : « Imprimer les tâches de chacun » : une page par personne (ses tâches, la partie, la date, une case à cocher) ou un tableau récapitulatif, à distribuer en réunion','🗂 Événements : sans prestataire ni frais, « Prestataires · Frais et bilan » est replié sur une ligne','🤔 Réunions : nouveau choix « Je ne connais pas encore mon planning » ; la personne reste dans « À répondre » et « Relancer » la prévient encore']},
 {v:'2.82.153',d:'20/11/2026',items:['🔒 Case d’accord obligatoire sur les formulaires (adhésion, inscription à un événement, choix du menu, boîte à idées) et avant de rejoindre le groupe : données chiffrées sur le téléphone, serveur Cloudflare qui ne peut pas les lire, ni vendues ni partagées, correction ou suppression sur demande','🔑 Plusieurs retraits d’affilée : vérifié sans risque ; les nouvelles clés sont en plus déposées directement là où un appareil resté fermé les cherche (récupération plus rapide)','⚠️ Avant chaque retrait : alerte qui explique le renouvellement des clés et liste ceux qui n’ont pas encore rouvert l’appli depuis le dernier retrait']},
 {v:'2.82.152',d:'20/11/2026',items:['👥 Membre retiré qui réapparaissait sur le Mac / l’iPad : un retrait reste désormais toujours dans la liste envoyée au serveur, et un appareil administrateur cache toujours quelqu’un qu’il sait retiré']},
@@ -9307,8 +9310,8 @@ async function act(a,el,e){
   case 'am-sos-wa':amSosWa(ds_.k);break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
-  case 'rp-open':case 'rp-back':case 'rp-new':case 'rp-vote':case 'rp-iv':case 'rp-ivb':case 'rp-ivall':case 'rp-dadd':case 'rp-ddel':case 'rp-pl':case 'rp-launch':case 'rp-fix':case 'rp-reopen':case 'rp-rl':case 'rp-rl1':case 'rp-rlp':case 'rp-nop':case 'rp-pt-add':case 'rp-pt-x':case 'rp-pt-del':case 'rp-del':amRpAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
-  case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':case 'rn-rl':case 'rn-rl1':case 'rn-rlp':case 'rn-nop':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
+  case 'rp-open':case 'rp-back':case 'rp-new':case 'rp-vote':case 'rp-iv':case 'rp-ivb':case 'rp-ivall':case 'rp-dadd':case 'rp-ddel':case 'rp-pl':case 'rp-launch':case 'rp-fix':case 'rp-reopen':case 'rp-rl':case 'rp-rl1':case 'rp-rlp':case 'rp-nop':case 'rp-rld':case 'rp-pt-add':case 'rp-pt-x':case 'rp-pt-del':case 'rp-del':amRpAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
+  case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':case 'rn-rl':case 'rn-rl1':case 'rn-rlp':case 'rn-nop':case 'rn-rld':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'ch-z':case 'ch-zun':chResetAct(a,ds_.m).catch(()=>toast('Action impossible',2500));break;
   case 'cs-imp':case 'cs-add':case 'cs-del':case 'cs-map':amCsAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'ch-m':{const c=chMonth(),n=chShift(CH_M||c,+ds_.v);if(n<=c&&n>='2025-01'){CH_M=n;render()}break}
@@ -9476,6 +9479,7 @@ async function act(a,el,e){
   case 'ee-imp':amEeImport();break;
   case 'ee-year':amEeYearPrint();break;
   case 'ck-print':amCkPrint();break;
+  case 'tk-print':amTkPrint();break;
   case 'ee-del':amEeDel();break;
   case 'am-it':amItemOpen(ds_.id);break;
   case 'am-tick':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(it)amItemSave(Object.assign({},it,{x:it.x?0:1}));break}
@@ -13679,7 +13683,8 @@ function pdfFromJpegs(pg){
  const out=new Uint8Array(len);let q=0;for(const u of parts){out.set(u,q);q+=u.length}
  return out;
 }
-async function amPdfBlob(html){
+async function amPdfBlob(html){return new Blob([pdfFromJpegs(await amPdfPages(html))],{type:'application/pdf'})}
+async function amPdfPages(html){
  await loadH2C();
  const shot=document.createElement('div');shot.className='am-shot';shot.innerHTML=html;document.body.appendChild(shot);
  try{
@@ -13688,11 +13693,49 @@ async function amPdfBlob(html){
   const PW=cv.width,PH=Math.round(PW*1.41421),n=Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
   for(let i=0;i<n;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
    const bin=atob(c2.toDataURL('image/jpeg',0.9).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH})}
-  return new Blob([pdfFromJpegs(pages)],{type:'application/pdf'});
+  return pages;
  }finally{shot.remove()}
 }
 function amWideDoc(html){const m=String(html).match(/<table class="amp-t amp-g"><tr>([\s\S]*?)<\/tr>/);return !!m&&(m[1].match(/<th>/g)||[]).length>6}
+/* 2.82.156 : avant chaque impression : imprimer, envoyer par mail à quelqu’un du bureau, ou réunir plusieurs fiches dans un « dossier » imprimé d’un coup */
+let AMPDF_BAG=[];
 async function amPdf(html,name,poster){
+ const a=amc(),n=AMPDF_BAG.length,B=[{label:'🖨 Imprimer / PDF',value:'p',cls:'pri'}];
+ if(a&&!demo)B.push({label:'✉️ Envoyer par mail à…',value:'m'});
+ if(!poster)B.push({label:'📚 Ajouter au dossier'+(n?' ('+n+' fiche'+(n>1?'s':'')+' déjà)':''),value:'c'});
+ if(n&&!poster)B.push({label:'🖨 Imprimer le dossier : '+(n+1)+' fiches (avec celle-ci)',value:'b'},{label:'🗑 Vider le dossier ('+n+')',value:'x'});
+ B.push({label:'Annuler',value:null});
+ const r=await ask({title:'📄 '+String(name||'Document').replace(/\.pdf$/,''),html:n?'<p class="mut" style="font-size:.85rem;margin:.1rem 0 .4rem">📚 Dossier en cours : '+AMPDF_BAG.map(x=>esc(x.name.replace(/\.pdf$/,''))).join(', ')+'</p>':'',btns:B});
+ if(!r)return;
+ if(r==='x'){AMPDF_BAG=[];toast('Dossier vidé',2000);return}
+ if(r==='c'){AMPDF_BAG.push({html,name});toast('📚 Ajoutée au dossier ('+AMPDF_BAG.length+'). Ouvre une autre fiche à imprimer, puis « Imprimer le dossier ».',5000);return}
+ if(r==='b'){const L=AMPDF_BAG.concat([{html,name}]);AMPDF_BAG=[];const nm='dossier-'+today()+'.pdf';
+  if(!amMobile()){const H=L.map((x,i)=>'<div style="'+(i?'page-break-before:always;break-before:page;':'')+'">'+x.html+'</div>').join('');return amPdf0(H,nm)}
+  /* téléphone : chaque fiche commence sur une nouvelle page */
+  toast('Préparation du dossier…',10000);let pages=[];try{for(const x of L)pages=pages.concat(await amPdfPages(x.html))}catch(e){toast('PDF impossible ici',4000);return}
+  const file=new File([pdfFromJpegs(pages)],nm,{type:'application/pdf'});
+  const r2=await ask({title:'📚 Dossier prêt',text:L.length+' fiches · '+pages.length+' pages. Touche le bouton, puis « Imprimer » (ou Mail, Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});if(r2!=='s')return;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:nm});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const u=URL.createObjectURL(file),el=document.createElement('a');el.href=u;el.download=nm;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000);return}
+ if(r==='m')return amPdfMail(html,name,poster);
+ return amPdf0(html,name,poster)}
+async function amPdfMail(html,name,poster){
+ const P=amList().filter(p=>!p.x&&p.l==='b'&&(/@/.test(p.mp||'')||/@/.test(p.mw||'')));
+ if(!P.length){toast('Personne du bureau n’a de mail dans sa fiche',4000);return}
+ const id=await ask({title:'✉️ Envoyer à qui ?',btns:P.map(p=>({label:(p.self?'Moi ('+p.n+')':p.n),value:p.id})).concat([{label:'Annuler',value:null}])});if(!id)return;
+ const p=P.find(x=>x.id===id),M=[[p.mw,'💼 Mail pro'],[p.mp,'🏠 Mail perso']].filter(x=>/@/.test(x[0]||''));
+ let to=M[0][0];if(M.length>1){const c=await ask({title:'Quelle adresse ?',btns:M.map(x=>({label:x[1]+' : '+x[0],value:x[0]})).concat([{label:'Annuler',value:null}])});if(!c)return;to=c}
+ await ficheCopy(to,'📋 Adresse copiée : '+to);
+ if(!amMobile()){
+  /* ordinateur : le PDF est enregistré, Mail s’ouvre avec l’adresse ; il reste à joindre le fichier enregistré */
+  try{toast('Préparation du PDF…',6000);const bl=await amPdfBlob(html),u=URL.createObjectURL(bl),el=document.createElement('a');el.href=u;el.download=name;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000)}catch(e){}
+  const go=await ask({title:'✉️ Prêt',html:'<p style="margin:.2rem 0 .5rem">Le PDF <b>'+esc(name)+'</b> est dans tes Téléchargements, et l’adresse <b>'+esc(to)+'</b> est copiée.</p><p class="mut" style="font-size:.86rem;margin:0">Touche « Ouvrir Mail » : l’adresse est déjà mise ; glisse le PDF dans le message.</p>',btns:[{label:'✉️ Ouvrir Mail',value:1,cls:'pri'},{label:'Fermer',value:null}]});
+  if(go)location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''));return}
+ toast('Préparation du PDF…',8000);let file;try{const bl=await amPdfBlob(html);file=new File([bl],name,{type:'application/pdf'})}catch(e){toast('PDF impossible ici',4000);return}
+ const go=await ask({title:'✉️ Prêt à envoyer',html:'<p style="margin:.2rem 0 .5rem">📋 L’adresse <b>'+esc(to)+'</b> est copiée.</p><p style="margin:0 0 .4rem">1. Touche « Envoyer le PDF » et choisis <b>Mail</b>.<br>2. Dans « À : », <b>appuie longuement puis Coller</b>.</p>',btns:[{label:'✉️ Envoyer le PDF',value:1,cls:'pri'},{label:'Annuler',value:null}]});if(!go)return;
+ if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
+ location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''))}
+async function amPdf0(html,name,poster){
  if(!amMobile()){amPrintDoc(html,poster);return}
  toast('Préparation du PDF…',8000);
  let shot;
@@ -14966,7 +15009,8 @@ async function amSendLink(ids,pre){
   if(x.k==='ra')return hi+String(V.intro).trim()+(hk?'\n'+hk:'')+'\n\n👉 Ça prend 2 minutes sur ton téléphone : '+how+' :\n'+amAqUrl();
   if(x.k==='a')return hi+(hk?hk+'\n\n':'')+'👉 Pour adhérer à '+(a.nm||'l’amicale')+' (saison '+amSaCur()+'), '+how+' (2 minutes) :\n'+amAqUrl();
   const e=x.e,inf='« '+e.tx+' »'+(e.d?' le '+dfr(e.d):'')+(e.pl?' à '+e.pl:'');
-  if(x.k==='r'){const n=amQlDays(e);return hi+'Petit rappel pour '+inf+(amClOn(e)?' : les inscriptions sont terminées':e.ql&&n>=0?' : les inscriptions se terminent '+(n===0?'aujourd’hui':n===1?'demain':'le '+amQlTxt(e))+(e.qt?' à '+e.qt.replace(':','h'):'')+(n>1?' (plus que '+n+' jours)':'')+'. Passé ce moment, il ne sera plus possible de s’inscrire':'')+'.\nSi ce n’est pas déjà fait, inscris-toi ici (2 minutes) :\n'+amQrUrl(e)+(e.qm?'\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e):'')}
+  /* 2.82.155 : à 7 jours ou moins de la fin des inscriptions, une ligne d’alerte bien visible en tête du message */
+  if(x.k==='r'){const n=amQlDays(e),urg=!amClOn(e)&&e.ql&&n>=0&&n<=7?'🚨⏳ '+(n===0?'DERNIER JOUR POUR T’INSCRIRE':n===1?'PLUS QUE 1 JOUR POUR T’INSCRIRE':'PLUS QUE '+n+' JOURS POUR T’INSCRIRE')+' ! ⏳🚨\n\n':'';return hi+urg+'Petit rappel pour '+inf+(amClOn(e)?' : les inscriptions sont terminées':e.ql&&n>=0?' : les inscriptions se terminent '+(n===0?'aujourd’hui':n===1?'demain':'le '+amQlTxt(e))+(e.qt?' à '+e.qt.replace(':','h'):'')+(n>1?' (plus que '+n+' jours)':'')+'. Passé ce moment, il ne sera plus possible de s’inscrire':'')+'.\nSi ce n’est pas déjà fait, inscris-toi ici (2 minutes) :\n'+amQrUrl(e)+(e.qm?'\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e):'')}
   if(x.k==='im')return hi+'Tu es invité(e) à '+inf+'.\n\n🍽 Le menu et les tarifs :\n'+amQmUrl(e)+'\n\n📲 Inscris-toi ici (2 minutes) :\n'+amQrUrl(e);
   return x.k==='i'?hi+'Tu es invité(e) à '+inf+'. Inscris-toi ici (2 minutes) :\n'+amQrUrl(e):hi+'Le menu et les tarifs de '+inf+' :\n'+amQmUrl(e)};
  const tel=P.length>1?P.map(m=>amMob((m.o||{}).tl)).filter(Boolean):P.map(m=>amTelHref((m.o||{}).tl)).filter(Boolean),badT=P.length>1?P.filter(m=>amTelHref((m.o||{}).tl)&&!amMob((m.o||{}).tl)):[],ml=P.map(m=>String((m.o||{}).ml||'').trim()).filter(v=>/@/.test(v));
@@ -15000,15 +15044,17 @@ async function amSendLink(ids,pre){
  const pv=()=>esc(full()).replace(/https:\/\/\S+/g,u=>'<span class="mut">'+u.slice(0,48)+'…</span>');
  const root=$('#dlg');
  const pr=ask({title:esc(x.l),html:(x.k!=='a'&&x.k!=='ra'?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">Avec l’affiche : tu choisis ensuite WhatsApp ou Messages, puis la personne (le téléphone ne permet pas de mettre une image dans un SMS tout prêt).</p>':'')
-  +(isR&&P.length>1?(()=>{const R=got(),k=P.filter(m=>R.has(m.id)).length;return k?'<p style="margin:.1rem 0 .4rem;font-weight:700;color:#15803d">✅ '+k+' sur '+P.length+' ont déjà reçu cette relance : ils ne la recevront pas une 2ᵉ fois (SMS en groupes, fichier contacts).</p>':''})():'')+grpN+'<div class="card" id="sl-pv" style="padding:.6rem .7rem;margin:.2rem 0 .5rem;white-space:pre-wrap;font-size:.88rem;max-height:30vh;overflow:auto">'+pv()+'</div>'
+  +(isR&&P.length>1?(()=>{const R=got(),k=P.filter(m=>R.has(m.id)).length;return k?'<p style="margin:.1rem 0 .4rem;font-weight:700;color:#15803d">✅ '+k+' sur '+P.length+' ont déjà reçu cette relance : ils ne la recevront pas une 2ᵉ fois (SMS en groupes, fichier contacts).</p>':''})():'')+grpN+'<div class="card" id="sl-pv" style="padding:.6rem .7rem;margin:.2rem 0 .3rem;white-space:pre-wrap;font-size:.88rem;max-height:30vh;overflow:auto">'+pv()+'</div><button type="button" class="chip" id="sl-edb" style="margin:0 0 .5rem">✏️ Modifier le message</button>'
   +(askTl?'<label class="lbl">📞 Son numéro <span class="mut" style="font-weight:400;text-transform:none">(pas dans sa fiche : facultatif, il y sera ajouté)</span></label><input class="in" id="sl-tl" type="tel" inputmode="tel" placeholder="06 12 34 56 78" autocomplete="off">':'')
   +(x.k==='v'?'<label class="lbl" style="margin-top:.4rem">📝 Début du message <span class="mut" style="font-weight:400;text-transform:none">(modifiable)</span></label><textarea class="in" id="sl-vi" rows="3" style="width:100%;min-height:4.4rem">'+esc(V.vi)+'</textarea>':'')+(x.e&&x.k!=='v'&&A?'<label style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-weight:700"><input type="checkbox" id="sl-aq"'+(V.aq?' checked':'')+' style="width:22px;height:22px;flex:none"><span>🎖 Ajouter le lien d’adhésion à l’amicale</span></label>':'')
   +(x.k==='ra'?'<label class="lbl" style="margin-top:.4rem">📝 Début du message <span class="mut" style="font-weight:400;text-transform:none">(modifie-le selon le moment : « reste encore ouvert », « plus que 15 jours »… il est gardé)</span></label><textarea class="in" id="sl-in" rows="2" style="width:100%;min-height:3.4rem">'+esc(V.intro)+'</textarea>':'')
   +(isA?'<label class="lbl" style="margin-top:.4rem">🎉 Phrase d’accroche <span class="mut" style="font-weight:400;text-transform:none">(pour donner envie : modifie-la, elle est gardée)</span></label><textarea class="in" id="sl-hk" rows="3" style="width:100%;min-height:4.6rem">'+esc(V.hook)+'</textarea>':'')
   +'<label class="lbl" style="margin-top:.4rem">✍️ Signé par <span class="mut" style="font-weight:400;text-transform:none">(ton grade et ton nom, gardés)</span></label><input class="in" id="sl-sig" value="'+esc(sig0)+'" placeholder="ADC DUPONT Jean" autocomplete="off">'+(roleL?'<small class="mut" style="display:block;margin-top:.2rem">+ « '+esc(roleL)+' » ajouté tout seul (ton titre au bureau)</small>':'')
   +(miss.length?'<p class="mut" style="font-size:.82rem">Sans téléphone ni mail : '+esc(miss.slice(0,8).join(', '))+(miss.length>8?'…':'')+'</p>':''),btns:B});
- const rd=()=>{const vi=root.querySelector('#sl-vi');if(vi)V.vi=vi.value;const t=root.querySelector('#sl-tl'),g=root.querySelector('#sl-sig'),hh=root.querySelector('#sl-hk'),ii=root.querySelector('#sl-in'),cq=root.querySelector('#sl-aq');if(t)V.tl=t.value;if(g)V.sig=g.value;if(ii)V.intro=ii.value;if(hh)V.hook=hh.value;if(cq)V.aq=cq.checked;body=msg(one)};
- root.oninput=root.onchange=()=>{rd();const e=root.querySelector('#sl-pv');if(e)e.innerHTML=pv()};root.addEventListener('click',rd,true);root.addEventListener('dlgsync',rd);
+ const rd=()=>{const vi=root.querySelector('#sl-vi');if(vi)V.vi=vi.value;const t=root.querySelector('#sl-tl'),g=root.querySelector('#sl-sig'),hh=root.querySelector('#sl-hk'),ii=root.querySelector('#sl-in'),cq=root.querySelector('#sl-aq');if(t)V.tl=t.value;if(g)V.sig=g.value;if(ii)V.intro=ii.value;if(hh)V.hook=hh.value;if(cq)V.aq=cq.checked;const ed=root.querySelector('#sl-ed');body=ed?ed.value:msg(one)};
+ root.oninput=root.onchange=()=>{rd();const e=root.querySelector('#sl-pv');if(e)e.innerHTML=pv()};
+ /* 2.82.155 : le message se modifie librement (le lien et la signature restent ; la signature est ajoutée à la fin) */
+ {const eb=root.querySelector('#sl-edb');if(eb)eb.onclick=ev=>{ev.stopPropagation();rd();const pvE=root.querySelector('#sl-pv');if(!pvE||root.querySelector('#sl-ed'))return;const ta=document.createElement('textarea');ta.className='in';ta.id='sl-ed';ta.rows=9;ta.style.cssText='width:100%;min-height:12rem;margin:.2rem 0 .3rem;font-size:16px';ta.value=body;pvE.replaceWith(ta);eb.outerHTML='<p class="mut" style="font-size:.8rem;margin:0 0 .5rem">✏️ Modifie le texte comme tu veux (garde le lien). Ta signature est ajoutée à la fin.</p>';setTimeout(()=>{try{ta.focus()}catch(e){}},50)}}root.addEventListener('click',rd,true);root.addEventListener('dlgsync',rd);
  const v=await pr;root.removeEventListener('click',rd,true);root.removeEventListener('dlgsync',rd);root.oninput=root.onchange=null;
  if(x.e&&A&&(V.aq?'1':'')!==(S.amAddAq||'')){S.amAddAq=V.aq?'1':'';saveSet()}
  if(String(V.sig)!==sig0||S.amSigN==null){S.amSigN=String(V.sig).trim().slice(0,120);saveSet()}
@@ -15340,19 +15386,27 @@ function amPoGo(){
  amPdf(html,nm,true);
 }
 /* 2.82.154 : fiches de tâches à imprimer pour la réunion : une page par personne (ses tâches, la partie, l’échéance, une case à cocher), ou un tableau récapitulatif */
+/* 2.82.155 : mise en page commune (une page par personne ou tableau) */
+function amTaskSheets(L,ttl,f){const P=[...new Set(L.map(x=>x.w).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'fr')),U=L.filter(x=>!x.w),box=x=>'<td style="width:26px;text-align:center;font-size:16px">'+(x.ok?'✓':'☐')+'</td>';
+ const row=(x,who)=>'<tr>'+box(x)+(who?'<td><b>'+esc(x.w||'—')+'</b></td>':'')+'<td>'+esc(x.t)+(x.x?'<br><small style="color:#555">'+esc(x.x)+'</small>':'')+'</td><td>'+esc(x.s||'')+'</td><td style="white-space:nowrap">'+esc(x.d||'')+'</td></tr>';
+ const th=who=>'<tr><th></th>'+(who?'<th style="text-align:left">Qui</th>':'')+'<th style="text-align:left">Tâche</th><th style="text-align:left">'+(L.some(x=>x.s)?'Partie / liste':'')+'</th><th style="text-align:left">Pour le</th></tr>';
+ if(f==='t')return '<table class="amp-t">'+th(1)+P.map(n=>L.filter(x=>x.w===n).map(x=>row(x,1)).join('')).join('')+U.map(x=>row(x,1)).join('')+'</table><p style="font-size:11px;color:#555">'+L.length+' tâche'+(L.length>1?'s':'')+(U.length?' · dont '+U.length+' à attribuer':'')+'</p>';
+ return P.map((n,i)=>{const M=L.filter(x=>x.w===n);return '<div style="'+(i?'page-break-before:always;break-before:page;padding-top:24px;':'')+'"><h2 style="font-size:24px;margin:0 0 4px">👤 '+esc(n)+'</h2><p style="margin:0 0 8px;color:#444">'+esc(ttl)+' — '+M.length+' tâche'+(M.length>1?'s':'')+'</p><table class="amp-t">'+th(0)+M.map(x=>row(x,0)).join('')+'</table><p style="margin-top:18px;font-size:12px;color:#555">Coche au fur et à mesure. Une question ? Vois avec le bureau.</p></div>'}).join('')+(U.length?'<div style="'+(P.length?'page-break-before:always;break-before:page;padding-top:24px':'')+'"><h2 style="font-size:24px;margin:0 0 6px">❓ À attribuer</h2><table class="amp-t">'+th(0)+U.map(x=>row(x,0)).join('')+'</table></div>':'')}
+async function amTkPrint(){const a=amc();if(!a)return;const T=amItems('tk');if(!T.length){toast('Aucune tâche');return}
+ const f=await ask({title:'🖨 Tâches de chacun',html:'<p style="margin:.2rem 0 .4rem">Les tâches de l’onglet ✅ Tâches'+(a.kB?' (bureau et aides)':'')+'.</p>',btns:[{label:'📄 Une page par personne',value:'p',cls:'pri'},{label:'📋 Un seul tableau (tout le monde)',value:'t'},{label:'Annuler',value:null}]});if(!f)return;
+ const w=await ask({title:'Quelles tâches ?',btns:[{label:'Seulement ce qui reste à faire',value:'r',cls:'pri'},{label:'Toutes (faites cochées ✓)',value:'a'},{label:'Annuler',value:null}]});if(!w)return;
+ const L=T.filter(i=>w==='a'||!i.x).sort((p,q)=>String(p.d||'9').localeCompare(String(q.d||'9'))).map(i=>({w:String(i.w||'').trim(),t:i.tx+(i.qt?' ('+i.qt+')':''),s:(i.l||'')+(a.kB&&i.z==='b'?' 🔒':''),d:i.d?fShort(i.d):'',x:i.bd?String(i.bd).slice(0,140):'',ok:!!i.x}));
+ if(!L.length){toast('Tout est fait 👍',2500);return}
+ amPdf(amDocFrame('Tâches de chacun','',amTaskSheets(L,'Tâches · '+(a.nm||''),f)),'taches-'+today()+'.pdf');
+}
 async function amCkPrint(){const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;const ck=it.ck||[];if(!ck.length){toast('Aucune tâche');return}
  const f=await ask({title:'🖨 Tâches de chacun',html:'<p style="margin:.2rem 0 .4rem">Pour <b>'+esc(it.tx)+'</b>'+(it.d?' ('+esc(fShort(it.d))+')':'')+'.</p>',btns:[{label:'📄 Une page par personne',value:'p',cls:'pri'},{label:'📋 Un seul tableau (tout le monde)',value:'t'},{label:'Annuler',value:null}]});if(!f)return;
  const w=await ask({title:'Quelles tâches ?',btns:[{label:'Seulement ce qui reste à faire',value:'r',cls:'pri'},{label:'Toutes (faites cochées ✓)',value:'a'},{label:'Annuler',value:null}]});if(!w)return;
  const CS=it.cs||[],csN=id=>{const c=CS.find(x=>x.id===id);return c?c.t:''},due=c=>{if(c.d)return fShort(c.d);const x=CS.find(z=>z.id===c.s);if(x&&x.o!==''&&x.o!=null&&it.d){const D=new Date(it.d+'T12:00');D.setDate(D.getDate()+(+x.o||0));return fShort(D.toISOString().slice(0,10))}return ''};
  const L=[];ck.forEach(c=>{if(!c||!c.t)return;if(w==='r'&&c.ok)return;L.push({w:String(c.w||'').trim(),t:c.t,s:csN(c.s),d:due(c),x:c.x||'',ok:!!c.ok,ak:!!c.ak});(c.sb||[]).forEach(q=>{if(!q||!q.t||(w==='r'&&(q.ok||c.ok)))return;L.push({w:String(q.w||c.w||'').trim(),t:'↳ '+q.t+' ('+c.t+')',s:csN(c.s),d:due(c),x:'',ok:!!q.ok,ak:false})})});
  if(!L.length){toast('Tout est fait 👍',2500);return}
- const P=[...new Set(L.map(x=>x.w).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'fr')),U=L.filter(x=>!x.w),box=x=>'<td style="width:26px;text-align:center;font-size:16px">'+(x.ok?'✓':'☐')+'</td>';
- const row=(x,who)=>'<tr>'+box(x)+(who?'<td><b>'+esc(x.w||'—')+'</b></td>':'')+'<td>'+esc(x.t)+(x.x?'<br><small style="color:#555">'+esc(x.x)+'</small>':'')+'</td><td>'+esc(x.s)+'</td><td style="white-space:nowrap">'+esc(x.d)+'</td></tr>';
- const th=who=>'<tr style="text-align:left"><th></th>'+(who?'<th style="text-align:left">Qui</th>':'')+'<th style="text-align:left">Tâche</th><th style="text-align:left">Partie</th><th style="text-align:left">Pour le</th></tr>';
- const ttl=it.tx+(it.d?' · '+fShort(it.d):'');let body='';
- if(f==='t'){body='<table class="amp-t">'+th(1)+P.map(n=>L.filter(x=>x.w===n).map(x=>row(x,1)).join('')).join('')+U.map(x=>row(x,1)).join('')+'</table><p style="font-size:11px;color:#555">'+L.length+' tâche'+(L.length>1?'s':'')+(U.length?' · dont '+U.length+' à attribuer':'')+'</p>'}
- else{body=P.map((n,i)=>{const M=L.filter(x=>x.w===n);return '<div style="'+(i?'page-break-before:always;break-before:page;padding-top:24px;':'')+'"><h2 style="font-size:24px;margin:0 0 4px">👤 '+esc(n)+'</h2><p style="margin:0 0 8px;color:#444">'+esc(ttl)+' — '+M.length+' tâche'+(M.length>1?'s':'')+'</p><table class="amp-t">'+th(0)+M.map(x=>row(x,0)).join('')+'</table><p style="margin-top:18px;font-size:12px;color:#555">Coche au fur et à mesure. Une question ? Vois avec le bureau.</p></div>'}).join('')+(U.length?'<div style="page-break-before:always;break-before:page;padding-top:24px"><h2 style="font-size:24px;margin:0 0 6px">❓ À attribuer</h2><table class="amp-t">'+th(0)+U.map(x=>row(x,0)).join('')+'</table></div>':'')}
- amPdf(amDocFrame('Tâches · '+ttl,'',body),'taches-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,30)+'.pdf');
+ const ttl=it.tx+(it.d?' · '+fShort(it.d):'');
+ amPdf(amDocFrame('Tâches · '+ttl,'',amTaskSheets(L,ttl,f)),'taches-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,30)+'.pdf');
 }
 async function amEeYearPrint(){
  const a=amc(),L=amItems('ee').slice().sort((p,q)=>p.d<q.d?-1:1);if(!L.length){toast('Aucun événement');return}
@@ -17475,8 +17529,9 @@ function amEeHTML(){
   }else{
    h+=ck.length?'<div class="am-cs-l">'+ck.map((c,i)=>amCkRow(c,i,CS,rw,!rw)).join('')+'</div>':'<p class="empty">Rien à préparer pour l’instant.</p>';
    if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div><button class="btn pri blk" data-act="ps-org" style="margin-top:.4rem">🗂 Organiser en parties (une semaine avant · la veille · jour J)</button>';
-   if(ck.length)h+='<button class="btn blk" data-act="ck-print" style="margin-top:.4rem">🖨 Imprimer les tâches de chacun (pour la réunion)</button>';
   }
+  /* 2.82.155 : visible aussi quand la préparation est organisée en parties, et pour les aides */
+  if(ck.length&&!CS)h+='<button class="btn blk" data-act="ck-print" style="margin-top:.6rem">🖨 Imprimer les tâches de chacun (pour la réunion)</button>';
   const PR=h;h='';
   /* 2.82.154 : sans prestataire, sans frais et sans encaissement, ces deux rubriques sont repliées (une ligne) */
   if(rw){const a0=amc(),hasPv=(it.pv||[]).some(c=>a0.it&&a0.it[c.p]&&!a0.it[c.p].del),T0=amDpTot(it),full=hasPv||(it.dp||[]).length||T0.du||T0.pa,inner=amPvEvHTML(it)+amDpEvHTML(it);
@@ -17587,7 +17642,7 @@ function amItemsHTML(kind){
  const open=L.filter(i=>!i.x).sort((p,q)=>(p.d||'9')<(q.d||'9')?-1:(p.d||'9')>(q.d||'9')?1:(p.at||0)-(q.at||0)),done=L.filter(i=>i.x).sort((p,q)=>(q.at||0)-(p.at||0));
  const today=new Date().toISOString().slice(0,10);
  const row=i=>'<div class="am-it'+(i.x?' done':'')+'"><button class="am-ck" data-act="am-tick" data-id="'+esc(i.id)+'" aria-label="Cocher">'+(i.x?'✓':'')+'</button><button class="am-itx" data-act="am-it" data-id="'+esc(i.id)+'"><b>'+esc(i.tx)+(i.qt?' <small class="mut">· '+esc(i.qt)+'</small>':'')+'</b><small>'+[i.w?'👤 '+esc(i.w)+amAkTx(i.kind==='tk'&&!i.x?i:null):'',i.d?'<span'+(!i.x&&i.d<today?' style="color:var(--danger);font-weight:700"':'')+'>📅 '+esc(fShort(i.d))+'</span>':'',a.kB&&i.z==='b'?'🔒 bureau':'',i.by?'✍️ '+esc(i.by):''].filter(Boolean).join(' · ')+'</small></button>'+(i.kind==='tk'&&!i.x&&i.w&&!i.ak&&amIsMe(i.w)?'<button class="chip ak-b" data-act="tk-ak" data-id="'+esc(i.id)+'">👍 Bien reçu</button>':'')+'</div>';
- let h='<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='tk'?'Nouvelle tâche':'Nouvel article')+'</button>';
+ let h='<button class="btn pri blk" data-act="am-add" data-k="'+kind+'">'+ic('plus')+' '+(kind==='tk'?'Nouvelle tâche':'Nouvel article')+'</button>'+(kind==='tk'&&amItems('tk').length?'<button class="btn blk" data-act="tk-print" style="margin-top:.4rem">🖨 Imprimer les tâches de chacun</button>':'');
  h+=open.length?open.map(row).join(''):'<p class="empty">'+(kind==='tk'?'Aucune tâche pour l’instant.':'La liste de courses est vide.')+'</p>';
  if(done.length){h+='<h4 class="am-h">'+(kind==='tk'?'Faites':'Achetés')+' · '+done.length+'</h4>'+done.slice(0,30).map(row).join('')+'<button class="btn blk" data-act="am-clear" data-k="'+kind+'" style="margin-top:.5rem">🧹 Vider '+(kind==='tk'?'les tâches faites':'les articles achetés')+'</button>'}
  return h;
@@ -18180,8 +18235,13 @@ async function amRnAct(a0,ds){
   case 'rn-ivb':case 'rn-ivall':{const o0=o.iv.slice();o.iv=Array.from(new Set(o.iv.concat(amList().filter(p=>!p.x&&(a0==='rn-ivall'||p.l==='b'||p.adm||p.self)).map(p=>p.id))));const nw=o.iv.filter(id=>!o0.includes(id)&&id!==a.me.id);
    if(o.st==='v'&&nw.length){rnSave(m,o,{to:nw});toast('🔔 '+nw.length+' invité'+(nw.length>1?'s':'')+' et prévenu'+(nw.length>1?'s':''),3000);return}rnSave(m,o,false);return}
   case 'rn-dadd':{const v=await amForm('📅 Proposer une date','',[{k:'d',l:'Date',v:'',t:'date'},{k:'tm',l:'Heure',v:'18:30',t:'time'}],'Ajouter');if(!v||!v.d){return}
-    if(o.ds.length>=12){toast('12 dates au maximum',2500);return}o.ds.push({i:rnRid(),d:v.d,tm:v.tm||''});o.ds.sort((x,y)=>(x.d+x.tm).localeCompare(y.d+y.tm));rnSave(m,o,o.st==='v');return}
+    if(o.ds.length>=12){toast('12 dates au maximum',2500);return}o.ds.push({i:rnRid(),d:v.d,tm:v.tm||''});o.ds.sort((x,y)=>(x.d+x.tm).localeCompare(y.d+y.tm));rnSave(m,o,o.st==='v'?'propose une nouvelle date pour la réunion de '+chName(m)+' : '+rnDs({d:v.d,tm:v.tm||''}):false);return}
   case 'rn-ddel':{o.ds=o.ds.filter(x=>x.i!==ds.i);rnSave(m,o,false);return}
+  case 'rn-rld':{const x=o.ds.find(y=>y.i===ds.i);if(!x||o.st!=='v')return;const R=rvAll(m),P=amList(),nm=id=>(P.find(q=>q.id===id)||{}).n||'?';let AB=[];try{AB=amAbs()}catch(e){}
+   const L=o.iv.filter(id=>id!==a.me.id&&!(R[id]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=o.iv.filter(id=>id!==a.me.id&&!L.includes(id));
+   if(!L.length){toast('Tout le monde a déjà coché cette date (ou est absent ce jour-là) 👍',3000);return}
+   const r=await ask({title:'🔔 Relancer pour cette date',text:rnDl(x)+' — notification à : '+L.map(nm).join(', ')+'.'+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;
+   rnSave(m,o,{to:L,t:'propose le '+rnDs(x)+' pour la réunion de '+chName(m)+' : es-tu dispo ?'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rn-launch':{if(!o.ds.length){toast('Ajoute d’abord au moins une date',3000);return}
     const r=await ask({title:'🗳 Lancer le vote ?',text:'Les '+o.iv.length+' invité'+(o.iv.length>1?'s':'')+' sont prévenus et choisissent les dates où ils sont disponibles.',btns:[{label:'Lancer le vote',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
     if(r!=='ok')return;o.st='v';rnSave(m,o,true);return}
@@ -18261,11 +18321,12 @@ function amRpHTML(){
  if(o.st==='f'&&fx){h+='<p style="margin:.2rem 0;font-size:1rem"><b>'+esc(rnDl(fx))+'</b></p><p style="margin:.2rem 0">'+(o.pl?'📍 '+esc(o.pl):'<span class="mut">Lieu non précisé</span>')+'</p><p class="mut" style="margin:.2rem 0;font-size:.85rem">Inscrite dans l’agenda des invités.</p>'+(adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem"><button class="chip" data-act="rp-pl">📍 Lieu</button><button class="chip" data-act="rp-reopen">🔁 Changer la date</button></div>':'')}
  else{
   if(!o.ds.length)h+='<p class="mut" style="margin:.2rem 0">'+(adm?'Propose plusieurs dates et heures : les invités cochent celles où ils sont disponibles.':'Les dates arrivent bientôt.')+'</p>';
+  /* 2.82.156 : réponses « aucune date » / « je ne connais pas mon planning » en HAUT, avant les dates (on ne les voyait pas sur téléphone) */
+  if(o.st==='v'&&inv&&o.ds.length){const no=mine.includes('-'),ns=mine.includes('?');h+='<p style="margin:.2rem 0 .3rem;font-size:.9rem"><b>👇 Coche les dates où tu es dispo</b>, ou réponds tout de suite :</p><div style="padding:0 0 .45rem;display:flex;gap:.4rem;flex-wrap:wrap"><button class="chip'+(no?' on':'')+'" data-act="rp-vote" data-i="-">'+(no?'✔ 🙅 Aucune date ne me va':'🙅 Aucune date ne me va')+'</button><button class="chip'+(ns?' on':'')+'" data-act="rp-vote" data-i="?">'+(ns?'✔ 🤔 Je ne connais pas encore mon planning':'🤔 Je ne connais pas encore mon planning')+'</button></div>'+(ns?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 0">Le bureau saura que tu ne sais pas encore. Reviens cocher tes dates dès que tu connais ton planning.</p>':'')}
   h+=o.ds.map(x=>{const y=rpYes(o,R,x),ab=absOn(x.d),me1=mine.includes(x.i);return '<div style="padding:.45rem 0;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:.4rem;justify-content:space-between"><b style="font-size:.95rem">'+esc(rnDl(x))+(best&&best.i===x.i?' 🏆':'')+'</b>'+(o.st==='v'?'<span class="rp-n'+(best&&best.i===x.i?' on':'')+'">'+y.length+'/'+o.iv.length+'</span>':'')+'</div>'+
    (o.st==='v'?'<div class="mut" style="font-size:.82rem;margin:.15rem 0">'+(y.length?'✔ '+y.map(id=>esc(nm(id))).join(', '):'Personne pour l’instant')+'</div>':'')+(ab.length?'<div style="font-size:.8rem;color:#b45309">⚠️ Absent'+(ab.length>1?'s':'')+' noté'+(ab.length>1?'s':'')+' : '+ab.map(id=>esc(nm(id))).join(', ')+'</div>':'')+
-   '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem">'+(o.st==='v'&&inv?'<button class="chip'+(me1?' on':'')+'" data-act="rp-vote" data-i="'+x.i+'">'+(me1?'✔ Je suis dispo':'Je suis dispo')+'</button>':'')+(adm?(o.st==='v'?'<button class="chip" data-act="rp-fix" data-i="'+x.i+'">📌 Choisir ce créneau</button>':'')+'<button class="chip" data-act="rp-ddel" data-i="'+x.i+'" aria-label="Retirer cette date">🗑</button>':'')+'</div></div>'}).join('');
+   '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem">'+(o.st==='v'&&inv?'<button class="chip'+(me1?' on':'')+'" data-act="rp-vote" data-i="'+x.i+'">'+(me1?'✔ Je suis dispo':'Je suis dispo')+'</button>':'')+(adm?(o.st==='v'?'<button class="chip" data-act="rp-fix" data-i="'+x.i+'">📌 Choisir ce créneau</button><button class="chip" data-act="rp-rld" data-i="'+x.i+'">🔔 Relancer pour ce créneau</button>':'')+'<button class="chip" data-act="rp-ddel" data-i="'+x.i+'" aria-label="Retirer cette date">🗑</button>':'')+'</div></div>'}).join('');
   /* 2.82.148 : « Aucune date ne me va » = la personne a répondu (elle n’est plus relancée) */
-  if(o.st==='v'&&inv&&o.ds.length){const no=mine.includes('-'),ns=mine.includes('?');h+='<div style="padding:.45rem 0;border-top:1px solid var(--line);display:flex;gap:.4rem;flex-wrap:wrap"><button class="chip'+(no?' on':'')+'" data-act="rp-vote" data-i="-">'+(no?'✔ 🙅 Aucune date ne me va':'🙅 Aucune date ne me va')+'</button><button class="chip'+(ns?' on':'')+'" data-act="rp-vote" data-i="?">'+(ns?'✔ 🤔 Je ne connais pas encore mon planning':'🤔 Je ne connais pas encore mon planning')+'</button></div>'+(ns?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 0">Le bureau saura que tu ne sais pas encore. Reviens cocher tes dates dès que tu connais ton planning.</p>':'')}
   if(adm)h+='<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rp-dadd">➕ Proposer une date</button><button class="chip" data-act="rp-pl">📍 Lieu</button>'+(o.st==='p'?'<button class="btn pri" data-act="rp-launch">🗳 Envoyer les invitations</button>':'')+'</div>';
  }
  h+='</div>';
@@ -18292,6 +18353,12 @@ async function amRpAct(a0,ds){
   case 'rp-dadd':{if(o.ds.length>=8){toast('8 créneaux au maximum',2500);return}const v=await amForm('📅 Proposer une date','Ajoute autant de créneaux que tu veux (8 au maximum).',[{k:'d',l:'Date',v:'',t:'date'},{k:'tm',l:'Heure',v:'18:30',t:'time'}],'Ajouter');if(!v||!v.d)return;
     o.ds.push({i:rnRid(),d:v.d,tm:v.tm||''});o.ds.sort((x,y)=>(x.d+x.tm).localeCompare(y.d+y.tm));rpSave(o,o.st==='v'?'propose un créneau pour « '+rpN(o)+' » : '+rnDs({d:v.d,tm:v.tm||''}):false);return}
   case 'rp-ddel':o.ds=o.ds.filter(x=>x.i!==ds.i);rpSave(o,false);return;
+  /* 2.82.157 : relancer pour UN créneau (nouveau ou changé) : tous les invités qui ne l’ont pas encore coché, même ceux qui ont déjà répondu, sauf absence notée ce jour-là */
+  case 'rp-rld':{const x=o.ds.find(y=>y.i===ds.i);if(!x||o.st!=='v')return;const R=rxAll(o.id);let AB=[];try{AB=amAbs()}catch(e){}
+   const L=o.iv.filter(id=>id!==a.me.id&&!(R[String(id).slice(0,6)]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=o.iv.filter(id=>id!==a.me.id&&!L.includes(id));
+   if(!L.length){toast('Tout le monde a déjà coché ce créneau (ou est absent ce jour-là) 👍',3000);return}
+   const r=await ask({title:'🔔 Relancer pour ce créneau',text:rnDl(x)+' — notification à : '+L.map(nm).join(', ')+'.'+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;
+   rpSave(o,{to:L,t:'propose le créneau '+rnDs(x)+' pour « '+rpN(o)+' » : es-tu dispo ?'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rp-pl':{const v=await amForm('📍 Lieu de la réunion','',[{k:'pl',l:'Lieu',v:o.pl||''}],'Enregistrer');if(!v)return;o.pl=String(v.pl||'').trim().slice(0,80);if(o.st==='f'&&o.fe&&a.it[o.fe]&&!a.it[o.fe].del)amItemSave(Object.assign({},a.it[o.fe],{pl:o.pl}));rpSave(o,o.st==='f'&&o.pl?'précise le lieu de « '+rpN(o)+' » : '+o.pl.slice(0,28):false);if(o.st==='f'&&o.pl)toast('📍 Lieu enregistré, les invités sont prévenus',3000);return}
   case 'rp-launch':{if(!o.ds.length){toast('Propose d’abord au moins une date',3000);return}if(!o.iv.filter(id=>id!==a.me.id).length){toast('Choisis d’abord les invités',3000);return}
     const r=await ask({title:'🗳 Envoyer les invitations ?',text:'Les '+o.iv.length+' invité'+(o.iv.length>1?'s':'')+' reçoivent la notification « invitation à la réunion de préparation · '+rpEvN(o)+' » et cochent les créneaux où ils sont disponibles.',btns:[{label:'Envoyer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;o.st='v';rpSave(o,true);toast('🔔 Invitations envoyées',3000);return}
@@ -18345,10 +18412,11 @@ function amRnHTML(){
  if(o.st==='f'&&fx){h+='<p style="margin:.2rem 0;font-size:1rem"><b>'+esc(rnDl(fx))+'</b></p><p style="margin:.2rem 0">'+(o.pl?'📍 '+esc(o.pl):'<span class="mut">Lieu non précisé</span>')+'</p><p class="mut" style="margin:.2rem 0;font-size:.85rem">Inscrite dans l’agenda. Les invités reçoivent un rappel 1 semaine avant.</p>'+(adm?'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem"><button class="chip" data-act="rn-pl">📍 Lieu</button><button class="chip" data-act="rn-reopen">↺ Changer la date</button></div>':'')}
  else{
   if(!o.ds.length)h+='<p class="mut" style="margin:.2rem 0">'+(adm?'Propose une ou plusieurs dates : les invités voteront.':'L’administrateur prépare les dates.')+'</p>';
+  /* 2.82.156 : réponses « aucune date » / « je ne connais pas mon planning » en HAUT, avant les dates (on ne les voyait pas sur téléphone) */
+  if(o.st==='v'&&inv&&o.ds.length){const no=(R[me]||[]).includes('-'),ns=(R[me]||[]).includes('?');h+='<p style="margin:.2rem 0 .3rem;font-size:.9rem"><b>👇 Coche les dates où tu es dispo</b>, ou réponds tout de suite :</p><div style="padding:0 0 .45rem;display:flex;gap:.4rem;flex-wrap:wrap"><button class="chip'+(no?' on':'')+'" data-act="rn-vote" data-i="-">'+(no?'✔ 🙅 Aucune date ne me va':'🙅 Aucune date ne me va')+'</button><button class="chip'+(ns?' on':'')+'" data-act="rn-vote" data-i="?">'+(ns?'✔ 🤔 Je ne connais pas encore mon planning':'🤔 Je ne connais pas encore mon planning')+'</button></div>'+(ns?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 0">Le bureau saura que tu ne sais pas encore. Reviens cocher tes dates dès que tu connais ton planning.</p>':'')}
   h+=o.ds.map(x=>{const y=yes(x),mine=(R[me]||[]).includes(x.i);return '<div style="padding:.45rem 0;border-top:1px solid var(--line)"><div style="display:flex;align-items:center;gap:.4rem;justify-content:space-between"><b style="font-size:.95rem">'+esc(rnDl(x))+(best&&best.i===x.i?' ⭐':'')+'</b>'+(o.st==='v'?'<span class="mut" style="font-size:.85rem;flex:none">'+y.length+'/'+o.iv.length+'</span>':'')+'</div>'+
    (o.st==='v'&&adm?'<div class="mut" style="font-size:.82rem;margin:.15rem 0">'+(y.length?'✔ '+y.map(id=>esc(nm(id))).join(', '):'Personne pour l’instant')+'</div>':'')+
-   '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem">'+(o.st==='v'&&inv?'<button class="chip'+(mine?' on':'')+'" data-act="rn-vote" data-i="'+x.i+'">'+(mine?'✔ Je suis dispo':'Je suis dispo')+'</button>':'')+(adm?(o.st==='v'?'<button class="chip" data-act="rn-fix" data-i="'+x.i+'">📌 Fixer cette date</button>':'')+'<button class="chip" data-act="rn-ddel" data-i="'+x.i+'" aria-label="Supprimer">🗑</button>':'')+'</div></div>'}).join('');
-  if(o.st==='v'&&inv&&o.ds.length){const no=(R[me]||[]).includes('-'),ns=(R[me]||[]).includes('?');h+='<div style="padding:.45rem 0;border-top:1px solid var(--line);display:flex;gap:.4rem;flex-wrap:wrap"><button class="chip'+(no?' on':'')+'" data-act="rn-vote" data-i="-">'+(no?'✔ 🙅 Aucune date ne me va':'🙅 Aucune date ne me va')+'</button><button class="chip'+(ns?' on':'')+'" data-act="rn-vote" data-i="?">'+(ns?'✔ 🤔 Je ne connais pas encore mon planning':'🤔 Je ne connais pas encore mon planning')+'</button></div>'+(ns?'<p class="mut" style="font-size:.82rem;margin:.1rem 0 0">Le bureau saura que tu ne sais pas encore. Reviens cocher tes dates dès que tu connais ton planning.</p>':'')}
+   '<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem">'+(o.st==='v'&&inv?'<button class="chip'+(mine?' on':'')+'" data-act="rn-vote" data-i="'+x.i+'">'+(mine?'✔ Je suis dispo':'Je suis dispo')+'</button>':'')+(adm?(o.st==='v'?'<button class="chip" data-act="rn-fix" data-i="'+x.i+'">📌 Fixer cette date</button><button class="chip" data-act="rn-rld" data-i="'+x.i+'">🔔 Relancer pour cette date</button>':'')+'<button class="chip" data-act="rn-ddel" data-i="'+x.i+'" aria-label="Supprimer">🗑</button>':'')+'</div></div>'}).join('');
   if(adm)h+='<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem"><button class="chip" data-act="rn-dadd">➕ Proposer une date</button><button class="chip" data-act="rn-pl">📍 Lieu</button>'+(o.st==='p'?'<button class="btn pri" data-act="rn-launch">🗳 Lancer le vote</button>':'')+'</div>'+(o.st==='v'?'<p class="mut" style="margin:.5rem 0 0;font-size:.82rem">⭐ = la date qui réunit le plus de monde. Touche « Fixer cette date » pour l’inscrire dans l’agenda.</p>':'');
   if(o.st==='v'&&!adm&&!inv)h+=''}
  h+='</div>';
@@ -18477,7 +18545,7 @@ function amiSettingsView(seg){
  return{html:pt[0]+bar+'<h2 class="set-tt">'+TABS.find(x=>x[0]===cur)[1]+'</h2>'+(B[cur]||'')+'<div style="height:2rem"></div></div>',fixed:false};
 }
 function pushSecHTML(){const a=amc();if(!a||(S.pushPf==null?'aci':S.pushPf).indexOf('i')<0)return'';const bur=!!a.kB;
- return '<p class="mut" style="margin-top:.6rem">👥 Dans l’Amicale, me prévenir pour :</p><div class="chips">'+PUSH_SEC.filter(x=>bur||!x[3]).map(x=>'<button type="button" class="chip'+(pushEx().includes(x[0])?'':' on')+'" data-act="push-sec" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
+ return '<p class="mut" style="margin-top:.6rem">👥 Dans l’Amicale, me prévenir pour :</p><div class="chips">'+PUSH_SEC.filter(x=>bur||!x[3]).map(x=>'<button type="button" class="chip'+(pushEx().includes(x[0])?'':' on')+'" data-act="push-sec" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'<span class="chip on" style="pointer-events:none;opacity:.95">🗓 Réunions · 🔒 toujours</span><span class="chip on" style="pointer-events:none;opacity:.95">✅ Tâche pour moi · 🔒 toujours</span></div><p class="mut" style="font-size:.82rem;margin:.3rem 0 0">🔒 Les invitations aux réunions (préparation et mensuelle), leurs relances, la date fixée, le lieu ajouté, et les tâches qu’on te confie arrivent <b>toujours</b>, même si tu décoches le reste : c’est le bureau qui te prévient directement.</p>'}
 function pushCard(){
  const perm=('Notification' in window)?Notification.permission:'indisponible',on=pushIsOn();
  return '<div class="card"><h3>🔔 Notifications</h3>'+(perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
@@ -18546,7 +18614,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
