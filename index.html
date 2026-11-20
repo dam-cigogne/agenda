@@ -615,6 +615,8 @@ body[data-ls="ardoise"] #top #sendbtn{background:transparent;color:#f3f6f9;borde
 .bn{display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;margin:.45rem .7rem 0;padding:.45rem .7rem;border-radius:.9rem;font-size:.8rem;background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:var(--surface2);background:color-mix(in srgb,var(--warn) 16%,var(--surface));border:1.5px solid var(--warn)}
 .bn span{flex:1 1 10rem}
 .bn.demo{background:var(--accent-soft);border-color:var(--accent)}
+.bn.essai{position:sticky;top:0;z-index:60;background:#fde68a;color:#3b2f00;border:2px solid #d97706;font-size:.86rem}
+.bn.essai button{background:#d97706;color:#fff;border:0;border-radius:.6rem;padding:.3rem .7rem;font-weight:700}
 .bn button{font-weight:800;color:var(--accent);padding:.3rem .5rem}
 
 /* time grid */
@@ -2988,7 +2990,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.160';
+const APP_VERSION='2.82.162';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2998,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.162',d:'20/11/2026',items:['⏰ AgenDam : rappels plus longs pour les événements : 2 jours, 1 semaine, 2 semaines ou 1 mois avant (journée entière : à 9 h ce jour-là). La notification dit « Dans 1 semaine · samedi 12 décembre… ».','🔗 Inscrit dont le nom est mal écrit : « 🔎 C’est quelqu’un de ma liste » (vérification QR) ou Statut « 🔗 C’est quelqu’un de ma liste » (fiche de l’inscrit) : tu choisis sa fiche (les noms qui ressemblent en premier), plus de fiche en double. « Le compter amicaliste » sans fiche à ce nom propose d’abord de chercher.','🎯 Feu vert des versions : comparé à une version de référence pour les réunions (2.82.158 au départ : notifications et notes des réunions), affichée en petit, au lieu de la toute dernière. Tu peux la taper à la main (« ✏️ Changer la référence ») ou passer à la dernière mise à jour d’un bouton (« ⬆️ Passer à la dernière ») ; elle ne change jamais toute seule.','🧪 Mode essai (Groupe › 🧪 Mode essai, bureau et admin) : tu testes en direct sur une copie de tes vraies données. Rien n’est enregistré, rien ne part au serveur ni aux membres, mail/SMS/partage bloqués. « Quitter l’essai » : tout revient comme avant.']},
+{v:'2.82.161',d:'20/11/2026',items:['✋ Réunions : à chaque relance (générale ou pour un créneau), bouton « Choisir les personnes… » : cases à cocher, déjà cochées selon la proposition de l’appli','🧹 Relances : plus de « ? » pour un ancien membre retiré resté dans les invités']},
 {v:'2.82.160',d:'20/11/2026',items:['🟢 Feu vert des versions (bureau) : sur l’accueil sous « Disponibilités » et dans les invités d’une réunion, « 🟢 Tout le monde a la dernière version » ou « 🟠 3 sur 12 n’ont pas la dernière version » ; touche-le pour voir qui, et copier le message « mets à jour » à envoyer']},
 {v:'2.82.159',d:'20/11/2026',items:['👁 Carte « 🗳 À répondre » de l’accueil lisible en mode sombre (texte foncé, bouton « Répondre » orange)','🔄 Quand une nouvelle version existe, un grand cadre bleu sur l’accueil propose « Mettre à jour maintenant » (plus besoin de fermer/rouvrir deux fois)']},
 {v:'2.82.158',d:'20/11/2026',items:['📝 Réunions : une petite note sur chaque créneau (« pourquoi il change », précision…), visible par tous les invités : bouton « 📝 Note » ou en ajoutant la date']},
@@ -4175,6 +4179,26 @@ function lsSlim(o){if(!PH_READY||!o)return o;
    if(HBW[id]!==sig){HBW[id]=sig;try{PH.put('abd-'+id,{at,bd}).catch(()=>{delete HBW[id]})}catch(e){delete HBW[id]}}}else it2[id]=i}
  return Object.assign({},o,{amc:Object.assign({},a,{it:it2})})}
 function lsFail(){LS_FAIL=Date.now();if(Date.now()-LS_FT>600000){LS_FT=Date.now();setTimeout(()=>{try{toast('⚠️ Mémoire de l’appli pleine sur cet appareil : les derniers changements ne sont pas gardés ici (ils sont sur le serveur). Préviens Damien.',8000)}catch(e){}},50)}}
+/* 2.82.162 : MODE ESSAI. Copie des vraies données à l'instant T ; tant qu'il est actif, rien n'est écrit (mémoire du téléphone, IndexedDB, cache), rien ne part au serveur, aucun mail/SMS/partage. Quitter = recharger l'appli : tout revient comme avant. */
+let ESSAI=false;const ESS={ls:new Map(),ph:new Map()};
+(function(){try{const P=Storage.prototype,g=P.getItem,st=P.setItem,rm=P.removeItem;
+ P.getItem=function(k){if(ESSAI&&this===window.localStorage&&ESS.ls.has(String(k)))return ESS.ls.get(String(k));return g.call(this,k)};
+ P.setItem=function(k,v){if(ESSAI&&this===window.localStorage){ESS.ls.set(String(k),String(v));return}return st.call(this,k,v)};
+ P.removeItem=function(k){if(ESSAI&&this===window.localStorage){ESS.ls.set(String(k),null);return}return rm.call(this,k)};
+}catch(e){}
+try{const F=window.fetch.bind(window);window.fetch=function(u,o){if(ESSAI){const url=typeof u==='string'?u:(u&&u.url)||String(u);const m=String((o&&o.method)||(u&&u.method)||'GET').toUpperCase();let same=false;try{same=new URL(url,location.href).origin===location.origin}catch(e){}if(!(same&&m==='GET'))return Promise.reject(new TypeError('Mode essai : rien n’est envoyé'))}return F(u,o)}}catch(e){}
+try{if(navigator.share){const sh=navigator.share.bind(navigator);Object.defineProperty(navigator,'share',{configurable:true,value:function(d){if(ESSAI){essaiBlk();let e;try{e=new DOMException('essai','AbortError')}catch(x){e=new Error('essai');e.name='AbortError'}return Promise.reject(e)}return sh(d)}})}}catch(e){}
+document.addEventListener('click',e=>{if(!ESSAI)return;const a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';if(/^(mailto|sms|whatsapp):/i.test(h)||/\/\/(wa\.me|api\.whatsapp\.com)\//i.test(h)){e.preventDefault();e.stopPropagation();essaiBlk()}},true);
+})();
+function essaiBlk(){try{toast('🧪 Mode essai : rien n’est envoyé (mail, SMS, partage bloqués)',3500)}catch(e){}return true}
+async function essaiOn(){
+ if(ESSAI)return;if(demo){toast('Quitte d’abord la démo');return}
+ const r=await ask({title:'🧪 Mode essai',html:'<p style="margin:.2rem 0 .5rem">Tu travailles sur une <b>copie de tes vraies données</b>, telles qu’elles sont maintenant.</p><ul style="margin:0 0 .5rem 1.1rem;padding:0;font-size:.92rem"><li>Rien n’est enregistré sur cet appareil</li><li>Rien n’est envoyé au serveur ni aux membres</li><li>Mail, SMS et partage sont bloqués</li></ul><p class="mut" style="margin:0;font-size:.86rem">Pour sortir : bouton « Quitter l’essai » en haut. Tout revient comme avant.</p>',btns:[{label:'🧪 Commencer l’essai',value:'y',cls:'pri'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;
+ try{saveSet()}catch(e){}try{saveData()}catch(e){}
+ ESS.ls.clear();ESS.ph.clear();ESSAI=true;document.body.classList.add('essai');render();toast('🧪 Mode essai : tu peux tout tester, rien n’est gardé',4000);
+}
+function essaiOff(){if(!ESSAI)return;toast('Retour à tes vraies données…');setTimeout(()=>{try{location.reload()}catch(e){}},300)}
 const ls={
  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
  set(k,v){const isS=k===K.set;try{if(isS&&typeof S!=='undefined'&&v===S&&!demo)v=lsSlim(v);const str=JSON.stringify(v);if(isS)LS_SZ=str.length;localStorage.setItem(k,str);if(isS)LS_FAIL=0;return true}catch(e){if(isS)lsFail();return false}},
@@ -4351,9 +4375,12 @@ function recText(ev){
  if(r.until)t+=' · jusqu’au '+fLongY(r.until);
  return t;
 }
+/* 2.82.162 : rappels longs (1 semaine, 2 semaines, 1 mois = 30 jours) */
+function alarmDays(min){const d=min/1440;return d===30?'1 mois':d%7===0?(d/7)+' semaine'+(d>7?'s':''):d+' jour'+(d>1?'s':'')}
 function alarmLabel(min,allDay){
  if(min==null)return 'Aucun';
- if(allDay)return min===0?'Le jour même à 9 h':min===1440?'La veille à 9 h':min+' min avant 9 h';
+ if(allDay)return min===0?'Le jour même à 9 h':min===1440?'La veille à 9 h':(min>1440&&min%1440===0)?alarmDays(min)+' avant, à 9 h':min+' min avant 9 h';
+ if(min>1440&&min%1440===0)return alarmDays(min)+' avant';
  if(min===0)return 'À l’heure de début';
  if(min>=1440&&min%1440===0)return (min/1440)+' jour'+(min>1440?'s':'')+' avant';
  if(min>=60&&min%60===0)return (min/60)+' h avant';
@@ -4882,7 +4909,8 @@ async function agRename(){
 }
 function bannerHTML(){
  let h='';
- if(demo)h+='<div class="bn demo"><span><b>Mode démo</b> · rien n’est enregistré</span><button data-act="exitdemo">Quitter la démo</button></div>';
+ if(ESSAI)h+='<div class="bn demo essai"><span><b>🧪 Mode essai</b> · rien n’est enregistré ni envoyé</span><button data-act="essai-off">Quitter l’essai</button></div>';
+ else if(demo)h+='<div class="bn demo"><span><b>Mode démo</b> · rien n’est enregistré</span><button data-act="exitdemo">Quitter la démo</button></div>';
  else if(EV.length&&V.view!=='settings'&&Date.now()>META.snooze){
   const never=!META.lastBackup;
   const days=never?0:Math.floor((Date.now()-META.lastBackup)/864e5);
@@ -5624,12 +5652,23 @@ async function syncAll(){
 let UPD_LIVE='',UPD_AT=0;
 async function updAuto(){if(demo||Date.now()-UPD_AT<36e5)return;UPD_AT=Date.now();try{const t=await fetch('sw.js?x='+Date.now(),{cache:'no-store'}).then(r=>r.text()),v=(t.match(/VERSION\s*=\s*'([^']+)'/)||[])[1]||'';if(v&&amVerCmp(v,APP_VERSION)>0&&v!==UPD_LIVE){UPD_LIVE=v;try{render()}catch(e){}}}catch(e){}}
 /* 2.82.160 : feu vert des versions : qui a la dernière version de l’appli (vue à sa dernière ouverture) */
-function amVerStat(ids){const P=amList().filter(p=>!p.self&&!p.x&&!p.ro&&(!ids||ids.includes(p.id))),late=P.filter(p=>!p.v||amVerCmp(p.v,APP_VERSION)<0);return {n:P.length,late}}
+/* 2.82.162 : version de RÉFÉRENCE pour les réunions (notifications, 🤔, notes…) : le feu vert compare à elle, pas à la toute dernière. À changer seulement quand une nouveauté réunion doit être vue par tous. */
+const AM_VREF_DEF='2.82.158',AM_VREF_L='réunions et notifications';
+/* la référence peut être tapée à la main (bouton dans la liste des versions), gardée sur cet appareil */
+function amVref(){const v=S.amVref;return (typeof v==='string'&&/^\d+\.\d+\.\d+$/.test(v))?v:AM_VREF_DEF}
+async function amVrefEdit(ids){const v=await amForm('🎯 Version de référence','Le feu vert compare la version de chacun à ce numéro. Tape par exemple <b>'+esc(APP_VERSION)+'</b> (la dernière). Laisse vide pour revenir à '+esc(AM_VREF_DEF)+'.',[{k:'v',l:'Version (ex. 2.82.162)',v:S.amVref||'',ph:AM_VREF_DEF}]);if(!v)return amVerList(ids);
+ const t=String(v.v||'').trim().replace(/^v/i,'');if(!t){delete S.amVref;saveSet();render();toast('🎯 Référence : '+AM_VREF_DEF,3000);return amVerList(ids)}
+ if(!/^\d+\.\d+\.\d+$/.test(t)){toast('Format attendu : 3 nombres séparés par des points, ex. '+APP_VERSION,5000);return amVrefEdit(ids)}
+ if(amVerCmp(t,APP_VERSION)>0){toast('La version '+t+' n’existe pas encore (dernière : '+APP_VERSION+')',5000);return amVrefEdit(ids)}
+ S.amVref=t;saveSet();render();toast('🎯 Référence : '+t,3000);return amVerList(ids)}
+function amVerStat(ids){const P=amList().filter(p=>!p.self&&!p.x&&!p.ro&&(!ids||ids.includes(p.id))),late=P.filter(p=>!p.v||amVerCmp(p.v,amVref())<0);return {n:P.length,late}}
 function amVerPill(ids,lbl){const a=amc();if(!a||!(a.kB||a.apriv)||demo)return '';const V=amVerStat(ids);if(!V.n)return '';const ok=!V.late.length;
- return '<button type="button" class="ver-pill '+(ok?'ok':'ko')+'" data-act="ver-list"'+(ids?' data-ids="'+esc(ids.join(','))+'"':'')+'>'+(ok?'🟢 '+(lbl||'Tout le monde')+' a la dernière version':'🟠 '+V.late.length+' sur '+V.n+' n’'+(V.late.length>1?'ont':'a')+' pas la dernière version')+'</button>'}
+ return '<button type="button" class="ver-pill '+(ok?'ok':'ko')+'" data-act="ver-list"'+(ids?' data-ids="'+esc(ids.join(','))+'"':'')+'>'+(ok?'🟢 '+(lbl||'Tout le monde')+' à jour pour les réunions':'🟠 '+V.late.length+' sur '+V.n+' pas à jour pour les réunions')+' <small style="opacity:.75">· réf. '+amVref()+'</small></button>'}
 async function amVerList(ids){const V=amVerStat(ids),A=amList().filter(p=>!p.self&&!p.x&&!p.ro&&(!ids||ids.includes(p.id))).sort((x,y)=>amVerCmp(x.v||'0',y.v||'0')||String(x.n).localeCompare(y.n,'fr'));
  const msg='📲 Mise à jour de l’appli Amicale : ferme complètement l’appli et rouvre-la deux fois (ou touche ⟳ en haut puis « Mettre à jour maintenant »). Vérifie dans Réglages › ❓ Aide et à propos que tu es en '+APP_VERSION+'. Pense à activer les notifications si l’appli te le propose.';
- const r=await ask({title:'📲 Versions de l’appli',html:'<p class="mut" style="font-size:.85rem;margin:.1rem 0 .4rem">Dernière version : <b>'+esc(APP_VERSION)+'</b>. La version de chacun est vue à sa dernière ouverture de l’appli.</p>'+A.map(p=>{const ok=p.v&&amVerCmp(p.v,APP_VERSION)>=0;return '<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.25rem 0;border-top:1px solid var(--line);font-size:.92rem"><span>'+(ok?'🟢 ':'🟠 ')+esc(p.n)+'</span><span class="mut">'+esc(p.v||'ancienne')+'</span></div>'}).join('')+(V.late.length?'<p style="margin:.6rem 0 0;font-size:.88rem">Ceux en 🟠 ne voient pas encore les dernières nouveautés (réunions, notes, notifications…).</p>':''),btns:(V.late.length?[{label:'📋 Copier le message « mets à jour »',value:'cp',cls:'pri'}]:[]).concat([{label:'Fermer',value:null}])});
+ const r=await ask({title:'📲 Versions de l’appli',html:'<div style="border:2px solid #15803d;border-radius:12px;padding:.45rem .6rem;margin:.1rem 0 .45rem;font-size:.9rem">🎯 <b>Référence '+esc(AM_VREF_L)+' : '+esc(amVref())+'</b><br><small class="mut">🟢 = '+esc(amVref())+' ou plus récent : il voit tout (notifications, 🤔, notes). </small><br>🆕 Dernière mise à jour : <b>'+esc(APP_VERSION)+'</b>'+(amVerCmp(amVref(),APP_VERSION)>=0?' <small class="mut">(= ta référence)</small>':' <small class="mut">· bouton « ⬆️ Passer à la dernière » en bas</small>')+'</div><p class="mut" style="font-size:.82rem;margin:.1rem 0 .4rem">La version de chacun est vue à sa dernière ouverture de l’appli.</p>'+A.map(p=>{const ok=p.v&&amVerCmp(p.v,amVref())>=0;return '<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.25rem 0;border-top:1px solid var(--line);font-size:.92rem"><span>'+(ok?'🟢 ':'🟠 ')+esc(p.n)+'</span><span class="mut">'+esc(p.v||'ancienne')+(p.v&&amVerCmp(p.v,APP_VERSION)>=0?' ✓':'')+'</span></div>'}).join('')+(V.late.length?'<p style="margin:.6rem 0 0;font-size:.88rem">Ceux en 🟠 ont une version plus ancienne que '+esc(amVref())+' : ils ne voient pas tout pour les réunions (notifications, 🤔, notes…).</p>':''),btns:(V.late.length?[{label:'📋 Copier le message « mets à jour »',value:'cp',cls:'pri'}]:[]).concat(amVerCmp(amVref(),APP_VERSION)<0?[{label:'⬆️ Passer à la dernière ('+APP_VERSION+')',value:'last'}]:[]).concat([{label:'✏️ Changer la référence',value:'ref'},{label:'Fermer',value:null}])});
+ if(r==='ref')return amVrefEdit(ids);
+ if(r==='last'){S.amVref=APP_VERSION;saveSet();render();toast('🎯 Référence : '+APP_VERSION,3000);return amVerList(ids)}
  if(r==='cp')ficheCopy(msg,'📋 Message copié : colle-le sur WhatsApp ou par SMS')}
 function updCardHTML(){if(!UPD_LIVE||amVerCmp(UPD_LIVE,APP_VERSION)<=0)return '';return '<div class="card" style="border:3px solid #2563eb;background:#eff6ff;color:#1e3a8a;text-align:center"><h3 style="margin:0 0 .3rem;color:#1d4ed8">🔄 Nouvelle version '+esc(UPD_LIVE)+'</h3><p style="margin:.1rem 0 .5rem;font-size:.92rem;color:#1e3a8a">Tu as la '+esc(APP_VERSION)+'. Mets à jour pour avoir les dernières nouveautés (réunions, notifications…). Tes données ne sont pas touchées.</p><button class="btn pri blk" data-act="upd-now">🔄 Mettre à jour maintenant</button></div>'}
 async function updCheck(quick){
@@ -8173,8 +8212,8 @@ async function deleteCur(){
 
 /* ---------- Éditeur ---------- */
 let ED=null;
-const ALARMS_T=[[null,'Aucun'],[0,'À l’heure de début'],[5,'5 min avant'],[10,'10 min avant'],[15,'15 min avant'],[30,'30 min avant'],[60,'1 h avant'],[120,'2 h avant'],[1440,'1 jour avant']];
-const ALARMS_A=[[null,'Aucun'],[0,'Le jour même à 9 h'],[1440,'La veille à 9 h']];
+const ALARMS_T=[[null,'Aucun'],[0,'À l’heure de début'],[5,'5 min avant'],[10,'10 min avant'],[15,'15 min avant'],[30,'30 min avant'],[60,'1 h avant'],[120,'2 h avant'],[1440,'1 jour avant'],[2880,'2 jours avant'],[10080,'1 semaine avant'],[20160,'2 semaines avant'],[43200,'1 mois avant']];
+const ALARMS_A=[[null,'Aucun'],[0,'Le jour même à 9 h'],[1440,'La veille à 9 h'],[2880,'2 jours avant, à 9 h'],[10080,'1 semaine avant, à 9 h'],[20160,'2 semaines avant, à 9 h'],[43200,'1 mois avant, à 9 h']];
 function alarmOpts(allDay,val){
  return (allDay?ALARMS_A:ALARMS_T).map(a=>'<option value="'+(a[0]==null?'':a[0])+'"'+((val==null?'':String(val))===(a[0]==null?'':String(a[0]))?' selected':'')+'>'+a[1]+'</option>').join('');
 }
@@ -8863,7 +8902,7 @@ function tick(){coBellCheck();
  if(demo)return;
  const n=Date.now(),t0=today();
  const fired=ls.get(K.fired,{});let ch=false;
- for(const o of occsMine(add(t0,-1),add(t0,2))){
+ for(const o of occsMine(add(t0,-1),add(t0,32))){
   if(o.ev.alarm==null)continue;
   const base=o.allDay?atTime(o.date,540):atTime(o.date,o.s);
   const at=base.getTime()-o.ev.alarm*60000;
@@ -9639,6 +9678,8 @@ async function act(a,el,e){
   case 'snooze':META.snooze=Date.now()+864e5;saveMeta();render();break;
   case 'demo':enterDemo();break;
   case 'exitdemo':exitDemo();break;
+  case 'essai-on':essaiOn();break;
+  case 'essai-off':essaiOff();break;
   case 'install':if(installEv){installEv.prompt();installEv=null;render()}break;
   case 'ms-connect':msConnect();break;
   case 'ms-sync':msSync(false);break;
@@ -11143,9 +11184,9 @@ function coPrint(){
 const PH={db:null,
  open(){if(!this.db)this.db=new Promise((res,rej)=>{try{const r=indexedDB.open(AMI?'agd-am-media':'agd-media',1);r.onupgradeneeded=()=>r.result.createObjectStore('ph');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return this.db},
  async tx(mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction('ph',mode),st=t.objectStore('ph');const q=fn(st);t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})},
- get(id){return this.tx('readonly',st=>st.get(id)).catch(()=>null)},
- put(id,v){return this.tx('readwrite',st=>st.put(v,id))},
- del(id){return this.tx('readwrite',st=>st.delete(id)).catch(()=>{})},
+ get(id){if(ESSAI&&ESS.ph.has(id))return Promise.resolve(ESS.ph.get(id));return this.tx('readonly',st=>st.get(id)).catch(()=>null)},
+ put(id,v){if(ESSAI){ESS.ph.set(id,v);return Promise.resolve()}return this.tx('readwrite',st=>st.put(v,id))},
+ del(id){if(ESSAI){ESS.ph.set(id,null);return Promise.resolve()}return this.tx('readwrite',st=>st.delete(id)).catch(()=>{})},
  async keys(){try{const db=await this.open();return await new Promise(res=>{const q=db.transaction('ph').objectStore('ph').getAllKeys();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>res([])})}catch(e){return[]}},
  async all(){try{const db=await this.open();return await new Promise(res=>{const o={},t=db.transaction('ph'),c=t.objectStore('ph').openCursor();c.onsuccess=()=>{const x=c.result;if(x){o[x.key]=x.value;x.continue()}else res(o)};c.onerror=()=>res(o)})}catch(e){return{}}}
 };
@@ -11990,13 +12031,13 @@ async function pushOff(){
 async function remKey(){
  let k=null;try{k=localStorage.getItem('agd-rk')}catch(e){}
  if(!k){k=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));try{localStorage.setItem('agd-rk',k)}catch(e){}}
- try{const c=await caches.open('agd-rk');await c.put('rk',new Response(k))}catch(e){}
+ if(!ESSAI)try{const c=await caches.open('agd-rk');await c.put('rk',new Response(k))}catch(e){}
  return crypto.subtle.importKey('raw',Uint8Array.from(atob(k),c=>c.charCodeAt(0)),'AES-GCM',false,['encrypt']);
 }
-const remEvTxt=(o,al)=>{const lead=al>0?'Dans '+(al>=60&&al%60===0?(al/60)+' h':al+' min')+' · ':(o.allDay?'Aujourd’hui · ':'C’est maintenant · ');return{t:(o.ev.icon||'📅')+' '+o.ev.title+(o.allDay?'':' · '+hm(o.s)),b:lead+(o.allDay?'journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place+' 📍':'')}};
+const remEvTxt=(o,al)=>{const lead=al>=1440&&al%1440===0?(al===1440?'Demain':'Dans '+alarmDays(al))+' · '+fLongY(o.date)+' · ':al>0?'Dans '+(al>=60&&al%60===0?(al/60)+' h':al+' min')+' · ':(o.allDay?'Aujourd’hui · ':'C’est maintenant · ');return{t:(o.ev.icon||'📅')+' '+o.ev.title+(o.allDay?'':' · '+hm(o.s)),b:lead+(o.allDay?'journée entière':hm(o.s)+' – '+hm2(o.e))+(o.ev.place?' · '+o.ev.place+' 📍':'')}};
 function remList(){
  const out=[],n=Date.now(),t0=today();
- try{for(const o of occsMine(add(t0,-1),add(t0,14))){
+ try{for(const o of occsMine(add(t0,-1),add(t0,46))){
   if(o.ev.alarm==null)continue;
   const base=o.allDay?atTime(o.date,540):atTime(o.date,o.s),at=base.getTime()-o.ev.alarm*60000,end=atTime(o.endDate,o.allDay?1440:o.e).getTime();
   if(at<n-60000||at>n+14*864e5||n>=end)continue;
@@ -13747,11 +13788,11 @@ async function amPdfMail(html,name,poster){
   /* ordinateur : le PDF est enregistré, Mail s’ouvre avec l’adresse ; il reste à joindre le fichier enregistré */
   try{toast('Préparation du PDF…',6000);const bl=await amPdfBlob(html),u=URL.createObjectURL(bl),el=document.createElement('a');el.href=u;el.download=name;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000)}catch(e){}
   const go=await ask({title:'✉️ Prêt',html:'<p style="margin:.2rem 0 .5rem">Le PDF <b>'+esc(name)+'</b> est dans tes Téléchargements, et l’adresse <b>'+esc(to)+'</b> est copiée.</p><p class="mut" style="font-size:.86rem;margin:0">Touche « Ouvrir Mail » : l’adresse est déjà mise ; glisse le PDF dans le message.</p>',btns:[{label:'✉️ Ouvrir Mail',value:1,cls:'pri'},{label:'Fermer',value:null}]});
-  if(go)location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''));return}
+  if(go&&!(ESSAI&&essaiBlk()))location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''));return}
  toast('Préparation du PDF…',8000);let file;try{const bl=await amPdfBlob(html);file=new File([bl],name,{type:'application/pdf'})}catch(e){toast('PDF impossible ici',4000);return}
  const go=await ask({title:'✉️ Prêt à envoyer',html:'<p style="margin:.2rem 0 .5rem">📋 L’adresse <b>'+esc(to)+'</b> est copiée.</p><p style="margin:0 0 .4rem">1. Touche « Envoyer le PDF » et choisis <b>Mail</b>.<br>2. Dans « À : », <b>appuie longuement puis Coller</b>.</p>',btns:[{label:'✉️ Envoyer le PDF',value:1,cls:'pri'},{label:'Annuler',value:null}]});if(!go)return;
  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
- location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''))}
+ if(ESSAI&&essaiBlk())return;location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''))}
 async function amPdf0(html,name,poster){
  if(!amMobile()){amPrintDoc(html,poster);return}
  toast('Préparation du PDF…',8000);
@@ -14406,8 +14447,8 @@ const amDig=t=>String(t||'').replace(/\D/g,'').replace(/^33/,'0');
 const amTlOk=d=>/^0[1-9]\d{8}$/.test(d);
 const amTlFmt=d=>/^\d{10}$/.test(d)?d.replace(/(\d{2})(?=\d)/g,'$1 '):d;
 const amMlOk=t=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(t||'').trim());
-function amQrCheck(v){
- const nm=amQrName(v),k=amNk(nm),A=amItems('am'),ex=A.find(y=>amNk(y.tx)===k);let cand=null;
+function amQrCheck(v,fk){
+ const nm=amQrName(v),k=amNk(nm),A=amItems('am'),ex=fk||A.find(y=>amNk(y.tx)===k);let cand=null;
  if(!ex&&k){const w=norm(nm).split(/\s+/).filter(Boolean);let best=99;A.forEach(y=>{const yw=norm(y.tx).split(/\s+/).filter(Boolean),a1=w.join(' '),b1=yw.join(' '),b2=yw.slice().reverse().join(' ');let d=Math.min(amLev(a1,b1),amLev(a1,b2));
    if(w.length>=2&&yw.length>=2){const sl=yw.includes(w[0])||yw.includes(w[w.length-1]);if(sl){const o1=w.filter(x=>!yw.includes(x)).join(' '),o2=yw.filter(x=>!w.includes(x)).join(' ');if(o1&&o2&&(amLev(o1,o2)<=2||o1.startsWith(o2)||o2.startsWith(o1)))d=Math.min(d,1)}}
    const lim=a1.length>14?3:2;if(d<=lim&&d<best){best=d;cand=y}})}
@@ -14426,8 +14467,8 @@ function amQrCheck(v){
 let AMQR_CK={};
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.qk){AMQR_CK[t.dataset.qk]=t.type==='checkbox'?t.checked:t.value}});
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.qk&&t.type!=='checkbox'&&t.type!=='radio'){AMQR_CK[t.dataset.qk]=t.value}});
-async function amQrReview(x){
- const v=x.v||{},C=amQrCheck(v);if(!C.I.length)return {};
+async function amQrReview(x,fk){
+ const v=x.v||{},C=amQrCheck(v,fk);if(!C.I.length)return fk?{m:fk}:{};
  const I=C.I,tlBad=I.includes('tlbad'),mlBad=I.includes('mlbad'),oldTl=C.m?amDig(C.o.tl):'',oldMl=C.m?String(C.o.ml||''):'',dg=amDig(v.tl),
   fix=(tlBad&&/^[1-9]\d{8}$/.test(dg))?'0'+dg:'',danger=!!C.cand||tlBad||mlBad||I.includes('amx');
  const RED='border:2px solid #dc2626;background:rgba(220,38,38,.09);border-radius:14px;padding:.7rem .8rem;margin:.5rem 0',BIG='style="margin-top:.15rem;width:1.5rem;height:1.5rem;flex:none"',LB='display:flex;gap:.6rem;align-items:flex-start;margin:.4rem 0;font-size:1rem';
@@ -14438,12 +14479,13 @@ async function amQrReview(x){
  AMQR_CK={sp:'',am:I.includes('amx')?'n':I.includes('amn')?'o':'',tl:true,ml:true,au:true,gr:true,tn:(fix&&oldTl===fix)?'fix':oldTl?'old':fix?'fix':'none',mn:oldMl?'old':'none'};
  const build=err=>{
   let h=(err?'<p style="color:#dc2626;font-weight:800;margin:.1rem 0 .5rem">👉 Réponds d’abord à la question en rouge, puis touche Ajouter.</p>':'')+(danger?'<p style="color:#dc2626;font-weight:800;margin:.1rem 0 .5rem">⚠️ Lis bien : ce que tu coches modifie la fiche de la personne pour tout le groupe.</p>':'')+
+   (fk?'<div style="border:2px solid #15803d;background:rgba(21,128,61,.08);border-radius:14px;padding:.55rem .7rem;margin:.2rem 0 .5rem">🔗 Reliée à la fiche de <b>'+esc(fk.tx)+'</b> '+(amIsAm(fk)?'(🎖 amicaliste)':'(👤 non-amicaliste)')+'<br><small class="mut">Pas de nouvelle fiche : l’inscription prend le nom de ta liste.</small></div>':'')+
    '<p style="margin:.1rem 0 .5rem"><b>'+esc(C.nm)+'</b> · 👥 '+(+v.na||0)+(+v.ne?' + '+(+v.ne)+' enfant'+((+v.ne)>1?'s':''):'')+(v.am==='o'?' · se dit 🎖 amicaliste':v.am==='n'?' · se dit 👤 non-amicaliste':'')+'</p>';
   if(C.cand)h+='<div style="'+RED+'">'+HD('🚨 Le nom n’est pas écrit comme dans ta liste')+CMP('Inscription :',esc(C.nm),'Ta liste :',esc(C.cand.tx))+R('sp','y','✅ C’est bien <b>'+esc(C.cand.tx)+'</b> (je garde l’orthographe de ma liste)')+R('sp','n','❌ Non, c’est <b>une autre personne</b>')+'</div>';
   if(tlBad){h+='<div style="'+RED+'">'+HD('🚨 Le numéro de téléphone n’est pas bon')+CMP('Écrit :',esc(v.tl)+' <small class="mut">('+dg.length+' chiffres)</small>','Sur sa fiche :',oldTl?esc(amTlFmt(oldTl)):'<span class="mut">(rien)</span>')+'<p style="margin:.2rem 0 .3rem;font-size:.9rem">'+(fix?'Il manque sûrement le <b>0</b> du début.':'Un numéro français a 10 chiffres et commence par 0.')+'</p>'+
    (fix?R('tn','fix','✅ Mettre <b>'+amTlFmt(fix)+'</b> (j’ajoute le 0)'+(oldTl===fix?' <small class="mut">· c’est le même que sa fiche</small>':'')):'')+(oldTl&&oldTl!==fix?R('tn','old','🔒 Garder le numéro déjà sur sa fiche : <b>'+esc(amTlFmt(oldTl))+'</b>'):'')+R('tn','none','➖ Ne pas mettre de numéro (je le redemanderai)')+R('tn','raw','⚠️ Garder tel qu’il est écrit : '+esc(v.tl)+' <small class="mut">(déconseillé)</small>')+'</div>'}
   if(mlBad){h+='<div style="'+RED+'">'+HD('🚨 Le mail ne ressemble pas à une adresse')+CMP('Écrit :',esc(v.ml),'Sur sa fiche :',oldMl?esc(oldMl):'<span class="mut">(rien)</span>')+(oldMl?R('mn','old','🔒 Garder le mail déjà sur sa fiche'):'')+R('mn','none','➖ Ne pas mettre de mail')+R('mn','raw','⚠️ Garder tel qu’il est écrit <small class="mut">(déconseillé)</small>')+'</div>'}
-  if(I.includes('amx'))h+='<div style="'+RED+'">'+HD('🚨 Se dit amicaliste… mais n’est pas amicaliste dans ta liste')+'<p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(C.m?'Il est connu comme <b>non-amicaliste</b>. ':'')+'Cotisation pas encore payée, oubli dans la liste, ou faute dans le nom ?</p>'+R('am','n','L’inscrire comme <b>non-amicaliste</b> et le noter « à vérifier »')+R('am','o','Le compter <b>amicaliste</b> quand même')+'<div style="border-top:1px dashed #dc2626;margin:.4rem 0 0;padding-top:.3rem">'+K('au','⏳ Mettre sa fiche en « <b>Attend la mise à jour</b> » '+(C.m?'':'(fiche créée) ')+'<small class="mut">: si tu choisis « le compter amicaliste », sa fiche passe dans les amicalistes ; au prochain fichier Excel, l’appli te dira si c’est confirmé</small>')+'</div></div>';
+  if(I.includes('amx'))h+='<div style="'+RED+'">'+HD('🚨 Se dit amicaliste… mais n’est pas amicaliste dans ta liste')+'<p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(C.m?'Il est connu comme <b>non-amicaliste</b>. ':'')+'Cotisation pas encore payée, oubli dans la liste, ou faute dans le nom ?'+(C.ex?'':' <b>Faute dans le nom :</b> touche « 🔎 C’est quelqu’un de ma liste » en bas.')+'</p>'+R('am','n','L’inscrire comme <b>non-amicaliste</b> et le noter « à vérifier »')+R('am','o','Le compter <b>amicaliste</b> quand même')+'<div style="border-top:1px dashed #dc2626;margin:.4rem 0 0;padding-top:.3rem">'+K('au','⏳ Mettre sa fiche en « <b>Attend la mise à jour</b> » '+(C.m?'':'(fiche créée) ')+'<small class="mut">: si tu choisis « le compter amicaliste », sa fiche passe dans les amicalistes ; au prochain fichier Excel, l’appli te dira si c’est confirmé</small>')+'</div></div>';
   if(I.includes('amn'))h+=OKC+'<b>🎖 Dit ne pas être amicaliste… mais il est dans ta liste</b>'+R('am','o','Le compter <b>amicaliste</b> (lié à sa fiche)')+R('am','n','Le laisser non-amicaliste')+'</div>';
   const U=[];if(I.includes('tl')&&!tlBad)U.push(K('tl','📞 '+esc(v.tl)+(C.o.tl?' <small class="mut">(ancien : '+esc(C.o.tl)+')</small>':' <small class="mut">(pas de téléphone sur sa fiche)</small>')));
   if(I.includes('ml')&&!mlBad)U.push(K('ml','✉️ '+esc(v.ml)+(C.o.ml?' <small class="mut">(ancien : '+esc(C.o.ml)+')</small>':' <small class="mut">(pas de mail sur sa fiche)</small>')));
@@ -14451,7 +14493,8 @@ async function amQrReview(x){
   if(U.length)h+=OKC+'<b>📇 Nouvelles infos pour sa fiche amicaliste</b>'+U.join('')+'<p class="mut" style="margin:.2rem 0 0;font-size:.8rem">Coché = la fiche de '+esc(C.m.tx)+' est mise à jour. Décoche pour garder l’ancien.</p></div>';
   return h};
  let err=false,b;
- for(;;){b=await ask({title:danger?'🚨 Vérifie avant d’ajouter':'🔎 Vérifier avant d’ajouter',html:build(err),btns:[{label:'✅ Ajouter',value:'ok',cls:'pri'},{label:'Plus tard',value:null}]});
+ for(;;){b=await ask({title:danger?'🚨 Vérifie avant d’ajouter':'🔎 Vérifier avant d’ajouter',html:build(err),btns:[{label:'✅ Ajouter',value:'ok',cls:'pri'}].concat(C.ex&&!fk?[]:[{label:fk?'🔎 Choisir une autre fiche':'🔎 C’est quelqu’un de ma liste',value:'pick'}]).concat([{label:'Plus tard',value:null}])});
+  if(b==='pick'){const keep=Object.assign({},AMQR_CK),pk=await amPickOne('🔎 Qui est-ce dans ta liste ?','Inscrit sous le nom <b>'+esc(C.nm)+'</b>. Choisis sa fiche : les noms qui ressemblent sont en haut.',C.nm);if(pk)return amQrReview(x,pk);AMQR_CK=keep;continue}
   if(b!=='ok')return null;if(C.cand&&!AMQR_CK.sp){err=true;continue}break}
  const m=(C.cand&&AMQR_CK.sp!=='y')?C.ex:C.m,tn=AMQR_CK.tn,mn=AMQR_CK.mn,r={m:m||null,noFuzzy:C.cand&&AMQR_CK.sp!=='y',am:AMQR_CK.am,tl:!!AMQR_CK.tl&&I.includes('tl')&&!tlBad,ml:!!AMQR_CK.ml&&I.includes('ml')&&!mlBad,amx:I.includes('amx'),au:I.includes('amx')&&!!AMQR_CK.au,gr:!!AMQR_CK.gr&&I.includes('gr'),grv:C.g2||''};
  if(tlBad){r.tlv=tn==='fix'?fix:tn==='old'?String(C.o.tl||''):tn==='raw'?String(v.tl||''):'';r.tl=tn==='fix'&&fix!==oldTl}
@@ -14969,6 +15012,15 @@ async function amPickPeople(title,M,got){const sel=new Set(),root=$('#dlg');
  root.onchange=ev=>{const c=ev.target.closest&&ev.target.closest('[data-pk]');if(!c)return;if(c.checked)sel.add(c.dataset.pk);else sel.delete(c.dataset.pk);upd()};
  root.oninput=ev=>{if(ev.target.id!=='pk-q')return;const q=norm(ev.target.value||'');root.querySelectorAll('.pk-r').forEach(r=>{r.style.display=!q||r.dataset.nk.indexOf(q)>=0?'':'none'})};
  const v=await pr;root.onchange=root.oninput=null;if(v!=='ok')return null;if(!sel.size){toast('Personne n’a été choisi',2500);return null}return [...sel]}
+/* 2.82.162 : nom mal écrit → choisir la bonne fiche dans la liste (les noms qui ressemblent le plus en premier) */
+async function amPickOne(title,info,nm){const root=$('#dlg'),A=amItems('am');if(!A.length){toast('Ta liste est vide',2500);return null}
+ const w=norm(nm||'').split(/\s+/).filter(Boolean),a1=w.join(' '),sc=m=>{if(!a1)return 0;const yw=norm(m.tx).split(/\s+/).filter(Boolean);let d=Math.min(amLev(a1,yw.join(' ')),amLev(a1,yw.slice().reverse().join(' ')));if(w.some(x=>x.length>2&&yw.includes(x)))d-=3;return d};
+ const L=A.map(m=>({m,d:sc(m)})).sort((p,q)=>p.d-q.d||norm(p.m.tx).localeCompare(norm(q.m.tx))).map(x=>x.m);let pick='';
+ const row=(m,i)=>'<label class="p1-r" data-nk="'+esc(norm(m.tx)+' '+amDig((m.o||{}).tl))+'" style="display:flex;gap:.55rem;align-items:center;padding:.45rem .2rem;border-bottom:1px solid var(--bd,#e5e7eb)"><input type="radio" name="p1" data-p1="'+esc(m.id)+'" style="width:22px;height:22px;flex:none"><span style="flex:1;min-width:0">'+(amIsAm(m)?'🎖':'👤')+' <b>'+esc(m.tx)+'</b>'+((m.o||{}).gr?' <small class="mut">'+esc(m.o.gr)+'</small>':'')+((m.o||{}).tl?' <small class="mut">· '+esc(amTlFmt(amDig(m.o.tl)))+'</small>':'')+(i<3&&a1?' <small style="color:#15803d;font-weight:700">ressemble</small>':'')+'</span></label>';
+ const pr=ask({title:esc(title),html:(info?'<p style="margin:.1rem 0 .4rem">'+info+'</p>':'')+'<input class="in" id="p1-q" type="search" placeholder="🔎 Chercher un nom ou un téléphone" autocomplete="off" style="font-size:16px;margin:.1rem 0 .4rem"><div style="max-height:46vh;overflow:auto">'+L.map(row).join('')+'</div>',btns:[{label:'🔗 C’est cette personne',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+ root.onchange=ev=>{const c=ev.target.closest&&ev.target.closest('[data-p1]');if(c&&c.checked)pick=c.dataset.p1};
+ root.oninput=ev=>{if(ev.target.id!=='p1-q')return;const q=norm(ev.target.value||''),qd=amDig(ev.target.value||'');root.querySelectorAll('.p1-r').forEach(r=>{r.style.display=!q||r.dataset.nk.indexOf(q)>=0||(qd.length>3&&r.dataset.nk.indexOf(qd)>=0)?'':'none'})};
+ const v=await pr;root.onchange=root.oninput=null;if(v!=='ok')return null;if(!pick){toast('Choisis d’abord une personne dans la liste',3000);return null}return A.find(m=>m.id===pick)||null}
 /* 2.82.37 : fichier contacts (.vcf) pour créer un groupe WhatsApp : « Amicale – NOM Prénom », portables seulement */
 const amVcfPfx=(m,tag)=>(amIsAm(m)?'Amicale':'NonAmicale')+(tag?' '+tag:'');
 function amVcf(M,tag,pfx){const e=v=>String(v||'').replace(/\\/g,'\\\\').replace(/[,;]/g,m=>'\\'+m).replace(/\r?\n/g,' ');
@@ -14983,7 +15035,7 @@ async function amVcfFlow(M,body,tag,pfx){const M0=M,NO=M0.filter(m=>!amMob((m.o|
   if(r==='dl')downloadFile(nm,'text/vcard',txt);
   else if(r==='sh'){const z=await shareFile(nm,'text/vcard',txt);if(z===false)downloadFile(nm,'text/vcard',txt)}
   else if(r==='m'){try{await navigator.clipboard.writeText(body);toast('📋 Message copié : colle-le dans le groupe WhatsApp',3500)}catch(e){}}
-  else if(r==='wa'){try{await navigator.clipboard.writeText(body)}catch(e){}location.href='whatsapp://';}
+  else if(r==='wa'){try{await navigator.clipboard.writeText(body)}catch(e){}if(!(ESSAI&&essaiBlk()))location.href='whatsapp://';}
   else return true}}
 /* 2.82.35 : numéros douteux (pour les SMS de groupe) */
 function amTelWarn(m,all){const raw=String((m.o||{}).tl||''),n=amMob(raw),W=[];if(!n)return ['pas un portable'];
@@ -17363,13 +17415,21 @@ function amPtExport(sel){
 }
 async function amPtEdit(i){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE],p=it&&(it.pt||[])[i];if(!p||!a.kB)return;
- const v=await amForm('Participant','Adultes et enfants : si l’événement a des tarifs, le montant à payer se recalcule tout seul.',[{k:'n',l:'Nom',v:p.n},{k:'na',l:'👥 Adultes (la personne comprise)',v:p.na||'',ph:'1'},{k:'ne',l:'🧒 Enfants',v:p.ne||'',ph:'0'},{k:'rg',l:'Régime particulier (halal, végétarien, sans porc, allergie…)',v:amRgOf({p,m:amPtMember(p)}),ph:'Aucun'},{k:'pa',l:'Montant payé (€)',v:p.pa||'',ph:'0'},{k:'pm',l:'Payé par',t:'select',v:p.pm||'',o:AM_PM}].concat(p.a&&!p.qn?[]:[{k:'aq',l:'🎖 Statut'+(p.qn?' (⚠️ '+p.qn+')':''),t:'select',v:'',o:[['','Ne rien changer'],['au','⏳ Le compter amicaliste : fiche « Attend la mise à jour » (vérifiée au prochain fichier Excel)'],['ok','✅ Vérifié : il est bien amicaliste'],['n','👤 Vérifié : non-amicaliste']]}]).concat([{k:'act',l:'Action',t:'select',v:'',o:[['','Garder'],['del','🗑 Retirer de la liste']]}]).concat(it.mn?[{k:'mnm',l:'🍽 Menu choisi'+(p.mc?' : '+amMxSum(p):' : pas encore'),t:'select',v:'',o:[['','Ne rien changer'],['1','Saisir / corriger son menu à sa place']]}]:[]));
+ const v=await amForm('Participant','Adultes et enfants : si l’événement a des tarifs, le montant à payer se recalcule tout seul.',[{k:'n',l:'Nom',v:p.n},{k:'na',l:'👥 Adultes (la personne comprise)',v:p.na||'',ph:'1'},{k:'ne',l:'🧒 Enfants',v:p.ne||'',ph:'0'},{k:'rg',l:'Régime particulier (halal, végétarien, sans porc, allergie…)',v:amRgOf({p,m:amPtMember(p)}),ph:'Aucun'},{k:'pa',l:'Montant payé (€)',v:p.pa||'',ph:'0'},{k:'pm',l:'Payé par',t:'select',v:p.pm||'',o:AM_PM}].concat(p.a&&!p.qn?[]:[{k:'aq',l:'🎖 Statut'+(p.qn?' (⚠️ '+p.qn+')':''),t:'select',v:'',o:[['','Ne rien changer'],['au','⏳ Le compter amicaliste : fiche « Attend la mise à jour » (vérifiée au prochain fichier Excel)'],['ok','✅ Vérifié : il est bien amicaliste'],['n','👤 Vérifié : non-amicaliste'],['lk','🔗 C’est quelqu’un de ma liste (nom mal écrit) : choisir sa fiche']]}]).concat([{k:'act',l:'Action',t:'select',v:'',o:[['','Garder'],['del','🗑 Retirer de la liste']]}]).concat(it.mn?[{k:'mnm',l:'🍽 Menu choisi'+(p.mc?' : '+amMxSum(p):' : pas encore'),t:'select',v:'',o:[['','Ne rien changer'],['1','Saisir / corriger son menu à sa place']]}]:[]));
  if(!v)return;
  if(v.aq&&v.act!=='del'){const mm=amPtMember(p)||amItems('am').find(m=>amNk(m.tx)===amNk(p.n))||null;let mid=mm?mm.id:'';
+  if(v.aq==='lk'||(v.aq==='au'&&!mm)){
+   if(v.aq==='au'){const q=await ask({title:'🔎 Pas de fiche à ce nom',html:'<p style="margin:.2rem 0">Personne ne s’appelle <b>'+esc(v.n||p.n)+'</b> dans ta liste.</p><p class="mut" style="margin:.3rem 0 0;font-size:.9rem">Si c’est une faute dans le nom, choisis sa fiche : pas de doublon.</p>',btns:[{label:'🔎 Chercher sa fiche dans ma liste',value:'pk',cls:'pri'},{label:'➕ Nouvelle personne : créer une fiche',value:'new'},{label:'Annuler',value:null}]});if(!q)return;if(q==='pk')v.aq='lk'}
+   if(v.aq==='lk'){const pk=await amPickOne('🔎 Qui est-ce dans ta liste ?','Inscrit sous le nom <b>'+esc(v.n||p.n)+'</b>. Choisis sa fiche : les noms qui ressemblent sont en haut.',v.n||p.n);if(!pk)return;
+    let aq2=amIsAm(pk)?'ok':'n';if(!amIsAm(pk)){const q2=await ask({title:'👤 '+esc(pk.tx),html:'<p style="margin:.2rem 0">Cette fiche est <b>non-amicaliste</b> dans ta liste.</p>',btns:[{label:'⏳ Le compter amicaliste (sa fiche attend la mise à jour)',value:'au',cls:'pri'},{label:'👤 Le laisser non-amicaliste',value:'n'},{label:'Annuler',value:null}]});if(!q2)return;aq2=q2}
+    v.n=pk.tx;const ex2=(it.pt||[]).findIndex((q,j)=>j!==i&&(q.m===pk.id||amNk(q.n)===amNk(pk.tx)));if(ex2>=0)toast('⚠️ '+pk.tx+' est déjà dans les inscrits : vérifie qu’il n’est pas en double',6000);
+    if(aq2==='au')amAuMark(pk,pk.tx,{tl:p.tl,ml:p.ml,rg:p.rg},true,'Inscrit à « '+String(it.tx||'').slice(0,40)+' » : se dit amicaliste.');
+    amEeMut(o=>{const c=o.pt[i];if(!c)return;c.m=pk.id;c.n=pk.tx.slice(0,60);c.a=aq2==='n'?0:1;c.qn=aq2==='au'?'⏳ amicaliste à confirmer (fichier Excel)':''});
+    toast('🔗 Relié à la fiche de '+pk.tx+' (pas de nouvelle fiche)',3500);v.aq='done'}}
   if(v.aq==='au')mid=amAuMark(mm,v.n||p.n,{tl:p.tl,ml:p.ml,rg:p.rg},true,'Inscrit à « '+String(it.tx||'').slice(0,40)+' » : se dit amicaliste.');
   else if(v.aq==='ok'&&mm&&!amIsAm(mm))amItemSave(Object.assign({},mm,{o:Object.assign({},mm.o||{},{st:'',au:'',aud:''})}));
-  amEeMut(o=>{const c=o.pt[i];if(!c)return;if(v.aq==='n'){c.a=0;c.qn=''}else{c.a=1;c.qn=v.aq==='au'?'⏳ amicaliste à confirmer (fichier Excel)':'';if(mid)c.m=mid}});
-  toast(v.aq==='au'?'⏳ Compté amicaliste · fiche en attente de mise à jour':v.aq==='ok'?'✅ Amicaliste':'👤 Non-amicaliste',3000)}
+  if(v.aq!=='done')amEeMut(o=>{const c=o.pt[i];if(!c)return;if(v.aq==='n'){c.a=0;c.qn=''}else{c.a=1;c.qn=v.aq==='au'?'⏳ amicaliste à confirmer (fichier Excel)':'';if(mid)c.m=mid}});
+  if(v.aq!=='done')toast(v.aq==='au'?'⏳ Compté amicaliste · fiche en attente de mise à jour':v.aq==='ok'?'✅ Amicaliste':'👤 Non-amicaliste',3000)}
  amEeMut(o=>{if(v.act==='del'){o.pt.splice(i,1);return}const c=o.pt[i];if(!c)return;c.n=String(v.n||c.n).trim().slice(0,60);{const q=x=>{const n=parseInt(String(x==null?'':x).replace(/[^0-9]/g,''),10);return n>0?Math.min(n,40):0},na=q(v.na),ne=q(v.ne);if(na)c.na=na;else delete c.na;if(ne)c.ne=ne;else delete c.ne}c.pa=Math.max(0,Math.min(9999,parseFloat(String(v.pa||'0').replace(',','.'))||0));c.pm=v.pm||'';c.rg=amRgClean(String(v.rg||'').trim().slice(0,40))});
  {const mm=amPtMember(p),rg0=mm&&String((mm.o||{}).rg||''),rg1=amRgClean(String(v.rg||'').trim().slice(0,40));if(v.act!=='del'&&mm&&amRgClean(rg0)!==rg1)amItemSave(Object.assign({},mm,{o:Object.assign({},mm.o||{},{rg:rg1})}))}
  if(v.mnm==='1'&&v.act!=='del')await amMxManual(i);
@@ -18257,9 +18317,9 @@ async function amRnAct(a0,ds){
   case 'rn-ddel':{o.ds=o.ds.filter(x=>x.i!==ds.i);rnSave(m,o,false);return}
   case 'rn-dnote':{const x=o.ds.find(y=>y.i===ds.i);if(!x||!adm)return;const v=await amForm('📝 Note sur cette date',rnDl(x)+' — visible par tous les invités.',[{k:'n',l:'Note',v:x.n||'',t:'area'}],'Enregistrer');if(!v)return;x.n=String(v.n||'').trim().slice(0,160);rnSave(m,o,false);toast(x.n?'📝 Note enregistrée':'Note effacée',2000);return}
   case 'rn-rld':{const x=o.ds.find(y=>y.i===ds.i);if(!x||o.st!=='v')return;const R=rvAll(m),P=amList(),nm=id=>(P.find(q=>q.id===id)||{}).n||'?';let AB=[];try{AB=amAbs()}catch(e){}
-   const L=o.iv.filter(id=>id!==a.me.id&&!(R[id]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=o.iv.filter(id=>id!==a.me.id&&!L.includes(id));
-   if(!L.length){toast('Tout le monde a déjà coché cette date (ou est absent ce jour-là) 👍',3000);return}
-   const r=await ask({title:'🔔 Relancer pour cette date',text:rnDl(x)+' — notification à : '+L.map(nm).join(', ')+'.'+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;
+   const KN=new Set(P.filter(p=>!p.x).map(p=>p.id)),IV=o.iv.filter(id=>id!==a.me.id&&KN.has(id));let L=IV.filter(id=>!(R[id]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=IV.filter(id=>!L.includes(id));
+   const r=await ask({title:'🔔 Relancer pour cette date',text:rnDl(x)+(L.length?' — notification à : '+L.map(nm).join(', ')+'.':' — tout le monde a déjà coché cette date (ou est absent ce jour-là).')+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:(L.length?[{label:'Relancer ('+L.length+')',value:'ok',cls:'pri'}]:[]).concat([{label:'✋ Choisir les personnes…',value:'pk'},{label:'Annuler',value:null}])});if(!r)return;
+   if(r==='pk'){const C=await amPickRl('✋ Qui relancer ?',esc(rnDl(x))+' — coche les personnes à prévenir.',IV,L,nm);if(!C||!C.length)return;L=C}
    rnSave(m,o,{to:L,t:'propose le '+rnDs(x)+' pour la réunion de '+chName(m)+' : es-tu dispo ?'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rn-launch':{if(!o.ds.length){toast('Ajoute d’abord au moins une date',3000);return}
     const r=await ask({title:'🗳 Lancer le vote ?',text:'Les '+o.iv.length+' invité'+(o.iv.length>1?'s':'')+' sont prévenus et choisissent les dates où ils sont disponibles.',btns:[{label:'Lancer le vote',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
@@ -18281,7 +18341,7 @@ async function amRnAct(a0,ds){
     amItemSave({id:rvId(m,v.w),kind:'rv',tx:'Vote réunion',bd:JSON.stringify({m,y:['-']}),x:0,del:0,d:'',w:'',qt:'',tm:'',pl:'',l:'',z:it.z||'b'});toast('🙅 '+nm(v.w)+' : noté pas dispo',2500);render();return}
   case 'rn-rl':case 'rn-rl1':{const R=rvAll(m),PK=rlPick(o,R,id=>id,a.me.id),L=a0==='rn-rl1'?[ds.id]:PK.L;if(!L.length){toast(PK.X.length?'Personne à relancer : les autres ont répondu ou ne sont pas dispo 👍':'Tout le monde a déjà répondu 👍',3000);return}
     const nm=id=>(amList().find(x=>x.id===id)||{}).n||'?',fx=o.ds.find(x=>x.i===o.fd);
-    if(a0==='rn-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
+    if(a0==='rn-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer ('+L.length+')',value:'ok',cls:'pri'},{label:'✋ Choisir les personnes…',value:'pk'},{label:'Annuler',value:null}]});if(!r)return;if(r==='pk'){const KN=new Set(amList().filter(p=>!p.x).map(p=>p.id)),C=await amPickRl('✋ Qui relancer ?','Coche les personnes à prévenir.',o.iv.filter(id=>id!==a.me.id&&KN.has(id)),L,nm);if(!C||!C.length)return;L.length=0;C.forEach(id=>L.push(id))}}
     rnSave(m,o,{to:L,t:o.st==='f'&&fx?'te rappelle la réunion : '+rnDs(fx)+(o.pl?' · '+o.pl.slice(0,25):''):'te relance pour la réunion de '+chName(m)+' : choisis tes dates'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
  }}
 function rnDefM(){const d=new Date(),c=rnMk(d),o=rnGet(c);if(o&&o.st==='f'){const f=o.ds.find(x=>x.i===o.fd);if(f&&f.d<today())return rnMk(new Date(d.getFullYear(),d.getMonth()+1,1))}return c}
@@ -18303,8 +18363,12 @@ function rpSave(o,notify){const a=amc();if(!a)return;const pv=a.it[o.id],z=rnZ(o
  if(pv&&pv.z&&pv.z!==z)it.tz=pv.z;amItemSave(it)}
 /* id du vote : 'rx' + 8 car. de la réunion + 6 car. du membre = 16 car. (longueur maximale d’un document) */
 /* 2.82.150 : qui relancer ? Jamais ceux qui ont dit non (🙅), ni ceux qui ne sont pas dispo à la date fixée, ni ceux qui ont noté une absence ce(s) jour(s)-là */
+/* 2.82.161 : choisir soi-même qui relancer (cases à cocher, pré-cochées) */
+async function amPickRl(title,info,ids,pre,nm){const sel=new Set(pre),h=e=>{const c=e.target;if(c&&c.dataset&&c.dataset.rpk){if(c.checked)sel.add(c.dataset.rpk);else sel.delete(c.dataset.rpk)}};document.addEventListener('change',h,true);
+ try{const r=await ask({title,html:'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">'+info+'</p><div style="max-height:50vh;overflow:auto">'+ids.map(id=>'<label style="display:flex;gap:.6rem;align-items:center;padding:.35rem 0;border-top:1px solid var(--line);font-weight:400"><input type="checkbox" data-rpk="'+esc(id)+'"'+(sel.has(id)?' checked':'')+' style="width:22px;height:22px;flex:none;margin:0"><span>'+esc(nm(id))+'</span></label>').join('')+'</div>',btns:[{label:'🔔 Relancer les personnes cochées',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
+  return r==='ok'?ids.filter(id=>sel.has(id)):null}finally{document.removeEventListener('change',h,true)}}
 function rlPick(o,R,kf,meId){let AB=[];try{AB=amAbs()}catch(e){}const abs=(id,d)=>AB.some(b=>b.w===id&&b.d1<=d&&b.d2>=d),fx=o.st==='f'?(o.ds||[]).find(x=>x.i===o.fd):null,L=[],X=[];
- (o.iv||[]).forEach(id=>{if(id===meId)return;const y=R[kf(id)]||[];
+ const KN=new Set(amList().filter(p=>!p.x).map(p=>p.id));(o.iv||[]).forEach(id=>{if(id===meId||!KN.has(id))return;const y=R[kf(id)]||[];
   if(y.includes('?'))return L.push(id);
   if(y.includes('-'))return X.push([id,'a répondu « aucune date »']);
   if(fx){if(y.length&&!y.includes(fx.i))return X.push([id,'pas dispo ce jour-là']);if(abs(id,fx.d))return X.push([id,'absence notée ce jour-là'])}
@@ -18376,9 +18440,9 @@ async function amRpAct(a0,ds){
   case 'rp-dnote':{const x=o.ds.find(y=>y.i===ds.i);if(!x||!adm)return;const v=await amForm('📝 Note sur ce créneau',rnDl(x)+' — visible par tous les invités (ex. « avancé à 14h : la salle n’est pas libre le matin »).',[{k:'n',l:'Note',v:x.n||'',t:'area'}],'Enregistrer');if(!v)return;x.n=String(v.n||'').trim().slice(0,160);rpSave(o,false);toast(x.n?'📝 Note enregistrée':'Note effacée',2000);return}
   /* 2.82.157 : relancer pour UN créneau (nouveau ou changé) : tous les invités qui ne l’ont pas encore coché, même ceux qui ont déjà répondu, sauf absence notée ce jour-là */
   case 'rp-rld':{const x=o.ds.find(y=>y.i===ds.i);if(!x||o.st!=='v')return;const R=rxAll(o.id);let AB=[];try{AB=amAbs()}catch(e){}
-   const L=o.iv.filter(id=>id!==a.me.id&&!(R[String(id).slice(0,6)]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=o.iv.filter(id=>id!==a.me.id&&!L.includes(id));
-   if(!L.length){toast('Tout le monde a déjà coché ce créneau (ou est absent ce jour-là) 👍',3000);return}
-   const r=await ask({title:'🔔 Relancer pour ce créneau',text:rnDl(x)+' — notification à : '+L.map(nm).join(', ')+'.'+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return;
+   const KN=new Set(amList().filter(p=>!p.x).map(p=>p.id)),IV=o.iv.filter(id=>id!==a.me.id&&KN.has(id));let L=IV.filter(id=>!(R[String(id).slice(0,6)]||[]).includes(x.i)&&!AB.some(b=>b.w===id&&b.d1<=x.d&&b.d2>=x.d)),X=IV.filter(id=>!L.includes(id));
+   const r=await ask({title:'🔔 Relancer pour ce créneau',text:rnDl(x)+(L.length?' — notification à : '+L.map(nm).join(', ')+'.':' — tout le monde a déjà coché ce créneau (ou est absent ce jour-là).')+(X.length?' — Pas relancés : '+X.map(nm).join(', ')+' (déjà dispo ce jour-là ou absents).':''),btns:(L.length?[{label:'Relancer ('+L.length+')',value:'ok',cls:'pri'}]:[]).concat([{label:'✋ Choisir les personnes…',value:'pk'},{label:'Annuler',value:null}])});if(!r)return;
+   if(r==='pk'){const C=await amPickRl('✋ Qui relancer ?',esc(rnDl(x))+' — coche les personnes à prévenir.',IV,L,nm);if(!C||!C.length)return;L=C}
    rpSave(o,{to:L,t:'propose le créneau '+rnDs(x)+' pour « '+rpN(o)+' » : es-tu dispo ?'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rp-pl':{const v=await amForm('📍 Lieu de la réunion','',[{k:'pl',l:'Lieu',v:o.pl||''}],'Enregistrer');if(!v)return;o.pl=String(v.pl||'').trim().slice(0,80);if(o.st==='f'&&o.fe&&a.it[o.fe]&&!a.it[o.fe].del)amItemSave(Object.assign({},a.it[o.fe],{pl:o.pl}));rpSave(o,o.st==='f'&&o.pl?'précise le lieu de « '+rpN(o)+' » : '+o.pl.slice(0,28):false);if(o.st==='f'&&o.pl)toast('📍 Lieu enregistré, les invités sont prévenus',3000);return}
   case 'rp-launch':{if(!o.ds.length){toast('Propose d’abord au moins une date',3000);return}if(!o.iv.filter(id=>id!==a.me.id).length){toast('Choisis d’abord les invités',3000);return}
@@ -18395,7 +18459,7 @@ async function amRpAct(a0,ds){
     const v=await amForm('🙅 Pas dispo','La personne ne sera plus relancée pour cette réunion (elle peut toujours répondre elle-même).',[{k:'w',l:'Invité',t:'select',v:L[0],o:L.map(id=>[id,nm(id)])}],'Noter');if(!v||!v.w)return;
     amItemSave({id:rxId(o.id,v.w),kind:'rx',tx:'Vote réunion',bd:JSON.stringify({k:o.id,y:['-']}),x:0,del:0,d:'',w:'',qt:'',tm:'',pl:'',l:'',z:(a.it[o.id]||{}).z||'b'});toast('🙅 '+nm(v.w)+' : noté pas dispo',2500);render();return}
   case 'rp-rl':case 'rp-rl1':{const R=rxAll(o.id),PK=rlPick(o,R,id=>String(id).slice(0,6),a.me.id),L=a0==='rp-rl1'?[ds.id]:PK.L;if(!L.length){toast(PK.X.length?'Personne à relancer : les autres ont répondu ou ne sont pas dispo 👍':'Tout le monde a déjà répondu 👍',3000);return}
-    if(a0==='rp-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});if(r!=='ok')return}
+    if(a0==='rp-rl'){const r=await ask({title:'🔔 Relancer ?',text:rlAskTxt(L,PK.X,nm),btns:[{label:'Relancer ('+L.length+')',value:'ok',cls:'pri'},{label:'✋ Choisir les personnes…',value:'pk'},{label:'Annuler',value:null}]});if(!r)return;if(r==='pk'){const KN=new Set(amList().filter(p=>!p.x).map(p=>p.id)),C=await amPickRl('✋ Qui relancer ?','Coche les personnes à prévenir.',o.iv.filter(id=>id!==a.me.id&&KN.has(id)),L,nm);if(!C||!C.length)return;L.length=0;C.forEach(id=>L.push(id))}}
     const fx=o.ds.find(x=>x.i===o.fd);rpSave(o,{to:L,t:o.st==='f'&&fx?'te rappelle la réunion « '+rpN(o)+' » : '+rnDs(fx):'te relance pour la réunion « '+rpN(o)+' » : choisis tes dates'});toast('🔔 Relance envoyée à '+L.length+' personne'+(L.length>1?'s':''),3000);return}
   case 'rp-pt-add':{const v=await amForm('📝 Point à aborder','',[{k:'t',l:'Point',v:'',ph:'Ex. Qui s’occupe des boissons ?'}],'Ajouter');if(!v||!String(v.t||'').trim())return;o.pts.push({i:rnRid(),t:String(v.t).trim().slice(0,120),x:0});rpSave(o,false);return}
   case 'rp-pt-x':{const x=o.pts.find(y=>y.i===ds.i);if(x){x.x=x.x?0:1;rpSave(o,false)}return}
@@ -18518,7 +18582,7 @@ function amGrHTML(a,nu,navm,ami){
    mrow('am-edit','👤 Ma fiche',esc(a.me.n)+(a.me.tel?' · '+esc(a.me.tel):''))+
    mrow('am-link','📲 Lier un autre appareil','PC, iPad, nouveau téléphone : le groupe ET ton agenda perso, avec un seul code')+mrow('am-dev','📱 Cet appareil : '+(a.dev==='s'?'secondaire':'principal'),a.dev==='s'?'Tout fonctionne ; seuls retrait et niveau des membres se font sur le principal':'Sert aussi à retirer un membre ou changer son niveau')+(a.apriv?mrow('am-alert',a.alert&&a.alert.on?'✅ Fin de l’alerte générale':'🚨 Alerte générale',a.alert&&a.alert.on?'Débloque tout le monde (rechargement automatique)':'Bloque tous les autres appareils le temps d’une manipulation'):'')+
    mrow('am-inv','🔢 Inviter quelqu’un',a.apriv?'Code Bureau ou Aide, valable 7 jours':a.kB?'Code Aide, valable 7 jours':'Réservé au bureau')+
-   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.apriv&&!ami?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
+   (a.apriv?mrow('am-ren','✏️ Changer le nom du groupe',esc(a.nm)):'')+(a.kB&&!demo&&!ESSAI?mrow('essai-on','🧪 Mode essai','Tester en direct sur une copie de tes vraies données : rien n’est enregistré ni envoyé'):'')+(a.apriv&&!ami?mrow('am-logo','🖼 Logo du groupe',amLogoSrc()?'Changer ou retirer':'Une image pour ton groupe (style Nouveau)'):'')+'</div>';
   if(!ami)h+=amColCard()+pushCard();
   if(a.kB){const shm=amBmShared(),itm=a.it&&a.it[AM_BM_ID],adm=!!a.apriv||demo;
    h+=(ami?'\x01bul\x01':'')+'<div class="card"><h3>📝 Bulletin d’adhésion</h3>'+(adm?'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.88rem">Modèle utilisé pour faire signer les amicalistes (onglet 🎖 Amicalistes › fiche › Bulletin). <b>Tu le règles ici une seule fois : tous les appareils du bureau le reçoivent automatiquement.</b></p>'+(shm&&itm?'<p class="mut" style="margin:0 0 .4rem;font-size:.82rem">✅ Partagé avec le bureau'+(itm.dirty?' (envoi en attente de connexion)':'')+'</p>':'')+mrow('bm-reg','📜 Règlement et signatures du bureau',String(amBm().tx||'').trim()?'Saison '+esc(amSaCur())+' · le bulletin reprend ton document à l’identique':'Pour un bulletin identique à ton document papier')+mrow('bm-new','📅 Préparer la saison suivante','Après l’assemblée générale : nouveau bureau, nouveaux tarifs ; les anciens bulletins restent intacts')+mrow('bm-edit','✏️ Modifier le texte court','Titre, engagement, mention RGPD (si pas de règlement)')+mrow('bm-tar','💶 Tarifs par grade','Le prix se calcule tout seul sur le bulletin')+mrow('bm-imp','📥 Importer mon modèle','Word, texte ou fichier modèle')+mrow('bm-exp','📤 Exporter mon modèle','Pour un autre bureau ou une autre appli')+((a.bm||shm)?mrow('bm-rst','↺ Revenir au modèle de l’appli','Pour tout le bureau'):'')
@@ -18635,7 +18699,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
