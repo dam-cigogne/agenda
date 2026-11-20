@@ -2988,7 +2988,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.158';
+const APP_VERSION='2.82.159';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2996,6 +2996,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.159',d:'20/11/2026',items:['👁 Carte « 🗳 À répondre » de l’accueil lisible en mode sombre (texte foncé, bouton « Répondre » orange)','🔄 Quand une nouvelle version existe, un grand cadre bleu sur l’accueil propose « Mettre à jour maintenant » (plus besoin de fermer/rouvrir deux fois)']},
 {v:'2.82.158',d:'20/11/2026',items:['📝 Réunions : une petite note sur chaque créneau (« pourquoi il change », précision…), visible par tous les invités : bouton « 📝 Note » ou en ajoutant la date']},
 {v:'2.82.157',d:'20/11/2026',items:['🔔 Réunions : bouton « Relancer pour ce créneau » sur chaque date (nouvelle ou changée) : prévient tous les invités qui ne l’ont pas encore cochée, même ceux qui avaient déjà répondu, sauf les absents ce jour-là']},
 {v:'2.82.156',d:'20/11/2026',items:['📄 Avant chaque impression (listes, tâches, programme, repas, bulletins…) : « 🖨 Imprimer », « ✉️ Envoyer par mail à… » (une personne du bureau, mail pro ou perso : l’adresse est copiée, Mail s’ouvre avec le PDF) ou « 📚 Ajouter au dossier » pour réunir plusieurs fiches et les imprimer d’un coup','🔔 Réglages › Notifications : « 🗓 Réunions » et « ✅ Tâche pour moi » apparaissent, toujours activées (invitations, relances, date fixée, lieu, tâche confiée)','🗳 Réunions : « 🙅 Aucune date ne me va » et « 🤔 Je ne connais pas encore mon planning » sont maintenant en haut, avant les dates']},
@@ -5618,6 +5619,10 @@ async function syncAll(){
  if(err)toast('⚠️ Synchronisation incomplète : '+err.slice(0,80),5000);
  else toast((fam||grp?'✅ Synchronisé'+(fam&&grp?' (famille et groupe)':fam?' (famille)':' (groupe)')+' · ':'')+'version '+APP_VERSION+' à jour 👍',3500);
 }
+/* 2.82.159 : l’appli regarde toute seule (à l’ouverture, puis au plus toutes les heures) s’il existe une version plus récente, et le dit en grand sur l’accueil */
+let UPD_LIVE='',UPD_AT=0;
+async function updAuto(){if(demo||Date.now()-UPD_AT<36e5)return;UPD_AT=Date.now();try{const t=await fetch('sw.js?x='+Date.now(),{cache:'no-store'}).then(r=>r.text()),v=(t.match(/VERSION\s*=\s*'([^']+)'/)||[])[1]||'';if(v&&amVerCmp(v,APP_VERSION)>0&&v!==UPD_LIVE){UPD_LIVE=v;try{render()}catch(e){}}}catch(e){}}
+function updCardHTML(){if(!UPD_LIVE||amVerCmp(UPD_LIVE,APP_VERSION)<=0)return '';return '<div class="card" style="border:3px solid #2563eb;background:#eff6ff;color:#1e3a8a;text-align:center"><h3 style="margin:0 0 .3rem;color:#1d4ed8">🔄 Nouvelle version '+esc(UPD_LIVE)+'</h3><p style="margin:.1rem 0 .5rem;font-size:.92rem;color:#1e3a8a">Tu as la '+esc(APP_VERSION)+'. Mets à jour pour avoir les dernières nouveautés (réunions, notifications…). Tes données ne sont pas touchées.</p><button class="btn pri blk" data-act="upd-now">🔄 Mettre à jour maintenant</button></div>'}
 async function updCheck(quick){
  toast('Recherche d’une mise à jour…',3000);const _b=$('#updbtn');if(_b)_b.classList.add('spin');try{await updCheck2(quick)}finally{if(_b)_b.classList.remove('spin')}}
 async function updCheck2(quick){
@@ -9480,6 +9485,7 @@ async function act(a,el,e){
   case 'ee-imp':amEeImport();break;
   case 'ee-year':amEeYearPrint();break;
   case 'ck-print':amCkPrint();break;
+  case 'upd-now':toast('Mise à jour…',4000);updCheck2(true);break;
   case 'tk-print':amTkPrint();break;
   case 'ee-del':amEeDel();break;
   case 'am-it':amItemOpen(ds_.id);break;
@@ -17761,7 +17767,8 @@ function amTodoVotes(){const a=amc();if(!a||!a.me)return [];const me=a.me.id,L=[
  return L.sort((x,y)=>y.at-x.at)}
 /* 2.82.148 : rappel bien visible sur l’accueil tant que ce téléphone n’a pas les notifications */
 function amNotifHome(){try{if(demo||pushIsOn()||amIsSec())return ''}catch(e){return ''}return '<div class="card" style="border:3px solid #dc2626;background:#fef2f2;text-align:center"><div style="font-size:2rem;line-height:1">🔔</div><h3 style="margin:.2rem 0;color:#b91c1c;font-size:1.15rem">Active les notifications !</h3><p style="margin:.2rem 0 .6rem;font-size:.95rem;color:#7f1d1d"><b>Très important</b> : c’est comme ça que le bureau te prévient des <b>réunions</b>, des <b>tâches</b> et des nouveautés. Sans elles, tu ne reçois rien.</p><button class="btn pri blk" data-act="push-on">🔔 Activer les notifications</button></div>'}
-function amTodoVoteCard(){const L=amTodoVotes();if(!L.length)return '';return '<div class="card" style="border:2px solid #f59e0b;background:#fffbeb"><h3 style="margin:0 0 .3rem">🗳 À répondre</h3>'+L.map(x=>'<div style="display:flex;align-items:center;gap:.5rem;justify-content:space-between;padding:.3rem 0;border-top:1px solid #fde68a"><span style="font-size:.92rem"><b>'+esc(x.t)+'</b><br><span class="mut" style="font-size:.82rem">Choisis tes dates</span></span><button class="chip on" data-act="'+(x.k==='rp'?'rp-open':'rn-open')+'" '+(x.k==='rp'?'data-id':'data-m')+'="'+esc(x.id)+'">Répondre</button></div>').join('')+'</div>'}
+function amTodoVoteCard(){const L=amTodoVotes();if(!L.length)return '';/* 2.82.159 : couleurs fixes (lisible aussi en mode sombre) */
+ return '<div class="card" style="border:3px solid #f59e0b;background:#fffbeb;color:#1c1917"><h3 style="margin:0 0 .3rem;color:#92400e">🗳 À répondre</h3>'+L.map(x=>'<div style="display:flex;align-items:center;gap:.5rem;justify-content:space-between;padding:.3rem 0;border-top:1px solid #fde68a"><span style="font-size:.95rem;color:#1c1917"><b>'+esc(x.t)+'</b><br><span style="font-size:.84rem;color:#57534e">Choisis tes dates</span></span><button class="chip on" style="background:#d97706!important;color:#fff!important;border-color:#d97706!important;font-weight:800" data-act="'+(x.k==='rp'?'rp-open':'rn-open')+'" '+(x.k==='rp'?'data-id':'data-m')+'="'+esc(x.id)+'">Répondre</button></div>').join('')+'</div>'}
 /* 2.82.148 : toucher une notification ouvre directement la bonne page (réunion à voter, tâches) */
 async function amGo(g,nm){try{if(!amc()||demo)return;if(['am','nt','ad','aq','cx'].includes(g)&&!amc().kB)g='ac';if(V.view!=='amicale')go('amicale');try{await amPull(true)}catch(e){}const a=amc(),me=a.me.id;
  if(g==='rp'||g==='rn'){const L=amTodoVotes().filter(x=>x.k===g);let id=L.length?L[0].id:'';
@@ -18476,7 +18483,7 @@ function amView0(){
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
     return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+amAbBadge(p.id)+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
-  h+=isAc?amKeyStaleHTML()+amTodoVoteCard()+amNotifHome()+amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
+  h+=isAc?updCardHTML()+amKeyStaleHTML()+amTodoVoteCard()+amNotifHome()+amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':grpC('b','Bureau')+grpC('a','Aides extérieurs');
   {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>'}
@@ -18596,7 +18603,7 @@ async function init(){
  registerSW();
  if(!cvCheckHash()&&!famHash2())shareCheckHash();
  window.addEventListener('hashchange',()=>{if(!cvCheckHash()&&!famHash2())shareCheckHash()});
- setTimeout(()=>famPull(false),1800);
+ setTimeout(()=>famPull(false),1800);setTimeout(updAuto,4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(updAuto,2000)});
  {const g0=q.get('go');if(g0&&/^(rp|rn|tk|ee|co|ev|nt|am|aq|cx|ad|id|ac)$/.test(g0)){try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}setTimeout(()=>amGo(g0),900)}}
  try{if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.agdGo;if(g&&/^(rp|rn|tk|ee|co|ev|nt|am|aq|cx|ad|id|ac)$/.test(g))amGo(g,String((e.data&&e.data.n)||'').slice(0,80))})}catch(e){}
  /* 2.82.125 : site ouvert dans le navigateur d’un téléphone, sans groupe : on prévient avant toute inscription */
