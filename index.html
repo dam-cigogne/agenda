@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.178';
+const APP_VERSION='2.82.179';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,6 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.179',d:'22/11/2026',items:['🖨 Jour J : le fichier de la feuille de secours s’appelle maintenant « jour-j-soiree-noel.pdf » (accents retirés, extension .pdf) : plus facile à reconnaître dans le mail ou Fichiers, et l’iPhone sait que c’est un PDF.']},
 {v:'2.82.178',d:'22/11/2026',items:['🖨 Jour J : bouton « Imprimer » : une feuille de secours (une ligne par inscrit, cases ☐ pour chaque ticket, enfants, régime, montant), en paysage ; choisis A3 dans l’imprimante pour plus grand.','⚠️ Jour J : « Tout marquer terminé » demande maintenant une confirmation, et un bouton « ↩ Annuler » apparaît 15 secondes après pour tout remettre comme avant. Nouveau bouton « 🧹 Remettre à zéro » (bureau) : décoche tous les tickets, ou tout sauf les cadeaux ; les paiements restent, avec confirmation et « ↩ Annuler ».','📲 iPad / Mac (appareil secondaire) : les noms et surnoms corrigés sur le téléphone principal s’affichent même si l’iPad avait gardé une ancienne version ; « Repartir du serveur » reprend aussi les noms et fonctions.']},
 {v:'2.82.177',d:'22/11/2026',items:['📲 iPad / Mac (appareil secondaire) : les noms affichés et surnoms corrigés sur le téléphone principal arrivent maintenant toujours (avant, l’iPad pouvait garder les anciens).','🎁 Cadeau suivi dans les fiches (« Coffret 8 ans » cette année, nom modifiable dans « Ce qu’on distribue ») : si tu choisis « Le cadeau remis au Jour J coche reçu dans la fiche », chaque cadeau coché à la soirée met « reçu » dans la fiche de l’amicaliste (décoché = retiré). Liste des amicalistes › Filtrer : « 🎁 Sans Coffret 8 ans » = ceux qui ne l’ont pas eu (export Excel avec ce filtre).','🎟 « Ce qu’on distribue » plus clair : chaque choix montre l’exemple d’une famille de 2 adultes + 2 enfants (4, 2, 1…). Nouveau : « 1 par amicaliste » (sa famille reçoit 1, les non-amicalistes 0), pour un cadeau réservé aux amicalistes.']},
 {v:'2.82.176',d:'22/11/2026',items:['🎟 Règles des tickets (« Ce qu’on distribue ») : elles s’appliquent aussi aux inscrits ajoutés à la main (ex. 2 adultes + 2 enfants, Entrée « 1 par adulte » → 2 entrées à cocher). Si tu corriges un ticket avec − / +, ton chiffre est gardé.','👋 Messages envoyés (relances, invitations, menus, réponses, fichiers Excel) : « Bonjour » + le prénom seulement. Le grade et le nom sont enlevés (« ADC VERGEAU Damien » → « Bonjour Damien »).']},
@@ -17592,7 +17593,7 @@ function amJjPrint(){const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;const 
  const tb=(t,L)=>L.length?'<h3 style="margin:10px 0 4px">'+esc(t)+' · '+L.length+'</h3><table class="amp-t amp-g"><tr>'+head.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+so(L).map(x=>'<tr>'+row(x).map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</table>':'';
  const tot=TY.map(t=>(t.e||'')+' '+t.l+' : '+(it.pt||[]).reduce((n,p)=>n+amQ(p,t.k),0)).join(' · ');
  const html='<div style="font-family:system-ui,sans-serif"><h2 style="margin:0">🎟 Jour J · '+esc(it.tx||'')+'</h2><p style="margin:2px 0 6px;font-size:10pt">'+esc(it.d?new Date(it.d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'')+(it.pl?' · '+esc(it.pl):'')+' · '+(it.pt||[]).length+' inscrits · '+esc(tot)+' · imprimé le '+esc(new Date().toLocaleString('fr-FR'))+'</p><p style="margin:0 0 6px;font-size:9pt">☐ à cocher au stylo · ☒ déjà donné dans l’appli au moment de l’impression</p>'+tb('🎖 '+amWC('p'),A0)+tb('👤 '+amWC('np'),N0)+'</div>';
- amPdf(html,'jour-j-'+String(it.tx||'evenement').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').slice(0,30));
+ amPdf(html,'jour-j-'+String(it.tx||'evenement').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30)+'.pdf');
 }
 function amJjOpen(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length)return;
