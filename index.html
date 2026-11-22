@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.179';
+const APP_VERSION='2.82.180';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,6 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.180',d:'22/11/2026',items:['📚 <b>Mon dossier d’impression</b> : nouvel écran (bouton dans la préparation d’un événement et dans le Jour J) pour voir les fiches mises de côté, en retirer, les imprimer toutes d’un coup ou vider le dossier.','✉️ <b>Envoyer un PDF par mail</b> : on peut maintenant choisir n’importe quel membre qui a un mail dans sa fiche (bureau et aides), ou taper une autre adresse.']},
 {v:'2.82.179',d:'22/11/2026',items:['🖨 Jour J : le fichier de la feuille de secours s’appelle maintenant « jour-j-soiree-noel.pdf » (accents retirés, extension .pdf) : plus facile à reconnaître dans le mail ou Fichiers, et l’iPhone sait que c’est un PDF.']},
 {v:'2.82.178',d:'22/11/2026',items:['🖨 Jour J : bouton « Imprimer » : une feuille de secours (une ligne par inscrit, cases ☐ pour chaque ticket, enfants, régime, montant), en paysage ; choisis A3 dans l’imprimante pour plus grand.','⚠️ Jour J : « Tout marquer terminé » demande maintenant une confirmation, et un bouton « ↩ Annuler » apparaît 15 secondes après pour tout remettre comme avant. Nouveau bouton « 🧹 Remettre à zéro » (bureau) : décoche tous les tickets, ou tout sauf les cadeaux ; les paiements restent, avec confirmation et « ↩ Annuler ».','📲 iPad / Mac (appareil secondaire) : les noms et surnoms corrigés sur le téléphone principal s’affichent même si l’iPad avait gardé une ancienne version ; « Repartir du serveur » reprend aussi les noms et fonctions.']},
 {v:'2.82.177',d:'22/11/2026',items:['📲 iPad / Mac (appareil secondaire) : les noms affichés et surnoms corrigés sur le téléphone principal arrivent maintenant toujours (avant, l’iPad pouvait garder les anciens).','🎁 Cadeau suivi dans les fiches (« Coffret 8 ans » cette année, nom modifiable dans « Ce qu’on distribue ») : si tu choisis « Le cadeau remis au Jour J coche reçu dans la fiche », chaque cadeau coché à la soirée met « reçu » dans la fiche de l’amicaliste (décoché = retiré). Liste des amicalistes › Filtrer : « 🎁 Sans Coffret 8 ans » = ceux qui ne l’ont pas eu (export Excel avec ce filtre).','🎟 « Ce qu’on distribue » plus clair : chaque choix montre l’exemple d’une famille de 2 adultes + 2 enfants (4, 2, 1…). Nouveau : « 1 par amicaliste » (sa famille reçoit 1, les non-amicalistes 0), pour un cadeau réservé aux amicalistes.']},
@@ -9572,6 +9573,10 @@ async function act(a,el,e){
   case 'ee-imp':amEeImport();break;
   case 'ee-year':amEeYearPrint();break;
   case 'ck-print':amCkPrint();break;
+  case 'bag-open':amBagOpen();break;
+  case 'bag-del':AMPDF_BAG.splice(+ds_.i,1);amBagOpen();break;
+  case 'bag-clear':AMPDF_BAG=[];amBagOpen();toast('Dossier vidé',2000);break;
+  case 'bag-print':{const L=AMPDF_BAG.slice();if(!L.length)break;AMPDF_BAG=[];closeSheet();amBagPrint(L);break}
   case 'ver-list':amVerList(ds_.ids?ds_.ids.split(','):null);break;
   case 'upd-now':toast('Mise à jour…',4000);updCheck2(true);break;
   case 'tk-print':amTkPrint();break;
@@ -13803,6 +13808,19 @@ async function amPdfPages(html){
 function amWideDoc(html){const m=String(html).match(/<table class="amp-t amp-g"><tr>([\s\S]*?)<\/tr>/);return !!m&&(m[1].match(/<th>/g)||[]).length>6}
 /* 2.82.156 : avant chaque impression : imprimer, envoyer par mail à quelqu’un du bureau, ou réunir plusieurs fiches dans un « dossier » imprimé d’un coup */
 let AMPDF_BAG=[];
+async function amBagPrint(L){const nm='dossier-'+today()+'.pdf';
+  if(!amMobile()){const H=L.map((x,i)=>'<div style="'+(i?'page-break-before:always;break-before:page;':'')+'">'+x.html+'</div>').join('');return amPdf0(H,nm)}
+  /* téléphone : chaque fiche commence sur une nouvelle page */
+  toast('Préparation du dossier…',10000);let pages=[];try{for(const x of L)pages=pages.concat(await amPdfPages(x.html))}catch(e){toast('PDF impossible ici',4000);return}
+  const file=new File([pdfFromJpegs(pages)],nm,{type:'application/pdf'});
+  const r2=await ask({title:'📚 Dossier prêt',text:L.length+' fiches · '+pages.length+' pages. Touche le bouton, puis « Imprimer » (ou Mail, Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});if(r2!=='s')return;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:nm});return}catch(e){if(e&&e.name==='AbortError')return}}
+  const u=URL.createObjectURL(file),el=document.createElement('a');el.href=u;el.download=nm;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000);return}
+
+/* 2.82.180 : écran « Mon dossier d’impression » : voir, retirer, imprimer, vider */
+function amBagOpen(){
+ const L=AMPDF_BAG;
+ openSheet('<div class="sh-h"><b style="font-size:1.15rem">📚 Mon dossier d’impression</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Les fiches mises de côté avec « 📚 Ajouter au dossier ». Tu les imprimes toutes d’un coup, chacune sur sa page. Le dossier est vidé si tu fermes l’appli.</p>'+(L.length?L.map((x,i)=>'<div class="mrow" style="cursor:default"><span><b>'+esc(String(x.name||'Document').replace(/\.pdf$/,''))+'</b></span><button type="button" class="btn dng" data-act="bag-del" data-i="'+i+'" aria-label="Retirer">🗑</button></div>').join('')+'<div style="display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap"><button type="button" class="btn pri grow" data-act="bag-print">🖨 Imprimer le dossier ('+L.length+' fiche'+(L.length>1?'s':'')+')</button><button type="button" class="btn grow" data-act="bag-clear">🗑 Vider</button></div>':'<p class="empty">Le dossier est vide. Ouvre une fiche à imprimer (tâches, Jour J…), touche son bouton Imprimer puis « 📚 Ajouter au dossier ».</p>'),'full')}
 async function amPdf(html,name,poster){
  const a=amc(),n=AMPDF_BAG.length,B=[{label:'🖨 Imprimer / PDF',value:'p',cls:'pri'}];
  if(a&&!demo)B.push({label:'✉️ Envoyer par mail à…',value:'m'});
@@ -13813,22 +13831,16 @@ async function amPdf(html,name,poster){
  if(!r)return;
  if(r==='x'){AMPDF_BAG=[];toast('Dossier vidé',2000);return}
  if(r==='c'){AMPDF_BAG.push({html,name});toast('📚 Ajoutée au dossier ('+AMPDF_BAG.length+'). Ouvre une autre fiche à imprimer, puis « Imprimer le dossier ».',5000);return}
- if(r==='b'){const L=AMPDF_BAG.concat([{html,name}]);AMPDF_BAG=[];const nm='dossier-'+today()+'.pdf';
-  if(!amMobile()){const H=L.map((x,i)=>'<div style="'+(i?'page-break-before:always;break-before:page;':'')+'">'+x.html+'</div>').join('');return amPdf0(H,nm)}
-  /* téléphone : chaque fiche commence sur une nouvelle page */
-  toast('Préparation du dossier…',10000);let pages=[];try{for(const x of L)pages=pages.concat(await amPdfPages(x.html))}catch(e){toast('PDF impossible ici',4000);return}
-  const file=new File([pdfFromJpegs(pages)],nm,{type:'application/pdf'});
-  const r2=await ask({title:'📚 Dossier prêt',text:L.length+' fiches · '+pages.length+' pages. Touche le bouton, puis « Imprimer » (ou Mail, Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});if(r2!=='s')return;
-  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:nm});return}catch(e){if(e&&e.name==='AbortError')return}}
-  const u=URL.createObjectURL(file),el=document.createElement('a');el.href=u;el.download=nm;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000);return}
+ if(r==='b'){const L=AMPDF_BAG.concat([{html,name}]);AMPDF_BAG=[];return amBagPrint(L)}
  if(r==='m')return amPdfMail(html,name,poster);
  return amPdf0(html,name,poster)}
 async function amPdfMail(html,name,poster){
- const P=amList().filter(p=>!p.x&&p.l==='b'&&(/@/.test(p.mp||'')||/@/.test(p.mw||'')));
- if(!P.length){toast('Personne du bureau n’a de mail dans sa fiche',4000);return}
- const id=await ask({title:'✉️ Envoyer à qui ?',btns:P.map(p=>({label:(p.self?'Moi ('+p.n+')':p.n),value:p.id})).concat([{label:'Annuler',value:null}])});if(!id)return;
- const p=P.find(x=>x.id===id),M=[[p.mw,'💼 Mail pro'],[p.mp,'🏠 Mail perso']].filter(x=>/@/.test(x[0]||''));
- let to=M[0][0];if(M.length>1){const c=await ask({title:'Quelle adresse ?',btns:M.map(x=>({label:x[1]+' : '+x[0],value:x[0]})).concat([{label:'Annuler',value:null}])});if(!c)return;to=c}
+ const P=amList().filter(p=>!p.x&&(/@/.test(p.mp||'')||/@/.test(p.mw||''))).sort((x,y)=>(x.l==='b'?0:1)-(y.l==='b'?0:1));
+ const id=await ask({title:'✉️ Envoyer à qui ?',html:P.length?'':'<p class="mut" style="font-size:.86rem">Personne n’a encore de mail dans sa fiche : tape une adresse.</p>',btns:P.map(p=>({label:(p.self?'Moi ('+p.n+')':p.n)+(p.l==='b'?' · bureau':' · aide'),value:p.id})).concat([{label:'✍️ Une autre adresse…',value:'__o'},{label:'Annuler',value:null}])});if(!id)return;
+ let to;
+ if(id==='__o'){const v=await amForm('✉️ Une autre adresse','Tape l’adresse mail de la personne.',[{k:'m',l:'Adresse mail',v:''}],'Valider');if(!v)return;to=String(v.m||'').trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)){toast('Adresse mail invalide',3500);return}}
+ else{const p=P.find(x=>x.id===id),M=[[p.mw,'💼 Mail pro'],[p.mp,'🏠 Mail perso']].filter(x=>/@/.test(x[0]||''));
+  to=M[0][0];if(M.length>1){const c=await ask({title:'Quelle adresse ?',btns:M.map(x=>({label:x[1]+' : '+x[0],value:x[0]})).concat([{label:'Annuler',value:null}])});if(!c)return;to=c}}
  await ficheCopy(to,'📋 Adresse copiée : '+to);
  if(!amMobile()){
   /* ordinateur : le PDF est enregistré, Mail s’ouvre avec l’adresse ; il reste à joindre le fichier enregistré */
@@ -17601,7 +17613,7 @@ function amJjOpen(){
  const grs=[...new Set(amPtGroups(it)[0].map(x=>(x.m.o||{}).gr).filter(Boolean))].sort((p,q)=>amGrRank(p)-amGrRank(q));
  const rgs=amRgCount(it,amPtGroups(it).flat()).map(r=>r.k);const tb=(t,l)=>'<button class="chip'+(JJ.tab===t?' on':'')+'" id="jj-t-'+t+'" data-act="jj-tab" data-v="'+t+'">'+l+' <i>0</i></button>';
  let h='<div class="sh-h"><b style="font-size:1.2rem;font-family:var(--serif);font-style:italic">🎟 '+esc(it.tx)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>';
- h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 '+amWC('p'))+tb('n','👤 '+amWC('np'))+tb('s','✅ Terminés')+'<button class="chip" id="jj-zm" data-act="jj-zoom">'+(S.jjCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button><button class="chip jj-colb" id="jj-cl" data-act="jj-col">'+(S.jjCol!==0?'☰ En liste':'▦ En colonnes')+'</button>'+'<button class="chip" data-act="jj-print" title="Feuille papier de secours (A3 ou A4 paysage)">🖨 Imprimer</button>'+(a.kB?'<button class="chip" data-act="jj-zero" title="Décocher tous les tickets (les paiements restent)">🧹 Remettre à zéro</button>':'')+'</div>';
+ h+='<p id="jj-st" class="jj-st"></p><div class="chips tk-chips jj-tabs">'+tb('a','🎖 '+amWC('p'))+tb('n','👤 '+amWC('np'))+tb('s','✅ Terminés')+'<button class="chip" id="jj-zm" data-act="jj-zoom">'+(S.jjCp?'🔍 Voir en grand':'🔍 Vue d’ensemble')+'</button><button class="chip jj-colb" id="jj-cl" data-act="jj-col">'+(S.jjCol!==0?'☰ En liste':'▦ En colonnes')+'</button>'+'<button class="chip" data-act="jj-print" title="Feuille papier de secours (A3 ou A4 paysage)">🖨 Imprimer</button>'+'<button class="chip" data-act="bag-open">📚 Dossier ('+AMPDF_BAG.length+')</button>'+(a.kB?'<button class="chip" data-act="jj-zero" title="Décocher tous les tickets (les paiements restent)">🧹 Remettre à zéro</button>':'')+'</div>';
  h+='<div class="jj-f"><input class="in" id="jj-q" type="search" placeholder="🔍 Chercher un nom…" value="'+esc(JJ.q)+'" autocomplete="off"><select class="in" id="jj-gr"><option value="">Tous les grades</option>'+grs.map(g=>'<option'+(JJ.gr===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select>'+(rgs.length?'<select class="in" id="jj-rg"><option value="">Tous les régimes</option>'+rgs.map(g=>'<option'+(JJ.rg===g?' selected':'')+'>'+esc(g)+'</option>').join('')+'</select>':'')+'</div>';
  h+='<div id="jj-list" class="jj-l"></div><button class="btn blk" id="jj-all" data-act="jj-all" style="margin-top:.4rem"></button>';
  const r=openSheet(h,'jj'+(S.jjCp?' jjcp':'')+(S.jjCol!==0?' jjcol':''));
@@ -17710,6 +17722,7 @@ function amEeHTML(){
   }
   /* 2.82.155 : visible aussi quand la préparation est organisée en parties, et pour les aides */
   if(ck.length&&!CS)h+='<button class="btn blk" data-act="ck-print" style="margin-top:.6rem">🖨 Imprimer les tâches de chacun (pour la réunion)</button>';
+  if(ck.length)h+='<button class="btn blk" data-act="bag-open" style="margin-top:.4rem">📚 Mon dossier d’impression ('+AMPDF_BAG.length+')</button>';
   const PR=h;h='';
   /* 2.82.154 : sans prestataire, sans frais et sans encaissement, ces deux rubriques sont repliées (une ligne) */
   if(rw){const a0=amc(),hasPv=(it.pv||[]).some(c=>a0.it&&a0.it[c.p]&&!a0.it[c.p].del),T0=amDpTot(it),full=hasPv||(it.dp||[]).length||T0.du||T0.pa,inner=amPvEvHTML(it)+amDpEvHTML(it);
