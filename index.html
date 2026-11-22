@@ -2990,7 +2990,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.163';
+const APP_VERSION='2.82.164';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2998,6 +2998,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.164',d:'22/11/2026',items:['🔗 Pages publiques (inscription, adhésion, contact, menus) : si un groupe utilise son propre serveur, son adresse est ajoutée au lien et la page l’utilise. Avec le serveur habituel, les liens et QR codes restent exactement les mêmes.']},
 {v:'2.82.163',d:'22/11/2026',items:['🔗 Liens des QR codes et des pages publiques (inscription, adhésion, contact, menus) : l’appli trouve toute seule sa propre adresse au lieu de l’avoir écrite en dur. Rien ne change pour toi ; le jour où l’appli est copiée à une autre adresse, ses liens suivront tout seuls.']},
 {v:'2.82.162',d:'20/11/2026',items:['⏰ AgenDam : rappels plus longs pour les événements : 2 jours, 1 semaine, 2 semaines ou 1 mois avant (journée entière : à 9 h ce jour-là). La notification dit « Dans 1 semaine · samedi 12 décembre… ».','🔗 Inscrit dont le nom est mal écrit : « 🔎 C’est quelqu’un de ma liste » (vérification QR) ou Statut « 🔗 C’est quelqu’un de ma liste » (fiche de l’inscrit) : tu choisis sa fiche (les noms qui ressemblent en premier), plus de fiche en double. « Le compter amicaliste » sans fiche à ce nom propose d’abord de chercher.','🎯 Feu vert des versions : comparé à une version de référence pour les réunions (2.82.158 au départ : notifications et notes des réunions), affichée en petit, au lieu de la toute dernière. Tu peux la taper à la main (« ✏️ Changer la référence ») ou passer à la dernière mise à jour d’un bouton (« ⬆️ Passer à la dernière ») ; elle ne change jamais toute seule.','🧪 Mode essai (Groupe › 🧪 Mode essai, bureau et admin) : tu testes en direct sur une copie de tes vraies données. Rien n’est enregistré, rien ne part au serveur ni aux membres, mail/SMS/partage bloqués. « Quitter l’essai » : tout revient comme avant.']},
 {v:'2.82.161',d:'20/11/2026',items:['✋ Réunions : à chaque relance (générale ou pour un créneau), bouton « Choisir les personnes… » : cases à cocher, déjà cochées selon la proposition de l’appli','🧹 Relances : plus de « ? » pour un ancien membre retiré resté dans les invités']},
@@ -14166,8 +14167,10 @@ const amPoSecOf=k=>k==='qr'||k==='qm'?'qr':k==='px'?'px':k==='mn'?'mn':'tx';
 const AM_PO_BLK=[['top','Titre'],['acc','Accroche'],['box','Date et lieu'],['pg','Programme'],['info','Infos'],['qr','QR inscription'],['qm','QR menu'],['px','Tarifs'],['ft','Bas de page'],['ct','Contact']];
 /* 2.82.163 : adresse des pages publiques (inscription, adhésion, contact, menus) trouvée toute seule d'après l'adresse de l'appli : copiée ailleurs, l'appli fabrique ses liens chez elle. Amicale → son dossier ; AgenDam → le dossier « amicale » voisin. */
 function amPub(h){try{const b=h||location.href,u=new URL(/\/amicale(\/|$)/.test(new URL(b).pathname)?'./':'../amicale/',b);if(/^https?:$/.test(u.protocol))return u.href}catch(e){}return 'https://dam-cigogne.github.io/amicale/'}
+/* 2.82.164 : si le groupe a son propre serveur, son adresse part dans les liens publics (?s=) ; serveur habituel : liens inchangés */
+const amSrvQ=()=>{const u=famUrl();return (!u||u===FAM_URL_DEF)?'':'?s='+encodeURIComponent(u)};
 const amPubTxt=()=>amPub().replace(/^https?:\/\//,'').replace(/\/$/,'');
-const amQmUrl=it=>amPub()+'menu.html#'+(it.qm&&it.qm.id||'');
+const amQmUrl=it=>amPub()+'menu.html'+amSrvQ()+'#'+(it.qm&&it.qm.id||'');
 const amPoQm=(it,P,bp,cl)=>(it&&it.qm&&P.qms==='1'&&P.md!=='menu')?amPoQrBox(bp,'qm',cl,amQmUrl(it),P.qmz,P.qmt||'bd',(P.qmx!=null&&P.qmx!==''?P.qmx:'🍽 Le menu'),P.qmts):'';
 const amPoQr=(it,P,bp,cl)=>{const vu=it&&it.kind==='cx'?amCxUrl():it&&it.kind==='aq'?amAqUrl():it&&it.sv==='v'&&it.vp?(it.vp.uc||amVpHref(it.vp.u)):'';return (it&&(it.qr||vu)&&P.qrs!=='0'&&P.md!=='menu')?amPoQrBox(bp,'qr',cl,vu||amQrUrl(it),P.qrz,P.qrt,(P.qrx!=null&&P.qrx!==''?P.qrx:it.kind==='cx'?'📲 Scanne pour nous écrire':it.kind==='aq'?'📲 Scanne pour adhérer':vu?(it.vp.uc?'📲 Scanne pour créer ton compte':'📲 Scanne pour commander'):'📲 Scanne pour t’inscrire'),P.qrts,P.qrf):''};
 /* 2.81.4 : encart des tarifs de l'événement, à placer où on veut sur l'affiche ou le menu */
@@ -14268,7 +14271,7 @@ async function amPoOcr(f){
 }
 /* 2.80.0 : inscription par QR code. Clé publique de l'événement dans le QR ; le formulaire chiffre l'inscription ; seuls ceux qui voient l'événement peuvent la lire. */
 const AMQR={},AMQR_IMG={};
-const amQrBase=()=>amPub()+'inscription.html';
+const amQrBase=()=>amPub()+'inscription.html'+amSrvQ();
 function amQrUrl(it){const a=amc()||{},q=it.qr;if(!q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify(Object.assign({t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),g:String(a.nm||'').slice(0,40)},it.ql?{l:it.ql}:{}))));return amQrBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
 function amQrImg(txt,col){const k=txt+'|'+(col||'');if(AMQR_IMG[k])return AMQR_IMG[k];try{const m=window.qrMatrix(txt,'M'),n=m.length,s=8,q=4,W=(n+2*q)*s,c=document.createElement('canvas');c.width=c.height=W;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,W);g.fillStyle=col||'#111';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(m[y][x])g.fillRect((x+q)*s,(y+q)*s,s,s);return AMQR_IMG[k]=c.toDataURL('image/png')}catch(e){return ''}}
 async function amQrOn(id){
@@ -14343,8 +14346,8 @@ async function amMxEdit(){
  amEeMut(o=>{o.mn={tp,q,s:sg};if(ch)o.pt.forEach(c=>{delete c.mc})});
  toast('✅ Menu enregistré : envoie maintenant les liens',3500);
 }
-function amMxUrl(it,p){const a=amc()||{},m=it.mn;if(!m||!m.q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),i:amMxPid(it,p),n:String(p.n||'').slice(0,40),a:Math.max(1,+p.na||1),e:Math.max(0,+p.ne||0),s:m.s,tp:m.tp})));return amPub()+'menu-choix.html#'+m.q.id+'.'+m.q.x+'.'+m.q.y+'.'+inf}
-function amMxGenUrl(it){const a=amc()||{},m=it.mn;if(!m||!m.q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),gen:1,s:m.s,tp:m.tp})));return amPub()+'menu-choix.html#'+m.q.id+'.'+m.q.x+'.'+m.q.y+'.'+inf}
+function amMxUrl(it,p){const a=amc()||{},m=it.mn;if(!m||!m.q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),i:amMxPid(it,p),n:String(p.n||'').slice(0,40),a:Math.max(1,+p.na||1),e:Math.max(0,+p.ne||0),s:m.s,tp:m.tp})));return amPub()+'menu-choix.html'+amSrvQ()+'#'+m.q.id+'.'+m.q.x+'.'+m.q.y+'.'+inf}
+function amMxGenUrl(it){const a=amc()||{},m=it.mn;if(!m||!m.q)return '';const inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),t:String(it.tx||'').slice(0,60),d:it.d||'',p:String(it.pl||'').slice(0,60),gen:1,s:m.s,tp:m.tp})));return amPub()+'menu-choix.html'+amSrvQ()+'#'+m.q.id+'.'+m.q.x+'.'+m.q.y+'.'+inf}
 async function amMxGen(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!it.mn||!it.mn.q){toast('Active d’abord le QR d’inscription de l’événement',3500);return}
  const u=amMxGenUrl(it),dt=it.d?new Date(it.d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}):'',msg='Pour « '+(it.tx||'')+'»'+(dt?' ('+dt+')':'')+', choisis ton menu en une minute : '+u,im=amQrImg(u);
@@ -14575,7 +14578,7 @@ const AQ_ID='aqadhqr';
 let AQ_MIG=0;function amAqMig(){const a=amc();if(AQ_MIG||!a||!a.it)return;const o=a.it.aqadh;if(o&&!o.del&&o.kind==='aq'&&!a.it[AQ_ID]){AQ_MIG=1;setTimeout(()=>{amItemSave(Object.assign({},o,{id:AQ_ID}));amItemSave(Object.assign({},o,{del:1}))},0)}}
 function amAq(){amAqMig();const a=amc(),it0=a&&a.it&&(a.it[AQ_ID]||a.it.aqadh),it=it0&&!it0.del?it0:(a&&a.it&&a.it[AQ_ID]);if(!it||it.del||it.kind!=='aq')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],w:Array.isArray(o.w)?o.w:[],o}}
 function amAqMut(f){const A=amAq();if(!A)return;const o=Object.assign({},A.o||{},{qr:A.qr,qd:A.qd.slice(),w:A.w.slice()});f(o);o.qd=o.qd.slice(-700);o.w=o.w.filter((x,i,l)=>l.indexOf(x)===i).slice(-300);amItemSave(Object.assign({},A.it,{bd:JSON.stringify(o)}))}
-const amAqBase=()=>amPub()+'adhesion.html';
+const amAqBase=()=>amPub()+'adhesion.html'+amSrvQ();
 function amAqUrl(){const A=amAq(),a=amc()||{};if(!A)return '';const q=A.qr,inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40),sa:String(amSaCur()||'').slice(0,12)})));return amAqBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
 /* 2.82.29 : adhésion en ligne. Le bulletin (règlement, signatures du bureau, tarifs) est publié pour la page d'adhésion :
    la personne le lit, voit ce qu'elle doit payer et signe au doigt sur son téléphone. Adresse publique dérivée du QR (les anciens QR marchent). */
@@ -14612,7 +14615,7 @@ async function amAqFetch(force){
 /* 2.82.48 : 📬 « Contacter l’amicale » : un QR pour tous (idée, question, problème…), messages chiffrés reçus par le bureau, réponse par mail */
 const CX_ID='cxboxqr';
 function amCx(){const a=amc(),it=a&&a.it&&a.it[CX_ID];if(!it||it.del||it.kind!=='cx')return null;let o={};try{o=JSON.parse(it.bd||'{}')}catch(e){}const q=o.qr;if(!q||!/^[0-9a-f]{32}$/.test(q.id||''))return null;return {it,qr:q,qd:Array.isArray(o.qd)?o.qd:[],o}}
-const amCxBase=()=>amPub()+'contact.html';
+const amCxBase=()=>amPub()+'contact.html'+amSrvQ();
 function amCxUrl(){const C=amCx(),a=amc()||{};if(!C)return '';const q=C.qr,inf=b64u(new TextEncoder().encode(JSON.stringify({g:String(a.nm||'').slice(0,40)})));return amCxBase()+'#'+q.id+'.'+q.x+'.'+q.y+'.'+inf}
 /* message tout fait + QR code, modifiable, à envoyer sur WhatsApp (menu de partage : image du QR + texte) */
 async function amCxWa(){
