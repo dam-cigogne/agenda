@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.185';
+const APP_VERSION='2.82.187';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,6 +3003,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
+{v:'2.82.186',d:'22/11/2026',items:['🎛 <b>Import Excel en civil</b> : la colonne portant le nom de ta rubrique (« Civilité »…) est reconnue à l’import, comme « Grade ». Le fichier exporté par l’appli garde « Grade » comme titre pour se réimporter à l’identique.']},
 {v:'2.82.185',d:'22/11/2026',items:['🎛 En civil, « Tarifs par grade » devient « Tarifs par civilité » (ou le nom de ta rubrique), de même dans le filtre du Jour J. Rien ne change pour l’Amicale ESTA.']},
 {v:'2.82.184',d:'22/11/2026',items:['🎛 <b>Grades, civilité et statuts réglables</b> (Réglages › Personnalisation, administrateurs) : association civile sans grades (ou « Monsieur / Madame » à la place), nom de la rubrique, noms des 6 statuts (actif, réserviste, ancien…), pour tout le groupe. Rien ne change pour l’Amicale ESTA tant que rien n’est modifié.']},
 {v:'2.82.183',d:'22/11/2026',items:['🎛 <b>Les mots sont ceux de tout le groupe</b> : quand un administrateur change « amicaliste » dans Réglages › Personnalisation, tous les membres voient le nouveau mot sur leur appareil (et les liens créés ensuite l’affichent sur les pages publiques).']},
@@ -9406,6 +9408,7 @@ async function act(a,el,e){
   case 'am-sos':amSosOpen();break;
   case 'perso-open':amPersoOpen();break;
   case 'perso-save':amPersoSave();break;
+  case 'perso-preset':amPersoPreset(ds_.p);break;
   case 'perso-reset':amPersoReset();break;
   case 'am-sos-send':amSosSend(ds_.k);break;
   case 'am-sos-pp':amSosPeople();break;
@@ -16479,16 +16482,25 @@ function amPersoCard(){
  const F=[['s','Un membre'],['p','Les membres'],['ns','Une personne extérieure'],['np','Les personnes extérieures']];
  return '<div class="card"><h3>✏️ Les mots de l’application</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Pour adapter l’appli à ton groupe (amicale, club, association…). Ces mots valent pour <b>tout le groupe</b> : ils sont envoyés à tous les membres (et aux pages publiques des liens créés ensuite). Seuls les administrateurs peuvent les changer.</p>'+
  F.map(([k,l])=>'<div class="set-row"><span class="lbl">'+l+'</span><b>'+esc(amW(k))+'</b></div>').join('')+
- '<div class="set-row"><span class="lbl">Rubrique</span><b>'+esc(amGW())+(amGrOn()?'':' (masquée)')+'</b></div><div class="set-row"><span class="lbl">Type de groupe</span><b>'+(amGrMil()?'Militaire (grades)':'Civil')+'</b></div>'+
+ '<div class="set-row"><span class="lbl">Modèle</span><b>'+esc(amPersoModel())+'</b></div><div class="set-row"><span class="lbl">Rubrique</span><b>'+esc(amGW())+(amGrOn()?'':' (masquée)')+'</b></div><div class="set-row"><span class="lbl">Type de groupe</span><b>'+(amGrMil()?'Militaire (grades)':'Civil')+'</b></div>'+
  '<button class="btn pri blk" style="margin-top:.6rem" data-act="perso-open">✏️ Changer les mots, grades et statuts</button></div>'+
  '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
+const AM_PRESETS={mil:{s:'',p:'',ns:'',np:'',civ:0,g:'',gl:'',ct:{}},
+ neu:{s:'membre',p:'membres',ns:'extérieur',np:'extérieurs',civ:1,g:'',gl:'',ct:{actif:'Actif',reserv:'Sympathisant',honneur:'Membre d’honneur',bienf:'Bienfaiteur',ancien:'Ancien membre',autre:'Autre'}}};
+function amPersoPreset(k){if(!amPersoOk())return;const P=AM_PRESETS[k];if(!P)return;
+ document.querySelectorAll('[data-voc]').forEach(e=>{e.value=P[e.dataset.voc]!=null?P[e.dataset.voc]:''});
+ document.querySelectorAll('[data-ct]').forEach(e=>{e.value=(P.ct&&P.ct[e.dataset.ct])||''});
+ const cv=document.getElementById('perso-civ');if(cv)cv.checked=!!P.civ;
+ toast((k==='mil'?'Modèle Militaire':'Modèle Neutre')+' mis dans le formulaire : touche « Enregistrer » pour l’appliquer à tout le groupe',4500)}
+function amPersoModel(){const v=amVoc(),def=!Object.keys(v).some(k=>k==='ct'?Object.keys(v.ct||{}).length:v[k]);if(def)return 'Militaire (comme à l’Amicale ESTA)';
+ const n=AM_PRESETS.neu,same=['s','p','ns','np'].every(k=>(v[k]||'')===n[k])&&!!v.civ&&!(v.g||'')&&!(v.gl||'')&&Object.keys(n.ct).every(k=>((v.ct||{})[k]||'')===n.ct[k]);return same?'Neutre':'Personnalisé'}
 function amPersoOpen(){
  if(!amPersoOk())return;
  const F=[['s','Un membre (au singulier)'],['p','Les membres (au pluriel)'],['ns','Une personne extérieure (singulier)'],['np','Les personnes extérieures (pluriel)']];
  const h=t=>'<h4 style="margin:1rem 0 .3rem">'+t+'</h4>',cm=['s','p','ns','np'].some(k=>amW(k)!==AMW_DEF[k]);
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">🎛 Personnaliser</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>'+
  '<p class="mut" style="font-size:.88rem;margin:.2rem 0 .4rem">Ces mots valent pour <b>tout le groupe</b> : ils sont envoyés à tous les membres. Seuls les administrateurs peuvent les changer.</p>'+
- h('✏️ Les mots')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Laisse vide pour garder le mot d’origine. Les textes écrits avant le changement (anciennes notes) ne sont pas modifiés.</p>'+
+ h('🧭 Modèle de départ')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Touche un modèle pour remplir le formulaire, puis change ce que tu veux et « Enregistrer ». Rien n’est appliqué avant.</p><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button type="button" class="btn" data-act="perso-preset" data-p="mil">🎖 Militaire</button><button type="button" class="btn" data-act="perso-preset" data-p="neu">🤝 Neutre</button></div>'+h('✏️ Les mots')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Laisse vide pour garder le mot d’origine. Les textes écrits avant le changement (anciennes notes) ne sont pas modifiés.</p>'+
  F.map(([k,l])=>'<label class="lbl" style="display:block;margin-top:.4rem">'+l+'</label><input class="in" data-voc="'+k+'" style="width:100%" placeholder="'+esc(AMW_DEF[k])+'" value="'+esc(amW(k)===AMW_DEF[k]?'':amW(k))+'">').join('')+
  h('🎖 Grades ou civilité')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Une association civile n’a pas besoin de grades : coche « civil », puis écris ce que tu veux proposer à la place (par exemple « Monsieur, Madame »), ou laisse vide pour ne rien afficher.</p>'+
  '<label style="display:flex;align-items:center;gap:.5rem;margin:.3rem 0"><input type="checkbox" id="perso-civ"'+(amVoc().civ?' checked':'')+'> <b>Association civile (pas de grades)</b></label>'+
@@ -17058,7 +17070,7 @@ function amAmRowsAdd(rows,fn_){if(amBlocked()){amBlockToast();return}const FN=fn
  const a=amc();if(!a||!a.kB)return;
  rows=(rows||[]).map(r=>(r||[]).map(x=>String(x==null?'':x).replace(/\s+/g,' ').trim())).filter(r=>r.some(Boolean));
  const amRe=(()=>{const w=norm(amW('s')).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();return (amW('s')===AMW_DEF.s||!w)?/amical|adherent oui|membre oui/:new RegExp('amical|adherent oui|membre oui|'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))})();
- const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:amRe,pre:/^(prenom|prenoms|first name)$/,gr:/^grade( fr)?$/,ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye|montant cotisation|cotisation montant|montant de la cotisation)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^(date|dates|date (de )?paiement|date d inscription|date inscription|inscrit le|paye le|payee le)$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/(^|\s)(telephone|tel|portable|mobile|gsm)(\s|$)/};
+ const key={nom:/^(nom|noms|name|nom prenom|nom et prenom|adherent)$/,am:amRe,pre:/^(prenom|prenoms|first name)$/,gr:(()=>{const g=norm(amGW()).replace(/[^a-z0-9 ]/g,'').trim();return (!g||g==='grade')?/^grade( fr)?$/:new RegExp('^(grade( fr)?|'+g+')$')})(),ct:/^(categorie|type|statut)$/,ad:/^(adhesion|date d adhesion|date adhesion)$/,cf:/^(cotisation|cotisation payee|payee|paye)$/,pm:/^(paiement|mode de paiement|moyen de paiement|moyen paiement)$/,pa:/^(prix|prix paye|montant|montant paye|montant cotisation|cotisation montant|montant de la cotisation)$/,pc:/^patch/,rg:/^(regime|regime particulier|allergie|allergies)$/,nt:/^(notes|note|remarques|commentaire)$/,bg:/^(n ?badge|no badge|numero de badge|num badge|badge)$/,pd:/^(date|dates|date (de )?paiement|date d inscription|date inscription|inscrit le|paye le|payee le)$/,pb:/^(encaisse par|payee par|paye par|recu par)$/,k8:/^coffret/,sv:/^service$/,ml:/^(mail|e mail|email|courriel)$/,tl:/(^|\s)(telephone|tel|portable|mobile|gsm)(\s|$)/};
  const hN=r=>(r||[]).map(x=>norm(x).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim());{const j=rows.slice(0,6).findIndex(r=>hN(r).some(h=>key.nom.test(h)));if(j>0)rows=rows.slice(j)}
  const rows0h=(rows[0]||[]).slice(),H=hN(rows[0]),col={};
  H.forEach((h,i)=>{for(const k in key)if(col[k]==null&&key[k].test(h))col[k]=i});
