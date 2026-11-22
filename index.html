@@ -2990,7 +2990,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.169';
+const APP_VERSION='2.82.170';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2998,6 +2998,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.170',d:'22/11/2026',items:['🔤 Vocabulaire réglable (suite) : exports Excel (liste, suivi d’un événement, inscriptions QR, cadeaux, liste complétée), badges, tableau des prix de l’affiche et historique passent par le réglage de mots. Les fichiers restent identiques.']},
 {v:'2.82.169',d:'22/11/2026',items:['🔤 Vocabulaire réglable (suite) : adhésions (carte, demandes reçues, paiements), relances, messages reçus et choix des personnes passent par le réglage de mots. Rien ne change à l’écran.']},
 {v:'2.82.168',d:'22/11/2026',items:['↩️ Pages d’inscription, d’adhésion, de contact et de menu ouvertes depuis l’appli installée sur iPhone (bouton « Voir » / « Tester ») : un bouton « ← Retour à l’appli » en haut, pour ne plus rester coincé. Invisible pour les gens qui ouvrent le lien normalement.']},
 {v:'2.82.167',d:'22/11/2026',items:['🔤 Vocabulaire réglable (suite) : inscriptions des événements (vérification QR, fiche d’un inscrit, ajout, message aux non-amicalistes) passent par le réglage de mots. Rien ne change à l’écran.']},
@@ -13651,7 +13652,7 @@ function amDiff(kind,pv,it){
  else{if(S(pv.d)!==S(it.d))L.push('Date : '+(S(pv.d)||'—')+' → '+(S(it.d)||'—'));if(S(pv.pl)!==S(it.pl))L.push('Lieu modifié');if(S(pv.w)!==S(it.w))L.push('Responsable : '+(S(pv.w)||'—')+' → '+(S(it.w)||'—'));if(S(pv.qt)!==S(it.qt))L.push('Quantité : '+(S(pv.qt)||'—')+' → '+(S(it.qt)||'—'));if(S(pv.bd)!==S(it.bd))L.push('Texte modifié')}
  return L.slice(0,6).join(' ; ')+(L.length>6?' ; +'+(L.length-6)+' autres':'');
 }
-function amDiff0(it){const o=it.o||{};if(it.kind==='am')return 'ajouté'+(o.gr?' ; Grade : '+o.gr:'')+(o.cf==='1'?' ; cotisation payée':'')+(o.st==='n'?' ; non-amicaliste':'');if(it.kind==='ee')return 'créé'+(it.d?' (le '+it.d+')':'');return 'ajouté'}
+function amDiff0(it){const o=it.o||{};if(it.kind==='am')return 'ajouté'+(o.gr?' ; Grade : '+o.gr:'')+(o.cf==='1'?' ; cotisation payée':'')+(o.st==='n'?' ; '+amW('ns'):'');if(it.kind==='ee')return 'créé'+(it.d?' (le '+it.d+')':'');return 'ajouté'}
 function amHs(pv,it,ac,cg,bulk){const a=amc(),now=Date.now(),me=String((a&&a.me&&a.me.n)||'').slice(0,30);let L=((pv&&pv.hs)||it.hs||[]).slice(0,6);const e={t:now,by:me,ac:ac||'m',cg:String(cg||'').slice(0,220)},f=L[0];
  if(f&&!bulk&&f.by===me&&f.ac===e.ac&&e.ac==='m'&&now-f.t<180000){const ps=[];e.cg.split(' ; ').concat(String(f.cg||'').split(' ; ')).forEach(x=>{if(x&&!ps.includes(x))ps.push(x)});e.cg=ps.slice(0,6).join(' ; ').slice(0,240);L=L.slice(1)}
  it.cg=e.cg;it.hs=[e].concat(L).slice(0,6)}
@@ -14190,7 +14191,7 @@ function amPxRows(it){const pr=amPrClean(it&&it.pr),p=[];if(pr){if(pr.f.a||pr.f.
 function amPoPx(it,P,bp){
  if((P.md==='menu'?P.pxsm:P.pxs)!=='1')return '';const R=amPxRows(it),e=n=>n?amEur(n):'—';
  const col=P.pxc||'#ffffff',bg=P.pxb||'d',f=P.pxf||'cl',bd=P.pxr||'n',z=Math.max(50,Math.min(300,+P.pxz||100))/100;
- const hc=R.some(x=>x[3]!=null),he=R.some(x=>x[4]!=null),body=R.length?'<table><tr><th></th><th>Amicaliste</th>'+(hc?'<th>Accomp.</th>':'')+'<th>Non-amic.</th>'+(he?'<th>Enfant</th>':'')+'</tr>'+R.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+e(x[1])+'</td>'+(hc?'<td>'+(x[3]!=null?(x[3]?e(x[3]):'Gratuit'):'')+'</td>':'')+'<td>'+e(x[2])+'</td>'+(he?'<td>'+(x[4]!=null?(x[4]?e(x[4]):'Gratuit'):'')+'</td>':'')+'</tr>').join('')+'</table>':'<div style="font-size:.85em;opacity:.9;margin-top:.2em">Amicaliste … € · Non-amicaliste … €<br><small>(mets les prix dans la fiche de l’événement)</small></div>';
+ const hc=R.some(x=>x[3]!=null),he=R.some(x=>x[4]!=null),body=R.length?'<table><tr><th></th><th>'+amWC('s')+'</th>'+(hc?'<th>Accomp.</th>':'')+'<th>'+(amW('ns')===AMW_DEF.ns?'Non-amic.':amWC('ns'))+'</th>'+(he?'<th>Enfant</th>':'')+'</tr>'+R.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+e(x[1])+'</td>'+(hc?'<td>'+(x[3]!=null?(x[3]?e(x[3]):'Gratuit'):'')+'</td>':'')+'<td>'+e(x[2])+'</td>'+(he?'<td>'+(x[4]!=null?(x[4]?e(x[4]):'Gratuit'):'')+'</td>':'')+'</tr>').join('')+'</table>':'<div style="font-size:.85em;opacity:.9;margin-top:.2em">'+amWC('s')+' … € · '+amWC('ns')+' … €<br><small>(mets les prix dans la fiche de l’événement)</small></div>';
  return '<div '+bp('px','pst-px pxb-'+bg+' pxf-'+f+' pxr-'+bd,'--pxc:'+col+';font-size:'+Math.round(24*z)+'px')+'><div class="px-t">'+esc((P.pxt!=null&&P.pxt!==''?P.pxt:'💶 Tarifs'))+'</div>'+body+'</div>';
 }
 function amPoQrBox(bp,key,cl,url,zz,tt,tx0,tsz,qf){const z=Math.max(20,Math.min(170,+zz||100))/100,t=tt||'bd',tx=String(tx0||'').trim(),tk=Math.max(20,Math.min(200,+tsz||100))/100,zf=Math.max(.35,Math.min(1.4,z));
@@ -14532,7 +14533,7 @@ async function amQrHist(id){
  const sel=Object.keys(AMQR_CK).filter(k=>AMQR_CK[k]&&/^h\d+$/.test(k)).map(k=>+k.slice(1));
  if(b==='rc'){if(!sel.length){toast('Coche d’abord une ou plusieurs lignes',3000);return amQrHist(id)}amEeMut(o=>{o.qd=(o.qd||[]).filter(n=>!sel.includes(n))});toast('↩️ '+sel.length+' remise'+(sel.length>1?'s':'')+' à valider',3000);return}
  if(b==='del'){if(!sel.length){toast('Coche d’abord les lignes d’essai à effacer',3000);return amQrHist(id)}const ok2=await ask({title:'Effacer '+sel.length+' inscription'+(sel.length>1?'s':'')+' ?',text:'Elles disparaissent de l’historique et de la liste « à valider » (pour les essais). Les inscrits déjà ajoutés ne sont pas touchés : retire-les dans la liste si besoin.',btns:[{label:'🗑 Effacer',value:1,cls:'dng'},{label:'Annuler',value:null}]});if(!ok2)return;amEeMut(o=>{o.qh=[...new Set((o.qh||[]).concat(sel))].slice(-800);o.qd=[...new Set((o.qd||[]).concat(sel))].slice(-800)});toast('🗑 Effacé'+(sel.length>1?'es':'e'),2500);return}
- if(b==='x')await amExport('Inscriptions QR · '+it.tx,[['Nom','Prénom','Adultes','Enfants','Téléphone','Mail','Amicaliste','Régime','Message','Reçue le','État']].concat(rows.map(y=>[String(y.v.nm||'').toUpperCase(),y.v.pr||'',+y.v.na||0,+y.v.ne||0,y.v.tl||'',y.v.ml||'',y.v.am==='o'?'oui':y.v.am==='n'?'non':'?',y.v.rg||'',y.v.mo||'',new Date(y.x.at).toLocaleString('fr-FR'),y.s.replace(/^\S+\s/,'')])),'inscriptions-qr-'+amSlug(it.tx).slice(0,24));
+ if(b==='x')await amExport('Inscriptions QR · '+it.tx,[['Nom','Prénom','Adultes','Enfants','Téléphone','Mail',amWC('s'),'Régime','Message','Reçue le','État']].concat(rows.map(y=>[String(y.v.nm||'').toUpperCase(),y.v.pr||'',+y.v.na||0,+y.v.ne||0,y.v.tl||'',y.v.ml||'',y.v.am==='o'?'oui':y.v.am==='n'?'non':'?',y.v.rg||'',y.v.mo||'',new Date(y.x.at).toLocaleString('fr-FR'),y.s.replace(/^\S+\s/,'')])),'inscriptions-qr-'+amSlug(it.tx).slice(0,24));
  else if(b==='r'){const back=rows.filter(y=>y.s[0]==='✕').map(y=>y.x.n);amEeMut(o=>{o.qd=(o.qd||[]).filter(n=>!back.includes(n))});toast('↩️ '+back.length+' inscription'+(back.length>1?'s':'')+' remise'+(back.length>1?'s':'')+' à valider',3000)}
 }
 async function amQrAcceptChk(id,ns){
@@ -16479,7 +16480,7 @@ async function amCdMember(mid){
  const r=await ask({title:'🎁 Cadeaux · '+m.tx,html:L.length?'<div>'+L.map(c=>'<p style="margin:.3rem 0">'+(c.x?'✅':'⏳')+' <b>'+esc(c.tx)+'</b>'+(c.d?' · '+esc(amFr(c.d)):'')+'<br><small class="mut">'+(c.x?'donné par '+esc(c.pl||c.by||'')+(c.qt?' le '+esc(amFr(c.qt)):''):'à donner')+(c.bd?' · '+esc(c.bd):'')+'</small></p>').join('')+'</div>':'<p class="mut">Aucun cadeau pour l’instant.</p>',btns:[{label:'＋ Nouveau cadeau pour '+m.tx,value:'n',cls:'pri'},{label:'Voir tous les cadeaux (Administratif)',value:'all'},{label:'Fermer',value:null}]});
  if(r==='n')amCdEdit(null,mid);else if(r==='all'){AMC_TAB='ad';AMC_EE='';go('amicale')}
 }
-function amCdExport(){const L=amCdAll();amExport('Cadeaux de l’amicale',[['Événement / cadeau','Amicaliste','Date','Remis','Remis par','Remis le','Détail']].concat(L.map(c=>[c.tx,amCdWho(c),amFr(c.d),c.x?'Oui':'Non',c.pl||'',amFr(c.qt),c.bd||''])),'cadeaux-'+today())}
+function amCdExport(){const L=amCdAll();amExport('Cadeaux de l’amicale',[['Événement / cadeau',amWC('s'),'Date','Remis','Remis par','Remis le','Détail']].concat(L.map(c=>[c.tx,amCdWho(c),amFr(c.d),c.x?'Oui':'Non',c.pl||'',amFr(c.qt),c.bd||''])),'cadeaux-'+today())}
 /* ---------- 📝 Comptes rendus d'AG : même principe que le bulletin, prérempli d'une année sur l'autre ---------- */
 const AG_IN='L’assemblée générale de l’association, présidée par {pres}, s’est déroulée le {date} en présence de :';
 const amAgGet=it=>{try{const o=JSON.parse(it&&it.bd||'{}');return o&&typeof o==='object'?o:{}}catch(e){return {}}};
@@ -16918,12 +16919,12 @@ async function amBadges(src,evId){
  if(src==='e'){const it=a.it[evId]||a.it[AMC_EE];if(!it)return;const T=amTy(it).filter(t=>t.k==='tr'||/repas|menu/i.test(t.l||'')),pt=(it.pt||[]).filter(p=>!T.length||T.some(t=>amQ(p,t.k)>0));
   L=pt.map(p=>{const m=amPtMember(p);return{n:p.n,m,q:T.reduce((s,t)=>s+amQ(p,t.k),0)}});ttl=it.tx}
  else{if(!src){const ev=amItems('ee').filter(e=>(e.pt||[]).length).sort((p,q)=>(q.d||'')<(p.d||'')?-1:1).slice(0,6);
-   const r=await ask({title:'🪪 Numéros de badge',text:'Pour qui ?',btns:[{label:'Tous les amicalistes',value:'all',cls:'pri'},{label:'Cotisation payée',value:'paid'}].concat(ev.map(e=>({label:'Inscrits : '+e.tx,value:'e:'+e.id})),[{label:'Annuler',value:null}])});
+   const r=await ask({title:'🪪 Numéros de badge',text:'Pour qui ?',btns:[{label:'Tous les '+amW('p'),value:'all',cls:'pri'},{label:'Cotisation payée',value:'paid'}].concat(ev.map(e=>({label:'Inscrits : '+e.tx,value:'e:'+e.id})),[{label:'Annuler',value:null}])});
    if(!r)return;if(r.startsWith('e:'))return amBadges('e',r.slice(2));src=r}
   amRows0();const M=src==='s'?amItems('am').filter(m=>AM_SEL&&AM_SEL.has(m.id)):src==='f'?amItems('am').filter(m=>AM_VIS.includes(m.id)):src==='paid'?amAms().filter(m=>(m.o||{}).cf==='1'):amAms();
-  L=amAmSorted(M).map(m=>({n:m.tx,m,q:1}));ttl=src==='s'?'sélection':src==='f'?'liste filtrée':src==='paid'?'cotisation payée':'tous les amicalistes'}
+  L=amAmSorted(M).map(m=>({n:m.tx,m,q:1}));ttl=src==='s'?'sélection':src==='f'?'liste filtrée':src==='paid'?'cotisation payée':'tous les '+amW('p')}
  const ok=L.filter(x=>x.m&&(x.m.o||{}).bg),miss=L.filter(x=>!(x.m&&(x.m.o||{}).bg)),txt=ok.map(x=>x.m.o.bg).join('\n');
- const tab='<div class="bg-tab"><table><tr><th>Nom</th><th>Prénom</th><th>Grade</th><th>N° badge</th></tr>'+L.map(x=>{const ps=amNomSplit(x.n),o=(x.m&&x.m.o)||{};return '<tr'+(o.bg?'':' class="bg-no"')+'><td>'+esc(ps[1])+'</td><td>'+esc(ps[0])+'</td><td>'+esc(o.gr||'')+'</td><td><b>'+esc(o.bg||(x.m?'—':'pas amicaliste'))+'</b></td></tr>'}).join('')+'</table></div>';
+ const tab='<div class="bg-tab"><table><tr><th>Nom</th><th>Prénom</th><th>Grade</th><th>N° badge</th></tr>'+L.map(x=>{const ps=amNomSplit(x.n),o=(x.m&&x.m.o)||{};return '<tr'+(o.bg?'':' class="bg-no"')+'><td>'+esc(ps[1])+'</td><td>'+esc(ps[0])+'</td><td>'+esc(o.gr||'')+'</td><td><b>'+esc(o.bg||(x.m?'—':'pas '+amW('s')))+'</b></td></tr>'}).join('')+'</table></div>';
  const r=await ask({title:'🪪 Badges · '+ttl,html:'<p style="margin:.2rem 0 .4rem"><b>'+ok.length+'</b> numéro'+(ok.length>1?'s':'')+(src==='e'?' (inscrits avec repas)':'')+'.</p>'+tab+'<textarea class="in" rows="3" readonly style="width:100%;font-family:monospace;margin-top:.4rem">'+esc(txt)+'</textarea>'+(miss.length?'<p class="mut" style="font-size:.84rem;margin:.4rem 0">⚠️ Sans numéro de badge ('+miss.length+') : '+esc(miss.slice(0,12).map(x=>x.n).join(', '))+(miss.length>12?'…':'')+'</p>':''),btns:[{label:'📋 Copier les numéros',value:'c',cls:'pri'},{label:'📊 Excel (nom, prénom, grade, badge)',value:'x'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'Fermer',value:null}]});
  if(r==='c'){try{await navigator.clipboard.writeText(txt);toast('Numéros copiés : colle-les dans ta demande',3500)}catch(e){toast('Copie impossible : sélectionne le texte',3500)}}
  else if(r==='p'){const fr2=L.map(x=>{const ps=amNomSplit(x.n),o=(x.m&&x.m.o)||{};return '<tr><td>'+esc(ps[1])+'</td><td>'+esc(ps[0])+'</td><td>'+esc(o.gr||'')+'</td><td><b>'+esc(o.bg||'')+'</b></td></tr>'}).join('');amPdf(amDocFrame('Numéros de badge – '+ttl,ok.length+' numéros'+(miss.length?' · '+miss.length+' sans badge':''),'<table class="amp-t amp-g"><tr><th>Nom</th><th>Prénom</th><th>Grade</th><th>N° badge</th></tr>'+fr2+'</table>'),'badges-'+amSlug(ttl)+'.pdf')}
@@ -16942,10 +16943,10 @@ async function amFillList(evId){
  const hasH=cn>=0;if(!hasH)cn=0;const body=hasH?rows.slice(1):rows,AM=amItems('am'),byK={};AM.forEach(m=>{byK[amNk(m.tx)]=m});
  const find=nm=>{const k=amNk(nm);if(byK[k])return byK[k];const w=k.split(' ');return AM.find(m=>{const mk=amNk(m.tx).split(' ');return w.length>=2&&w.every(x=>mk.includes(x))})||null};
  const fr=d=>d?new Date(d+'T12:00').toLocaleDateString('fr-FR'):'';let nOk=0,nNo=0,nKn=0;
- const out=[(hasH?rows[0]:['Nom']).concat(['Grade','N° badge','Amicaliste','Cotisation payée','Payée le','Régime particulier','Service','Catégorie'])].concat(body.map(x=>{const nm=((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim();if(!nm)return x;const m=find(nm),o=(m&&m.o)||{};if(m&&amIsAm(m))nOk++;else if(m)nKn++;else nNo++;
+ const out=[(hasH?rows[0]:['Nom']).concat(['Grade','N° badge',amWC('s'),'Cotisation payée','Payée le','Régime particulier','Service','Catégorie'])].concat(body.map(x=>{const nm=((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim();if(!nm)return x;const m=find(nm),o=(m&&m.o)||{};if(m&&amIsAm(m))nOk++;else if(m)nKn++;else nNo++;
   return x.concat(Array(Math.max(0,(rows[0]||[]).length-x.length)).fill('')).concat(m?[o.gr||'',o.bg||'',amIsAm(m)?'Oui':'Non (connu)',amIsAm(m)&&o.cf==='1'?'Oui':'Non',fr(o.pd),o.rg||'',o.sv||'',(AM_CT.find(c=>c[0]===o.ct)||[])[1]||'']:['','','Non','','','','',''])}));
  const ev=evId&&a.it[evId];
- const r2=await ask({title:'📋 Liste complétée',html:'<p style="margin:.2rem 0 .4rem">✅ <b>'+nOk+'</b> amicaliste'+(nOk>1?'s':'')+(nKn?' · 👤 <b>'+nKn+'</b> non-amicaliste'+(nKn>1?'s':'')+' connu'+(nKn>1?'s':'')+' (infos reprises)':'')+' · ❓ <b>'+nNo+'</b> pas trouvé'+(nNo>1?'s':'')+' (pas amicaliste, ou nom écrit autrement).</p>',btns:[{label:'📊 Télécharger l’Excel complété',value:'x',cls:'pri'}].concat(ev?[{label:'➕ Ajouter ces personnes aux inscrits de « '+ev.tx+' »',value:'e'}]:[],[{label:'Fermer',value:null}])});
+ const r2=await ask({title:'📋 Liste complétée',html:'<p style="margin:.2rem 0 .4rem">✅ <b>'+nOk+'</b> '+(nOk>1?amW('p'):amW('s'))+(nKn?' · 👤 <b>'+nKn+'</b> '+(nKn>1?amW('np'):amW('ns'))+' connu'+(nKn>1?'s':'')+' (infos reprises)':'')+' · ❓ <b>'+nNo+'</b> pas trouvé'+(nNo>1?'s':'')+' (pas '+amW('s')+', ou nom écrit autrement).</p>',btns:[{label:'📊 Télécharger l’Excel complété',value:'x',cls:'pri'}].concat(ev?[{label:'➕ Ajouter ces personnes aux inscrits de « '+ev.tx+' »',value:'e'}]:[],[{label:'Fermer',value:null}])});
  if(r2==='x')amExport('Liste complétée',out,'liste-completee-'+today());
  else if(r2==='e'){const names=body.map(x=>((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim()).filter(Boolean);amPtAddNames(names)}
 }
@@ -17013,7 +17014,7 @@ function amAmExport(sub){
  const L=amAmSorted(sub||amItems('am'));if(!L.length){toast('Liste vide');return}
  const fr=d=>d?new Date(d+'T12:00').toLocaleDateString('fr-FR'):'';
  const rows=[['Grade','Nom','Prénom','Amicaliste','N° badge','Catégorie','Cotisation payée','Moyen de paiement','Prix payé','Date paiement','Encaissé par','Coffret 8 ans','Patch reçu','Service','Régime particulier','Mail','Téléphone','Adhésion','Notes']].concat(L.map(m=>{const o=m.o||{},ps=amNomSplit(m.tx);return [o.gr||'',ps[1],ps[0],o.st?'':'Oui',o.bg||'',(AM_CT.find(x=>x[0]===o.ct)||[])[1]||'',o.cf==='1'?'Oui':'Non',amPmLb(o.pm),o.pa||'',fr(o.pd),o.pb||'',o.k8==='1'?'Oui':'',o.pc==='1'?'OK':'',o.sv||'',o.rg||'',o.ml||'',o.tl||'',m.d||'',m.bd||'']}));
- amExport('Amicalistes'+(sub?' (sélection : '+L.length+')':''),rows,'amicalistes-'+today());
+ amExport(amWC('p')+(sub?' (sélection : '+L.length+')':''),rows,amW('p').replace(/\s+/g,'-')+'-'+today());
 }
 /* ---- suivi d'un événement : inscrits, présence, tickets, paiement ---- */
 /* 2.82.55 : « néant », « aime tout », « rien »… = pas de régime particulier */
@@ -17425,9 +17426,9 @@ function amPtExport(sel){
  let [A,N]=amPtGroups(it);if(sel){A=A.filter(x=>sel.has(x.i));N=N.filter(x=>sel.has(x.i))}
  const _u=0,TY=amTy(it),PY=!!(it.pr&&it.pr.on),line=(st,x)=>{const p=x.p,o=(x.m&&x.m.o)||{},s=amPtSt(it,x);return [st,p.n,o.gr||'',o.bg||'',p.p?'Oui':'Non'].concat(TY.map(t=>amQ(p,t.k)),[amDoneJ(it,p,TY)?'Oui':'Non'],PY?[s.d,s.r,s.k==='no'?'Pas payé':s.k==='part'?'Reste à payer':s.k==='free'?'Gratuit':'Payé']:[],[p.pa||'',amPmLb(p.pm),p.eb||'',amRgOf(x)])};
  const rows=[[it.tx+' · '+it.d],['Statut','Nom','Grade','N° badge','Présent'].concat(TY.map(t=>'Tickets '+String(t.l).toLowerCase()),['Servi'],PY?['À payer','Reste','Paiement']:[],['Montant payé','Payé par','Encaissé par','Régime particulier'])];
- A.concat(N).forEach(x=>rows.push(line(A.includes(x)?'Amicaliste':'Non-amicaliste',x)));
+ A.concat(N).forEach(x=>rows.push(line(A.includes(x)?amWC('s'):amWC('ns'),x)));
  const T=g=>amPtTot(g.map(x=>x.p));rows.push([]);
- [['Amicalistes',A],['Non-amicalistes',N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>g.reduce((n,x)=>n+amQ(x.p,y.k),0)),[g.filter(x=>amDoneJ(it,x.p,TY)).length,t.pa,'','']))});
+ [[amWC('p'),A],[amWC('np'),N]].forEach(([l,g])=>{const t=T(g);rows.push(['Total '+l,t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>g.reduce((n,x)=>n+amQ(x.p,y.k),0)),[g.filter(x=>amDoneJ(it,x.p,TY)).length,t.pa,'','']))});
  const PP=A.concat(N).map(x=>x.p),t=amPtTot(PP);rows.push(['TOTAL',t.n+' inscrits','','',t.p+' présents'].concat(TY.map(y=>PP.reduce((n,p)=>n+amQ(p,y.k),0)),[PP.filter(p=>amDoneJ(it,p,TY)).length,t.pa,'CB '+t.cb+' / esp. '+t.esp+' / chq '+t.chq+' / vir. '+t.vir,'']));
  const rgc=amRgCount(it,A.concat(N));if(rgc.length){rows.push([]);rows.push(['Régimes particuliers','Personnes','Repas']);rgc.forEach(r=>rows.push([r.k,r.pers,r.n]))}
  amExport('Suivi : '+it.tx+(sel?' (sélection : '+A.concat(N).length+')':''),rows,'suivi-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,24));
