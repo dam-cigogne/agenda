@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.181';
+const APP_VERSION='2.82.182';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,6 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.182',d:'22/11/2026',items:['🎛 <b>Personnalisation réservée aux administrateurs</b> (l’onglet n’apparaît pas pour les autres). <b>Les pages publiques suivent tes mots</b> : si tu changes « amicaliste » dans Réglages › Personnalisation, les pages d’inscription, d’adhésion et de menu qui s’ouvrent par QR ou lien affichent ton mot (« Es-tu adhérent ? »…). Rien ne change tant que tu gardes les mots d’origine.']},
 {v:'2.82.181',d:'22/11/2026',items:['🎛 <b>Personnalisation</b> : nouvel onglet dans Réglages (après Groupe) pour voir et changer les mots de l’application (amicaliste, non-amicaliste…) et ce qui sera bientôt réglable. Les mots d’origine de l’Amicale ESTA restent par défaut.']},
 {v:'2.82.180',d:'22/11/2026',items:['📚 <b>Mon dossier d’impression</b> : nouvel écran (bouton dans la préparation d’un événement et dans le Jour J) pour voir les fiches mises de côté, en retirer, les imprimer toutes d’un coup ou vider le dossier.','✉️ <b>Envoyer un PDF par mail</b> : on peut maintenant choisir n’importe quel membre qui a un mail dans sa fiche (bureau et aides), ou taper une autre adresse.']},
 {v:'2.82.179',d:'22/11/2026',items:['🖨 Jour J : le fichier de la feuille de secours s’appelle maintenant « jour-j-soiree-noel.pdf » (accents retirés, extension .pdf) : plus facile à reconnaître dans le mail ou Fichiers, et l’iPhone sait que c’est un PDF.']},
@@ -14230,7 +14231,7 @@ const AM_PO_BLK=[['top','Titre'],['acc','Accroche'],['box','Date et lieu'],['pg'
 /* 2.82.163 : adresse des pages publiques (inscription, adhésion, contact, menus) trouvée toute seule d'après l'adresse de l'appli : copiée ailleurs, l'appli fabrique ses liens chez elle. Amicale → son dossier ; AgenDam → le dossier « amicale » voisin. */
 function amPub(h){try{const b=h||location.href,u=new URL(/\/amicale(\/|$)/.test(new URL(b).pathname)?'./':'../amicale/',b);if(/^https?:$/.test(u.protocol))return u.href}catch(e){}return 'https://dam-cigogne.github.io/amicale/'}
 /* 2.82.164 : si le groupe a son propre serveur, son adresse part dans les liens publics (?s=) ; serveur habituel : liens inchangés */
-const amSrvQ=()=>{const u=famUrl();return (!u||u===FAM_URL_DEF)?'':'?s='+encodeURIComponent(u)};
+const amSrvQ=()=>{const u=famUrl(),q=[];if(u&&u!==FAM_URL_DEF)q.push('s='+encodeURIComponent(u));const v={};['s','ns'].forEach(k=>{if(amW(k)!==AMW_DEF[k])v[k]=amW(k)});if(Object.keys(v).length)q.push('w='+encodeURIComponent(JSON.stringify(v)));return q.length?'?'+q.join('&'):''};
 const amPubTxt=()=>amPub().replace(/^https?:\/\//,'').replace(/\/$/,'');
 const amQmUrl=it=>amPub()+'menu.html'+amSrvQ()+'#'+(it.qm&&it.qm.id||'');
 const amPoQm=(it,P,bp,cl)=>(it&&it.qm&&P.qms==='1'&&P.md!=='menu')?amPoQrBox(bp,'qm',cl,amQmUrl(it),P.qmz,P.qmt||'bd',(P.qmx!=null&&P.qmx!==''?P.qmx:'🍽 Le menu'),P.qmts):'';
@@ -16460,13 +16461,16 @@ function amSosWa(id){
 async function amSosSend(k){const t=amSosText(k);
  if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
  window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')}
+const amPersoOk=()=>{const a=amc();return !!(a&&a.apriv)};
 function amPersoCard(){
+ if(!amPersoOk())return '';
  const F=[['s','Un membre'],['p','Les membres'],['ns','Une personne extérieure'],['np','Les personnes extérieures']];
  return '<div class="card"><h3>✏️ Les mots de l’application</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Pour adapter l’appli à ton groupe (amicale, club, association…). Pour le moment, ces réglages sont gardés <b>sur cet appareil seulement</b>.</p>'+
  F.map(([k,l])=>'<div class="set-row"><span class="lbl">'+l+'</span><b>'+esc(amW(k))+'</b></div>').join('')+
  '<button class="btn pri blk" style="margin-top:.6rem" data-act="perso-open">✏️ Changer les mots</button></div>'+
  '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Partager les mots avec tout le groupe</li><li style="margin:.25rem 0">Les <b>grades</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
 function amPersoOpen(){
+ if(!amPersoOk())return;
  const F=[['s','Un membre (au singulier)'],['p','Les membres (au pluriel)'],['ns','Une personne extérieure (singulier)'],['np','Les personnes extérieures (pluriel)']];
  const h=t=>'<h4 style="margin:1rem 0 .3rem">'+t+'</h4>',cm=(S&&S.amVoc&&Object.keys(S.amVoc).some(k=>S.amVoc[k]));
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">🎛 Personnaliser</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>'+
@@ -16476,8 +16480,8 @@ function amPersoOpen(){
  '<div style="display:flex;gap:.5rem;margin:.7rem 0;flex-wrap:wrap"><button class="btn pri" data-act="perso-save">Enregistrer</button>'+(cm?'<button class="btn" data-act="perso-reset">Remettre les mots d’origine</button>':'')+'</div>'+
  '<div class="card" style="margin:.3rem 0"><b>Exemple avec tes mots actuels</b><br><span class="mut" style="font-size:.9rem">« 12 '+esc(amW('p'))+' · 3 '+esc(amW('np'))+' · Es-tu '+esc(amW('s'))+' ? »</span></div>'+
  '','full')}
-function amPersoSave(){const v={};document.querySelectorAll('#sheet [data-voc],[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,40);if(t)v[e.dataset.voc]=t});S.amVoc=v;saveSet();closeSheet();toast('✅ Mots enregistrés sur cet appareil');render()}
-function amPersoReset(){S.amVoc={};saveSet();closeSheet();toast('Mots d’origine remis');render()}
+function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('#sheet [data-voc],[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,40);if(t)v[e.dataset.voc]=t});S.amVoc=v;saveSet();closeSheet();toast('✅ Mots enregistrés sur cet appareil');render()}
+function amPersoReset(){if(!amPersoOk())return;S.amVoc={};saveSet();closeSheet();toast('Mots d’origine remis');render()}
 function amSosOpen(){
  const a=amc();if(!a)return;const adm=!!a.apriv,ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
