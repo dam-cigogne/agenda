@@ -2990,7 +2990,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.167';
+const APP_VERSION='2.82.168';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -2998,6 +2998,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.168',d:'22/11/2026',items:['↩️ Pages d’inscription, d’adhésion, de contact et de menu ouvertes depuis l’appli installée sur iPhone (bouton « Voir » / « Tester ») : un bouton « ← Retour à l’appli » en haut, pour ne plus rester coincé. Invisible pour les gens qui ouvrent le lien normalement.']},
 {v:'2.82.167',d:'22/11/2026',items:['🔤 Vocabulaire réglable (suite) : inscriptions des événements (vérification QR, fiche d’un inscrit, ajout, message aux non-amicalistes) passent par le réglage de mots. Rien ne change à l’écran.']},
 {v:'2.82.166',d:'22/11/2026',items:['🔄 Le grand cadre bleu « Nouvelle version » ne s’affiche plus à chaque petite mise à jour : seulement si l’appareil est plus ancien que la version de référence (aujourd’hui 2.82.158 : réunions et notifications). Pour les autres mises à jour, le bouton ⟳ en haut suffit.','🔤 Vocabulaire réglable (suite) : la liste des amicalistes et les fiches (titres, boutons, statut, messages) passent par le réglage de mots. Rien ne change à l’écran pour l’instant.']},
 {v:'2.82.165',d:'22/11/2026',items:['🔤 Préparation du vocabulaire réglable : les onglets et titres « Amicalistes / Non-amicalistes » passent par un seul réglage de mots (rien ne change à l’écran pour l’instant).']},
