@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.189';
+const APP_VERSION='2.82.190';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,7 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.189',d:'22/11/2026',items:['Personnalisation : les fenêtres d’aide (compléter une liste, importer une liste) et la fenêtre « Changements de statut » après un import Excel reprennent vos mots (membres, extérieurs, civilité…).']},{v:'2.82.188',d:'22/11/2026',items:['Personnalisation : les exports, la fiche PDF, la feuille de présence et les listes utilisent maintenant votre mot pour « grade » (ex. Civilité) et pour « amicaliste », au lieu des mots militaires fixes.']},{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
+{v:'2.82.190',d:'22/11/2026',items:['Serveur propre à chaque groupe : Personnalisation › Serveur du groupe (adresse modifiable par l’administrateur), invitation qui transmet l’adresse du serveur, clé de notification lue sur le serveur du groupe (préparation de la version « Asso malin »). Rien ne change pour les groupes existants.']},{v:'2.82.189',d:'22/11/2026',items:['Personnalisation : les fenêtres d’aide (compléter une liste, importer une liste) et la fenêtre « Changements de statut » après un import Excel reprennent vos mots (membres, extérieurs, civilité…).']},{v:'2.82.188',d:'22/11/2026',items:['Personnalisation : les exports, la fiche PDF, la feuille de présence et les listes utilisent maintenant votre mot pour « grade » (ex. Civilité) et pour « amicaliste », au lieu des mots militaires fixes.']},{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
 {v:'2.82.186',d:'22/11/2026',items:['🎛 <b>Import Excel en civil</b> : la colonne portant le nom de ta rubrique (« Civilité »…) est reconnue à l’import, comme « Grade ». Le fichier exporté par l’appli garde « Grade » comme titre pour se réimporter à l’identique.']},
 {v:'2.82.185',d:'22/11/2026',items:['🎛 En civil, « Tarifs par grade » devient « Tarifs par civilité » (ou le nom de ta rubrique), de même dans le filtre du Jour J. Rien ne change pour l’Amicale ESTA.']},
 {v:'2.82.184',d:'22/11/2026',items:['🎛 <b>Grades, civilité et statuts réglables</b> (Réglages › Personnalisation, administrateurs) : association civile sans grades (ou « Monsieur / Madame » à la place), nom de la rubrique, noms des 6 statuts (actif, réserviste, ancien…), pour tout le groupe. Rien ne change pour l’Amicale ESTA tant que rien n’est modifié.']},
@@ -9409,6 +9409,7 @@ async function act(a,el,e){
   case 'perso-open':amPersoOpen();break;
   case 'perso-save':amPersoSave();break;
   case 'perso-preset':amPersoPreset(ds_.p);break;
+  case 'srv-set':amSrvAsk().then(()=>{try{render()}catch(e){}});break;
   case 'perso-reset':amPersoReset();break;
   case 'am-sos-send':amSosSend(ds_.k);break;
   case 'am-sos-pp':amSosPeople();break;
@@ -12188,13 +12189,22 @@ async function pushSpaces(){
 async function pushOn(){
  const reg=swReg||await navigator.serviceWorker.ready;
  let sub=await reg.pushManager.getSubscription();
- if(!sub){const k=Uint8Array.from(atob(VAPID_PUB.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
+ if(!sub){let vp=VAPID_PUB;if(amSrvTx()||!vp){try{const r=await fetch(famUrl()+'/vapid',{cache:'no-store'});const j=await r.json();if(j&&j.k)vp=j.k}catch(e){}}if(!vp)throw new Error('serveur sans clé de notification');const k=Uint8Array.from(atob(vp.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
  const pf=pushPfStr(),j=sub.toJSON();
  for(const x of await pushSpaces()){const r=await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})});if(!r.ok)throw new Error('Serveur : '+r.status)}
  try{await remSync(true)}catch(e){}
 }
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
+/* 2.82.190 : serveur propre à chaque groupe (version neutre : aucun serveur par défaut) */
+const amSrvNorm=u=>{u=String(u||'').trim().replace(/\s+/g,'');if(u&&!/^https?:\/\//i.test(u))u='https://'+u;try{const x=new URL(u);if(x.protocol!=='https:'&&!/^(localhost|127\.0\.0\.1)$/.test(x.hostname))return '';return x.origin}catch(e){return ''}};
+const amSrvTx=()=>{const u=famUrl();return u&&u!==String(FAM_URL_DEF||'').replace(/\/+$/,'')?u:''};
+const amSrvFind=t=>{t=String(t||'');const m=t.match(/Serveur du groupe[^h]{0,60}(https:\/\/[^\s]+)/i)||t.match(/(https:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)*\.workers\.dev)/i);return m?amSrvNorm(m[1]):''};
+async function amSrvAsk(){
+ const v=await amForm('🌐 Serveur du groupe','Colle l’adresse du serveur de ton groupe (elle ressemble à https://nom.ton-compte.workers.dev). C’est le serveur Cloudflare créé avec le guide. Tout ce qui y est envoyé est chiffré.',[{k:'u',l:'Adresse du serveur',v:amSrvTx()||'',ph:'https://…workers.dev'}],'Tester et enregistrer');
+ if(!v)return false;const u=amSrvNorm(v.u);if(!u){toast('Adresse non valide : elle doit commencer par https://',4500);return false}
+ try{const r=await fetch(u+'/ping',{cache:'no-store'}),j=await r.json();if(!j||!j.ok)throw new Error('x')}catch(e){toast('Ce serveur ne répond pas. Vérifie l’adresse et que le code du serveur est bien déployé.',6000);return false}
+ S.famUrl=u;amSave();toast('✅ Serveur enregistré',3000);return true}
 /* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
    L'origine des éléments (S.forg) est commune à tous les groupes : ce qui vient d'un ami n'est jamais renvoyé à la famille. */
 function famMig(){
@@ -13288,7 +13298,7 @@ async function amPull(manual){
 }
 async function amCreate(){
  if(demo){toast('Non disponible en mode démo',2500);return}
- if(!famUrl()){toast('Serveur de partage indisponible',4000);return}
+ if(!famUrl()&&!await amSrvAsk())return;
  if(amc()){toast('Tu fais déjà partie d’un groupe',3000);return}
  const p=pplOf(S.meId)||{};
  const v=await amForm('👥 Créer un groupe','Donne un nom à ton groupe (par exemple « Amicale »). Tu en seras l’administrateur.',[{k:'nm',l:'Nom du groupe',v:'Amicale',ph:'Amicale, Club, Association…'},{k:'n',l:'Ton prénom (tel qu’il apparaîtra)',v:meName()||''},{k:'tel',l:'Ton téléphone',v:p.tel||'',t:'tel'},{k:'mp',l:'Ton mail perso',v:p.mail||'',t:'email'},{k:'mw',l:'Ton mail de travail',v:'',t:'email'}],'Créer le groupe');
@@ -13315,7 +13325,7 @@ function amInvMsg(code,nom){const a=amc(),amiU=new URL(AMI?'./':'../amicale/',lo
  return (nom?'Bonjour '+amPren(nom)+',\n':'Bonjour,\n')+'Tu es invité(e) dans « '+a.nm+' » 🎉\n\n'+AM_INST_TX(amiU,0)+'3️⃣ Touche « Rejoindre avec un code » et tape : '+famCodeShow(code)+' (valable 7 jours).\n\nAstuce : tu peux coller ce message en entier dans la case du code, l’appli trouve le code toute seule.\nTu as déjà AgenDam ? Réglages → Famille et contacts → Rejoindre avec un code, même code.'}
 /* 2.82.141 : consignes d’installation (ne pas taper le code sur le site : installer l’appli d’abord) */
 function AM_INST_TX(u,vous){const t=vous?['N’ENTREZ PAS','Installez','ouvrez','Ouvrez','touchez','Fermez','ouvrez']:['N’ENTRE PAS','Installe','ouvre','Ouvre','touche','Ferme','ouvre'];
- return '⚠️ Important : '+t[0]+' le code sur le site dans Safari ou Chrome. '+t[1]+' d’abord l’appli, puis '+t[2]+'-la depuis son icône.\n\n1️⃣ '+t[3]+' ce lien : '+u+'\n📱 iPhone (Safari) : '+t[4]+' le bouton Partager (le carré avec une flèche vers le haut) → « Sur l’écran d’accueil » → Ajouter.\n🤖 Android (Chrome) : '+t[4]+' ⋮ en haut à droite → « Installer l’application » (ou « Ajouter à l’écran d’accueil »).\n2️⃣ '+t[5]+' Safari ou Chrome et '+t[6]+' l’icône « Amicale » sur l’écran d’accueil.\n'}
+ return '⚠️ Important : '+t[0]+' le code sur le site dans Safari ou Chrome. '+t[1]+' d’abord l’appli, puis '+t[2]+'-la depuis son icône.\n\n1️⃣ '+t[3]+' ce lien : '+u+'\n📱 iPhone (Safari) : '+t[4]+' le bouton Partager (le carré avec une flèche vers le haut) → « Sur l’écran d’accueil » → Ajouter.\n🤖 Android (Chrome) : '+t[4]+' ⋮ en haut à droite → « Installer l’application » (ou « Ajouter à l’écran d’accueil »).\n2️⃣ '+t[5]+' Safari ou Chrome et '+t[6]+' l’icône « Amicale » sur l’écran d’accueil.\n'+(amSrvTx()?'\n🌐 Serveur du groupe (se colle avec le code) : '+amSrvTx()+'\n':'')}
 /* ===== Préparatifs : liste de futurs membres, codes créés d'un coup, envoi un par un ===== */
 const waNum=t=>{let d=String(t||'').replace(/[^\d+]/g,'');if(d[0]==='+')return d.slice(1);if(d.slice(0,2)==='00')return d.slice(2);if(d[0]==='0')return '33'+d.slice(1);return d};
 const amNorm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(Boolean).sort().join(' ');
@@ -13448,11 +13458,11 @@ async function amLinkIn(code){
 }
 async function amJoinCode(){
  if(demo){toast('Non disponible en mode démo',2500);return}
- if(!famUrl())return;
  const v={t:''};const pr=ask({title:'🔢 Rejoindre un groupe',html:'<p style="margin:.2rem 0 .5rem">Tape le code d’invitation reçu (8 caractères, par exemple K7P4-9QX2) ou le code de liaison d’un appareil (12 caractères), ou colle tout le message reçu.</p><input class="in" id="fc-in" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX" style="font-size:1.4rem;letter-spacing:.15em;text-align:center">',btns:[{label:'Rejoindre',value:'ok',cls:'pri'},{label:'Annuler',value:null}]});
  const root=$('#dlg');root.oninput=e=>{if(e.target.id==='fc-in'){if(e.target.value.length>14){const c=famCodeFind(e.target.value);if(c)e.target.value=famCodeShow(c)}v.t=e.target.value}};
  setTimeout(()=>{const i=$('#fc-in');if(i)i.focus()},120);
  const r=await pr;root.oninput=null;if(r!=='ok')return;
+ if(!famUrl()){const u0=amSrvFind(v.t);if(u0){S.famUrl=u0;amSave()}else if(!await amSrvAsk())return}
  {const n=famCodeNorm(v.t);if(n.length===12&&[...n].every(c=>FAM_ABC.includes(c))){await amLinkIn(n);return}}
  /* 2.82.153 : accord avant de rejoindre un groupe avec un code d’invitation (pas pour la liaison de ses propres appareils) */
  {const c0=await ask({title:'🔒 Avant de rejoindre',html:'<p style="margin:.2rem 0 .5rem">En rejoignant le groupe, j’accepte que mon nom, mes coordonnées et ce que j’ajoute dans l’appli soient partagés avec les membres du groupe.</p><p class="mut" style="font-size:.88rem;margin:0 0 .5rem">🔒 Tout est <b>chiffré sur mon téléphone</b> avant l’envoi, puis gardé sur un serveur (Cloudflare) qui <b>ne peut pas le lire</b> : seuls les membres du groupe ont la clé. Rien n’est vendu ni partagé ailleurs, et je peux demander au bureau de corriger ou de supprimer mes informations à tout moment. Aucun système n’étant infaillible à 100 %, je n’indique que ce qui est utile.</p>',btns:[{label:'✅ J’accepte et je rejoins',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(c0!=='y')return}
@@ -16484,6 +16494,7 @@ function amPersoCard(){
  F.map(([k,l])=>'<div class="set-row"><span class="lbl">'+l+'</span><b>'+esc(amW(k))+'</b></div>').join('')+
  '<div class="set-row"><span class="lbl">Modèle</span><b>'+esc(amPersoModel())+'</b></div><div class="set-row"><span class="lbl">Rubrique</span><b>'+esc(amGW())+(amGrOn()?'':' (masquée)')+'</b></div><div class="set-row"><span class="lbl">Type de groupe</span><b>'+(amGrMil()?'Militaire (grades)':'Civil')+'</b></div>'+
  '<button class="btn pri blk" style="margin-top:.6rem" data-act="perso-open">✏️ Changer les mots, grades et statuts</button></div>'+
+ '<div class="card"><h3>🌐 Serveur du groupe</h3><div class="set-row"><span class="lbl">Adresse</span><b style="word-break:break-all">'+esc(famUrl()||'non défini')+'</b></div><p class="mut" style="margin:.3rem 0;font-size:.85rem">Change-la seulement si tu as déplacé le serveur : les autres membres devront alors recevoir la nouvelle adresse.</p><button class="btn blk" data-act="srv-set">🌐 Changer l’adresse du serveur</button></div>'+
  '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
 const AM_PRESETS={mil:{s:'',p:'',ns:'',np:'',civ:0,g:'',gl:'',ct:{}},
  neu:{s:'membre',p:'membres',ns:'extérieur',np:'extérieurs',civ:1,g:'',gl:'',ct:{actif:'Actif',reserv:'Sympathisant',honneur:'Membre d’honneur',bienf:'Bienfaiteur',ancien:'Ancien membre',autre:'Autre'}}};
@@ -18871,7 +18882,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
