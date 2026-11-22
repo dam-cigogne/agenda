@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.187';
+const APP_VERSION='2.82.188';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,7 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
+{v:'2.82.188',d:'22/11/2026',items:['Personnalisation : les exports, la fiche PDF, la feuille de présence et les listes utilisent maintenant votre mot pour « grade » (ex. Civilité) et pour « amicaliste », au lieu des mots militaires fixes.']},{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
 {v:'2.82.186',d:'22/11/2026',items:['🎛 <b>Import Excel en civil</b> : la colonne portant le nom de ta rubrique (« Civilité »…) est reconnue à l’import, comme « Grade ». Le fichier exporté par l’appli garde « Grade » comme titre pour se réimporter à l’identique.']},
 {v:'2.82.185',d:'22/11/2026',items:['🎛 En civil, « Tarifs par grade » devient « Tarifs par civilité » (ou le nom de ta rubrique), de même dans le filtre du Jour J. Rien ne change pour l’Amicale ESTA.']},
 {v:'2.82.184',d:'22/11/2026',items:['🎛 <b>Grades, civilité et statuts réglables</b> (Réglages › Personnalisation, administrateurs) : association civile sans grades (ou « Monsieur / Madame » à la place), nom de la rubrique, noms des 6 statuts (actif, réserviste, ancien…), pour tout le groupe. Rien ne change pour l’Amicale ESTA tant que rien n’est modifié.']},
@@ -16245,7 +16245,7 @@ function amBsHtml(id,sgo,nomo){
  const f=sg.f||{},b=amBmFor(f.sa||amSaOf(sg.at));if(String(b.tx||'').trim())return amRegHtml(b,f,sg,nomo||m.tx);
  const nom=nomo||m.tx,cl=String(b.cl||'').split(/\r?\n/).filter(Boolean),ct=(amCT().find(x=>x[0]===f.ct)||[])[1]||'';
  const pay=f.pa?('Cotisation : <b>'+esc(amEur(f.pa))+'</b> — '+({cb:'réglée par carte bancaire',esp:'réglée en espèces',chq:'réglée par chèque',vir:'réglée par virement',va:'virement annoncé (à recevoir)'}[f.pmx]||'à régler')):'';
- const rows=[['Nom et prénom',nom],['Grade',f.gr],['Catégorie',ct],['Adresse',f.ad],['Téléphone',f.tl],['Mail',f.ml],['Régime particulier',f.rg]].filter(r=>r[1]);
+ const rows=[['Nom et prénom',nom],[amGW(),f.gr],['Catégorie',ct],['Adresse',f.ad],['Téléphone',f.tl],['Mail',f.ml],['Régime particulier',f.rg]].filter(r=>r[1]);
  const body='<p>'+esc(amBsFill(b.intro,nom,f.gr))+'</p><table class="amp-t">'+rows.map(r=>'<tr><td style="width:170px">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>'+
   (cl.length?'<ul>'+cl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+(pay?'<p>'+pay+'</p>':'')+amRgpdHtml(b)+
   '<p style="margin-top:22px">Fait le '+esc(amDateFr(new Date(sg.at+'T12:00').getTime()))+'</p><p style="margin:0">Signature :</p>'+(sg.sig?'<img src="'+sg.sig+'" alt="Signature" style="height:100px;border-bottom:1px solid #999;display:block">':'<div style="height:100px;width:300px;border:1px dashed #aaa;border-radius:6px;color:#999;font-size:12px;display:flex;align-items:center;justify-content:center">(à signer)</div>')+
@@ -17058,7 +17058,7 @@ async function amFillList(evId){
  const hasH=cn>=0;if(!hasH)cn=0;const body=hasH?rows.slice(1):rows,AM=amItems('am'),byK={};AM.forEach(m=>{byK[amNk(m.tx)]=m});
  const find=nm=>{const k=amNk(nm);if(byK[k])return byK[k];const w=k.split(' ');return AM.find(m=>{const mk=amNk(m.tx).split(' ');return w.length>=2&&w.every(x=>mk.includes(x))})||null};
  const fr=d=>d?new Date(d+'T12:00').toLocaleDateString('fr-FR'):'';let nOk=0,nNo=0,nKn=0;
- const out=[(hasH?rows[0]:['Nom']).concat(['Grade','N° badge',amWC('s'),'Cotisation payée','Payée le','Régime particulier','Service','Catégorie'])].concat(body.map(x=>{const nm=((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim();if(!nm)return x;const m=find(nm),o=(m&&m.o)||{};if(m&&amIsAm(m))nOk++;else if(m)nKn++;else nNo++;
+ const out=[(hasH?rows[0]:['Nom']).concat([amGW(),'N° badge',amWC('s'),'Cotisation payée','Payée le','Régime particulier','Service','Catégorie'])].concat(body.map(x=>{const nm=((x[cn]||'')+' '+(cp>=0?(x[cp]||''):'')).trim();if(!nm)return x;const m=find(nm),o=(m&&m.o)||{};if(m&&amIsAm(m))nOk++;else if(m)nKn++;else nNo++;
   return x.concat(Array(Math.max(0,(rows[0]||[]).length-x.length)).fill('')).concat(m?[o.gr||'',o.bg||'',amIsAm(m)?'Oui':'Non (connu)',amIsAm(m)&&o.cf==='1'?'Oui':'Non',fr(o.pd),o.rg||'',o.sv||'',(amCT().find(c=>c[0]===o.ct)||[])[1]||'']:['','','Non','','','','',''])}));
  const ev=evId&&a.it[evId];
  const r2=await ask({title:'📋 Liste complétée',html:'<p style="margin:.2rem 0 .4rem">✅ <b>'+nOk+'</b> '+(nOk>1?amW('p'):amW('s'))+(nKn?' · 👤 <b>'+nKn+'</b> '+(nKn>1?amW('np'):amW('ns'))+' connu'+(nKn>1?'s':'')+' (infos reprises)':'')+' · ❓ <b>'+nNo+'</b> pas trouvé'+(nNo>1?'s':'')+' (pas '+amW('s')+', ou nom écrit autrement).</p>',btns:[{label:'📊 Télécharger l’Excel complété',value:'x',cls:'pri'}].concat(ev?[{label:'➕ Ajouter ces personnes aux inscrits de « '+ev.tx+' »',value:'e'}]:[],[{label:'Fermer',value:null}])});
@@ -17104,7 +17104,7 @@ if(col.am!=null&&keepSt)CF.push({id:m.id,nm:m.tx,k:'st',cur:appSt,v:X.st||''});i
    +sec('➕','Ajoutés',ADD,x=>'<li>'+esc(x)+'</li>',1)+sec('✏️','Mis à jour',UPD,x=>'<li><b>'+esc(x.nm)+'</b>'+(x.d?' <small class="mut">'+esc(String(x.d).slice(0,140))+'</small>':'')+'</li>',1);
   Q.unshift(()=>ask({title:'📥 Résultat de l’import',html,btns:[{label:'OK, j’ai vu'+(Q.length?' (la suite : '+Q.length+' fenêtre'+(Q.length>1?'s':'')+')':''),value:1,cls:'pri'}]}))}
  (async()=>{for(const f of Q){try{await f()}catch(e){}}})();
- if(CF.length){const LB={st:'Statut',gr:'Grade',pm:'Paiement',cf:'Cotisation',pa:'Prix',pd:'Date de paiement',pb:'Encaissé par',bg:'Badge',ml:'Mail',tl:'Téléphone',pc:'Patch',k8:'Coffret',sv:'Service'},dv=(k,v)=>{if(k==='st')return v==='n'?amW('ns'):amW('s');if(k==='pm'){const x=AM_PM.find(y=>y[0]===v);return x?x[1]:v}if(k==='cf'||k==='pc'||k==='k8')return v==='1'?'oui':'non';return v};
+ if(CF.length){const LB={st:'Statut',gr:amGW(),pm:'Paiement',cf:'Cotisation',pa:'Prix',pd:'Date de paiement',pb:'Encaissé par',bg:'Badge',ml:'Mail',tl:'Téléphone',pc:'Patch',k8:'Coffret',sv:'Service'},dv=(k,v)=>{if(k==='st')return v==='n'?amW('ns'):amW('s');if(k==='pm'){const x=AM_PM.find(y=>y[0]===v);return x?x[1]:v}if(k==='cf'||k==='pc'||k==='k8')return v==='1'?'oui':'non';return v};
   Q.push(async()=>{const r2=await ask({title:'🛡 '+CF.length+' différence'+(CF.length>1?'s':'')+' entre le fichier et l’appli',html:'<p style="margin:.2rem 0 .4rem">Par sécurité, <b>l’appli a gardé ses valeurs</b>. Voici ce que dit le fichier de différent :</p><ul style="margin:.1rem 0 .4rem;padding-left:1.2rem;max-height:42vh;overflow:auto;line-height:1.45">'+CF.slice(0,60).map(x=>'<li><b>'+esc(x.nm)+'</b> · '+esc(LB[x.k]||x.k)+' : appli « '+esc(dv(x.k,x.cur))+' », fichier « '+esc(dv(x.k,x.v))+' »</li>').join('')+(CF.length>60?'<li>… et '+(CF.length-60)+' autres</li>':'')+'</ul>',btns:[{label:'✅ Garder l’appli (recommandé)',value:'k',cls:'pri'},{label:'Appliquer les valeurs du fichier ('+CF.length+')',value:'y'}]});
    if(r2!=='y')return;const now=Date.now();let c=0;CF.forEach((x,i)=>{const m=a.it[x.id];if(!m)return;const o3=Object.assign({},m.o||{});o3[x.k]=x.v;if(x.k==='pb')o3.cb=x.v;if(x.k==='st'){o3.sc=(x.v==='n'?'n':'a')+':'+today();o3.au=''}a.it[x.id]=Object.assign({},m,{o:o3,at:Math.max(now+1000+i,(m.at||0)+1),by:a.me.n,dirty:1});c++});amSave();render();amFlush();toast(c+' valeur'+(c>1?'s':'')+' du fichier appliquée'+(c>1?'s':''),3500)})}
  if(col.am!=null){const wait=amItems('am').filter(m=>(m.o||{}).au==='1'&&!seen.has(amNk(m.tx))&&!AUno.some(x=>x.nm===m.tx));
@@ -17130,7 +17130,7 @@ async function amSelDel(){if(amBlocked()){amBlockToast();return}
 function amAmExport(sub){
  const L=amAmSorted(sub||amItems('am'));if(!L.length){toast('Liste vide');return}
  const fr=d=>d?new Date(d+'T12:00').toLocaleDateString('fr-FR'):'';
- const rows=[['Grade','Nom','Prénom','Amicaliste','N° badge','Catégorie','Cotisation payée','Moyen de paiement','Prix payé','Date paiement','Encaissé par','Coffret 8 ans','Patch reçu','Service','Régime particulier','Mail','Téléphone','Adhésion','Notes']].concat(L.map(m=>{const o=m.o||{},ps=amNomSplit(m.tx);return [o.gr||'',ps[1],ps[0],o.st?'':'Oui',o.bg||'',(amCT().find(x=>x[0]===o.ct)||[])[1]||'',o.cf==='1'?'Oui':'Non',amPmLb(o.pm),o.pa||'',fr(o.pd),o.pb||'',o.k8==='1'?'Oui':'',o.pc==='1'?'OK':'',o.sv||'',o.rg||'',o.ml||'',o.tl||'',m.d||'',m.bd||'']}));
+ const rows=[[amGW(),'Nom','Prénom',amWC('s'),'N° badge','Catégorie','Cotisation payée','Moyen de paiement','Prix payé','Date paiement','Encaissé par','Coffret 8 ans','Patch reçu','Service','Régime particulier','Mail','Téléphone','Adhésion','Notes']].concat(L.map(m=>{const o=m.o||{},ps=amNomSplit(m.tx);return [o.gr||'',ps[1],ps[0],o.st?'':'Oui',o.bg||'',(amCT().find(x=>x[0]===o.ct)||[])[1]||'',o.cf==='1'?'Oui':'Non',amPmLb(o.pm),o.pa||'',fr(o.pd),o.pb||'',o.k8==='1'?'Oui':'',o.pc==='1'?'OK':'',o.sv||'',o.rg||'',o.ml||'',o.tl||'',m.d||'',m.bd||'']}));
  amExport(amWC('p')+(sub?' (sélection : '+L.length+')':''),rows,amW('p').replace(/\s+/g,'-')+'-'+today());
 }
 /* ---- suivi d'un événement : inscrits, présence, tickets, paiement ---- */
@@ -17275,7 +17275,7 @@ let AM_PTV='';try{AM_PTV=localStorage.getItem('agd-pt-v')||''}catch(e){}
 const amPtView=()=>AM_PTV||(window.innerWidth>=900?'t':'l');
 /* 2.82.73 : liste des inscrits en tableau (colonnes triables) : plus de monde sur la même page */
 function amPtTable(it,rw,L){
- const C=[['p','✓',0],['n','Nom'],['gr','Grade'],['pe','Pers.'],['tl','Téléphone'],['rg','Régime']];if(it.mn)C.push(['mn','🍽 Menu']);const PY=(it.pr&&it.pr.on)||L.some(x=>x.p.pa);if(PY)C.push(['py','Paiement']);if(L.some(x=>x.p.mo))C.push(['mo','Remarque']);
+ const C=[['p','✓',0],['n','Nom'],['gr',amGW()],['pe','Pers.'],['tl','Téléphone'],['rg','Régime']];if(it.mn)C.push(['mn','🍽 Menu']);const PY=(it.pr&&it.pr.on)||L.some(x=>x.p.pa);if(PY)C.push(['py','Paiement']);if(L.some(x=>x.p.mo))C.push(['mo','Remarque']);
  const V=(x,k)=>{const p=x.p;switch(k){case 'p':return p.p?1:0;case 'n':return norm(p.n);case 'gr':return amGrTop((x.m&&(x.m.o||{}).gr)||'');case 'pe':return (+p.na||0)+(+p.ne||0)||1;case 'tl':return String(p.tl||'').replace(/\D/g,'');case 'rg':return norm(amRgOf(x)||'');case 'mn':return p.mc?norm(amMxSum(p)):'~';case 'py':return amPtSt(it,x).r||0;case 'mo':return norm(p.mo||'');}return ''};
  const S=AM_PTS,k0=C.some(c=>c[0]===S.k)?S.k:'n',R=L.slice().sort((a,b)=>{const x=V(a,k0),y=V(b,k0);const c=(typeof x==='number'&&typeof y==='number')?x-y:String(x).localeCompare(String(y),'fr',{numeric:true});return (c||V(a,'n').localeCompare(V(b,'n'),'fr'))*S.d});
  const th=C.map(c=>'<th><button type="button" class="pt-th'+(k0===c[0]?' on':'')+'" data-act="pt-sort" data-k="'+c[0]+'">'+esc(c[1])+(k0===c[0]?(S.d>0?' ▲':' ▼'):'')+'</button></th>').join('');
@@ -17657,7 +17657,7 @@ function amJjLive(){clearInterval(AMJJ_T);AMJJ_T=setInterval(async()=>{if(!docum
 function amJjPrint(){const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;const TY=amTy(it),[A0,N0]=amPtGroups(it),KS=amKs(it),pay=it.pr&&it.pr.on;
  const box=(q,g)=>{let o='';for(let u=0;u<q;u++)o+=u<g?'☒':'☐';return o||'—'};
  const kid=p=>{const n=+p.ne||0;if(!n)return '';const K=amKids(p,!KS.kb);return [K.m?K.m+'× '+KS.kn:'',K.a?K.a+'× repas adulte':'',K.b?K.b+'× -'+KS.kx+' ans':''].filter(Boolean).join(', ')};
- const head=['✓','Nom','Grade','👥'].concat(TY.map(t=>(t.e||'')+' '+t.l),['🧒 Enfants','Régime'],pay?['À payer','Payé']:[]);
+ const head=['✓','Nom',amGW(),'👥'].concat(TY.map(t=>(t.e||'')+' '+t.l),['🧒 Enfants','Régime'],pay?['À payer','Payé']:[]);
  const row=x=>{const p=x.p,o=(x.m&&x.m.o)||{},st=pay?amPtSt(it,x):null;return ['☐',p.n,o.gr||'',(p.na||p.ne)?(p.na||0)+(p.ne?'+'+p.ne:''):''].concat(TY.map(t=>box(amQ(p,t.k),Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0))),[kid(p),amRgOf(x)||''],pay?[amEur(st.d),st.k==='ok'||st.k==='free'?'☒ '+amEur(st.pa):(st.pa?'reste '+amEur(st.r)+' ☐':'☐')]:[])};
  const so=L=>L.slice().sort((p,q)=>String(p.p.n).localeCompare(String(q.p.n),'fr'));
  const tb=(t,L)=>L.length?'<h3 style="margin:10px 0 4px">'+esc(t)+' · '+L.length+'</h3><table class="amp-t amp-g"><tr>'+head.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+so(L).map(x=>'<tr>'+row(x).map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</table>':'';
