@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.190';
+const APP_VERSION='2.82.191';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,7 +3003,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
-{v:'2.82.190',d:'22/11/2026',items:['Serveur propre à chaque groupe : Personnalisation › Serveur du groupe (adresse modifiable par l’administrateur), invitation qui transmet l’adresse du serveur, clé de notification lue sur le serveur du groupe (préparation de la version « Asso malin »). Rien ne change pour les groupes existants.']},{v:'2.82.189',d:'22/11/2026',items:['Personnalisation : les fenêtres d’aide (compléter une liste, importer une liste) et la fenêtre « Changements de statut » après un import Excel reprennent vos mots (membres, extérieurs, civilité…).']},{v:'2.82.188',d:'22/11/2026',items:['Personnalisation : les exports, la fiche PDF, la feuille de présence et les listes utilisent maintenant votre mot pour « grade » (ex. Civilité) et pour « amicaliste », au lieu des mots militaires fixes.']},{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
+{v:'2.82.191',d:'22/11/2026',items:['<b>📦 Déménager le groupe vers un nouveau serveur</b> : quand tu entres l’adresse d’un nouveau serveur (Réglages › Personnalisation › Serveur du groupe), l’appli propose « Envoyer tout le groupe » : membres, événements et documents sont recopiés. Utile pour passer la main ou changer de compte Cloudflare.']},
+ {v:'2.82.190',d:'22/11/2026',items:['Serveur propre à chaque groupe : Personnalisation › Serveur du groupe (adresse modifiable par l’administrateur), invitation qui transmet l’adresse du serveur, clé de notification lue sur le serveur du groupe (préparation de la version « Asso malin »). Rien ne change pour les groupes existants.']},{v:'2.82.189',d:'22/11/2026',items:['Personnalisation : les fenêtres d’aide (compléter une liste, importer une liste) et la fenêtre « Changements de statut » après un import Excel reprennent vos mots (membres, extérieurs, civilité…).']},{v:'2.82.188',d:'22/11/2026',items:['Personnalisation : les exports, la fiche PDF, la feuille de présence et les listes utilisent maintenant votre mot pour « grade » (ex. Civilité) et pour « amicaliste », au lieu des mots militaires fixes.']},{v:'2.82.187',d:'22/11/2026',items:['🎛 <b>Modèles de départ</b> dans Réglages › Personnalisation : « Militaire » (comme aujourd’hui) ou « Neutre » (membres, extérieurs, pas de grades, statuts neutres) remplissent le formulaire, puis tu ajustes à ta façon et tu enregistres. La carte indique le modèle en cours (Militaire, Neutre ou Personnalisé).']},
 {v:'2.82.186',d:'22/11/2026',items:['🎛 <b>Import Excel en civil</b> : la colonne portant le nom de ta rubrique (« Civilité »…) est reconnue à l’import, comme « Grade ». Le fichier exporté par l’appli garde « Grade » comme titre pour se réimporter à l’identique.']},
 {v:'2.82.185',d:'22/11/2026',items:['🎛 En civil, « Tarifs par grade » devient « Tarifs par civilité » (ou le nom de ta rubrique), de même dans le filtre du Jour J. Rien ne change pour l’Amicale ESTA.']},
 {v:'2.82.184',d:'22/11/2026',items:['🎛 <b>Grades, civilité et statuts réglables</b> (Réglages › Personnalisation, administrateurs) : association civile sans grades (ou « Monsieur / Madame » à la place), nom de la rubrique, noms des 6 statuts (actif, réserviste, ancien…), pour tout le groupe. Rien ne change pour l’Amicale ESTA tant que rien n’est modifié.']},
@@ -12204,7 +12205,15 @@ async function amSrvAsk(){
  const v=await amForm('🌐 Serveur du groupe','Colle l’adresse du serveur de ton groupe (elle ressemble à https://nom.ton-compte.workers.dev). C’est le serveur Cloudflare créé avec le guide. Tout ce qui y est envoyé est chiffré.',[{k:'u',l:'Adresse du serveur',v:amSrvTx()||'',ph:'https://…workers.dev'}],'Tester et enregistrer');
  if(!v)return false;const u=amSrvNorm(v.u);if(!u){toast('Adresse non valide : elle doit commencer par https://',4500);return false}
  try{const r=await fetch(u+'/ping',{cache:'no-store'}),j=await r.json();if(!j||!j.ok)throw new Error('x')}catch(e){toast('Ce serveur ne répond pas. Vérifie l’adresse et que le code du serveur est bien déployé.',6000);return false}
- S.famUrl=u;amSave();toast('✅ Serveur enregistré',3000);return true}
+ const prev=famUrl();S.famUrl=u;amSave();toast('✅ Serveur enregistré',3000);
+ try{const a=amc();if(a&&a.apriv&&!demo&&u!==prev){const r=await ask({title:'📦 Envoyer le groupe sur ce serveur ?',text:'Si ce serveur est nouveau (tu déménages le groupe, par exemple après une restauration), touche « Envoyer tout le groupe » : membres, événements, documents, tout est recopié dessus. Les autres membres n’auront ensuite qu’à entrer cette même adresse (Réglages › Personnalisation › Serveur du groupe).',btns:[{label:'Envoyer tout le groupe',value:'y',cls:'pri'},{label:'Pas maintenant',value:null}]});if(r==='y')await amMigrateSrv()}}catch(e){}
+ return true}
+async function amMigrateSrv(){
+ const a=amc();if(!a||!famUrl()||demo)return;
+ Object.values(a.it||{}).forEach(x=>{if(x&&x.id)x.dirty=1});a.rolesDirty=1;a.sent={};a.last={};a.syncOk=0;a.pullAt=0;amSave();
+ toast('Envoi du groupe vers le nouveau serveur…',25000);
+ try{await amPull(true)}catch(e){}try{await amPush(true)}catch(e){}try{await amFlush()}catch(e){}
+ toast('✅ Groupe envoyé sur le nouveau serveur',5000)}
 /* Plusieurs groupes en parallèle (Famille, Amis…) : S.fams. Chaque groupe a sa clé, ses membres, ses partages.
    L'origine des éléments (S.forg) est commune à tous les groupes : ce qui vient d'un ami n'est jamais renvoyé à la famille. */
 function famMig(){
@@ -18810,7 +18819,7 @@ function amiSettingsView(seg){
  const TABS=[['grp','👥 Groupe'],['perso','🎛 Personnalisation'],['bul','📝 Bulletin'],['not','🔔 Notifications'],['sec','🔐 Sauvegarde et code'],['hist','🕘 Qui a fait quoi'],['aff','🎨 Affichage'],['aide','❓ Aide et à propos']].filter(x=>String(B[x[0]]||'').trim());
  const cur=V.sset==='sauv'?'sec':(TABS.some(x=>x[0]===V.sset)?V.sset:'grp');
  const bar='<div class="jump jside">'+TABS.map(x=>'<button type="button" class="chip'+(x[0]===cur?' on':'')+'" data-act="sset" data-t="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>';
- return{html:pt[0]+bar+'<h2 class="set-tt">'+TABS.find(x=>x[0]===cur)[1]+'</h2>'+(B[cur]||'')+'<div style="height:2rem"></div></div>',fixed:false};
+ return{html:pt[0]+bar+'<h2 class="set-tt">'+(TABS.find(x=>x[0]===cur)||TABS[0]||['','Réglages'])[1]+'</h2>'+(B[cur]||'')+'<div style="height:2rem"></div></div>',fixed:false};
 }
 function pushSecHTML(){const a=amc();if(!a||(S.pushPf==null?'aci':S.pushPf).indexOf('i')<0)return'';const bur=!!a.kB;
  return '<p class="mut" style="margin-top:.6rem">👥 Dans l’Amicale, me prévenir pour :</p><div class="chips">'+PUSH_SEC.filter(x=>bur||!x[3]).map(x=>'<button type="button" class="chip'+(pushEx().includes(x[0])?'':' on')+'" data-act="push-sec" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'<span class="chip on" style="pointer-events:none;opacity:.95">🗓 Réunions · 🔒 toujours</span><span class="chip on" style="pointer-events:none;opacity:.95">✅ Tâche pour moi · 🔒 toujours</span></div><p class="mut" style="font-size:.82rem;margin:.3rem 0 0">🔒 Les invitations aux réunions (préparation et mensuelle), leurs relances, la date fixée, le lieu ajouté, et les tâches qu’on te confie arrivent <b>toujours</b>, même si tu décoches le reste : c’est le bureau qui te prévient directement.</p>'}
@@ -18882,7 +18891,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amMigrateSrv,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
