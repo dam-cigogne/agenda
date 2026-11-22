@@ -2995,7 +2995,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.182';
+const APP_VERSION='2.82.183';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3003,6 +3003,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.183',d:'22/11/2026',items:['🎛 <b>Les mots sont ceux de tout le groupe</b> : quand un administrateur change « amicaliste » dans Réglages › Personnalisation, tous les membres voient le nouveau mot sur leur appareil (et les liens créés ensuite l’affichent sur les pages publiques).']},
 {v:'2.82.182',d:'22/11/2026',items:['🎛 <b>Personnalisation réservée aux administrateurs</b> (l’onglet n’apparaît pas pour les autres). <b>Les pages publiques suivent tes mots</b> : si tu changes « amicaliste » dans Réglages › Personnalisation, les pages d’inscription, d’adhésion et de menu qui s’ouvrent par QR ou lien affichent ton mot (« Es-tu adhérent ? »…). Rien ne change tant que tu gardes les mots d’origine.']},
 {v:'2.82.181',d:'22/11/2026',items:['🎛 <b>Personnalisation</b> : nouvel onglet dans Réglages (après Groupe) pour voir et changer les mots de l’application (amicaliste, non-amicaliste…) et ce qui sera bientôt réglable. Les mots d’origine de l’Amicale ESTA restent par défaut.']},
 {v:'2.82.180',d:'22/11/2026',items:['📚 <b>Mon dossier d’impression</b> : nouvel écran (bouton dans la préparation d’un événement et dans le Jour J) pour voir les fiches mises de côté, en retirer, les imprimer toutes d’un coup ou vider le dossier.','✉️ <b>Envoyer un PDF par mail</b> : on peut maintenant choisir n’importe quel membre qui a un mail dans sa fiche (bureau et aides), ou taper une autre adresse.']},
@@ -12069,7 +12070,10 @@ const FAM_URL_DEF='https://agendam-famille.dam-cigogne.workers.dev';
 const VAPID_PUB='BPCLGFAruvYm2QbClElQM9rh3sps_Uqqwoc3wiJNwBuL81-f4uKtXhMDchV04Sp-9hw04OdRJqVlaBSFJzCQOUY';
 /* 2.82.165 : VOCABULAIRE du groupe (étape 3 vers l'appli neutre). Par défaut les mots actuels ; plus tard réglables (adhérent, membre, licencié…). s = un, p = plusieurs, ns/np = les autres. */
 const AMW_DEF={s:'amicaliste',p:'amicalistes',ns:'non-amicaliste',np:'non-amicalistes'};
-function amW(k){const v=S&&S.amVoc&&S.amVoc[k];return (typeof v==='string'&&v.trim())?v.trim():AMW_DEF[k]}
+let AMV_B='',AMV_O={};
+/* 2.82.183 : les mots sont ceux du GROUPE (réglés par un administrateur, envoyés à tous les membres) ; sinon ceux de l’appareil ; sinon ceux d’origine */
+function amW(k){let v;try{const a=S&&S.amc&&S.amc.on?S.amc:null,i=a&&a.it&&a.it.cfgvoc;if(i&&!i.del){const b=String(i.bd||'');if(b!==AMV_B){AMV_B=b;try{AMV_O=JSON.parse(b)||{}}catch(e){AMV_O={}}}v=AMV_O[k]}}catch(e){}
+ if(!(typeof v==='string'&&v.trim()))v=S&&S.amVoc&&S.amVoc[k];return (typeof v==='string'&&v.trim())?v.trim().slice(0,40):AMW_DEF[k]}
 const amWC=k=>{const w=amW(k);return w.charAt(0).toUpperCase()+w.slice(1)};
 /* « l’amicaliste » / « le membre », « Nouvel amicaliste » / « Nouveau membre » */
 const amWV=k=>/^[aeiouyhàâéèêëîïôöûüœ]/i.test(amW(k)),amWL=k=>(amWV(k)?'l’':'le ')+amW(k),amWN=k=>(amWV(k)?'Nouvel ':'Nouveau ')+amW(k);
@@ -16465,23 +16469,24 @@ const amPersoOk=()=>{const a=amc();return !!(a&&a.apriv)};
 function amPersoCard(){
  if(!amPersoOk())return '';
  const F=[['s','Un membre'],['p','Les membres'],['ns','Une personne extérieure'],['np','Les personnes extérieures']];
- return '<div class="card"><h3>✏️ Les mots de l’application</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Pour adapter l’appli à ton groupe (amicale, club, association…). Pour le moment, ces réglages sont gardés <b>sur cet appareil seulement</b>.</p>'+
+ return '<div class="card"><h3>✏️ Les mots de l’application</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Pour adapter l’appli à ton groupe (amicale, club, association…). Ces mots valent pour <b>tout le groupe</b> : ils sont envoyés à tous les membres (et aux pages publiques des liens créés ensuite). Seuls les administrateurs peuvent les changer.</p>'+
  F.map(([k,l])=>'<div class="set-row"><span class="lbl">'+l+'</span><b>'+esc(amW(k))+'</b></div>').join('')+
  '<button class="btn pri blk" style="margin-top:.6rem" data-act="perso-open">✏️ Changer les mots</button></div>'+
- '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Partager les mots avec tout le groupe</li><li style="margin:.25rem 0">Les <b>grades</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
+ '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Les <b>grades</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
 function amPersoOpen(){
  if(!amPersoOk())return;
  const F=[['s','Un membre (au singulier)'],['p','Les membres (au pluriel)'],['ns','Une personne extérieure (singulier)'],['np','Les personnes extérieures (pluriel)']];
- const h=t=>'<h4 style="margin:1rem 0 .3rem">'+t+'</h4>',cm=(S&&S.amVoc&&Object.keys(S.amVoc).some(k=>S.amVoc[k]));
+ const h=t=>'<h4 style="margin:1rem 0 .3rem">'+t+'</h4>',cm=['s','p','ns','np'].some(k=>amW(k)!==AMW_DEF[k]);
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">🎛 Personnaliser</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div>'+
- '<p class="mut" style="font-size:.88rem;margin:.2rem 0 .4rem">Pour le moment, ces réglages sont gardés <b>sur cet appareil seulement</b>. Les autres membres ne voient pas tes changements.</p>'+
+ '<p class="mut" style="font-size:.88rem;margin:.2rem 0 .4rem">Ces mots valent pour <b>tout le groupe</b> : ils sont envoyés à tous les membres. Seuls les administrateurs peuvent les changer.</p>'+
  h('✏️ Les mots')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Laisse vide pour garder le mot d’origine. Les textes écrits avant le changement (anciennes notes) ne sont pas modifiés.</p>'+
- F.map(([k,l])=>'<label class="lbl" style="display:block;margin-top:.4rem">'+l+'</label><input class="in" data-voc="'+k+'" style="width:100%" placeholder="'+esc(AMW_DEF[k])+'" value="'+esc((S&&S.amVoc&&S.amVoc[k])||'')+'">').join('')+
+ F.map(([k,l])=>'<label class="lbl" style="display:block;margin-top:.4rem">'+l+'</label><input class="in" data-voc="'+k+'" style="width:100%" placeholder="'+esc(AMW_DEF[k])+'" value="'+esc(amW(k)===AMW_DEF[k]?'':amW(k))+'">').join('')+
  '<div style="display:flex;gap:.5rem;margin:.7rem 0;flex-wrap:wrap"><button class="btn pri" data-act="perso-save">Enregistrer</button>'+(cm?'<button class="btn" data-act="perso-reset">Remettre les mots d’origine</button>':'')+'</div>'+
  '<div class="card" style="margin:.3rem 0"><b>Exemple avec tes mots actuels</b><br><span class="mut" style="font-size:.9rem">« 12 '+esc(amW('p'))+' · 3 '+esc(amW('np'))+' · Es-tu '+esc(amW('s'))+' ? »</span></div>'+
  '','full')}
-function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('#sheet [data-voc],[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,40);if(t)v[e.dataset.voc]=t});S.amVoc=v;saveSet();closeSheet();toast('✅ Mots enregistrés sur cet appareil');render()}
-function amPersoReset(){if(!amPersoOk())return;S.amVoc={};saveSet();closeSheet();toast('Mots d’origine remis');render()}
+function amVocPut(v){amItemSave({id:'cfgvoc',kind:'dl',tx:'Mots',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(v),del:0,z:'a'})}
+function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,40);if(t)v[e.dataset.voc]=t});S.amVoc={};saveSet();amVocPut(v);closeSheet();toast('✅ Mots enregistrés, envoi à tout le groupe…',3000);render()}
+function amPersoReset(){if(!amPersoOk())return;S.amVoc={};saveSet();amVocPut({});closeSheet();toast('Mots d’origine remis pour tout le groupe',3000);render()}
 function amSosOpen(){
  const a=amc();if(!a)return;const adm=!!a.apriv,ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
  const n=Object.values(a.it||{}).filter(i=>i&&!i.del&&i.kind!=='ac').length,pend=Object.values(a.it||{}).filter(i=>i&&i.dirty).length;
