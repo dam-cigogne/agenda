@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.204';
+const APP_VERSION='2.82.205';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.205',d:'23/11/2026',items:['<b>🔔 Phrases des notifications modifiables</b> : Personnaliser › « Phrases des notifications » (administrateurs) : tu écris ce que les autres liront quand quelqu’un ajoute, modifie ou supprime une tâche, un événement, les courses, une note ou la fiche d’un membre, avec {quoi} pour le nom. Pas de nouveau serveur à coller.']},
 {v:'2.82.204',d:'23/11/2026',items:['<b>🔔 Notifications avec détails</b> : « Paul a ajouté la tâche « … » », « nouvelle fiche (…) », « a retiré « … » des courses », avec les mots de ton groupe. Réglable dans Réglages › Notifications (« Détails dans les notifications que j’envoie »). Demande le serveur mis à jour.']},
 {v:'2.82.203',d:'23/11/2026',items:['<b>🔔 Notifications Asso malin</b> : le titre porte le nom de ton groupe au lieu de « Amicale » (demande le serveur mis à jour).','<b>🔢 Numéro de mise à jour visible dans Asso malin</b> : « Version 1.0 (mise à jour 203) » pour savoir tout de suite si ton téléphone a bien la dernière version.']},
 {v:'2.82.202',d:'23/11/2026',items:['<b>🌐 Invitation : le message contient maintenant l’adresse du serveur</b> (bouton « Copier le message » / SMS de l’invitation Bureau et Aide). La personne qui colle le message entier n’a plus à taper l’adresse.','<b>🔔 Notifications : correction pour Asso malin</b> (fichiers manquants qui empêchaient l’activation). Le gros bandeau rouge « Active les notifications » s’affiche maintenant sur toutes les pages (Membres, Agenda, Tâches…), plus seulement l’accueil.']},
@@ -13087,13 +13088,16 @@ async function amlSetPin(){
 function appLockCard(){
  return '<div class="card"><h3>🔐 Verrouiller l’application</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’application</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement le groupe</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Activer Face ID / empreinte')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
 }
+/* 2.82.205 : phrases des notifications, modifiables par l’admin (Personnaliser), {quoi} = nom de l’élément, {mot} = membre au singulier */
+const AM_NT=[['tk','La tâche'],['ee','L’événement (réunion, sortie…)'],['co','Les courses'],['nt','La note'],['am','La fiche d’un membre']];
+function amNtDef(h,v,q){const tx='« '+q+' »',w=amW('s');
+ if(h==='co')return v==='a'?'a ajouté '+tx+' aux courses':v==='d'?'a retiré '+tx+' des courses':'a modifié la liste de courses : '+tx;
+ if(h==='am')return v==='a'?'a ajouté une fiche ('+w+') : '+tx:v==='d'?'a supprimé la fiche : '+tx:'a modifié la fiche : '+tx;
+ const N={tk:'la tâche',ee:'l’événement',ev:'l’événement',nt:'la note'}[h];return 'a '+(v==='a'?'ajouté':v==='d'?'supprimé':'modifié')+' '+N+' '+tx}
+function amNtPh(h,v,q){const k=(h==='ev'?'ee':h)+'_'+v,t=((amVoc().ph||{})[k]||'').trim();if(!t)return amNtDef(h,v,q);return t.replace(/\{quoi\}/g,'« '+q+' »').replace(/\{mot\}/g,amW('s'))}
 async function amPut(zone,doc,P,kraw,hint,det,to){
  /* 2.82.204 : notification détaillée, phrase écrite ici avec les mots du groupe ; le serveur ne fait que la relayer (hint xt) */
- if(S.ntDet!==false&&/^(tk|ee|ev|co|nt|am)$/.test(hint||'')&&/^[amd]\|./.test(det||'')){try{const v=det[0],tx='« '+det.slice(2,40)+' »',w=amW('s');let ph='';
-  if(hint==='co')ph=v==='a'?'a ajouté '+tx+' aux courses':v==='d'?'a retiré '+tx+' des courses':'a modifié la liste de courses : '+tx;
-  else if(hint==='am')ph=v==='a'?'a ajouté une fiche ('+w+') : '+tx:v==='d'?'a supprimé la fiche : '+tx:'a modifié la fiche : '+tx;
-  else{const N={tk:'la tâche',ee:'l’événement',ev:'l’événement',nt:'la note'}[hint];ph='a '+(v==='a'?'ajouté':v==='d'?'supprimé':'modifié')+' '+N+' '+tx}
-  if(ph){hint='xt';det=ph.slice(0,76)}}catch(e){}}
+ if(S.ntDet!==false&&/^(tk|ee|ev|co|nt|am)$/.test(hint||'')&&/^[amd]\|./.test(det||'')){try{const ph=amNtPh(hint,det[0],det.slice(2,40));if(ph){hint='xt';det=ph.slice(0,76)}}catch(e){}}
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
  const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):'')+(to?(det?'&':'?')+'to='+encodeURIComponent(String(to).slice(0,1400)):'')+(typeof APP_SHOW!=='undefined'&&a.nm?((det||to)?'&':'?')+'an='+encodeURIComponent(String(a.nm).replace(/\s+/g,' ').trim().slice(0,24)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||hint==='q'||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint&&hint!=='q'?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
@@ -16674,13 +16678,15 @@ function amPersoOpen(){
  '<label style="display:flex;align-items:center;gap:.5rem;margin:.3rem 0"><input type="checkbox" id="perso-civ"'+(amVoc().civ?' checked':'')+'> <b>Association civile (pas de grades)</b></label>'+
  '<label class="lbl" style="display:block;margin-top:.4rem">Nom de la rubrique</label><input class="in" data-voc="g" style="width:100%" placeholder="Grade (militaire) ou Civilité (civil)" value="'+esc(amVoc().g||'')+'">'+
  '<label class="lbl" style="display:block;margin-top:.4rem">Choix proposés en civil (séparés par des virgules)</label><input class="in" data-voc="gl" style="width:100%" placeholder="Monsieur, Madame" value="'+esc(amVoc().gl||'')+'">'+
+ h('🔔 Phrases des notifications')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Ce que les autres lisent quand quelqu’un ajoute, modifie ou supprime. Le prénom est ajouté devant tout seul. Écris <b>{quoi}</b> là où doit apparaître le nom de l’élément (et {mot} pour « '+esc(amW('s'))+' »). Laisse vide pour garder la phrase d’origine.</p>'+
+ AM_NT.map(([k,l])=>'<b style="display:block;margin-top:.5rem">'+l+'</b>'+[['a','Ajouté'],['m','Modifié'],['d','Supprimé']].map(([v,t])=>'<label class="lbl" style="display:block;margin-top:.2rem">'+t+'</label><input class="in" data-ph="'+k+'_'+v+'" maxlength="70" style="width:100%" placeholder="'+esc(amNtDef(k,v,'{quoi}').replace('« {quoi} »','{quoi}'))+'" value="'+esc(((amVoc().ph||{})[k+'_'+v])||'')+'">').join('')).join('')+
  h('📋 Statuts des adhérents')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Les noms des 6 statuts. Laisse vide pour garder le nom d’origine.</p>'+
  AM_CT0.map(c=>'<label class="lbl" style="display:block;margin-top:.4rem">'+esc(c[1])+' (nom d’origine)</label><input class="in" data-ct="'+c[0]+'" style="width:100%" placeholder="'+esc(c[1])+'" value="'+esc(((amVoc().ct||{})[c[0]])||'')+'">').join('')+
  '<div style="display:flex;gap:.5rem;margin:.7rem 0;flex-wrap:wrap"><button class="btn pri" data-act="perso-save">Enregistrer</button>'+(cm?'<button class="btn" data-act="perso-reset">Remettre les mots d’origine</button>':'')+'</div>'+
  '<div class="card" style="margin:.3rem 0"><b>Exemple avec tes mots actuels</b><br><span class="mut" style="font-size:.9rem">« 12 '+esc(amW('p'))+' · 3 '+esc(amW('np'))+' · Es-tu '+esc(amW('s'))+' ? »</span></div>'+
  '','full')}
 function amVocPut(v){amItemSave({id:'cfgvoc',kind:'dl',tx:'Mots',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(v),del:0,z:'a'})}
-function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,e.dataset.voc==='gl'?300:40);if(t)v[e.dataset.voc]=t});const cv=document.getElementById('perso-civ');if(cv&&cv.checked)v.civ=1;const ct={};document.querySelectorAll('[data-ct]').forEach(e=>{const t=(e.value||'').trim().slice(0,30);if(t)ct[e.dataset.ct]=t});if(Object.keys(ct).length)v.ct=ct;S.amVoc={};saveSet();amVocPut(v);closeSheet();toast('✅ Mots enregistrés, envoi à tout le groupe…',3000);render()}
+function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,e.dataset.voc==='gl'?300:40);if(t)v[e.dataset.voc]=t});const cv=document.getElementById('perso-civ');if(cv&&cv.checked)v.civ=1;const ct={};document.querySelectorAll('[data-ct]').forEach(e=>{const t=(e.value||'').trim().slice(0,30);if(t)ct[e.dataset.ct]=t});if(Object.keys(ct).length)v.ct=ct;const ph={};document.querySelectorAll('[data-ph]').forEach(e=>{const t=(e.value||'').trim().slice(0,70);if(t)ph[e.dataset.ph]=t});if(Object.keys(ph).length)v.ph=ph;S.amVoc={};saveSet();amVocPut(v);closeSheet();toast('✅ Mots enregistrés, envoi à tout le groupe…',3000);render()}
 function amPersoReset(){if(!amPersoOk())return;S.amVoc={};saveSet();amVocPut({});closeSheet();toast('Mots d’origine remis pour tout le groupe',3000);render()}
 function amSosOpen(){
  const a=amc();if(!a)return;const adm=!!a.apriv,ago=t=>{if(!t)return 'jamais';const m=Math.round((Date.now()-t)/60000);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'le '+new Date(t).toLocaleDateString('fr-FR')};
