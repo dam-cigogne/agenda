@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.195';
+const APP_VERSION='2.82.196';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.196',d:'23/11/2026',items:['<b>🔔 Bouton « Activer les notifications » corrigé</b> : il demande lui-même l’autorisation au téléphone, ne reste plus bloqué sans rien dire, et affiche un message clair si quelque chose empêche l’activation (autorisation refusée, service du téléphone injoignable, serveur muet). Une fois activé, le bandeau disparaît tout de suite.']},
 {v:'2.82.195',d:'23/11/2026',items:['<b>🔔 Notifications qui tiennent après une mise à jour</b> : la mise à jour de l’appli faisait sauter l’abonnement aux notifications du téléphone. L’appli le remet maintenant toute seule (au démarrage et quand tu reviens dans l’appli). Nouveau bouton <b>🔧 Réparer les notifications de ce téléphone</b> dans Réglages › Notifications, et le message d’erreur est plus clair si ça échoue.']},
 {v:'2.82.194',d:'23/11/2026',items:['<b>👥 Tâches de préparation à plusieurs personnes et équipes</b> : sur une tâche d’un événement, « Qui s’en occupe » accepte maintenant plusieurs personnes (pastilles à toucher). Nouveau bouton <b>👥 Équipes</b> dans la préparation : crée les équipes de l’événement (Bar, Cuisine, Installation…) et choisis-en une sur une tâche pour taguer tous ses membres d’un coup. Tu peux aussi ajouter à la main des <b>personnes extérieures</b> (ni membres ni aidants, pour cet événement seulement) : leur nom apparaît en orange. La première personne qui fait la tâche la coche. Le nom de l’équipe s’affiche sur la tâche avec ses membres (un par ligne quand ils sont nombreux). Les listes par personne et les rappels tiennent compte de chacun.']},
 {v:'2.82.191',d:'22/11/2026',items:['<b>📦 Déménager le groupe vers un nouveau serveur</b> : quand tu entres l’adresse d’un nouveau serveur (Réglages › Personnalisation › Serveur du groupe), l’appli propose « Envoyer tout le groupe » : membres, événements et documents sont recopiés. Utile pour passer la main ou changer de compte Cloudflare.']},
@@ -9692,7 +9693,7 @@ async function act(a,el,e){
    render();break}
   case 'push-sec':{const k=ds_.v,ex=pushEx().slice();const i=ex.indexOf(k);if(i>=0)ex.splice(i,1);else ex.push(k);S.pushEx=ex;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
   case 'push-pf':{const k=ds_.v,cur=S.pushPf==null?'aci':S.pushPf;S.pushPf=cur.includes(k)?cur.replace(k,''):cur+k;saveSet();try{if(pushIsOn())await pushOn()}catch(err){}render();break}
-  case 'push-on':{try{await pushOn();toast('Envoi activé pour ce téléphone')}catch(err){toast('Échec : '+(err&&err.message||err))}break}
+  case 'push-on':{toast('Activation en cours…',3000);try{await pushOn();S.pushWant=1;S.pushOff=0;saveSet();try{localStorage.setItem('agd-push-reg',APP_VERSION)}catch(e){}toast('✅ Notifications activées sur ce téléphone',4000);render()}catch(err){toast('❌ '+(err&&err.message||err),9000)}break}
   case 'rem-test':{try{await pushOn();await remSync(true,{id:'test-'+Date.now(),at:Date.now()+60000,m:{t:'🧪 Test de rappel',b:'Ça marche, même appli fermée.',g:'agd-rtest'}});toast('Rappel de test programmé : ferme l’appli et verrouille ton téléphone')}catch(err){toast('Échec : '+(err&&err.message||err),6000)}render();break}
   case 'push-fix':pushFix();break;
   case 'push-test':{try{await pushOn();const L=await pushSpaces();if(!L.length)throw new Error('aucun groupe');const ep=pushSelf(),out=[];let old=0;for(const x of L){try{const r=await fetch(famUrl()+'/push/'+x.space+'/test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:ep,lb:x.lb})});const j=await r.json();if(j.ok>1)old=1;out.push(x.lb+(r.ok&&j.ok>0?' ✓':' ✗'))}catch(e){out.push(x.lb+' ✗')}}toast('Test envoyé à ce téléphone : '+out.join(' · ')+(old?' (worker à mettre à jour : envoyé à tout le groupe)':''),7000)}catch(err){toast('Échec : '+(err&&err.message||err))}break}
@@ -12196,13 +12197,23 @@ async function pushSpaces(){
 async function pushHeal(force){try{if(!('Notification' in window)||Notification.permission!=='granted'||S.pushOff===1||!pushIsOn())return;const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();const ep=localStorage.getItem('agd-push-ep');if(!force&&sub&&ep===sub.endpoint&&localStorage.getItem('agd-push-reg')===APP_VERSION)return;await pushOn();S.pushWant=1;saveSet();localStorage.setItem('agd-push-reg',APP_VERSION)}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){const n=Date.now();if(n-(window.__phT||0)>600000){window.__phT=n;pushHeal()}}});
 async function pushFix(){try{if(!('Notification' in window))throw new Error('indisponible ici');if(Notification.permission!=='granted'){const r=await Notification.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}S.pushOff=0;S.pushWant=1;saveSet();const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();if(sub){try{await sub.unsubscribe()}catch(e){}}try{localStorage.removeItem('agd-push-ep')}catch(e){}await pushOn();localStorage.setItem('agd-push-reg',APP_VERSION);toast('✅ Notifications réparées sur ce téléphone',5000)}catch(err){toast('Échec : '+(err&&err.name?err.name+' : ':'')+(err&&err.message||err),9000)}render()}
+const pushTO=(p,ms,msg)=>Promise.race([p,new Promise((_,rj)=>setTimeout(()=>rj(new Error(msg)),ms))]);
+async function pushReg(){
+ if(!('serviceWorker' in navigator)||!('PushManager' in window))throw new Error('ce téléphone ou ce navigateur ne gère pas les notifications pour cette appli (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil)');
+ let r=swReg;if(!r){try{r=await navigator.serviceWorker.getRegistration()}catch(e){}}
+ if(!r){r=await navigator.serviceWorker.register('sw.js');swReg=r}
+ await pushTO(navigator.serviceWorker.ready,12000,'le service de notifications ne répond pas : ferme complètement l’appli, rouvre-la, puis réessaie');
+ return r}
 async function pushOn(){
- const reg=swReg||await navigator.serviceWorker.ready;
- let sub=await reg.pushManager.getSubscription();
- if(!sub){let vp=VAPID_PUB;if(amSrvTx()||!vp){try{const r=await fetch(famUrl()+'/vapid',{cache:'no-store'});const j=await r.json();if(j&&j.k)vp=j.k}catch(e){}}if(!vp)throw new Error('serveur sans clé de notification');const k=Uint8Array.from(atob(vp.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k})}
+ if(!('Notification' in window))throw new Error('notifications non gérées ici');
+ if(Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
+ if(Notification.permission!=='granted')throw new Error('les notifications sont bloquées pour cette appli : Réglages du téléphone › Applications › (cette appli) › Notifications › Autoriser');
+ const reg=await pushReg();
+ let sub=await pushTO(reg.pushManager.getSubscription(),8000,'abonnement injoignable : ferme et rouvre l’appli');
+ if(!sub){let vp=VAPID_PUB;if(amSrvTx()||!vp){try{const r=await fetch(famUrl()+'/vapid',{cache:'no-store'});const j=await r.json();if(j&&j.k)vp=j.k}catch(e){}}if(!vp)throw new Error('serveur sans clé de notification');const k=Uint8Array.from(atob(vp.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await pushTO(reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k}),20000,'le téléphone n’a pas pu créer l’abonnement (Google/Samsung injoignable ? réessaie en Wi-Fi ou 4G, ou redémarre le téléphone)')}
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
  const pf=pushPfStr(),j=sub.toJSON();
- for(const x of await pushSpaces()){const r=await fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})});if(!r.ok)throw new Error('Serveur : '+r.status)}
+ for(const x of await pushSpaces()){const r=await pushTO(fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})}),15000,'le serveur du groupe ne répond pas');if(!r.ok)throw new Error('Serveur : '+r.status)}
  try{await remSync(true)}catch(e){}
 }
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
