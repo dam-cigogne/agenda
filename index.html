@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.201';
+const APP_VERSION='2.82.202';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.202',d:'23/11/2026',items:['<b>🌐 Invitation : le message contient maintenant l’adresse du serveur</b> (bouton « Copier le message » / SMS de l’invitation Bureau et Aide). La personne qui colle le message entier n’a plus à taper l’adresse.','<b>🔔 Notifications : correction pour Asso malin</b> (fichiers manquants qui empêchaient l’activation). Le gros bandeau rouge « Active les notifications » s’affiche maintenant sur toutes les pages (Membres, Agenda, Tâches…), plus seulement l’accueil.']},
 {v:'2.82.201',d:'23/11/2026',items:['<b>🔔 Plusieurs personnes sur une tâche : tout le monde est prévenu</b> (il faut aussi mettre à jour le serveur Cloudflare avec le nouveau code du worker).']},
 {v:'2.82.200',d:'23/11/2026',items:['<b>🔔 Petite tâche confiée = notification</b> : la personne est prévenue, et la petite tâche apparaît dans ses tâches sur l’accueil.','<b>🔒 Aidants : ils ne peuvent cocher que leurs propres tâches</b> (et leurs petites tâches), plus celles des autres.','<b>🐞 Plusieurs personnes sur une tâche</b> : la tâche apparaît maintenant chez chacune d’elles (accueil, « Tâches de … »), pas seulement chez la première. Les petites tâches confiées à quelqu’un y apparaissent aussi.']},
 {v:'2.82.199',d:'23/11/2026',items:['<b>👥 Confier une petite tâche à une ou plusieurs personnes</b> : sur chaque petite tâche, touche « 👤 Confier » (puis ✏️ pour changer) et coche les personnes, une équipe, ou ajoute quelqu’un d’extérieur. Les noms s’affichent sous la petite tâche, et chaque personne peut cocher la sienne.','<b>📝 Petite note sous chaque petite tâche</b> : dans la même fenêtre, tu peux ajouter une précision (quantité, où trouver…), visible par tous.']},
@@ -13436,7 +13437,7 @@ async function amInvite(){
  const dest=pplSorted().filter(p=>p.tel&&p.id!==S.meId);
  const btns=dest.slice(0,6).map(p=>({label:'💬 Envoyer à '+pplName(p),value:'to:'+p.id,cls:'pri'})).concat([{label:'💬 Envoyer par SMS (choisir)',value:'sms',cls:dest.length?'':'pri'},{label:'Copier le message',value:'copy'},{label:'Fermer',value:null}]);
  const amiU=new URL(AMI?'./':'../amicale/',location.href).href;
- const msg='Rejoins « '+a.nm+' » : installe l’appli Amicale ('+amiU+'), touche « Rejoindre avec un code » et tape '+famCodeShow(code)+' (valable 7 jours). Astuce : tu peux coller ce message en entier dans la case du code, l’appli trouve le code toute seule. Tu as déjà AgenDam ? Réglages → Famille et contacts → Rejoindre avec un code, même code.';
+ const msg='Rejoins « '+a.nm+' » : installe l’appli Amicale ('+amiU+'), touche « Rejoindre avec un code » et tape '+famCodeShow(code)+' (valable 7 jours). Astuce : tu peux coller ce message en entier dans la case du code, l’appli trouve le code toute seule. Tu as déjà AgenDam ? Réglages → Famille et contacts → Rejoindre avec un code, même code.'+(amSrvTx()?'\n\n🌐 Serveur du groupe (se colle avec le code) : '+amSrvTx():'');
  const r=await ask({title:'🔢 Invitation '+(lv==='b'?'Bureau':'Aide'),html:'<p style="margin:.2rem 0 .4rem">La personne installe l’appli <b>Amicale</b> (le lien est dans le SMS) et touche <b>🔢 Rejoindre avec un code</b>, puis tape :</p><p style="font-size:2rem;font-weight:800;letter-spacing:.12em;text-align:center;margin:.4rem 0 .3rem">'+famCodeShow(code)+'</p><p class="mut" style="font-size:.85rem;margin:0 0 .5rem">Valable 7 jours, pour une personne de niveau <b>'+(lv==='b'?'Bureau':'Aide')+'</b>. Le même code marche aussi dans AgenDam (Réglages → Famille et contacts).</p>',btns});
  if(!r)return;
  if(r==='copy'){try{await navigator.clipboard.writeText(msg);toast('Message copié')}catch(e){}return}
@@ -18896,6 +18897,8 @@ function amView0(){
   const BN={ev:['📅','Agenda','#2D8CFF',n3+' à venir'],ee:['🎉','Événements','#FF5C6C',n4+' à venir'],tk:['✅','Tâches','#12B5A0',n1+' à faire'],co:['🛒','Courses','#FFB020',n2+' à acheter'],am:['🎖',amWC('p'),'#6B4EFF',(amAms().length)+' inscrits'],nt:['📝','Notes du bureau','#B25CFF','Réservé au bureau'],ad:['📁','Administratif','#0EA5B7','Documents et clés'],lo:['📖','Pour les nuls','#FF7A45','Le guide pas à pas'],id:['💡','Boîte à idées','#F59E0B',(()=>{const n=amIdNew();return n?n+' nouvelle'+(n>1?'s':''):'Tes idées et questions'})()]}[AMC_TAB];
   if(BN)h='<div class="am2t" style="--k-am:'+BN[2]+'"><div class="am2-bn" style="background:'+BN[2]+';background:linear-gradient(135deg,'+BN[2]+','+'color-mix(in srgb,'+BN[2]+' 65%,#b25cff))"><i>'+BN[0]+'</i><div><b>'+BN[1]+'</b><small>'+BN[3]+'</small></div></div>'+h+'</div>';
  }
+ /* 2.82.202 : le bandeau « Active les notifications » aussi sur Membres, Agenda, Tâches… (pas seulement l’accueil) */
+ if(!(nu&&AMC_TAB==='ac')){try{h=amNotifHome()+h}catch(e){}}
  if(side){
   const nav='<nav class="co-tabs am-sn" aria-label="Onglets du groupe">'+tabs.map(([k,l])=>'<button class="co-tab'+(AMC_TAB===k?' on':'')+'" data-act="am-tab" data-k="'+k+'" style="--tc:var(--k-am)"'+(k==='gr'?' aria-label="Réglages du groupe"':'')+'><span class="co-tn">'+l.replace(/^\S+\s/,'').replace(/ \d+$/,'')+'</span>'+(/ (\d+)$/.test(l)?'<b class="co-tc">'+l.match(/ (\d+)$/)[1]+'</b>':'')+'</button>').join('')+'<button class="co-tab co-tadd" data-act="am-sync" title="Actualiser" aria-label="Actualiser">🔄</button></nav>';
   return{html:'<div class="tk-wrap"><div class="co-book" style="--tcur:var(--k-am)"><div class="co-page">'+h+'</div>'+nav+'</div></div>',fixed:false};

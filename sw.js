@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '2.82.201';
+const VERSION = '2.82.202';
 /* Version de RÉFÉRENCE : le grand cadre bleu « Nouvelle version » ne s'affiche que sur les appareils plus anciens que celle-ci. La monter seulement pour une nouveauté que tout le monde doit avoir (garder égale à AM_VREF_DEF dans index.html). */
 const VREF = '2.82.158';
 const CACHE = 'agd-cache-v' + VERSION;
@@ -20,7 +20,8 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  /* 2.82.202 : un fichier manquant ne doit jamais empêcher l'installation (sinon plus de notifications) */
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(u => c.add(u).catch(() => {})))));
 });
 
 self.addEventListener('activate', e => {
