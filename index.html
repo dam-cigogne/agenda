@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.202';
+const APP_VERSION='2.82.203';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.203',d:'23/11/2026',items:['<b>🔔 Notifications Asso malin</b> : le titre porte le nom de ton groupe au lieu de « Amicale » (demande le serveur mis à jour).','<b>🔢 Numéro de mise à jour visible dans Asso malin</b> : « Version 1.0 (mise à jour 203) » pour savoir tout de suite si ton téléphone a bien la dernière version.']},
 {v:'2.82.202',d:'23/11/2026',items:['<b>🌐 Invitation : le message contient maintenant l’adresse du serveur</b> (bouton « Copier le message » / SMS de l’invitation Bureau et Aide). La personne qui colle le message entier n’a plus à taper l’adresse.','<b>🔔 Notifications : correction pour Asso malin</b> (fichiers manquants qui empêchaient l’activation). Le gros bandeau rouge « Active les notifications » s’affiche maintenant sur toutes les pages (Membres, Agenda, Tâches…), plus seulement l’accueil.']},
 {v:'2.82.201',d:'23/11/2026',items:['<b>🔔 Plusieurs personnes sur une tâche : tout le monde est prévenu</b> (il faut aussi mettre à jour le serveur Cloudflare avec le nouveau code du worker).']},
 {v:'2.82.200',d:'23/11/2026',items:['<b>🔔 Petite tâche confiée = notification</b> : la personne est prévenue, et la petite tâche apparaît dans ses tâches sur l’accueil.','<b>🔒 Aidants : ils ne peuvent cocher que leurs propres tâches</b> (et leurs petites tâches), plus celles des autres.','<b>🐞 Plusieurs personnes sur une tâche</b> : la tâche apparaît maintenant chez chacune d’elles (accueil, « Tâches de … »), pas seulement chez la première. Les petites tâches confiées à quelqu’un y apparaissent aussi.']},
@@ -13086,7 +13087,7 @@ function appLockCard(){
 }
 async function amPut(zone,doc,P,kraw,hint,det,to){
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
- const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):'')+(to?(det?'&':'?')+'to='+encodeURIComponent(String(to).slice(0,1400)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||hint==='q'||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint&&hint!=='q'?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
+ const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):'')+(to?(det?'&':'?')+'to='+encodeURIComponent(String(to).slice(0,1400)):'')+(typeof APP_SHOW!=='undefined'&&a.nm?((det||to)?'&':'?')+'an='+encodeURIComponent(String(a.nm).replace(/\s+/g,' ').trim().slice(0,24)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||hint==='q'||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint&&hint!=='q'?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
 }
 const amCardOf=()=>{const m=amc().me;return{app:'agd',k:'amc',v:1,id:m.id,n:m.n,sn:m.sn||'',tel:m.tel||'',mp:m.mp||'',mw:m.mw||'',col:m.col||'',ic:m.ic||'',ph:m.ph||'',pub:m.pub||null,v:APP_VERSION,o:amStandalone()?'app':'site',la:today(),at:Date.now()}};
