@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.199';
+const APP_VERSION='2.82.200';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.200',d:'23/11/2026',items:['<b>🔔 Petite tâche confiée = notification</b> : la personne est prévenue, et la petite tâche apparaît dans ses tâches sur l’accueil.','<b>🔒 Aidants : ils ne peuvent cocher que leurs propres tâches</b> (et leurs petites tâches), plus celles des autres.','<b>🐞 Plusieurs personnes sur une tâche</b> : la tâche apparaît maintenant chez chacune d’elles (accueil, « Tâches de … »), pas seulement chez la première. Les petites tâches confiées à quelqu’un y apparaissent aussi.']},
 {v:'2.82.199',d:'23/11/2026',items:['<b>👥 Confier une petite tâche à une ou plusieurs personnes</b> : sur chaque petite tâche, touche « 👤 Confier » (puis ✏️ pour changer) et coche les personnes, une équipe, ou ajoute quelqu’un d’extérieur. Les noms s’affichent sous la petite tâche, et chaque personne peut cocher la sienne.','<b>📝 Petite note sous chaque petite tâche</b> : dans la même fenêtre, tu peux ajouter une précision (quantité, où trouver…), visible par tous.']},
 {v:'2.82.198',d:'23/11/2026',items:['<b>🐞 Correction</b> : les boutons Monter / Descendre de la 2.82.197 ne marchaient pas pour les tâches (ils sont retirés, le glisser par appui long fonctionne).','<b>✍️ Saisie des petites tâches refaite</b> : une ligne par petite tâche (au lieu d’une grosse boîte de texte). Entrée = ligne suivante, Retour arrière sur une ligne vide = la retirer, ✕ pour supprimer, ➕ pour ajouter, et tu peux coller une liste entière (elle se découpe toute seule). Les zones de texte s’agrandissent maintenant toutes seules.','<b>✋ Appui long, puis glisse pour déplacer</b> : garde le doigt (ou la souris) appuyé une demi-seconde sur une petite tâche ou un créneau du programme, puis fais-le glisser (les tâches entières se glissaient déjà ainsi). Un trait violet montre où il va se poser. Une petite tâche déposée sur une autre tâche entre dedans. Un créneau déposé sur un titre de jour (La veille, Jour J…) change de jour. ']},
 {v:'2.82.197',d:'23/11/2026',items:['<b>✍️ Plus de limite à 12 petites tâches</b> : une tâche de préparation peut maintenant en contenir jusqu’à 80, avec des infos plus longues (1500 caractères). Avant, tout ce qui dépassait 12 disparaissait sans prévenir.','<b>🕐 Programme par jour</b> : choisis « La veille », « Le jour J », « Une semaine avant »… pour chaque créneau, le programme s’affiche en parties. Et tu tapes <b>tous les créneaux d’un coup</b> (une ligne chacun, l’heure au début : 14h30 chargement du camion).','<b>↕️ Déplacer les blocs</b> : touche une tâche ou un créneau puis ⬆️ Monter / ⬇️ Descendre. Et <b>appui long sur une petite tâche</b> pour la déplacer dans une autre tâche (ou en faire une tâche à part). Un programme déplacé à la main garde ton ordre.','<b>👀 Les aides voient toute la préparation</b> (toutes les parties), sans pouvoir la modifier, et peuvent cocher les tâches qui leur sont confiées.']},
@@ -9491,9 +9492,9 @@ async function act(a,el,e){
   case 'an-edit':amAnEdit();break;case 'an-open':amAnOpen();break;case 'an-hide':amAnHide();break;
   case 'tr-empty':amTrashEmpty();break;
   case 'ee-back':AMC_EE='';AMC_EES='';PT_SEL=CK_SEL=null;render();break;
-  case 'ee-tick':amEeMut(o=>{const c=o.ck[+ds_.i];if(c){c.ok=c.ok?0:1;const me=String(amc().me.n||'').slice(0,30);if(c.sb)c.sb.forEach(q=>{q.ok=c.ok;if(c.ok){q.ob=me;q.ot=Date.now()}else{delete q.ob;delete q.ot}})}});break;
+  case 'ee-tick':amEeMut(o=>{const c=o.ck[+ds_.i];if(c&&(amc().kB||ckWho(c).some(amIsMe))){c.ok=c.ok?0:1;const me=String(amc().me.n||'').slice(0,30);if(c.sb)c.sb.forEach(q=>{q.ok=c.ok;if(c.ok){q.ob=me;q.ot=Date.now()}else{delete q.ob;delete q.ot}})}});break;
   case 'sb-who':amSbWho(+ds_.i,+ds_.j);break;
-  case 'ck-sb':amEeMut(o=>{const c=o.ck[+ds_.i],q=c&&c.sb&&c.sb[+ds_.j];if(!q)return;q.ok=q.ok?0:1;if(q.ok){q.ob=String(amc().me.n||'').slice(0,30);q.ot=Date.now()}else{delete q.ob;delete q.ot}c.ok=c.sb.every(z=>z.ok)?1:0});break;
+  case 'ck-sb':amEeMut(o=>{const c=o.ck[+ds_.i],q=c&&c.sb&&c.sb[+ds_.j];if(!q)return;if(!amc().kB&&!ckWho(c).some(amIsMe)&&!ckWho(q).some(amIsMe))return;q.ok=q.ok?0:1;if(q.ok){q.ob=String(amc().me.n||'').slice(0,30);q.ot=Date.now()}else{delete q.ob;delete q.ot}c.ok=c.sb.every(z=>z.ok)?1:0});break;
   case 'ee-ck':amEeRow('ck',+ds_.i);break;
   case 'ee-pg':amEeRow('pg',+ds_.i);break;
   case 'ee-addck':amEeAddCk(-1);break;
@@ -13583,7 +13584,7 @@ async function amRemove(id){
 }
 function amMbTk(p){
  const L=amItems('tk').filter(i=>!i.x&&i.w&&amWIs(i.w,p)).map(i=>({tx:i.tx,d:i.d,h:i.h}));
- amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(c&&!c.ok&&c.w&&amWIs(c.w,p))L.push({tx:c.t,d:e.d,ev:e.tx})}));
+ amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(!c)return;const pr=ckWho(c).some(n=>amWIs(n,p));if(!c.ok&&pr)L.push({tx:c.t,d:e.d,ev:e.tx});(c.sb||[]).forEach(q=>{if(!q.ok&&!pr&&ckWho(q).some(n=>amWIs(n,p)))L.push({tx:q.t+' ('+c.t+')',d:e.d,ev:e.tx})})}));
  return L}
 function amMbTasks(id){
  const p=amList().find(x=>x.id===id);if(!p)return;
@@ -14014,6 +14015,8 @@ function amEeMut(fn){
  if(old.pt.length===o.pt.length)o.pt.forEach((c,i)=>{if(strip(c,'by')!==strip(old.pt[i],'by')){c.by=me;c.bt=now}});
  {const nw=[];o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);if(c.w&&(!p0||ckWho(p0).join('|')!==ckWho(c).join('|'))){c.ak='';nw.push(c)}});
   const c=nw[nw.length-1],pp=c&&old.ck.find(z=>z.t===c.t),nn=c&&ckWho(c).find(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(pp&&ckWho(pp).includes(x))}),m=nn&&amList().find(x=>x.n===nn);if(m&&!m.self&&m.id!==a.me.id){o.nh='tka';o.ndt='t’a confié « '+String(c.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+') : merci de confirmer';o.pto=m.id;o._tka=1}}
+ if(!o._tka){let sc=null,sn=null;o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);(c.sb||[]).forEach(q=>{const q0=p0&&(p0.sb||[]).find(z=>z.t===q.t);const nn=ckWho(q).find(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(q0&&ckWho(q0).includes(x))});if(nn){sc=q;sn=nn}})});
+  const m=sn&&amList().find(x=>x.n===sn);if(m&&!m.self&&m.id!==a.me.id){o.nh='tka';o.ndt='t’a confié la petite tâche « '+String(sc.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+')';o.pto=m.id;o._tka=1}}
  amItemSave(o);
 }
 const AM_TH={
@@ -14061,7 +14064,7 @@ const amThGuess=t=>{t=norm(t);return /parfum|cosmetique|beaute|vente (privee|exc
 const amDLong=d=>{const x=pd(d);return cap(x.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}))};
 function amEeMeta(it){return '📅 '+esc(amDLong(it.d))+(it.pl?' · 📍 '+esc(it.pl):'')}
 function amEeProgHTML(it){return (it.pg||[]).length?amPgList(it).map(g=>(g.l?'<h3>'+g.l+'</h3>':'')+'<table class="amp-t">'+g.L.map(p=>'<tr><td>'+esc(p.tm||'')+'</td><td>'+esc(p.t)+'</td></tr>').join('')+'</table>').join(''):'<p><i>Programme à préciser.</i></p>'}
-function amEePrepHTML(it){const ck=it.ck||[],cs=it.cs||[],R=c=>'<div class="amp-ck"><i>'+(c.ok?'✓':'')+'</i><div>'+esc(c.t)+(c.w?'<br><small>👤 '+esc(c.w)+'</small>':'')+(c.sb||[]).map(q=>'<br><small>'+(q.ok?'☑':'☐')+' '+esc(q.t)+(q.w?' — '+esc(q.w):'')+'</small>').join('')+'</div></div>';if(!ck.length)return '<p><i>Rien à préparer.</i></p>';if(!cs.length)return ck.map(R).join('');
+function amEePrepHTML(it){const ck=it.ck||[],cs=it.cs||[],R=c=>'<div class="amp-ck"><i>'+(c.ok?'✓':'')+'</i><div>'+esc(c.t)+(c.w?'<br><small>👤 '+ckWho(c).map(esc).join(', ')+'</small>':'')+(c.sb||[]).map(q=>'<br><small>'+(q.ok?'☑':'☐')+' '+esc(q.t)+(q.w?' — '+esc(q.w):'')+'</small>').join('')+'</div></div>';if(!ck.length)return '<p><i>Rien à préparer.</i></p>';if(!cs.length)return ck.map(R).join('');
  return cs.map(x=>{const L=ck.filter(c=>c.s===x.id);return L.length?'<h3>'+esc(x.t)+'</h3>'+L.map(R).join(''):''}).join('')+(()=>{const o=ck.filter(c=>!cs.some(y=>y.id===c.s));return o.length?'<h3>Autres tâches</h3>'+o.map(R).join(''):''})()}
 async function amEePrint(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;
@@ -17926,10 +17929,10 @@ function amEeHTML(){
   if(cs.length){
    h+=cs.map(x=>amCsBlock(it,x,ck,CS,rw,dds)).join('');
    const oth=ck.map((c,i)=>({c,i})).filter(x=>!cs.some(y=>y.id===x.c.s)),no=oth.filter(x=>x.c.ok).length;
-   h+='<div class="am-cs" data-s=""><div class="am-cs-h"><b>📌 Autres tâches</b><small>bureau et aides'+(rw?' · hors préparation':'')+'</small><span class="am-cs-n'+(oth.length&&no===oth.length?' ok':'')+'">'+(oth.length?no+'/'+oth.length:'')+'</span></div><div class="am-cs-l">'+(oth.length?oth.map(x=>amCkRow(x.c,x.i,CS,rw,!rw)).join(''):'<p class="empty" style="margin:.4rem 0;font-size:.88rem">Rien pour l’instant. Ici, les choses à ne pas oublier qui ne sont pas de la préparation.</p>')+'</div>'+(rw?'<button class="btn blk" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button>':'')+'</div>';
+   h+='<div class="am-cs" data-s=""><div class="am-cs-h"><b>📌 Autres tâches</b><small>bureau et aides'+(rw?' · hors préparation':'')+'</small><span class="am-cs-n'+(oth.length&&no===oth.length?' ok':'')+'">'+(oth.length?no+'/'+oth.length:'')+'</span></div><div class="am-cs-l">'+(oth.length?oth.map(x=>amCkRow(x.c,x.i,CS,rw,rw?false:'mine')).join(''):'<p class="empty" style="margin:.4rem 0;font-size:.88rem">Rien pour l’instant. Ici, les choses à ne pas oublier qui ne sont pas de la préparation.</p>')+'</div>'+(rw?'<button class="btn blk" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button>':'')+'</div>';
    if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ps-add">➕ Ajouter une partie</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div>';
   }else{
-   h+=ck.length?'<div class="am-cs-l">'+ck.map((c,i)=>amCkRow(c,i,CS,rw,!rw)).join('')+'</div>':'<p class="empty">Rien à préparer pour l’instant.</p>';
+   h+=ck.length?'<div class="am-cs-l">'+ck.map((c,i)=>amCkRow(c,i,CS,rw,rw?false:'mine')).join('')+'</div>':'<p class="empty">Rien à préparer pour l’instant.</p>';
    if(rw)h+='<div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-addck">'+ic('plus')+' Ajouter une tâche</button><button class="btn grow" data-act="ee-teams">👥 Équipes</button><button class="btn grow" data-act="ee-imp">📥 Importer une liste</button></div><button class="btn pri blk" data-act="ps-org" style="margin-top:.4rem">🗂 Organiser en parties (une semaine avant · la veille · jour J)</button>';
   }
   /* 2.82.155 : visible aussi quand la préparation est organisée en parties, et pour les aides */
