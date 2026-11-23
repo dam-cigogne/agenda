@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.205';
+const APP_VERSION='2.82.206';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.206',d:'23/11/2026',items:['<b>🔔 Notifications : détails de nouveau complets</b> (tâche, événement, courses, note) : correction côté serveur, à mettre à jour (worker). <b>Asso malin</b> : la grosse barre « Groupe » en bas du téléphone disparaît (il n’y a qu’un onglet).']},
 {v:'2.82.205',d:'23/11/2026',items:['<b>🔔 Phrases des notifications modifiables</b> : Personnaliser › « Phrases des notifications » (administrateurs) : tu écris ce que les autres liront quand quelqu’un ajoute, modifie ou supprime une tâche, un événement, les courses, une note ou la fiche d’un membre, avec {quoi} pour le nom. Pas de nouveau serveur à coller.']},
 {v:'2.82.204',d:'23/11/2026',items:['<b>🔔 Notifications avec détails</b> : « Paul a ajouté la tâche « … » », « nouvelle fiche (…) », « a retiré « … » des courses », avec les mots de ton groupe. Réglable dans Réglages › Notifications (« Détails dans les notifications que j’envoie »). Demande le serveur mis à jour.']},
 {v:'2.82.203',d:'23/11/2026',items:['<b>🔔 Notifications Asso malin</b> : le titre porte le nom de ton groupe au lieu de « Amicale » (demande le serveur mis à jour).','<b>🔢 Numéro de mise à jour visible dans Asso malin</b> : « Version 1.0 (mise à jour 203) » pour savoir tout de suite si ton téléphone a bien la dernière version.']},
