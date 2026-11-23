@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.203';
+const APP_VERSION='2.82.204';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.204',d:'23/11/2026',items:['<b>🔔 Notifications avec détails</b> : « Paul a ajouté la tâche « … » », « nouvelle fiche (…) », « a retiré « … » des courses », avec les mots de ton groupe. Réglable dans Réglages › Notifications (« Détails dans les notifications que j’envoie »). Demande le serveur mis à jour.']},
 {v:'2.82.203',d:'23/11/2026',items:['<b>🔔 Notifications Asso malin</b> : le titre porte le nom de ton groupe au lieu de « Amicale » (demande le serveur mis à jour).','<b>🔢 Numéro de mise à jour visible dans Asso malin</b> : « Version 1.0 (mise à jour 203) » pour savoir tout de suite si ton téléphone a bien la dernière version.']},
 {v:'2.82.202',d:'23/11/2026',items:['<b>🌐 Invitation : le message contient maintenant l’adresse du serveur</b> (bouton « Copier le message » / SMS de l’invitation Bureau et Aide). La personne qui colle le message entier n’a plus à taper l’adresse.','<b>🔔 Notifications : correction pour Asso malin</b> (fichiers manquants qui empêchaient l’activation). Le gros bandeau rouge « Active les notifications » s’affiche maintenant sur toutes les pages (Membres, Agenda, Tâches…), plus seulement l’accueil.']},
 {v:'2.82.201',d:'23/11/2026',items:['<b>🔔 Plusieurs personnes sur une tâche : tout le monde est prévenu</b> (il faut aussi mettre à jour le serveur Cloudflare avec le nouveau code du worker).']},
@@ -8488,7 +8489,7 @@ h+='<div class="card" id="ics-card">'+
   '<div class="set-row"><span class="lbl">Notifications</span>'+
   (perm==='denied'?'<p class="mut">Refusées dans les réglages du navigateur ou du téléphone. Il faut les réautoriser là-bas.</p>'
    :perm==='indisponible'?'<p class="mut">Non disponibles sur ce navigateur (sur iPhone : ajoute d’abord l’appli à l’écran d’accueil).</p>'
-   :(famAll().length||amc()?'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(pushIsOn()?' checked':'')+'></label></div>'
+   :(famAll().length||amc()?'<div class="tgl-row"><b>Me prévenir quand quelqu’un modifie quelque chose, même appli fermée</b><label class="tgl"><input type="checkbox" data-chg="pushTog"'+(pushIsOn()?' checked':'')+'></label></div>'+(pushIsOn()?'<div class="tgl-row"><b>Détails dans les notifications que j’envoie</b><label class="tgl"><input type="checkbox" data-chg="ntDet"'+(S.ntDet!==false?' checked':'')+'></label></div><p class="mut" style="margin:.1rem 0 .4rem;font-size:.82rem">Ex. « Paul a ajouté la tâche « Acheter les appâts » ». Le nom de l’élément passe en clair par le serveur du groupe. Désactivé : « Paul : 1 modification ».</p>':'')
      :'<button class="btn blk" data-act="notif">'+ic('bell')+' Activer les notifications</button><p class="mut">Pour être prévenu des modifications du groupe, rejoins d’abord un groupe.</p>'))+
   (perm==='granted'&&pushIsOn()?'<p class="mut" style="margin-top:.6rem">Me prévenir pour :</p><div class="chips">'+[['a','📅 Agenda partagé'],['c','🛒 Listes partagées'],['i','👥 Amicale']].map(([k,l])=>'<button type="button" class="chip'+((S.pushPf==null?'aci':S.pushPf).includes(k)?' on':'')+'" data-act="push-pf" data-v="'+k+'">'+l+'</button>').join('')+'</div>'+pushSecHTML()+'<p class="mut">Jamais pour tes propres changements, même depuis un autre de tes appareils. Au plus une notification toutes les 2 minutes.</p><p class="mut" style="margin-top:.6rem">'+esc(remStTxt())+'</p><button class="btn alt blk" data-act="push-fix">🔧 Réparer les notifications de ce téléphone</button><button class="btn alt blk" data-act="push-test" style="margin-top:.4rem">🧪 Envoyer un test à ce téléphone</button><button class="btn alt blk" data-act="rem-test" style="margin-top:.4rem">⏰ Tester un rappel dans 1 minute</button><button class="btn alt blk" data-act="push-who" style="margin-top:.4rem">🔍 Qui reçoit les notifications ?</button>':'')+
   '</div>'+
@@ -9815,6 +9816,7 @@ document.addEventListener('change',e=>{
  if(t.id&&t.id.indexOf('f-')===0){onEditorChange(e);return}
  if(t.id&&/^rs-(type|all)-/.test(t.id)){rotRead();rotDraw();return}
  if(t.id==='sel-per'){SEL.per=t.value;selRefilter();return}
+ if(t.dataset.chg==='ntDet'){S.ntDet=!!t.checked;saveSet();toast(t.checked?'Détails activés':'Détails désactivés',1800);return}
  if(t.dataset.chg==='pushTog'){(async()=>{try{if(t.checked){if(Notification.permission!=='granted'){const r=await Notification.requestPermission();S.notif=r==='granted';if(r!=='granted'){t.checked=false;saveSet();toast('Notifications non autorisées');render();return}}S.pushOff=0;S.pushWant=1;saveSet();await pushOn();toast('Notifications activées')}else{S.pushOff=1;S.pushWant=0;saveSet();await pushOff();toast('Notifications désactivées')}}catch(err){t.checked=false;S.pushWant=0;saveSet();toast('Échec : '+(err&&err.name?err.name+' : ':'')+(err&&err.message||err),9000)}render()})();return}
  if(t.dataset.chg==='askPhone'){S.askPhone=t.checked;saveSet();return}
  if(t.dataset.chg==='tkNote'){S.tkNote=t.checked;saveSet();return}
@@ -13086,6 +13088,12 @@ function appLockCard(){
  return '<div class="card"><h3>🔐 Verrouiller l’application</h3><p class="mut" style="font-size:.85rem;margin:.2rem 0 .5rem">Demande un code (ou Face ID / empreinte) pour ouvrir l’appli sur cet appareil. Chaque appareil a son propre code.</p><button class="btn blk" data-act="aml-pin">'+(S.amlPin?'Verrou activé : changer ou retirer':'Créer un code…')+'</button>'+(S.amlPin?'<b style="display:block;margin:.6rem 0 .2rem">Se reverrouille après…</b><div class="seg" style="flex-wrap:wrap">'+[[0,'Tout de suite'],[30,'30 s'],[60,'1 min'],[300,'5 min'],[900,'15 min'],[3600,'1 h']].map(o=>'<button data-act="aml-delay" data-v="'+o[0]+'" class="'+(amlDelay()===o[0]?'on':'')+'">'+o[1]+'</button>').join('')+'</div><p class="mut" style="font-size:.8rem;margin:.2rem 0 0">Temps passé hors de l’appli avant qu’elle redemande le code.</p>':'')+(S.amlPin&&!AMI&&S.amc&&S.amc.on?'<b style="display:block;margin:.6rem 0 .2rem">Que verrouiller ?</b><div class="seg"><button data-act="aml-scope" data-v="all" class="'+(S.amlScope!=='am'?'on':'')+'">Toute l’application</button><button data-act="aml-scope" data-v="am" class="'+(S.amlScope==='am'?'on':'')+'">Seulement le groupe</button></div>':'')+(S.amlPin?'<button class="btn blk" data-act="aml-bio">'+(S.amlBio?'✅ Face ID / empreinte activé : retirer':'👤 Activer Face ID / empreinte')+'</button><button class="btn blk" data-act="aml-lock">Verrouiller maintenant</button>':'')+'</div>'
 }
 async function amPut(zone,doc,P,kraw,hint,det,to){
+ /* 2.82.204 : notification détaillée, phrase écrite ici avec les mots du groupe ; le serveur ne fait que la relayer (hint xt) */
+ if(S.ntDet!==false&&/^(tk|ee|ev|co|nt|am)$/.test(hint||'')&&/^[amd]\|./.test(det||'')){try{const v=det[0],tx='« '+det.slice(2,40)+' »',w=amW('s');let ph='';
+  if(hint==='co')ph=v==='a'?'a ajouté '+tx+' aux courses':v==='d'?'a retiré '+tx+' des courses':'a modifié la liste de courses : '+tx;
+  else if(hint==='am')ph=v==='a'?'a ajouté une fiche ('+w+') : '+tx:v==='d'?'a supprimé la fiche : '+tx:'a modifié la fiche : '+tx;
+  else{const N={tk:'la tâche',ee:'l’événement',ev:'l’événement',nt:'la note'}[hint];ph='a '+(v==='a'?'ajouté':v==='d'?'supprimé':'modifié')+' '+N+' '+tx}
+  if(ph){hint='xt';det=ph.slice(0,76)}}catch(e){}}
  const a=amc(),FK=await famKeys({k:kraw||(zone==='b'?a.kB:a.kA)}),b=await famEncK(P,FK.key);b.by=String(a.me.n||'').slice(0,30);
  const r=await fetch(famUrl()+'/s/'+FK.space+'/'+doc+(det?'?d='+encodeURIComponent(String(det).slice(0,80)):'')+(to?(det?'&':'?')+'to='+encodeURIComponent(String(to).slice(0,1400)):'')+(typeof APP_SHOW!=='undefined'&&a.nm?((det||to)?'&':'?')+'an='+encodeURIComponent(String(a.nm).replace(/\s+/g,' ').trim().slice(0,24)):''),{method:'PUT',headers:Object.assign({'Content-Type':'application/json','X-Push-Self':pushSelf(),'X-Push-Skip':String(a.me.id||'')},(AM_QUIET||hint==='q'||(hint==='co'&&coQuiet()))?{'X-Push-Quiet':'1'}:{},hint&&hint!=='q'?{'X-Push-Hint':String(hint).slice(0,3)}:{}),body:JSON.stringify(b)});
  if(!r.ok)throw new Error('Serveur : '+r.status);
