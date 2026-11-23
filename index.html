@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.200';
+const APP_VERSION='2.82.201';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.201',d:'23/11/2026',items:['<b>🔔 Plusieurs personnes sur une tâche : tout le monde est prévenu</b> (il faut aussi mettre à jour le serveur Cloudflare avec le nouveau code du worker).']},
 {v:'2.82.200',d:'23/11/2026',items:['<b>🔔 Petite tâche confiée = notification</b> : la personne est prévenue, et la petite tâche apparaît dans ses tâches sur l’accueil.','<b>🔒 Aidants : ils ne peuvent cocher que leurs propres tâches</b> (et leurs petites tâches), plus celles des autres.','<b>🐞 Plusieurs personnes sur une tâche</b> : la tâche apparaît maintenant chez chacune d’elles (accueil, « Tâches de … »), pas seulement chez la première. Les petites tâches confiées à quelqu’un y apparaissent aussi.']},
 {v:'2.82.199',d:'23/11/2026',items:['<b>👥 Confier une petite tâche à une ou plusieurs personnes</b> : sur chaque petite tâche, touche « 👤 Confier » (puis ✏️ pour changer) et coche les personnes, une équipe, ou ajoute quelqu’un d’extérieur. Les noms s’affichent sous la petite tâche, et chaque personne peut cocher la sienne.','<b>📝 Petite note sous chaque petite tâche</b> : dans la même fenêtre, tu peux ajouter une précision (quantité, où trouver…), visible par tous.']},
 {v:'2.82.198',d:'23/11/2026',items:['<b>🐞 Correction</b> : les boutons Monter / Descendre de la 2.82.197 ne marchaient pas pour les tâches (ils sont retirés, le glisser par appui long fonctionne).','<b>✍️ Saisie des petites tâches refaite</b> : une ligne par petite tâche (au lieu d’une grosse boîte de texte). Entrée = ligne suivante, Retour arrière sur une ligne vide = la retirer, ✕ pour supprimer, ➕ pour ajouter, et tu peux coller une liste entière (elle se découpe toute seule). Les zones de texte s’agrandissent maintenant toutes seules.','<b>✋ Appui long, puis glisse pour déplacer</b> : garde le doigt (ou la souris) appuyé une demi-seconde sur une petite tâche ou un créneau du programme, puis fais-le glisser (les tâches entières se glissaient déjà ainsi). Un trait violet montre où il va se poser. Une petite tâche déposée sur une autre tâche entre dedans. Un créneau déposé sur un titre de jour (La veille, Jour J…) change de jour. ']},
@@ -14014,9 +14015,9 @@ function amEeMut(fn){
  if(old.ck.length===o.ck.length)o.ck.forEach((c,i)=>{if(strip(c,'ob')!==strip(old.ck[i],'ob')){if(c.ok){c.ob=me;c.ot=now}else{delete c.ob;delete c.ot}}});
  if(old.pt.length===o.pt.length)o.pt.forEach((c,i)=>{if(strip(c,'by')!==strip(old.pt[i],'by')){c.by=me;c.bt=now}});
  {const nw=[];o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);if(c.w&&(!p0||ckWho(p0).join('|')!==ckWho(c).join('|'))){c.ak='';nw.push(c)}});
-  const c=nw[nw.length-1],pp=c&&old.ck.find(z=>z.t===c.t),nn=c&&ckWho(c).find(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(pp&&ckWho(pp).includes(x))}),m=nn&&amList().find(x=>x.n===nn);if(m&&!m.self&&m.id!==a.me.id){o.nh='tka';o.ndt='t’a confié « '+String(c.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+') : merci de confirmer';o.pto=m.id;o._tka=1}}
- if(!o._tka){let sc=null,sn=null;o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);(c.sb||[]).forEach(q=>{const q0=p0&&(p0.sb||[]).find(z=>z.t===q.t);const nn=ckWho(q).find(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(q0&&ckWho(q0).includes(x))});if(nn){sc=q;sn=nn}})});
-  const m=sn&&amList().find(x=>x.n===sn);if(m&&!m.self&&m.id!==a.me.id){o.nh='tka';o.ndt='t’a confié la petite tâche « '+String(sc.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+')';o.pto=m.id;o._tka=1}}
+  const c=nw[nw.length-1],pp=c&&old.ck.find(z=>z.t===c.t),nn=c&&ckWho(c).filter(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(pp&&ckWho(pp).includes(x))}),ms=(nn||[]).map(n=>amList().find(x=>x.n===n)).filter(m=>m&&!m.self&&m.id!==a.me.id),m=ms[0];if(m){o.nh='tka';o.ndt='t’a confié « '+String(c.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+') : merci de confirmer';o.pto=ms.map(x=>x.id).join(',');o._tka=1}}
+ if(!o._tka){let sc=null,sn=null;o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);(c.sb||[]).forEach(q=>{const q0=p0&&(p0.sb||[]).find(z=>z.t===q.t);const nn=ckWho(q).filter(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(q0&&ckWho(q0).includes(x))});if(nn.length){sc=q;sn=nn}})});
+  const ms=(sn||[]).map(n=>amList().find(x=>x.n===n)).filter(m=>m&&!m.self&&m.id!==a.me.id);if(ms.length){o.nh='tka';o.ndt='t’a confié la petite tâche « '+String(sc.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+')';o.pto=ms.map(x=>x.id).join(',');o._tka=1}}
  amItemSave(o);
 }
 const AM_TH={
