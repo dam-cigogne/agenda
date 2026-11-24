@@ -2997,7 +2997,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.220';
+const APP_VERSION='2.82.221';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3005,6 +3005,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.221',d:'24/11/2026',items:['<b>🕘 Historique d’un événement</b> : dans chaque événement, « Historique et éléments retirés » montre les dernières modifications et tout ce qui a été retiré (tâches, programme, inscrits), avec « Remettre » pour les récupérer.']},
 {v:'2.82.220',d:'24/11/2026',items:['<b>👥 Notification d’inscription</b> : toucher « Nouvelle inscription » ouvre directement la liste des inscrits ; toucher « Du nouveau » (tâche faite, plusieurs modifications…) ouvre le dernier élément modifié au lieu de l’accueil.']},
 {v:'2.82.219',d:'24/11/2026',items:['<b>🔔 Toucher une notification</b> : l’événement modifié s’ouvre directement (même quand la notification ne donne pas son nom), et dans Asso malin les notifications ouvrent aussi la bonne page.']},
 {v:'2.82.218',d:'24/11/2026',items:['<b>🔄 Mise à jour automatique</b> : l’appli cherche une nouvelle version dès qu’on la regarde (retour sur l’appli, ou toutes les 3 minutes si elle reste ouverte) et se met à jour toute seule, sans attendre qu’on pense à appuyer sur « Mettre à jour » (sauf si on est en train d’écrire quelque chose : ça attend).','<b>🐞 Programme d’un événement</b> : le classement « La veille / Le jour J… » et l’ordre choisi à la main des créneaux se perdaient à la synchronisation (le programme redevenait une simple liste). Ils sont maintenant bien enregistrés et transmis aux autres appareils (comme un autre réglage d’événement qui se perdait aussi).']},
@@ -9534,6 +9535,7 @@ async function act(a,el,e){
   case 'vp-test':{const a=amc(),it=a&&a.it&&a.it[ds_.id];const u=it&&it.vp&&(it.vp.uc||amVpHref(it.vp.u));if(u)window.open(u,'_blank','noopener');break}
   case 'ee-addpg':amEeAddPg(-1);break;
   case 'ee-bn':amEeBnEdit(AMC_EE);break;
+  case 'ee-hist':amEeHist();break;
   case 'ee-edit':{const a=amc(),it=a&&a.it[AMC_EE];if(it&&a.kB)amItemForm('ee',it);break}
   case 'ee-copy':amEeCopy();break;
   case 'ee-tpl':amTplSave();break;
@@ -13358,6 +13360,7 @@ async function amPull(manual){
      /* 2.82.217 : deux appareils qui modifient le même événement ne s’écrasent plus : tâches de préparation et programme sont fusionnés (une suppression volontaire est mémorisée) */
      if(P.kind==='ee'&&!P.del){const o2=a.it[P.id],ar=v=>Array.isArray(v)?v:[],cx=v=>ar(v).slice(-80).map(z=>({k:String(z&&z.k||'').slice(0,240),t:+(z&&z.t)||0})).filter(z=>z.k&&z.t>Date.now()-30*864e5);
       o2.ckx=cx(P.ckx);o2.pgx=cx(P.pgx);
+      {const cr=v=>ar(v).filter(z=>z&&['ck','pg','pt'].includes(z.k)&&z.o&&typeof z.o==='object'&&+z.t>Date.now()-30*864e5&&JSON.stringify(z.o).length<2500).map(z=>({t:+z.t,by:String(z.by||'').slice(0,40),k:z.k,o:z.o})),M=new Map();cr(P.rm).concat(o&&o.kind==='ee'?cr(o.rm):[]).forEach(z=>M.set(z.k+z.t+JSON.stringify(z.o).slice(0,60),z));o2.rm=[...M.values()].sort((x,y)=>x.t-y.t).slice(-40)}
       if(o&&o.kind==='ee'&&!o.del){let chg2=0;
        const mg=(fld,xf,kf,mx)=>{const X=new Map();ar(o2[xf]).concat(cx(o[xf])).forEach(z=>{if(!X.has(z.k)||X.get(z.k)<z.t)X.set(z.k,z.t)});
         const dead=c=>{const t=X.get(kf(c));return t&&t>(+c.u||0)};
@@ -13757,7 +13760,7 @@ async function amFlush(){
  AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
  if(a.rot)amRotFlush();
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
-  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',ak:it.kind==='tk'?(it.ak||''):'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.eq=it.eq||[];P.ex=it.ex||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.ckx=it.ckx||[];P.pgx=it.pgx||[];P.pgm=it.pgm?1:0;P.cdk=it.cdk?1:0;P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
+  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',ak:it.kind==='tk'?(it.ak||''):'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.eq=it.eq||[];P.ex=it.ex||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.ckx=it.ckx||[];P.rm=it.rm||[];P.pgx=it.pgx||[];P.pgm=it.pgm?1:0;P.cdk=it.cdk?1:0;P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
    await amPut(it.z,'i-'+it.id,P,0,amRiH(it)||(it.akq?'q':(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='rx'||it.kind==='rp'||it.kind==='cs'||it.kind==='po'||it.kind==='ab'||it.kind==='cc'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind),amRiH(it)?'a|'+String(it.ndt||'').replace(/[|\r\n]+/g,' ').slice(0,76):((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45),amRiH(it)?String(it.pto||''):'');if(it.at===P.at){delete it.dirty;delete it.ac}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
@@ -14071,7 +14074,10 @@ function amEeMut(fn){
   const ms=(sn||[]).map(n=>amList().find(x=>x.n===n)).filter(m=>m&&!m.self&&m.id!==a.me.id);if(ms.length){o.nh='tka';o.ndt=amNtCf('tk_p','t’a confié la petite tâche « '+String(sc.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+')',String(sc.t).slice(0,26),String(o.tx||'').slice(0,16));o.pto=ms.map(x=>x.id).join(',');o._tka=1}}
  {const K=c=>String(c&&c.t||'').trim().toLowerCase(),KP=c=>String(c&&c.tm||'')+'|'+String(c&&c.t||'').trim().toLowerCase(),n2=Date.now();
   const upd=(oa,na,kf,fld)=>{const ok0=new Set(oa.map(kf)),nk=new Set(na.map(kf));na.forEach(c=>{if(!ok0.has(kf(c))&&!c.u)c.u=n2});const x=(old[fld]||[]).filter(z=>z&&z.k&&!nk.has(z.k)&&n2-z.t<30*864e5),have=new Set(x.map(z=>z.k));oa.forEach(c=>{const k=kf(c);if(k&&!nk.has(k)&&!have.has(k)){x.push({k,t:n2});have.add(k)}});o[fld]=x.slice(-80)};
-  upd(old.ck,o.ck,K,'ckx');upd(old.pg,o.pg,KP,'pgx')}
+  upd(old.ck,o.ck,K,'ckx');upd(old.pg,o.pg,KP,'pgx');
+   /* 2.82.220 : journal des éléments retirés (tâches, programme, inscrits) pour pouvoir les remettre depuis « 🕘 Historique » */
+   {const R=(o.rm||[]).filter(z=>z&&z.o&&n2-z.t<30*864e5);const lg=(oa,na,kf,k)=>{if(oa.length<=na.length)return;const nk=new Set(na.map(kf));oa.forEach(c=>{if(!nk.has(kf(c)))R.push({t:n2,by:me,k,o:JSON.parse(JSON.stringify(c))})})};
+    lg(old.ck,o.ck,K,'ck');lg(old.pg,o.pg,KP,'pg');lg(old.pt,o.pt,c=>String(c&&c.n||'').trim().toLowerCase(),'pt');o.rm=R.slice(-40)}}
  amItemSave(o);
 }
 const AM_TH={
@@ -16625,6 +16631,16 @@ async function amSnapOpen(){
  const lb=o=>o.lb==='avant'?' (avant restauration)':o.lb==='fichier'?' (avant import du fichier)':'';
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">📅 Copies automatiques</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .5rem">Sur cet appareil : une copie par jour (7 jours), une par semaine (4 semaines) et, dans la journée, une toutes les 3 h entre 8 h et 17 h (quand l’appli est ouverte et que quelque chose a changé). '+(a.apriv?'Touche une copie pour voir ce qui a changé et, si besoin, revenir en arrière.':'<b>Seul l’administrateur fait des copies automatiques et peut restaurer</b> : sur ton appareil, il n’y en a pas de nouvelle.')+'</p>'+(S0.length?S0.map(({k,o})=>'<button class="am-it" data-act="sn-pick" data-k="'+esc(k)+'"'+(a.apriv?'':' disabled')+'><span class="am-itx"><b>'+esc(new Date(o.at).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+esc(lb(o))+'</b><small>'+o.n+' éléments</small></span></button>').join(''):'<p class="empty">Pas encore de copie.</p>'),'full');
 }
+async function amEeHist(){
+ const a=amc(),it=a&&a.it[AMC_EE];if(!it)return;const AC={m:'a modifié',a:'a ajouté',d:'a supprimé'};
+ const H=(it.hs||[]).slice(0,6).map(h=>'<div style="margin:.2rem 0;font-size:.88rem">• <b>'+esc(h.by||'?')+'</b> <small class="mut">'+new Date(+h.t||0).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</small><br>'+esc(h.cg||AC[h.ac]||'a modifié')+'</div>').join('');
+ const R=(it.rm||[]).slice().reverse(),KL={ck:'✅ Tâche',pg:'🕐 Programme',pt:'👥 Inscrit'},nm=z=>z.o.t||z.o.n||'(sans titre)';
+ const h='<p class="mut" style="font-size:.84rem;margin:.1rem 0 .3rem"><b>Dernières modifications</b></p>'+(H||'<p class="mut" style="margin:0">Rien d’enregistré.</p>')+'<p class="mut" style="font-size:.84rem;margin:.7rem 0 .3rem"><b>Retiré de cet événement</b> (coche pour remettre)</p><div class="sn-ch" style="max-height:38vh;overflow:auto;text-align:left">'+(R.length?R.map((z,i)=>'<div style="margin:.3rem 0"><label><input type="checkbox" data-i="'+i+'"> '+KL[z.k]+' · <b>'+esc(String(nm(z)).slice(0,70))+'</b></label><br><small class="mut" style="margin-left:1.6rem">retiré par '+esc(z.by||'?')+' · '+new Date(z.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</small></div>').join(''):'<p class="mut" style="margin:0">Rien n’a été retiré depuis la mise à jour.</p>')+'</div>';
+ const sel={get value(){return[...document.querySelectorAll('.sn-ch input[data-i]:checked')].map(z=>+z.dataset.i)}};
+ const r=await ask({title:'🕘 '+String(it.tx||'Événement').slice(0,40),html:h,btns:R.length?[{label:'↩ Remettre les éléments cochés',value:sel,cls:'pri'},{label:'Fermer',value:null}]:[{label:'Fermer',value:null}]});
+ if(!r||!r.length)return;const P=r.map(i=>R[i]).filter(Boolean);let n=0;const now=Date.now();
+ amEeMut(o=>{P.forEach(z=>{const c=JSON.parse(JSON.stringify(z.o));c.u=now;const L=z.k==='ck'?o.ck:z.k==='pg'?o.pg:o.pt,kf=z.k==='pt'?x=>String(x&&x.n||'').trim().toLowerCase():z.k==='ck'?x=>String(x&&x.t||'').trim().toLowerCase():x=>String(x&&x.tm||'')+'|'+String(x&&x.t||'').trim().toLowerCase();if(!L.some(x=>kf(x)===kf(c))){L.push(c);n++}});o.rm=(o.rm||[]).filter(z=>!P.some(q=>q.t===z.t&&q.k===z.k&&JSON.stringify(q.o)===JSON.stringify(z.o)))});
+ toast(n+' élément'+(n>1?'s':'')+' remis',3500);render()}
 async function amCkLost(){
  const a=amc();if(!a)return;const L=(a.ckl||[]).filter(z=>a.it[z.id]&&!a.it[z.id].del);
  if(!L.length){a.ckl=[];amSave();toast('Rien à remettre',3000);return}
@@ -18026,7 +18042,7 @@ function amEeHTML(){
   const JJ=hasPt?'<button class="btn pri blk ee-jjtop" data-act="jj-open">🎟 Page Jour J · '+(it.pt||[]).length+' inscrit'+((it.pt||[]).length>1?'s':'')+'</button>':'';
   if(AMC_EES==='pt'&&!hasIns)AMC_EES='';
   let h='';
-  h+='<div class="card"><h3>'+esc(it.tx)+'</h3><p style="margin:.2rem 0"><b>📅 '+esc(fShort(it.d))+' '+esc(String(it.d).slice(0,4))+'</b>'+(it.pl?'<br>📍 '+esc(it.pl):'')+'</p><p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(it.z==='b'?'🔒 Bureau seulement':'👥 Visible par les aides')+(it.by?' · modifié par '+esc(it.by):'')+'</p>'+(it.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(it.bd)+'</div>':'')+(rw?'<button class="btn blk" data-act="ee-edit">✏️ Modifier les infos</button>':'')+'<button class="btn blk" data-act="ee-poster" style="margin-top:.4rem">🖼 Affiche et 📜 menu</button><button class="btn blk" data-act="ee-send" style="margin-top:.4rem">📲 Envoyer l’affiche (WhatsApp, Messages…)</button><button class="btn pri blk" data-act="ee-print" style="margin-top:.4rem">🖨 Imprimer · affiche · PDF</button></div>';
+  h+='<div class="card"><h3>'+esc(it.tx)+'</h3><p style="margin:.2rem 0"><b>📅 '+esc(fShort(it.d))+' '+esc(String(it.d).slice(0,4))+'</b>'+(it.pl?'<br>📍 '+esc(it.pl):'')+'</p><p class="mut" style="margin:.2rem 0;font-size:.88rem">'+(it.z==='b'?'🔒 Bureau seulement':'👥 Visible par les aides')+(it.by?' · modifié par '+esc(it.by):'')+'</p>'+(it.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(it.bd)+'</div>':'')+(rw?'<button class="btn blk" data-act="ee-edit">✏️ Modifier les infos</button><button class="btn blk" data-act="ee-hist" style="margin-top:.3rem">🕘 Historique et éléments retirés'+((it.rm||[]).length?' ('+(it.rm||[]).length+')':'')+'</button>':'')+'<button class="btn blk" data-act="ee-poster" style="margin-top:.4rem">🖼 Affiche et 📜 menu</button><button class="btn blk" data-act="ee-send" style="margin-top:.4rem">📲 Envoyer l’affiche (WhatsApp, Messages…)</button><button class="btn pri blk" data-act="ee-print" style="margin-top:.4rem">🖨 Imprimer · affiche · PDF</button></div>';
   if(rw){const bn=amEeBn(it);h+='<div class="card" style="border-left:4px solid #f59e0b"><b>📝 Note du bureau</b> <small class="mut">🔒 bureau seulement</small>'+(bn&&bn.bd?'<div style="white-space:pre-wrap;margin:.3rem 0">'+esc(bn.bd)+'</div>'+(bn.by?'<small class="mut">modifié par '+esc(bn.by)+'</small>':''):'<p class="mut" style="margin:.3rem 0;font-size:.88rem">Explications, consignes, divers : visible seulement par le bureau.</p>')+'<button class="btn blk" data-act="ee-bn" style="margin-top:.4rem">✏️ '+(bn&&bn.bd?'Modifier':'Écrire')+' la note</button></div>'}
   const H0=h;h='';
   const cs=it.cs||[],CS=rw&&!!amCkSel(),dds=new Date().toISOString().slice(0,10);

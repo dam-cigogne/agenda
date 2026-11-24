@@ -2,7 +2,7 @@
    Le nom du cache porte la version : à chaque nouvelle version, changer VERSION
    ici ET APP_VERSION dans index.html. Préfixe « agd- » : on ne touche jamais
    aux caches des autres applis du même domaine (mc-, glf-…). */
-const VERSION = '2.82.220';
+const VERSION = '2.82.221';
 /* Version de RÉFÉRENCE : le grand cadre bleu « Nouvelle version » ne s'affiche que sur les appareils plus anciens que celle-ci. La monter seulement pour une nouveauté que tout le monde doit avoir (garder égale à AM_VREF_DEF dans index.html). */
 const VREF = '2.82.158';
 const CACHE = 'agd-cache-v' + VERSION;
@@ -76,7 +76,7 @@ self.addEventListener('notificationclick', e => {
     [/Amicale · Inscription/, 'ei'], [/Amicale · (Événement|Affiches)/, 'ee'], [/Amicale · Notes/, 'nt'], [/Amicale · Membres/, 'am'], [/Amicale · Adhésion/, 'aq'], [/📬/, 'cx'], [/Amicale · Boîte à idées/, 'id'],
     [/Amicale · (Administratif|Cadeaux|Compte rendu|Bulletin)/, 'ad'], [/Amicale · Du nouveau/, 'dn'], [/Amicale/, 'ac']];
   let go = '';
-  /* 2.82.220 : le titre peut porter le nom du groupe à la place de « Amicale » (Asso malin) : on teste aussi avec « Amicale » remis */
+  /* 2.82.221 : le titre peut porter le nom du groupe à la place de « Amicale » (Asso malin) : on teste aussi avec « Amicale » remis */
   const t1 = /Famille/.test(t) ? t : t.replace(/^[^·]{0,60}·/, '🔔 Amicale ·');
   for (const tt of [t, t1]) { for (const [r, g] of M) { if (r.test(tt)) { go = g; break; } } if (go && go !== 'ac') break; }
   const nm = (String(e.notification.body || '').match(/«\s*([^»]{1,80}?)\s*»/) || [])[1] || '';
