@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.208';
+const APP_VERSION='2.82.209';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.209',d:'24/11/2026',items:['<b>🧹 Ménage des membres</b> (administrateurs, dans Réglages) : un rapport en lecture seule des profils pas revus depuis 7, 14, 30 ou 60 jours, et des doublons probables (même nom, même téléphone, noms proches). Rien n’est supprimé : tu touches un nom pour ouvrir sa fiche.']},
 {v:'2.82.208',d:'24/11/2026',items:['<b>✏️ Correction du nom d’un membre</b> : ta correction (nom et surnom) ne revient plus à l’ancienne valeur. L’appli relit le serveur avant d’envoyer, protège ta correction tant qu’elle n’est pas partie, et dit honnêtement si l’envoi est en attente.']},
 {v:'2.82.207',d:'23/11/2026',items:['<b>🔔 Phrases des notifications : tâches confiées aussi</b> : dans Personnaliser, tu peux écrire la phrase reçue quand on te confie une tâche ou une petite tâche (avec {quoi}).']},
 {v:'2.82.206',d:'23/11/2026',items:['<b>🔔 Notifications : détails de nouveau complets</b> (tâche, événement, courses, note) : correction côté serveur, à mettre à jour (worker). <b>Asso malin</b> : la grosse barre « Groupe » en bas du téléphone disparaît (il n’y a qu’un onglet).']},
@@ -9424,6 +9425,7 @@ async function act(a,el,e){
   case 'am-reset':amResetFromServer();break;
   case 'am-sos':amSosOpen();break;
   case 'perso-open':amPersoOpen();break;
+  case 'menage-open':amMenageOpen();break;
   case 'perso-save':amPersoSave();break;
   case 'perso-preset':amPersoPreset(ds_.p);break;
   case 'srv-set':amSrvAsk().then(()=>{try{render()}catch(e){}});break;
@@ -16660,8 +16662,37 @@ function amPersoCard(){
  F.map(([k,l])=>'<div class="set-row"><span class="lbl">'+l+'</span><b>'+esc(amW(k))+'</b></div>').join('')+
  '<div class="set-row"><span class="lbl">Modèle</span><b>'+esc(amPersoModel())+'</b></div><div class="set-row"><span class="lbl">Rubrique</span><b>'+esc(amGW())+(amGrOn()?'':' (masquée)')+'</b></div><div class="set-row"><span class="lbl">Type de groupe</span><b>'+(amGrMil()?'Militaire (grades)':'Civil')+'</b></div>'+
  '<button class="btn pri blk" style="margin-top:.6rem" data-act="perso-open">✏️ Changer les mots, grades et statuts</button></div>'+
+ '<div class="card"><h3>🧹 Ménage des membres</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Repère les profils inutilisés et les doublons (ex. une même personne avec deux fiches). Simple rapport, rien n’est supprimé.</p><button class="btn pri blk" data-act="menage-open">🧹 Voir le rapport</button></div>'+
  '<div class="card"><h3>🌐 Serveur du groupe</h3><div class="set-row"><span class="lbl">Adresse</span><b style="word-break:break-all">'+esc(famUrl()||'non défini')+'</b></div><p class="mut" style="margin:.3rem 0;font-size:.85rem">Change-la seulement si tu as déplacé le serveur : les autres membres devront alors recevoir la nouvelle adresse.</p><button class="btn blk" data-act="srv-set">🌐 Changer l’adresse du serveur</button></div>'+
  '<div class="card"><h3>🧩 Bientôt réglable</h3><ul style="margin:.2rem 0;padding-left:1.2rem;font-size:.92rem"><li style="margin:.25rem 0">Les <b>ventes partenaires</b> (activer ou non)</li><li style="margin:.25rem 0">Les <b>adhésions et l’import Excel</b> (activer ou non)</li><li style="margin:.25rem 0">Le nom du groupe et son adresse</li></ul></div>'}
+
+/* 2.82.209 : ménage des membres (lecture seule) : inactifs, jamais revus, doublons probables */
+const amMgNorm=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function amMgLev(x,y){if(x===y)return 0;if(Math.abs(x.length-y.length)>1)return 9;const d=[];for(let i=0;i<=x.length;i++){d[i]=[i]}for(let j=1;j<=y.length;j++)d[0][j]=j;for(let i=1;i<=x.length;i++)for(let j=1;j<=y.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(x[i-1]===y[j-1]?0:1));return d[x.length][y.length]}
+async function amMenageOpen(){
+ const a=amc();if(!a||!a.apriv)return;
+ const days=+a.mnDays||7,now=new Date(today()+'T12:00');
+ const L=amList().filter(p=>!p.x&&!p.self);
+ const age=p=>p.la?Math.max(0,Math.round((now-new Date(p.la+'T12:00'))/864e5)):null;
+ const inact=L.filter(p=>{const g=age(p);return g===null||g>=days}).sort((u,v)=>(age(v)===null?9999:age(v))-(age(u)===null?9999:age(u)));
+ const dup=[];const used=new Set();
+ for(let i=0;i<L.length;i++)for(let j=i+1;j<L.length;j++){const u=L[i],v=L[j];const nu=amMgNorm(u.n),nv=amMgNorm(v.n),tu=String(u.tel||'').replace(/\D/g,''),tv=String(v.tel||'').replace(/\D/g,'');
+  let why='';if(nu&&nu===nv)why='même nom';else if(tu.length>=6&&tu===tv)why='même téléphone';else if(nu.length>=4&&nv.length>=4&&amMgLev(nu,nv)<=1)why='noms très proches';
+  if(why)dup.push([u,v,why])}
+ const fd=p=>{const g=age(p);return g===null?'jamais revu':g===0?'aujourd’hui':'il y a '+g+' j'};
+ const row=p=>'<div style="display:flex;justify-content:space-between;gap:.5rem;padding:.25rem 0;border-bottom:1px solid rgba(0,0,0,.08)"><span><b>'+esc(p.n)+'</b>'+(p.sn?' <span class="mut">('+esc(p.sn)+')</span>':'')+(p.t?' · <span class="mut">'+esc(p.t)+'</span>':'')+'</span><span class="mut" style="white-space:nowrap">'+fd(p)+(p.v?' · v'+esc(p.v):'')+'</span></div>';
+ const html='<p class="mut" style="margin:.1rem 0 .5rem;font-size:.88rem">🔎 Rapport en <b>lecture seule</b> : rien n’est supprimé ici. Touche un nom en bas pour ouvrir sa fiche (où tu peux le corriger ou le retirer).</p>'+
+  '<p style="margin:.2rem 0"><b>🕘 Pas revus depuis '+days+' jours ou plus ('+inact.length+')</b></p>'+(inact.length?inact.map(row).join(''):'<p class="mut" style="margin:.2rem 0">Personne 👍</p>')+
+  '<p style="margin:.7rem 0 .2rem"><b>👥 Doublons probables ('+dup.length+')</b></p>'+(dup.length?dup.map(([u,v,w])=>'<div style="padding:.25rem 0;border-bottom:1px solid rgba(0,0,0,.08)"><b>'+esc(u.n)+'</b> ↔ <b>'+esc(v.n)+'</b> <span class="mut">('+w+')</span>'+[u,v].map(q=>'<br><span style="font-size:.85rem">• '+esc(q.n)+' : '+(q.adm?'👑 admin · ':'')+(q.t?esc(q.t):'sans titre')+' · '+(q.l==='b'?'Bureau':'Aide')+' · <span class="mut">'+fd(q)+'</span></span>').join('')+'<br><span class="mut" style="font-size:.82rem">⚠️ Ne retire pas à l’aveugle : vérifie qui est la vraie personne (admin, titre, activité récente).</span></div>').join(''):'<p class="mut" style="margin:.2rem 0">Aucun</p>')+
+  '<p class="mut" style="margin:.6rem 0 0;font-size:.82rem">'+L.length+' membres analysés. La « dernière activité » est la dernière fois que la personne a ouvert l’appli à jour.</p>';
+ const btns=[];[7,14,30,60].forEach(n=>btns.push({label:(n===days?'✓ ':'')+n+' jours',value:'d'+n}));
+ const seen=new Set();[].concat(inact,...dup.map(d=>[d[0],d[1]])).forEach(p=>{if(seen.has(p.id)||seen.size>=8)return;seen.add(p.id);btns.push({label:'👤 '+p.n,value:'f'+p.id})});
+ btns.push({label:'Fermer',value:null});
+ const r=await ask({title:'🧹 Ménage des membres',html,btns});
+ if(!r)return;
+ if(/^d\d+$/.test(r)){a.mnDays=+r.slice(1);amSave();return amMenageOpen()}
+ if(r[0]==='f')amFiche(r.slice(1));
+}
 const AM_PRESETS={mil:{s:'',p:'',ns:'',np:'',civ:0,g:'',gl:'',ct:{}},
  neu:{s:'membre',p:'membres',ns:'extérieur',np:'extérieurs',civ:1,g:'',gl:'',ct:{actif:'Actif',reserv:'Sympathisant',honneur:'Membre d’honneur',bienf:'Bienfaiteur',ancien:'Ancien membre',autre:'Autre'}}};
 function amPersoPreset(k){if(!amPersoOk())return;const P=AM_PRESETS[k];if(!P)return;
@@ -19053,7 +19084,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amMigrateSrv,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amMigrateSrv,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amMenageOpen,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
