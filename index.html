@@ -2997,7 +2997,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.223';
+const APP_VERSION='2.82.224';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3005,6 +3005,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.224',d:'24/11/2026',items:['<b>🔑 Retirer un membre ne casse plus rien</b> : quand les clés du groupe sont renouvelées, chaque téléphone se réabonne tout seul aux notifications avec les nouvelles clés (avant, il fallait attendre une mise à jour de l’appli : d’où des notifications qui « ne marchaient plus »)','<b>📲 Liens d’inscription et clôtures</b> : ils sont réenregistrés automatiquement avec les nouvelles clés, et un ancien appareil pas à jour ne peut plus les remettre sur les anciennes','<b>🔕 Plus de notifications venant des anciennes clés</b> : ton téléphone se désabonne des anciens espaces du groupe']},
 {v:'2.82.223',d:'24/11/2026',items:['<b>🔕 Fin des fausses notifications « a modifié »</b> : quand ton téléphone ne fait que fusionner / recopier un événement (sans que personne ne change rien), il le renvoie maintenant en silence au lieu de prévenir tout le monde.']},
 {v:'2.82.222',d:'24/11/2026',items:['<b>🛡 Cases cochées protégées</b> : un téléphone qui renvoie une ancienne copie d’un événement ne peut plus décocher les tâches ni le programme. À la synchro, la modification la plus récente de chaque tâche gagne, case par case.']},
 {v:'2.82.221',d:'24/11/2026',items:['<b>🕘 Historique d’un événement</b> : dans chaque événement, « Historique et éléments retirés » montre les dernières modifications et tout ce qui a été retiré (tâches, programme, inscrits), avec « Remettre » pour les récupérer.']},
@@ -12228,7 +12229,9 @@ async function pushSpaces(){
  return L.filter((x,i)=>L.findIndex(y=>y.space===x.space)===i);
 }
 /* 2.82.195 : « mettre à jour » désinscrit le service worker, donc l'abonnement aux notifications saute. On le remet tout seul (au démarrage et au retour dans l'appli) tant que la personne les veut. */
-async function pushHeal(force){try{if(!('Notification' in window)||Notification.permission!=='granted'||S.pushOff===1||!pushIsOn())return;const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();const ep=localStorage.getItem('agd-push-ep');if(!force&&sub&&ep===sub.endpoint&&localStorage.getItem('agd-push-reg')===APP_VERSION)return;await pushOn();S.pushWant=1;saveSet();localStorage.setItem('agd-push-reg',APP_VERSION)}catch(e){}}
+/* 2.82.224 : signature des espaces abonnés ; si les clés du groupe ont été renouvelées (retrait d’un membre), les espaces changent → on se réabonne tout seul */
+async function pushSig(){try{return (await pushSpaces()).map(x=>x.space).sort().join(',')}catch(e){return ''}}
+async function pushHeal(force){try{if(!('Notification' in window)||Notification.permission!=='granted'||S.pushOff===1||!pushIsOn())return;const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();const ep=localStorage.getItem('agd-push-ep');if(!force&&sub&&ep===sub.endpoint&&localStorage.getItem('agd-push-reg')===APP_VERSION&&localStorage.getItem('agd-push-sp')===(await pushSig()))return;await pushOn();S.pushWant=1;saveSet();localStorage.setItem('agd-push-reg',APP_VERSION)}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){const n=Date.now();if(n-(window.__phT||0)>600000){window.__phT=n;pushHeal()}}});
 async function pushFix(){try{if(!('Notification' in window))throw new Error('indisponible ici');if(Notification.permission!=='granted'){const r=await Notification.requestPermission();if(r!=='granted')throw new Error('autorisation refusée')}S.pushOff=0;S.pushWant=1;saveSet();const reg=swReg||await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();if(sub){try{await sub.unsubscribe()}catch(e){}}try{localStorage.removeItem('agd-push-ep')}catch(e){}await pushOn();localStorage.setItem('agd-push-reg',APP_VERSION);toast('✅ Notifications réparées sur ce téléphone',5000)}catch(err){toast('Échec : '+(err&&err.name?err.name+' : ':'')+(err&&err.message||err),9000)}render()}
 const pushTO=(p,ms,msg)=>Promise.race([p,new Promise((_,rj)=>setTimeout(()=>rj(new Error(msg)),ms))]);
@@ -12247,7 +12250,10 @@ async function pushOn(){
  if(!sub){let vp=VAPID_PUB;if(amSrvTx()||!vp){try{const r=await fetch(famUrl()+'/vapid',{cache:'no-store'});const j=await r.json();if(j&&j.k)vp=j.k}catch(e){}}if(!vp)throw new Error('serveur sans clé de notification');const k=Uint8Array.from(atob(vp.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));sub=await pushTO(reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:k}),20000,'le téléphone n’a pas pu créer l’abonnement (Google/Samsung injoignable ? réessaie en Wi-Fi ou 4G, ou redémarre le téléphone)')}
  try{localStorage.setItem('agd-push-ep',sub.endpoint)}catch(e){}
  const pf=pushPfStr(),j=sub.toJSON();
- for(const x of await pushSpaces()){const r=await pushTO(fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})}),15000,'le serveur du groupe ne répond pas');if(!r.ok)throw new Error('Serveur : '+r.status)}
+ const SPL=await pushSpaces();
+ for(const x of SPL){const r=await pushTO(fetch(famUrl()+'/push/'+x.space,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:x.me,pf})}),15000,'le serveur du groupe ne répond pas');if(!r.ok)throw new Error('Serveur : '+r.status)}
+ /* 2.82.224 : les anciens espaces (clés d’avant un renouvellement) sont rendus muets pour ce téléphone : plus de notifications en double ni venant d’anciens appareils */
+ try{const nw=SPL.map(x=>x.space),old=String(localStorage.getItem('agd-push-sp')||'').split(',').filter(s=>/^[0-9a-f]{32}$/.test(s)&&!nw.includes(s));for(const s of old){try{await fetch(famUrl()+'/push/'+s,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:j.endpoint,keys:j.keys,me:'',pf:'-'})})}catch(e){}}localStorage.setItem('agd-push-sp',nw.slice().sort().join(','))}catch(e){}
  try{await remSync(true)}catch(e){}
 }
 const famUrl=()=>(S.famUrl||FAM_URL_DEF||'').replace(/\/+$/,'');
@@ -13225,7 +13231,7 @@ async function amRotate(){
  a.rot={oldA,oldAs:a.oldAs.slice(),todo:(a.rot&&a.rot.oldA===oldA?a.rot.todo:[]).concat(todo)};
  a.kB=kB2;a.kA=kA2;a.gen=gen;a.last={};a.sent={};a.rolesDirty=1;
  for(const it of Object.values(a.it||{}))it.dirty=1;
- amSave();
+ amSave();amKeysChanged();
  await amRotFlush();
  try{await amPush(true);await amFlush()}catch(e){}
  return n;
@@ -13387,7 +13393,7 @@ async function amPull(manual){
     if(a.apriv)a.rolesDirty=1;
    }catch(e){a.syncErr=(d&&d.doc||'')+' : '+String(e&&e.message||e).slice(0,100);try{console.warn('amPull',e)}catch(z){}}}
   }
-  if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);if(!a.apriv)toast('Les clés du groupe ont été renouvelées',3500)}
+  if(rot){const wasB=!!a.kB;a.kA=rot.kA;a.kB=rot.kB||'';if(wasB&&!rot.kB){Object.keys(a.it||{}).forEach(k=>{if(a.it[k]&&a.it[k].z==='b')delete a.it[k]});Object.values(a.mem||{}).forEach(m=>{if(m&&m.cards)m.cards.b=null;m.z='a'});if(['nt','am','ev'].includes(AMC_TAB))AMC_TAB='mb';toast('Ton accès est maintenant « Aide extérieur » : les informations réservées au bureau ne sont plus disponibles ici',6000)}a.gen=rot.gen;a.last={};a.sent={};a.pullAt=0;chg=true;amSave();amKeysChanged();setTimeout(()=>{amPush(true).then(()=>amFlush()).then(()=>amPull(true)).catch(()=>{})},300);if(!a.apriv)toast('Les clés du groupe ont été renouvelées',3500)}
   try{if(a.apriv&&!AM_USBUSY&&Date.now()-AM_USAT>36e5)setTimeout(amUsageCheck,2500)}catch(e){}
   const old=Date.now()-30*864e5;for(const id of Object.keys(a.it||{})){const i=a.it[id];if(i.del&&!i.dirty&&(i.at||0)<old)delete a.it[id]}
   amSave();
@@ -13547,7 +13553,7 @@ async function amLinkIn(code){
    if(!AMI&&Array.isArray(d.fam)&&d.fam.length){if(!meName()){S.me=String(d.pn||d.me.n||'Moi').slice(0,30);S.meOk=1}S.famLt=String(d.lt||'').slice(0,20);for(const g of d.fam){if(g&&/^[A-Za-z0-9_-]{40,50}$/.test(g.k)&&!famAll().some(x=>x.k===g.k))famAdd(famNew(g.k,String(g.nm||'Famille').slice(0,24),g.ic||'👪'))}saveSet();try{await famPush();await famPull(false)}catch(e){}}
    try{await fetch(famUrl()+'/i/'+FK.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({c:'x',iv:'x'})})}catch(e){}
    /* 2.82.62 : appareil resté sur les anciennes clés (après le retrait d’un membre) → on reprend les clés et l’identité du téléphone, puis on relit tout */
-   {const a=amc();if(d.kA&&(d.kA!==a.kA||(d.kB||'')!==(a.kB||'')||(d.gen||0)!==(a.gen||0)||!a.me||a.me.id!==d.me.id)){a.kA=d.kA;a.kB=d.kB||'';a.gen=d.gen||0;a.me=d.me;if(d.apriv)a.apriv=d.apriv;else delete a.apriv;a.rl=d.rl||{};a.mem={};a.last={};a.sent={};delete a.rot;Object.values(a.it||{}).forEach(it=>{if(it)delete it.dirty});amSave();render();try{await amPull(true)}catch(e){}render();toast('✅ Appareil remis à jour : mêmes clés et mêmes infos que ton téléphone',6000);return}}
+   {const a=amc();if(d.kA&&(d.kA!==a.kA||(d.kB||'')!==(a.kB||'')||(d.gen||0)!==(a.gen||0)||!a.me||a.me.id!==d.me.id)){a.kA=d.kA;a.kB=d.kB||'';a.gen=d.gen||0;a.me=d.me;if(d.apriv)a.apriv=d.apriv;else delete a.apriv;a.rl=d.rl||{};a.mem={};a.last={};a.sent={};delete a.rot;Object.values(a.it||{}).forEach(it=>{if(it)delete it.dirty});amSave();amKeysChanged();render();try{await amPull(true)}catch(e){}render();toast('✅ Appareil remis à jour : mêmes clés et mêmes infos que ton téléphone',6000);return}}
    /* 2.82.63 : mêmes clés mais retraits faits sur le téléphone → on fusionne les retraits reçus (x) et on efface les fiches retirées */
    {const a=amc();let rm=0;if(d.rl&&typeof d.rl==='object'){a.rl=a.rl||{};for(const id of Object.keys(d.rl)){const r=d.rl[id];if(r&&r.x&&id!==a.me.id){if(!(a.rl[id]&&a.rl[id].x)){a.rl[id]=Object.assign(a.rl[id]||{},{x:1});rm++}if(a.mem&&a.mem[id]){delete a.mem[id];rm++}}else if(r&&r.t&&!(a.rl[id]&&a.rl[id].t)){a.rl[id]=Object.assign(a.rl[id]||{},{t:r.t})}}}
     if(rm){a.rolesDirty=1;amSave();render();try{await amPull(true)}catch(e){}render();toast('✅ Appareil remis à jour : '+rm+' retrait'+(rm>1?'s':'')+' repris du téléphone',6000);return}}
@@ -14500,7 +14506,7 @@ async function amQrOn(id){
 }
 /* 2.82.72 : le serveur retient le nom de l'événement pour écrire « Nouvelle inscription pour … » dans la notification */
 const AMQR_REG={};
-async function amQrReg(it){const a=amc();if(!it||!it.qr||demo||!a||!a.kB)return;const k=it.qr.id+'|'+it.tx;if(AMQR_REG[k])return;AMQR_REG[k]=1;try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+it.qr.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,t:String(it.tx||'').slice(0,60)})})}catch(e){}}
+async function amQrReg(it){const a=amc();if(!it||!it.qr||demo||!a||!a.kB||!a.apriv||amKeyStale())return; /* 2.82.224 : seul l’administrateur (clés toujours à jour) réenregistre les liens */const k=it.qr.id+'|'+it.tx;if(AMQR_REG[k])return;AMQR_REG[k]=1;try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});await fetch(famUrl()+'/in/'+it.qr.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,t:String(it.tx||'').slice(0,60)})})}catch(e){}}
 async function amQrFetch(id,force){
  const a=amc(),it=a&&a.it&&a.it[id];if(!it||!it.qr||demo)return;const c=AMQR[id]||(AMQR[id]={L:[],last:0,at:0,busy:0});
  if(c.busy||(!force&&Date.now()-c.at<25000))return;c.busy=1;
@@ -14855,7 +14861,7 @@ async function amCxOn(){const a=amc();if(!a||!a.kB)return;if(demo){toast('Non di
   try{const FK=await famKeys({k:a.kB});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,k:'cx'})})}catch(e){}
   toast('✅ QR « Contacter l’amicale » créé',3000)}catch(e){toast('Impossible : '+(e&&e.message||'erreur'),5000)}}
 const AMCX={busy:0,at:0,last:0},AMIN_REG={};
-async function amInReg(qid,k){const a=amc();if(!a||!a.kB||demo||AMIN_REG[qid])return;AMIN_REG[qid]=1;try{const FK=await famKeys({k:a.kB});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,k})})}catch(e){AMIN_REG[qid]=0}}
+async function amInReg(qid,k){const a=amc();if(!a||!a.kB||!a.apriv||demo||AMIN_REG[qid]||amKeyStale())return;AMIN_REG[qid]=1;try{const FK=await famKeys({k:a.kB});await fetch(famUrl()+'/in/'+qid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,k})})}catch(e){AMIN_REG[qid]=0}}
 async function amCxFetch(force){const C=amCx(),a=amc();if(!C||demo||!a||!a.kB)return;amInReg(C.qr.id,'cx');if(AMCX.busy||(!force&&Date.now()-AMCX.at<25000))return;AMCX.busy=1;
  try{const r=await fetch(famUrl()+'/in/'+C.qr.id+'?a='+AMCX.last);if(!r.ok)throw 0;const j=await r.json();const got=[];
   for(const x of (j.list||[])){AMCX.last=Math.max(AMCX.last,x.n);if(C.qd.includes(x.n))continue;const id='cm'+C.qr.id.slice(0,6)+x.n;if(a.it[id]){got.push(x.n);continue}
@@ -15502,8 +15508,10 @@ async function amClAsk(id){const a=amc(),it=a&&a.it&&a.it[id];if(!it||!amAmNotIn
 const amQlTm=it=>amQlTxt(it)+(/^\d{2}:\d{2}$/.test(it.qt||'')?' à '+it.qt.replace(':','h'):'');
 /* 2.82.215 : la clôture des inscriptions est renvoyée au serveur à chaque ouverture (administrateur), tant qu’elle n’a pas été confirmée : plus de clôture « oubliée » par le serveur */
 const CL_SENT={};
-async function amClSync(){const a=amc();if(!a||!a.kB||!a.apriv||demo)return;
- for(const it of Object.values(a.it||{})){if(!it||it.kind!=='ee'||it.del||!it.qr||!it.qr.id)continue;const cl=amClAt(it);if(cl<=0||CL_SENT[it.id]===cl)continue;
+/* 2.82.224 : après un renouvellement des clés (retrait d’un membre) : liens d’inscription, clôtures et notifications sont réenregistrés avec les nouvelles clés */
+function amKeysChanged(){try{for(const k in AMQR_REG)delete AMQR_REG[k];for(const k in AMIN_REG)delete AMIN_REG[k];for(const k in CL_SENT)delete CL_SENT[k]}catch(e){}setTimeout(()=>{try{pushHeal()}catch(e){}},2500);setTimeout(()=>{try{amClSync()}catch(e){}},4000)}
+async function amClSync(){const a=amc();if(!a||!a.kB||!a.apriv||demo||amKeyStale())return;
+ for(const it of Object.values(a.it||{})){if(!it||it.kind!=='ee'||it.del||!it.qr||!it.qr.id)continue;amQrReg(it);const cl=amClAt(it);if(cl<=0||CL_SENT[it.id]===cl)continue;
   try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});const r=await fetch(famUrl()+'/in/'+it.qr.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,cl})});if(r.ok)CL_SENT[it.id]=cl}catch(e){}}}
 async function amClPub(it){const a=amc();if(!it||!it.qr||demo||!a||!a.kB)return;try{const FK=await famKeys({k:a[it.z==='b'?'kB':'kA']});const r=await fetch(famUrl()+'/in/'+it.qr.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({space:FK.space,cl:amClAt(it)})});if(!r.ok)throw 0;CL_SENT[it.id]=amClAt(it)}catch(e){toast('Clôture enregistrée dans l’appli, mais pas encore sur le serveur : réessaie avec du réseau',5000)}}
 const amQlTxt=it=>{try{return new Date(it.ql+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}catch(e){return it.ql}};
