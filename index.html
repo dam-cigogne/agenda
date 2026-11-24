@@ -2997,7 +2997,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.224';
+const APP_VERSION='2.82.225';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3005,6 +3005,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.225',d:'24/11/2026',items:['<b>📚 Modèles d’événement partagés avec le bureau</b> : ils sont rangés dans 📁 Administratif › Modèles d’événement, et tout le bureau peut les ouvrir et les <b>modifier directement</b> (tâches et sous-tâches, qui s’en occupe, programme, prestataires, frais), puis créer l’événement à partir d’eux le moment venu. Les modèles déjà gardés sur un téléphone y sont recopiés tout seuls','<b>📌 Garder comme modèle</b> avec le même nom = le modèle est mis à jour pour tout le monde','<b>📚 Mes modèles</b> : le bouton est de retour en haut de la liste des événements (il ne s’affichait plus)']},
 {v:'2.82.224',d:'24/11/2026',items:['<b>🔑 Retirer un membre ne casse plus rien</b> : quand les clés du groupe sont renouvelées, chaque téléphone se réabonne tout seul aux notifications avec les nouvelles clés (avant, il fallait attendre une mise à jour de l’appli : d’où des notifications qui « ne marchaient plus »)','<b>📲 Liens d’inscription et clôtures</b> : ils sont réenregistrés automatiquement avec les nouvelles clés, et un ancien appareil pas à jour ne peut plus les remettre sur les anciennes','<b>🔕 Plus de notifications venant des anciennes clés</b> : ton téléphone se désabonne des anciens espaces du groupe']},
 {v:'2.82.223',d:'24/11/2026',items:['<b>🔕 Fin des fausses notifications « a modifié »</b> : quand ton téléphone ne fait que fusionner / recopier un événement (sans que personne ne change rien), il le renvoie maintenant en silence au lieu de prévenir tout le monde.']},
 {v:'2.82.222',d:'24/11/2026',items:['<b>🛡 Cases cochées protégées</b> : un téléphone qui renvoie une ancienne copie d’un événement ne peut plus décocher les tâches ni le programme. À la synchro, la modification la plus récente de chaque tâche gagne, case par case.']},
@@ -9545,6 +9546,12 @@ async function act(a,el,e){
   case 'am-tpl':amTplOpen();break;
   case 'am-tpl-use':amTplUse(ds_.id);break;
   case 'am-tpl-del':amTplDel(ds_.id);break;
+  case 'am-tpl-view':amTplView(ds_.id);break;
+  case 'am-tpl-ren':amTplRen(ds_.id);break;
+  case 'tp-ed':amTpEd(ds_.id,ds_.f,+ds_.i);break;
+  case 'tp-add':amTpEd(ds_.id,ds_.f,-1);break;
+  case 'tp-del':amTpDelRow(ds_.id,ds_.f,+ds_.i);break;
+  case 'tp-mv':amTpMv(ds_.id,+ds_.i,+ds_.v);break;
   case 'am-tpl-exp':amTplExport();break;
   case 'am-tpl-imp':amTplImport();break;
   case 'ee-print':amEePrint();break;
@@ -13335,7 +13342,7 @@ async function amPull(manual){
      continue}
     const mi=d.doc.match(/^i-([a-z0-9]{6,16})$/);
     if(mi){
-     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','pv','an','lg','dl','id','aq','cx','cm','ch','rn','rv','cs','ab','cc','rp','rx'].includes(P.kind))continue;
+     if(P.t!=='it'||P.id!==mi[1]||!['tk','co','cq','ev','nt','ee','am','bs','bm','po','ad','ac','ag','cd','pv','an','lg','dl','id','aq','cx','cm','ch','rn','rv','cs','ab','cc','rp','rx','tp'].includes(P.kind))continue;
      if(P.kind==='rp'&&!P.del){if(!/^rp[a-z0-9]{8}$/.test(P.id)||String(P.bd||'').length>12000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='rx'&&!P.del){if(!/^rx[a-z0-9]{14}$/.test(P.id)||String(P.bd||'').length>2000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='cc'&&!P.del){if(!/^cc[a-z0-9]{8}$/.test(P.id)||!/^[a-z0-9]{6,16}$/.test(String(P.pl||''))||String(P.bd||'').length>1000)continue}
@@ -13349,7 +13356,7 @@ async function amPull(manual){
      if(P.kind==='id'&&!P.del){if(String(P.bd||'').length>6000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='dl'&&!P.del){if(x.z!=='a'||String(P.bd||'').length>2500)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='lg'&&!/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]{0,30000}$/.test(String(P.bd||''))&&!P.del)continue;
-     if(['nt','am','bs','bm','ad','ac','ag','cd','pv'].includes(P.kind)&&x.z!=='b')continue;
+     if(['nt','am','bs','bm','ad','ac','ag','cd','pv','tp'].includes(P.kind)&&x.z!=='b')continue;
      if(P.kind==='ag'){if(String(P.bd||'').length>150000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
      if(P.kind==='ac'&&!/^[A-Za-z0-9+\/=]*$/.test(String(P.bd||'')))continue;
      if(P.kind==='po'){if(String(P.bd||'').length>400000)continue;try{JSON.parse(String(P.bd||'{}'))}catch(e){continue}}
@@ -13381,6 +13388,7 @@ async function amPull(manual){
        if(chg2){o2.at=Date.now();if(!(o&&o.dirty))o2.mq=1;o2.dirty=1}}}
      if(o&&P.kind==='ee'&&o.kind==='ee'){const o5=a.it[P.id];o5.qd=qU(o5.qd,o.qd);o5.qh=qU(o5.qh,o.qh)}
      if(o&&P.kind==='aq'&&o.kind==='aq'){a.it[P.id].bd=aqM(a.it[P.id].bd,o.bd)}
+     if(P.kind==='tp'){a.it[P.id].td=amTpClean(P.td)}
      if(P.kind==='bs'){const o4=a.it[P.id];o4.w=String(P.w||'').slice(0,16);o4.sg=/^data:image\/png;base64,[A-Za-z0-9+\/=]{20,60000}$/.test(String(P.sg||''))?String(P.sg):''}
      if(P.kind==='am'){const q=P.o&&typeof P.o==='object'?P.o:{},o3=a.it[P.id].o={};['gr','ct','cf','pm','pa','pc','rg','ad','tl','ml','bs','cb','bb','ba','bsa','bp','sv','bg','k8','k8e','pd','pb','st','pxk','wa','au','aud','sc','jm','nr','pn'].forEach(k=>{o3[k]=String(q[k]==null?'':q[k]).slice(0,k==='ad'||k==='nr'||k==='pn'?120:60)})}
      chg=true;continue}
@@ -13760,7 +13768,7 @@ function amAkTx(c){if(!c||!c.w||!ckWho(c).some(n=>amList().some(m=>m.n===n)))ret
 const amRiH=it=>(it&&(((it.kind==='rn'||it.kind==='rp')&&/^r[np]i$/.test(it.nh||''))||((it.kind==='tk'||it.kind==='ee')&&it.nh==='tka'))&&it.pto)?it.nh:'';
 async function amFlush(){
  if(AM_HYD_P){try{await AM_HYD_P}catch(e){}}
- try{amCfgMig()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}
+ try{amCfgMig()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}try{amTplMig()}catch(e){}
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;
  if(amBlocked())return;
  /* garde-fou : on relit le serveur juste avant d’envoyer ; une donnée plus récente sur le serveur remplace la locale (et n’est donc plus renvoyée) */
@@ -13769,9 +13777,9 @@ async function amFlush(){
  AMC_FL=1;AM_QUIET=Object.values(a.it||{}).filter(x=>x.dirty).length>15?1:0;
  if(a.rot)amRotFlush();
  try{if(a.apriv&&a.bm&&!(a.it&&a.it[AM_BM_ID]))await amBmMake(a.bm); /* modèle réglé avant la 2.52 : partagé une fois */
-  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',ak:it.kind==='tk'?(it.ak||''):'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.eq=it.eq||[];P.ex=it.ex||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.ckx=it.ckx||[];P.rm=it.rm||[];P.pgx=it.pgx||[];P.pgm=it.pgm?1:0;P.cdk=it.cdk?1:0;P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
+  const send=async it=>{const P={app:'agd',k:'amc',v:1,t:'it',id:it.id,kind:it.kind,l:it.l||'',ak:it.kind==='tk'?(it.ak||''):'',tx:it.tx,x:it.x?1:0,d:it.d||'',w:it.w||'',qt:it.qt||'',tm:it.tm||'',pl:it.pl||'',bd:it.bd||'',by:it.by||'',at:it.at,del:it.del?1:0,cg:it.cg||'',hs:(it.hs||[]).slice(0,6)};if(it.kind==='ee'){P.ck=it.ck||[];P.eq=it.eq||[];P.ex=it.ex||[];P.cs=it.cs||[];P.pv=it.pv||[];P.dp=it.dp||[];P.pg=it.pg||[];P.ckx=it.ckx||[];P.rm=it.rm||[];P.pgx=it.pgx||[];P.pgm=it.pgm?1:0;P.cdk=it.cdk?1:0;P.pt=it.pt||[];P.sv=it.sv||'';P.ty=it.ty||[];P.rp=it.rp||null;P.pr=it.pr||null;P.qr=it.qr||null;P.qd=it.qd||[];P.qh=it.qh||[];P.qm=it.qm||null;P.ql=it.ql||'';P.qlb=it.qlb||'';P.qt=it.qt||'';P.qc=it.qc||'';P.rl=it.rl||[];P.rs=it.rs||{};P.rs0=it.rs0||0;P.vp=it.vp||null;P.vr=it.vr||null;P.mn=it.mn||null}if(it.kind==='am')P.o=it.o||{};if(it.kind==='tp')P.td=it.td||{};if(it.kind==='bs'||it.kind==='bm')P.sg=it.sg||'';if(it.kind==='ad')P.l=it.l||'';if(it.kind==='ac'&&!it.del)P.bd=(await PH.get('adc-'+it.id))||'';
    if(it.tz&&it.tz!==it.z){await amPut(it.tz,'i-'+it.id,Object.assign({},P,{del:1,at:it.at-1}));if(it.at===P.at)delete it.tz}
-   await amPut(it.z,'i-'+it.id,P,0,amRiH(it)||((it.akq||it.mq)?'q':(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='rx'||it.kind==='rp'||it.kind==='cs'||it.kind==='po'||it.kind==='ab'||it.kind==='cc'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'?'q':it.kind),amRiH(it)?'a|'+String(it.ndt||'').replace(/[|\r\n]+/g,' ').slice(0,76):((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45),amRiH(it)?String(it.pto||''):'');if(it.at===P.at){delete it.dirty;delete it.ac;delete it.mq}};
+   await amPut(it.z,'i-'+it.id,P,0,amRiH(it)||((it.akq||it.mq)?'q':(it.kind==='dl'||it.kind==='ch'||it.kind==='rv'||it.kind==='rx'||it.kind==='rp'||it.kind==='cs'||it.kind==='po'||it.kind==='ab'||it.kind==='cc'||(it.kind==='rn'&&it.nh!=='n'))?'':(it.kind==='id'&&it.nh==='l')||it.kind==='cx'||it.kind==='cm'||it.kind==='tp'?'q':it.kind),amRiH(it)?'a|'+String(it.ndt||'').replace(/[|\r\n]+/g,' ').slice(0,76):((it.kind==='id'&&it.nh&&it.ac!=='a'&&it.ac!=='d')?it.nh:(it.ac||'m'))+'|'+String(it.tx||'').replace(/[|\r\n]+/g,' ').slice(0,45),amRiH(it)?String(it.pto||''):'');if(it.at===P.at){delete it.dirty;delete it.ac;delete it.mq}};
   /* envoi par paquets de 8 en parallèle : bien plus rapide quand il y a des centaines d'éléments (renouvellement des clés, import) */
   const todo=Object.values(a.it||{}).filter(x=>x.dirty&&!HMK[x.id]);AMF_DONE=new Set(todo.map(x=>x.id));
   for(let k=0;k<todo.length;k+=8){
@@ -15973,36 +15981,83 @@ async function amEeRow(kind,i){
 }
 /* 2.82.128 : modèles d’événement (prépa, prestataires, frais, parties, programme) gardés d’une année à l’autre */
 const amEeClone=it=>({z:it.z||'b',pl:it.pl||'',bd:it.bd||'',sv:it.sv||'',ty:JSON.parse(JSON.stringify(it.ty||[])),eq:JSON.parse(JSON.stringify(it.eq||[])),ck:(it.ck||[]).map(c=>({t:c.t,ok:0,w:c.w||'',ws:(c.ws||[]).slice(),s:c.s||'',d:c.d||'',x:c.x||'',sb:(c.sb||[]).map(q=>({t:q.t,ok:0,w:q.w||''}))})),pv:(it.pv||[]).map(c=>({p:c.p,n:'',m:c.m||0})),dp:(it.dp||[]).map(c=>({t:c.t,m:c.m||0})),cs:(it.cs||[]).map(c=>({id:c.id,t:c.t,o:c.o})),pg:(it.pg||[]).map(c=>c.j!=null&&c.j!==''?{tm:c.tm,t:c.t,j:c.j}:{tm:c.tm,t:c.t}),pgm:it.pgm||0});
+/* 2.82.225 : modèles d’événement PARTAGÉS avec le bureau (rangés dans 📁 Administratif), synchronisés comme le reste ; les anciens modèles gardés sur un appareil y sont recopiés tout seuls */
+const amTpls=()=>amItems('tp').filter(t=>t&&t.td&&typeof t.td==='object').sort((x,y)=>String(x.tx).localeCompare(String(y.tx),'fr'));
+function amTpClean(td){if(!td||typeof td!=='object'||Array.isArray(td))return {};const o={};['z','pl','bd','sv','ty','eq','ck','pv','dp','cs','pg','pgm'].forEach(k=>{if(td[k]!=null)o[k]=td[k]});try{if(JSON.stringify(o).length>200000)return {};return JSON.parse(JSON.stringify(o))}catch(e){return {}}}
+function amTpNew(nm,td){return {id:amId(),kind:'tp',tx:String(nm).trim().slice(0,80),x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:'',del:0,z:'b',td:amTpClean(td)}}
+function amTplMig(){const a=amc();if(!a||!a.kB||demo||a.tplMig||!(a.tpl||[]).length)return;if(amBlocked()||amKeyStale())return;
+ const have=new Set(amTpls().map(t=>String(t.tx).toLowerCase()));a.tplMig=1;
+ a.tpl.forEach(t=>{if(!t||!t.nm||!t.data||have.has(String(t.nm).toLowerCase()))return;have.add(String(t.nm).toLowerCase());amItemSave(amTpNew(t.nm,t.data))});amSave()}
+const amTpInfo=t=>{const d=t.td||{};return (d.ck||[]).length+' tâches · '+(d.pg||[]).length+' créneaux · '+(d.pv||[]).length+' prestataires · '+(d.dp||[]).length+' frais'};
+function amTpCard(){const L=amTpls();return '<div class="card"><h3>📚 Modèles d’événement'+(L.length?' · '+L.length:'')+'</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Partagés avec tout le bureau. Dans un événement, « 📌 Garder comme modèle » en ajoute un ici.</p>'+(L.length?L.map(t=>'<button class="am-itx" style="display:block;width:100%;text-align:left;margin:.2rem 0" data-act="am-tpl-view" data-id="'+esc(t.id)+'"><b>'+esc(t.tx)+'</b><small>'+amTpInfo(t)+(t.by?' · ✍️ '+esc(t.by):'')+(t.at?' · '+new Date(t.at).toLocaleDateString('fr-FR'):'')+'</small></button>').join(''):'<p class="empty" style="margin:.3rem 0">Aucun modèle pour l’instant.</p>')+'<button class="btn blk" data-act="am-tpl" style="margin-top:.4rem">📚 Ouvrir les modèles</button></div>'}
 async function amTplSave(){
- const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
- const v=await amForm('📌 Garder comme modèle','La préparation (tâches et sous-tâches, cases décochées), les prestataires utilisés, les frais, les parties et le programme sont gardés à part, sans les inscrits. Tu pourras recréer cet événement l’an prochain en un geste. Le modèle reste sur cet appareil et dans le fichier de sauvegarde.',[{k:'nm',l:'Nom du modèle',v:it.tx}],'Garder');
+ const a=amc();if(!a||!a.kB)return;if(amBlocked()){amBlockToast();return}const it=a.it[AMC_EE];if(!it)return;
+ const v=await amForm('📌 Garder comme modèle','La préparation (tâches et sous-tâches, cases décochées), les prestataires utilisés, les frais, les parties et le programme sont gardés à part, sans les inscrits. Le modèle est partagé avec tout le bureau (📁 Administratif › Modèles d’événement). Même nom qu’un modèle existant = ce modèle est mis à jour.',[{k:'nm',l:'Nom du modèle',v:it.tx}],'Garder');
  if(!v||!String(v.nm||'').trim())return;
- a.tpl=a.tpl||[];const nm=v.nm.trim().slice(0,80),old=a.tpl.findIndex(t=>t.nm===nm),o={id:amId(),nm,at:Date.now(),tx:it.tx,data:amEeClone(it)};
- if(old>=0)a.tpl[old]=o;else a.tpl.push(o);amSave();toast('📌 Modèle « '+nm+' » gardé ('+(it.ck||[]).length+' tâches, '+(it.pv||[]).length+' prestataires)',4500)}
+ const nm=v.nm.trim().slice(0,80),ex=amTpls().find(t=>String(t.tx).toLowerCase()===nm.toLowerCase());
+ amItemSave(ex?Object.assign({},ex,{tx:nm,td:amTpClean(amEeClone(it))}):amTpNew(nm,amEeClone(it)));
+ toast('📌 Modèle « '+nm+' » '+(ex?'mis à jour':'gardé')+' et partagé avec le bureau ('+(it.ck||[]).length+' tâches, '+(it.pv||[]).length+' prestataires)',5000)}
 function amTplOpen(){
- const a=amc();if(!a||!a.kB)return;const L=(a.tpl||[]).slice().sort((x,y)=>y.at-x.at);
- openSheet('<div class="sh-h"><b style="font-size:1.15rem">📚 Mes modèles d’événement</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Ouvre un événement puis touche « 📌 Garder comme modèle ». Ici, tu recrées l’événement avec sa préparation.</p>'+(L.length?L.map(t=>'<div class="mrow" style="cursor:default"><span><b>'+esc(t.nm)+'</b><small>'+(t.data.ck||[]).length+' tâches · '+(t.data.pv||[]).length+' prestataires · '+(t.data.dp||[]).length+' frais · gardé le '+new Date(t.at).toLocaleDateString('fr-FR')+'</small></span><span style="display:flex;gap:.3rem"><button type="button" class="btn pri" data-act="am-tpl-use" data-id="'+esc(t.id)+'">Créer</button><button type="button" class="btn dng" data-act="am-tpl-del" data-id="'+esc(t.id)+'" aria-label="Supprimer">🗑</button></span></div>').join(''):'<p class="empty">Aucun modèle pour l’instant.</p>')+'<div style="display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap"><button type="button" class="btn grow" data-act="am-tpl-exp">📤 Exporter (fichier)</button><button type="button" class="btn grow" data-act="am-tpl-imp">📥 Importer (fichier)</button></div>','full')}
+ const a=amc();if(!a||!a.kB)return;const L=amTpls();
+ openSheet('<div class="sh-h"><b style="font-size:1.15rem">📚 Modèles d’événement</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Partagés avec tout le bureau. Ouvre un événement puis touche « 📌 Garder comme modèle » pour en ajouter un. Touche un modèle pour voir ce qu’il contient.</p>'+(L.length?L.map(t=>'<div class="mrow" style="cursor:default"><button type="button" class="am-itx" style="flex:1;text-align:left;background:none;border:0;padding:0" data-act="am-tpl-view" data-id="'+esc(t.id)+'"><b>'+esc(t.tx)+'</b><small>'+amTpInfo(t)+(t.at?' · '+new Date(t.at).toLocaleDateString('fr-FR'):'')+'</small></button><span style="display:flex;gap:.3rem"><button type="button" class="btn" data-act="am-tpl-view" data-id="'+esc(t.id)+'">Voir</button><button type="button" class="btn pri" data-act="am-tpl-use" data-id="'+esc(t.id)+'">Créer</button></span></div>').join(''):'<p class="empty">Aucun modèle pour l’instant.</p>')+'<div style="display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap"><button type="button" class="btn grow" data-act="am-tpl-exp">📤 Exporter (fichier)</button><button type="button" class="btn grow" data-act="am-tpl-imp">📥 Importer (fichier)</button></div>','full')}
+/* 2.82.225 : le modèle se modifie directement ici (tâches, sous-tâches, qui, programme, prestataires, frais) ; chaque changement est partagé avec le bureau */
+function amTplView(id){
+ const a=amc();if(!a||!a.kB)return;const t=amTpls().find(x=>x.id===id);if(!t){closeSheet();return}const d=t.td||{},E=esc(t.id);
+ const btn=(f,i,inner)=>'<div style="display:flex;align-items:flex-start;gap:.3rem;margin:.15rem 0;border-bottom:1px solid rgba(0,0,0,.06);padding:.15rem 0"><button type="button" data-act="tp-ed" data-id="'+E+'" data-f="'+f+'" data-i="'+i+'" style="flex:1;text-align:left;background:none;border:0;padding:.25rem 0;font:inherit;color:inherit;font-size:.93rem;line-height:1.35;cursor:pointer">'+inner+' <small class="mut">✏️</small></button>'+(f==='ck'&&i>0?'<button type="button" class="ib" data-act="tp-mv" data-id="'+E+'" data-i="'+i+'" data-v="-1" aria-label="Monter">⬆️</button>':'')+'<button type="button" class="ib" data-act="tp-del" data-id="'+E+'" data-f="'+f+'" data-i="'+i+'" aria-label="Retirer">🗑</button></div>';
+ const add=(f,l)=>'<button type="button" class="btn sm" data-act="tp-add" data-id="'+E+'" data-f="'+f+'" style="margin:.3rem 0 .2rem">＋ '+l+'</button>';
+ const sec=(ti,f,L,l)=>'<p class="lbl" style="margin:.9rem 0 .25rem">'+ti+(L.length?' · '+L.length:'')+'</p>'+L.join('')+add(f,l);
+ const ck=(d.ck||[]).map((c,i)=>btn('ck',i,'☐ '+esc(c.t)+(c.w?' <small class="mut">· '+esc(c.w)+'</small>':'')+((c.sb||[]).length?'<br><small class="mut" style="margin-left:1.2rem;display:block">'+(c.sb||[]).map(q=>'↳ '+esc(q.t)).join('<br>')+'</small>':'')));
+ const pgL=(d.pg||[]).map((c,i)=>[c,i]).sort((x,y)=>String(x[0].tm).localeCompare(String(y[0].tm)));
+ const pg=pgL.map(([c,i])=>btn('pg',i,'<b>'+esc(c.tm||'--:--')+'</b> '+esc(c.t)));
+ const pv=(d.pv||[]).map((c,i)=>{const p=a.it[c.p];return btn('pv',i,'🧾 '+esc(p&&!p.del?p.tx:'Prestataire')+(c.m?' · '+c.m+' €':''))});
+ const dp=(d.dp||[]).map((c,i)=>btn('dp',i,'💶 '+esc(c.t)+(c.m?' · '+c.m+' €':'')));
+ openSheet('<div class="sh-h"><b style="font-size:1.15rem">📚 '+esc(t.tx)+'</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.84rem;margin:.1rem 0 .3rem">'+amTpInfo(t)+(t.by?' · ✍️ '+esc(t.by):'')+(t.at?' · '+new Date(t.at).toLocaleDateString('fr-FR'):'')+'<br>Touche une ligne pour la modifier. Chaque changement est partagé avec tout le bureau.</p>'+sec('☑️ Tâches de préparation','ck',ck,'Tâche')+sec('🕒 Programme','pg',pg,'Créneau')+sec('🧾 Prestataires','pv',pv,'Prestataire')+sec('💶 Frais','dp',dp,'Frais')+'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1rem"><button type="button" class="btn pri grow" data-act="am-tpl-use" data-id="'+E+'">➕ Créer un événement</button><button type="button" class="btn grow" data-act="am-tpl-ren" data-id="'+E+'">✏️ Renommer</button><button type="button" class="btn dng" data-act="am-tpl-del" data-id="'+E+'">🗑 Supprimer</button></div>','full')}
+function amTpPut(t,td){if(amBlocked()){amBlockToast();return false}amItemSave(Object.assign({},t,{td:amTpClean(td)}));return true}
+async function amTpEd(id,f,i){
+ const a=amc();if(!a||!a.kB)return;const t=amTpls().find(x=>x.id===id);if(!t||!['ck','pg','pv','dp'].includes(f))return;
+ const td=JSON.parse(JSON.stringify(t.td||{})),L=td[f]=Array.isArray(td[f])?td[f]:[],c=i>=0?L[i]:null;if(i>=0&&!c)return;
+ const num=x=>Math.max(0,Math.min(99999,Math.round((parseFloat(String(x==null?'':x).replace(',','.'))||0)*100)/100));
+ let v;
+ if(f==='ck'){const W=[['','Personne']].concat(amList().filter(q=>!q.x).map(q=>[q.n,q.n]));if(c&&c.w&&!W.some(x=>x[0]===c.w))W.push([c.w,c.w]);
+  v=await amForm(c?'✏️ Tâche de préparation':'＋ Tâche de préparation','',[{k:'t',l:'Tâche',v:c?c.t:''},{k:'w',l:'Qui s’en occupe',t:'select',o:W,v:c?c.w||'':''},{k:'sb',l:'Sous-tâches (une par ligne)',t:'area',v:c?(c.sb||[]).map(q=>q.t).join('\n'):''}],c?'Enregistrer':'Ajouter');
+  if(!v||!String(v.t||'').trim())return;const old=new Map(((c&&c.sb)||[]).map(q=>[q.t,q]));
+  const n=Object.assign({ok:0,ws:[],s:'',d:'',x:''},c||{},{t:String(v.t).trim().slice(0,240),w:String(v.w||'').slice(0,30),ok:0,u:Date.now(),sb:String(v.sb||'').split('\n').map(x=>x.trim()).filter(Boolean).slice(0,30).map(x=>({t:x.slice(0,200),ok:0,w:(old.get(x)||{}).w||''}))});
+  if(c)L[i]=n;else L.push(n)}
+ else if(f==='pg'){v=await amForm(c?'✏️ Créneau du programme':'＋ Créneau du programme','',[{k:'tm',l:'Heure',t:'time',v:c?c.tm:''},{k:'t',l:'Ce qui se passe',v:c?c.t:''}],c?'Enregistrer':'Ajouter');
+  if(!v||!String(v.t||'').trim())return;const n=Object.assign({},c||{},{tm:String(v.tm||'').slice(0,5),t:String(v.t).trim().slice(0,100),u:Date.now()});if(c)L[i]=n;else L.push(n)}
+ else if(f==='dp'){v=await amForm(c?'✏️ Frais':'＋ Frais','',[{k:'t',l:'Quoi',v:c?c.t:''},{k:'m',l:'Montant (€)',v:c&&c.m?String(c.m):''}],c?'Enregistrer':'Ajouter');
+  if(!v||!String(v.t||'').trim())return;const n={t:String(v.t).trim().slice(0,80),m:num(v.m)};if(c)L[i]=n;else L.push(n)}
+ else{const P=amItems('pv').sort((x,y)=>String(x.tx).localeCompare(String(y.tx),'fr'));if(!P.length&&!c){toast('Aucun prestataire enregistré pour l’instant',3500);return}
+  const O=P.map(p=>[p.id,p.tx]);if(c&&!O.some(x=>x[0]===c.p))O.unshift([c.p,'Prestataire (retiré)']);
+  v=await amForm(c?'✏️ Prestataire':'＋ Prestataire','',[{k:'p',l:'Prestataire',t:'select',o:O,v:c?c.p:(O[0]||[''])[0]},{k:'m',l:'Montant prévu (€)',v:c&&c.m?String(c.m):''}],c?'Enregistrer':'Ajouter');
+  if(!v||!v.p)return;const n={p:String(v.p).slice(0,12),n:'',m:num(v.m)};if(c)L[i]=n;else L.push(n)}
+ if(amTpPut(t,td)){toast('✅ Modèle mis à jour',1800);amTplView(id)}}
+async function amTpDelRow(id,f,i){const t=amTpls().find(x=>x.id===id);if(!t||!['ck','pg','pv','dp'].includes(f))return;const td=JSON.parse(JSON.stringify(t.td||{})),L=td[f]||[];if(!L[i])return;
+ const r=await ask({title:'Retirer cette ligne du modèle ?',text:String(L[i].t||'').slice(0,80),btns:[{label:'Retirer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});if(r!=='y')return;
+ L.splice(i,1);if(amTpPut(t,td))amTplView(id)}
+function amTpMv(id,i,dl){const t=amTpls().find(x=>x.id===id);if(!t)return;const td=JSON.parse(JSON.stringify(t.td||{})),L=td.ck||[],j=i+dl;if(!L[i]||!L[j])return;const x=L[i];L[i]=L[j];L[j]=x;if(amTpPut(t,td))amTplView(id)}
+async function amTplRen(id){const t=amTpls().find(x=>x.id===id);if(!t)return;const v=await amForm('✏️ Renommer le modèle','',[{k:'nm',l:'Nom du modèle',v:t.tx}],'Renommer');if(!v||!String(v.nm||'').trim())return;amItemSave(Object.assign({},t,{tx:v.nm.trim().slice(0,80)}));amTplView(id)}
 async function amTplUse(id){
- const a=amc();if(!a||!a.kB)return;const t=(a.tpl||[]).find(x=>x.id===id);if(!t)return;
+ const a=amc();if(!a||!a.kB)return;if(amBlocked()){amBlockToast();return}const t=amTpls().find(x=>x.id===id);if(!t)return;
  const D=new Date();D.setMonth(D.getMonth()+1);
- const v=await amForm('Créer depuis « '+t.nm+' »','La préparation, les prestataires, les frais et le programme sont recopiés, sans inscrits.',[{k:'tx',l:'Nom de l’événement',v:t.tx||t.nm},{k:'d',l:'Date',v:D.toISOString().slice(0,10),t:'date'}],'Créer');
+ const v=await amForm('Créer depuis « '+t.tx+' »','La préparation, les prestataires, les frais et le programme sont recopiés, sans inscrits.',[{k:'tx',l:'Nom de l’événement',v:t.tx},{k:'d',l:'Date',v:D.toISOString().slice(0,10),t:'date'}],'Créer');
  if(!v||!String(v.tx||'').trim()||!v.d)return;
- const c=JSON.parse(JSON.stringify(t.data)),o=Object.assign({id:amId(),kind:'ee',x:0,tx:v.tx.trim().slice(0,200),d:v.d,w:'',qt:'',tm:'',pt:[]},c);
+ const c=amTpClean(t.td),o=Object.assign({id:amId(),kind:'ee',x:0,tx:v.tx.trim().slice(0,200),d:v.d,w:'',qt:'',tm:'',pt:[]},c);if(!o.z)o.z='b';
  closeSheet();AMC_TAB='ee';AMC_EE=o.id;amItemSave(o);toast('Événement créé depuis le modèle',3000)}
 async function amTplDel(id){
- const a=amc();if(!a)return;const t=(a.tpl||[]).find(x=>x.id===id);if(!t)return;
- const r=await ask({title:'🗑 Supprimer ce modèle ?',text:'« '+t.nm+' » sera supprimé de cet appareil. Les événements déjà créés ne changent pas.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
- if(r!=='y')return;a.tpl=a.tpl.filter(x=>x.id!==id);amSave();amTplOpen()}
+ const a=amc();if(!a||!a.kB)return;const t=amTpls().find(x=>x.id===id);if(!t)return;
+ const r=await ask({title:'🗑 Supprimer ce modèle ?',text:'« '+t.tx+' » disparaît pour tout le bureau. Les événements déjà créés ne changent pas.',btns:[{label:'Supprimer',value:'y',cls:'dng'},{label:'Annuler',value:null}]});
+ if(r!=='y')return;amItemSave(Object.assign({},t,{del:1}));closeSheet();toast('Modèle supprimé',2500)}
 function amTplExport(){
- const a=amc();if(!a||!(a.tpl||[]).length){toast('Aucun modèle à exporter',3000);return}
- const blob=new Blob([JSON.stringify({app:'agd-amicale-modeles',v:1,at:Date.now(),tpl:a.tpl},null,1)],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
- l.href=u;l.download='amicale-modeles-'+today()+'.json';document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000)}
+ const L=amTpls();if(!L.length){toast('Aucun modèle à exporter',3000);return}
+ const blob=new Blob([JSON.stringify({app:'agd-amicale-modeles',v:1,at:Date.now(),tpl:L.map(t=>({nm:t.tx,tx:t.tx,data:t.td}))},null,1)],{type:'application/json'}),u=URL.createObjectURL(blob),l=document.createElement('a');
+ l.href=u;l.download='modeles-evenements-'+today()+'.json';document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(u)},4000)}
 function amTplImport(){
  const a=amc();if(!a||!a.kB)return;const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';
  inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;let J;try{J=JSON.parse(await f.text())}catch(e){toast('Fichier illisible',3500);return}
-  if(!J||J.app!=='agd-amicale-modeles'||!Array.isArray(J.tpl)){toast('Ce n’est pas un fichier de modèles Amicale',4000);return}
-  a.tpl=a.tpl||[];let n=0;J.tpl.forEach(t=>{if(!t||!t.nm||!t.data)return;const i=a.tpl.findIndex(x=>x.nm===t.nm),o={id:amId(),nm:String(t.nm).slice(0,80),at:Date.now(),tx:String(t.tx||t.nm).slice(0,200),data:t.data};if(i>=0)a.tpl[i]=o;else a.tpl.push(o);n++});
-  amSave();amTplOpen();toast('📥 '+n+' modèle'+(n>1?'s':'')+' importé'+(n>1?'s':''),3500)};
+  if(!J||J.app!=='agd-amicale-modeles'||!Array.isArray(J.tpl)){toast('Ce n’est pas un fichier de modèles',4000);return}
+  let n=0;J.tpl.forEach(t=>{if(!t||!t.nm||!t.data)return;const nm=String(t.nm).slice(0,80),ex=amTpls().find(x=>String(x.tx).toLowerCase()===nm.toLowerCase());amItemSave(ex?Object.assign({},ex,{td:amTpClean(t.data)}):amTpNew(nm,t.data));n++});
+  amTplOpen();toast('📥 '+n+' modèle'+(n>1?'s':'')+' importé'+(n>1?'s':''),3500)};
  inp.click()}
 async function amEeCopy(){
  const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
@@ -16595,7 +16650,7 @@ async function amBsArchive(){
   if(m)amItemSave(Object.assign({},m,{o:Object.assign({},m.o||{},{ba:'1'})}))}
  amSave();render();toast(files.length+' bulletins supprimés de l’appli',4000);
 }
-const AM_KL={pv:'prestataire',cd:'cadeau',ag:'compte rendu d’AG',tk:'tâche',co:'article',ev:'agenda',ee:'événement',nt:'note',am:'amicaliste',bs:'bulletin',bm:'modèle de bulletin',po:'affiche',ad:'document'};
+const AM_KL={pv:'prestataire',cd:'cadeau',ag:'compte rendu d’AG',tk:'tâche',co:'article',ev:'agenda',ee:'événement',nt:'note',am:'amicaliste',bs:'bulletin',bm:'modèle de bulletin',po:'affiche',ad:'document',tp:'modèle d’événement'};
 function amRelT(t){const d=Math.round((Date.now()-t)/60000);return d<1?'à l’instant':d<60?'il y a '+d+' min':d<1440?'il y a '+Math.round(d/60)+' h':'il y a '+Math.round(d/1440)+' j'}
 /* ---------- 🛡 Sauvegardes de l'Amicale : corbeille 30 jours, copies automatiques, fichier chiffré ---------- */
 const AM_TRK={pv:'🤝 Prestataire',am:'🎖 Amicaliste',ee:'🎉 Événement',tk:'☑ Tâche',co:'🛒 Article',nt:'📝 Note',ev:'📅 Agenda',cd:'🎁 Cadeau',ag:'📝 Compte rendu d’AG',ad:'📁 Document',po:'🖼 Affiche'};
@@ -17105,7 +17160,7 @@ const amAdSz=n=>n>=1048576?(n/1048576).toFixed(1).replace('.',',')+' Mo':Math.ma
 function amAdHTML(){
  const a=amc(),L=amItems('ad').sort((p,q)=>String(p.tx).localeCompare(String(q.tx),'fr'));
  const F=amAdFolders().filter(f=>L.some(i=>(i.l||'Autres')===f));
- let h='<div class="card"><h3>📁 Administratif</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Les documents importants du bureau : statuts, règlement, comptes rendus d’AG, assurance, demandes en préfecture… Chiffrés, visibles par le bureau seulement. ✉️ pour l’envoyer sur ta boîte mail pro.</p><button class="btn pri blk" data-act="ad-add">＋ Ajouter un document</button></div>'+amCdCard()+amAgCard()+amPvCard();
+ let h='<div class="card"><h3>📁 Administratif</h3><p class="mut" style="margin:.2rem 0 .5rem;font-size:.88rem">Les documents importants du bureau : statuts, règlement, comptes rendus d’AG, assurance, demandes en préfecture… Chiffrés, visibles par le bureau seulement. ✉️ pour l’envoyer sur ta boîte mail pro.</p><button class="btn pri blk" data-act="ad-add">＋ Ajouter un document</button></div>'+amTpCard()+amCdCard()+amAgCard()+amPvCard();
  if(L.length)h+='<div class="chips" style="margin:.3rem 0 .5rem"><button class="chip'+(AMC_ADF?'':' on')+'" data-act="ad-f" data-v="">Tous · '+L.length+'</button>'+F.map(f=>'<button class="chip'+(AMC_ADF===f?' on':'')+'" data-act="ad-f" data-v="'+esc(f)+'">'+esc(f)+' · '+L.filter(i=>(i.l||'Autres')===f).length+'</button>').join('')+'</div>';
  const show=F.filter(f=>!AMC_ADF||AMC_ADF===f);
  h+=L.length?show.map(f=>'<p class="lbl" style="margin:.7rem 0 .3rem">'+esc(f)+'</p>'+L.filter(i=>(i.l||'Autres')===f).map(i=>{const m=amAdMeta(i);
@@ -18105,7 +18160,7 @@ function amEeHTML(){
  const isNw=i=>amEeNwN(i)>0;
  const row=i=>{const D=new Date(i.d+'T12:00'),nw=isNw(i);return '<button class="am-it am-ev'+(nw?' ee-nw':'')+'" data-act="ee-open" data-id="'+esc(i.id)+'"><span class="am-dt'+(i.d===today?' now':'')+'"><b>'+D.getDate()+'</b>'+D.toLocaleDateString('fr-FR',{month:'short'}).replace('.','')+(nw?'<em class="ee-nwb">'+amEeNwN(i)+'</em>':'')+'</span><span class="am-itx"><b>'+esc(i.tx)+'</b>'+(nw?'<span class="ee-nwt">'+amEeNwTx(i)+'</span>':'')+'<small>'+esc(D.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(i.tm?' · '+i.tm:''))+(i.pl?' · 📍 '+esc(i.pl):'')+prog(i)+(rw&&i.z==='b'?' · 🔒 bureau':'')+'</small></span>'+amEePth(i)+'</button>'};
  const up=L.filter(i=>(i.d||'')>=today).sort((p,q)=>p.d<q.d?-1:1),past=L.filter(i=>(i.d||'')<today).sort((p,q)=>q.d<p.d?-1:1);
- let h=rw?'<button class="btn pri blk" data-act="am-add" data-k="ee">'+ic('plus')+' Nouvel événement</button>':''+(rw?'<button class="btn blk" data-act="am-tpl" style="margin-top:.4rem">📚 Mes modèles ('+(((amc()||{}).tpl)||[]).length+')</button>':'');
+ let h=(rw?'<button class="btn pri blk" data-act="am-add" data-k="ee">'+ic('plus')+' Nouvel événement</button>':'')+(rw?'<button class="btn blk" data-act="am-tpl" style="margin-top:.4rem">📚 Mes modèles ('+amTpls().length+')</button>':'');
  h+=up.length?up.map(row).join(''):'<p class="empty">'+(rw?'Aucun événement à venir. Crée la fête, le loto, le vide-grenier… avec sa liste de préparation et son programme.':'Aucun événement partagé pour l’instant.')+'</p>';
  if(past.length)h+='<h4 class="am-h">Passés · '+past.length+'</h4>'+past.slice(0,20).map(row).join('');
  if(L.length)h+='<button class="btn blk" data-act="ee-year" style="margin-top:.8rem">🖨 Imprimer le calendrier de l’année</button>';
