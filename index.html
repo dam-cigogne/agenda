@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.210';
+const APP_VERSION='2.82.213';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,9 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.213',d:'24/11/2026',items:['<b>📅 Copies automatiques</b> : « Choisir ce que je remets » fonctionne enfin (il répondait toujours « Rien de coché » même quand on cochait).']},
+{v:'2.82.212',d:'24/11/2026',items:['<b>🏠 Accueil</b> : chaque événement à venir a son affiche animée avec le nombre d’inscrits, les accompagnants et le compte à rebours.']},
+{v:'2.82.211',d:'24/11/2026',items:['<b>🔗 Liens publics</b> : les liens d’inscription et d’adhésion ouvrent les pages de ton propre groupe, avec tes mots (membre, club…) et sans grades militaires si le groupe est civil.']},
 {v:'2.82.210',d:'24/11/2026',items:['<b>🧹 Ménage des membres</b> : seuils plus courts (1 et 3 jours), liste de tous les membres avec leur dernière activité, et doublons repérés aussi quand un nom commence comme l’autre (ex. Coco / Coco deux).','<b>📊 Usage du serveur</b> : messages clairs quand l’usage n’est pas encore branché ou que le serveur n’est pas à jour.']},
 {v:'2.82.209',d:'24/11/2026',items:['<b>🧹 Ménage des membres</b> (administrateurs, dans Réglages) : un rapport en lecture seule des profils pas revus depuis 7, 14, 30 ou 60 jours, et des doublons probables (même nom, même téléphone, noms proches). Rien n’est supprimé : tu touches un nom pour ouvrir sa fiche.']},
 {v:'2.82.208',d:'24/11/2026',items:['<b>✏️ Correction du nom d’un membre</b> : ta correction (nom et surnom) ne revient plus à l’ancienne valeur. L’appli relit le serveur avant d’envoyer, protège ta correction tant qu’elle n’est pas partie, et dit honnêtement si l’envoi est en attente.']},
@@ -8179,7 +8182,7 @@ function ask(o){
   root.onclick=e=>{
    if(e.target.closest('[data-close]')){e.stopPropagation();done(null);return}
    const b=e.target.closest('[data-v]');
-   if(b){e.stopPropagation();done(btns[+b.dataset.v].value)}
+   if(b){e.stopPropagation();const bv=btns[+b.dataset.v].value;done(bv&&typeof bv==='object'&&!Array.isArray(bv)&&Object.getOwnPropertyDescriptor(bv,'value')&&Object.getOwnPropertyDescriptor(bv,'value').get?bv.value:bv)}
    else if(e.target.classList.contains('ov')&&!root.querySelector('.dlgbox input,.dlgbox textarea,.dlgbox select')){e.stopPropagation();done(null)}
   };
   /* 2.82.0 : sur iPad/iPhone, après la fermeture du clavier, les boutons pouvaient ne plus répondre (écran décalé) : on recale la page */
@@ -19087,7 +19090,7 @@ async function init(){
  }
 }
 init();
-window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amMigrateSrv,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amMenageOpen,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
+window.__agd={get EV(){return EV},get S(){return S},get ESSAI(){return ESSAI},set ESSAI(v){ESSAI=v},PH,famUrl,amQrReview,amQrAccept,remList,alarmLabel,amPub,amPren,V,version:APP_VERSION,fn:{amSrvQ,amSrvAsk,amMigrateSrv,amSrvFind,amSrvNorm,amSrvTx,AM_INST_TX,amRotate,amKeyStale,amCxPhClean,amPtMerge,amEeMut,amJjOpen,amSave,amCcAdd,amCcDel,amCcL,amCmCl,amCxNew,amAbOpen,amAbEdit,amAbPlan,amAbs,amItemForm,amLinkIn,amAlertSet,amRotCheck,amRotate,pushSecHTML,amBsHtml,amRegHtml,amBm,amAqDoc,amDevAsk,amItemSave,amWideFix,amAmEdit,amWaPick,amWaK,amAmRowsAdd,amPtEdit,rcPhSet,rcPhGet,jrCheck,jrWrap,saveData,famPull,famPush,enterDemo,exitDemo,go,render,tabsApply,amc,amCreate,amInvite,amJoinCode,amList,amPull,amFlush,amPush,amLinkOut,amRolesPut,amFiche,amVerify,amPoShare,amPoGet,amMenageOpen,ask,amEePoster,amPosterHTML,amMnClean,amQrUrl,amQrImg,amAqFetch,amSendLink,amAmEdit,amAqUrl,amQmImgMake,get PO(){return PO}}};
 try{if(S&&S.amlPin&&!demo&&!amlScopeAm()){amlCover(1);setTimeout(()=>amlGate().then(ok=>{if(ok)amlCover(0)}),700)}}catch(e){}
 })();
 
