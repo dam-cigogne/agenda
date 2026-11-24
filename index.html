@@ -2997,7 +2997,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.218';
+const APP_VERSION='2.82.219';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3005,6 +3005,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.219',d:'24/11/2026',items:['<b>🔔 Toucher une notification</b> : l’événement modifié s’ouvre directement (même quand la notification ne donne pas son nom), et dans Asso malin les notifications ouvrent aussi la bonne page.']},
 {v:'2.82.218',d:'24/11/2026',items:['<b>🔄 Mise à jour automatique</b> : l’appli cherche une nouvelle version dès qu’on la regarde (retour sur l’appli, ou toutes les 3 minutes si elle reste ouverte) et se met à jour toute seule, sans attendre qu’on pense à appuyer sur « Mettre à jour » (sauf si on est en train d’écrire quelque chose : ça attend).','<b>🐞 Programme d’un événement</b> : le classement « La veille / Le jour J… » et l’ordre choisi à la main des créneaux se perdaient à la synchronisation (le programme redevenait une simple liste). Ils sont maintenant bien enregistrés et transmis aux autres appareils (comme un autre réglage d’événement qui se perdait aussi).']},
 {v:'2.82.217',d:'24/11/2026',items:['<b>🛡 Plus de tâches ou de créneaux qui disparaissent</b> : quand deux personnes modifient le même événement en même temps (par exemple quelqu’un coche une tâche pendant que tu en ajoutes une), les tâches de préparation et le programme sont maintenant fusionnés au lieu de s’écraser. Une suppression volontaire reste prise en compte.']},
 {v:'2.82.216',d:'24/11/2026',items:['<b>📋 Tâches de préparation plus lisibles</b> : ce qui reste à faire d’abord, plus aéré ; les tâches et petites tâches faites sont repliées sous « ✅ Faites (n) » ; bouton « 🧹 Effacer les faites » (récupérables dans Réglages › Tâches de prépa disparues).']},
@@ -18278,7 +18279,9 @@ async function amGo(g,nm){try{if(!amc()||demo)return;if(['am','nt','ad','aq','cx
  if(g==='rp'||g==='rn'){const L=amTodoVotes().filter(x=>x.k===g);let id=L.length?L[0].id:'';
   if(!id&&g==='rp'){const R=amItems('rp').map(i=>rpGet(i.id)).filter(o=>o&&o.iv.includes(me)).sort((x,y)=>((a.it[y.id]||{}).at||0)-((a.it[x.id]||{}).at||0));id=R.length?R[0].id:''}
   if(id){if(g==='rp'){RP_ID=id;AMC_TAB='rq'}else{RN_M=id;AMC_TAB='rn'}}else AMC_TAB='ev'}
- else if(g==='ee'){AMC_TAB='ee';const L=amItems('ee').filter(i=>!i.del);let e=nm?L.find(i=>String(i.tx||'').trim()===String(nm).trim()):null;if(!e){const N=L.filter(i=>amEeNwN(i)>0).sort((x,y)=>(y.at||0)-(x.at||0));e=N[0]||null}AMC_EE=e?e.id:'';AMC_EES='';PT_SEL=CK_SEL=null}
+ else if(g==='ee'){AMC_TAB='ee';const L=amItems('ee').filter(i=>!i.del);const nn=String(nm||'').replace(/[….]+$/,'').trim().toLowerCase();let e=nn?(L.find(i=>String(i.tx||'').trim().toLowerCase()===nn)||L.find(i=>{const t=String(i.tx||'').trim().toLowerCase();return t.startsWith(nn)||nn.startsWith(t)&&t.length>3})):null;if(!e){const N=L.filter(i=>amEeNwN(i)>0).sort((x,y)=>(y.at||0)-(x.at||0));e=N[0]||null}
+  /* 2.82.219 : sans nom dans la notification, on ouvre l’événement modifié le plus récemment (par quelqu’un d’autre) plutôt que la liste */
+  if(!e){const R=L.filter(i=>i.by&&i.by!==a.me.n&&Date.now()-(i.at||0)<2*864e5).sort((x,y)=>(y.at||0)-(x.at||0));e=R[0]||null}AMC_EE=e?e.id:'';AMC_EES='';PT_SEL=CK_SEL=null}
  else if(g==='aq'){AMC_TAB='am';AQ_OPEN=true}else if(g==='cx')AMC_TAB='am';
  else if(['tk','co','ev','nt','am','ad','id','ac'].includes(g))AMC_TAB=g;else return;
  AMC_MB=0;render();try{window.scrollTo(0,0)}catch(e){}}catch(e){}}
