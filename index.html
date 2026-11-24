@@ -2996,7 +2996,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.213';
+const APP_VERSION='2.82.214';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3004,6 +3004,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.214',d:'24/11/2026',items:['<b>🐞 Copies automatiques</b> : sur iPhone et iPad, « Choisir ce que je remets » répondait encore « Rien de coché » (le bouton tactile n’était pas corrigé).','<b>🛡 Garde-fou des tâches de préparation</b> : si une synchronisation écrase un événement et fait disparaître des tâches de préparation (un autre appareil pas à jour), elles sont gardées de côté : Réglages › « 🧩 Tâches de prépa disparues » pour les remettre en un clic.']},
 {v:'2.82.213',d:'24/11/2026',items:['<b>📅 Copies automatiques</b> : « Choisir ce que je remets » fonctionne enfin (il répondait toujours « Rien de coché » même quand on cochait).']},
 {v:'2.82.212',d:'24/11/2026',items:['<b>🏠 Accueil</b> : chaque événement à venir a son affiche animée avec le nombre d’inscrits, les accompagnants et le compte à rebours.']},
 {v:'2.82.211',d:'24/11/2026',items:['<b>🔗 Liens publics</b> : les liens d’inscription et d’adhésion ouvrent les pages de ton propre groupe, avec tes mots (membre, club…) et sans grades militaires si le groupe est civil.']},
@@ -8194,7 +8195,7 @@ function ask(o){
   root.ontouchstart=e=>{tb=e.target.closest&&(e.target.closest('.dlgbox [data-v]')||e.target.closest('.dlgbox [data-close]'));const t=e.touches&&e.touches[0];if(t){tx0=t.screenX;ty0=t.screenY}};
   root.ontouchmove=e=>{const t=e.touches&&e.touches[0];if(t&&Math.abs(t.screenX-tx0)+Math.abs(t.screenY-ty0)>14)tb=null};
   root.ontouchend=e=>{const b=tb;tb=null;if(!b||!root.contains(b))return;
-   e.preventDefault();if(b.dataset.close){done(null);return}root.dispatchEvent(new CustomEvent('dlgsync'));done(btns[+b.dataset.v].value)};
+   e.preventDefault();if(b.dataset.close){done(null);return}root.dispatchEvent(new CustomEvent('dlgsync'));{const bv=btns[+b.dataset.v].value;done(bv&&typeof bv==='object'&&!Array.isArray(bv)&&Object.getOwnPropertyDescriptor(bv,'value')&&Object.getOwnPropertyDescriptor(bv,'value').get?bv.value:bv)}};
  });
 }
 let SHEET_OPEN=false;
@@ -9439,6 +9440,7 @@ async function act(a,el,e){
   case 'am-sos-wa':amSosWa(ds_.k);break;
   case 'tr-res':amTrashRestore(ds_.id);break;
   case 'sn-open':amSnapOpen();break;
+  case 'ck-lost':amCkLost();break;
   case 'rp-open':case 'rp-back':case 'rp-new':case 'rp-vote':case 'rp-iv':case 'rp-ivb':case 'rp-ivall':case 'rp-dadd':case 'rp-ddel':case 'rp-pl':case 'rp-launch':case 'rp-fix':case 'rp-reopen':case 'rp-rl':case 'rp-rl1':case 'rp-rlp':case 'rp-nop':case 'rp-rld':case 'rp-dnote':case 'rp-pt-add':case 'rp-pt-x':case 'rp-pt-del':case 'rp-del':amRpAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'rn-open':case 'rn-m':case 'rn-vote':case 'rn-prep':case 'rn-iv':case 'rn-ivb':case 'rn-ivall':case 'rn-dadd':case 'rn-ddel':case 'rn-launch':case 'rn-fix':case 'rn-reopen':case 'rn-pl':case 'rn-pt-add':case 'rn-pt-def':case 'rn-pt-x':case 'rn-pt-up':case 'rn-pt-dn':case 'rn-pt-del':case 'rn-bm':case 'rn-rl':case 'rn-rl1':case 'rn-rlp':case 'rn-nop':case 'rn-rld':case 'rn-dnote':amRnAct(a,ds_).catch(()=>toast('Action impossible',2500));break;
   case 'ch-z':case 'ch-zun':chResetAct(a,ds_.m).catch(()=>toast('Action impossible',2500));break;
@@ -13339,6 +13341,8 @@ async function amPull(manual){
      const qU=(A,B)=>Array.from(new Set([].concat(Array.isArray(A)?A:[],Array.isArray(B)?B:[]).map(v=>+v).filter(v=>v>0&&isFinite(v)))).sort((x,y)=>x-y).slice(-800);
      const aqM=(base,other)=>{try{const x=JSON.parse(base||'{}'),y=JSON.parse(other||'{}');x.qd=qU(x.qd,y.qd);x.w=Array.from(new Set([].concat(x.w||[],y.w||[]))).slice(-300);return JSON.stringify(x)}catch(e){return base}};
      if(o&&(o.at||0)>=(P.at||0)){if(P.kind==='ee'&&o.kind==='ee'){const u1=qU(o.qd,P.qd),u2=qU(o.qh,P.qh);if(u1.length>(o.qd||[]).length||u2.length>(o.qh||[]).length){o.qd=u1;o.qh=u2;chg=true}if(!P.del&&!o.del&&Array.isArray(P.pt)&&amPtMerge(o.pt,P.pt)){o.at=Date.now();o.dirty=1;chg=true}}else if(P.kind==='aq'&&o.kind==='aq'){const nb=aqM(o.bd,P.bd);if(nb!==o.bd){o.bd=nb;chg=true}}continue}
+     /* 2.82.214 : garde-fou — si une synchro écrase un événement et fait disparaître des tâches de préparation, on les garde de côté pour les remettre */
+     if(o&&o.kind==='ee'&&!o.del&&P.kind==='ee'&&!P.del&&Array.isArray(o.ck)&&Array.isArray(P.ck)){try{const have=new Set(P.ck.map(c=>String(c&&c.t||'').trim().toLowerCase())),lost=o.ck.filter(c=>c&&c.t&&!c.ok&&!have.has(String(c.t).trim().toLowerCase()));if(lost.length){a.ckl=(a.ckl||[]).filter(z=>z.id!==P.id||Date.now()-z.at<30*864e5);a.ckl.push({id:P.id,ev:String(o.tx||'').slice(0,60),by:String(P.by||'').slice(0,30),at:Date.now(),c:JSON.parse(JSON.stringify(lost))});a.ckl=a.ckl.slice(-40);toast('⚠️ '+lost.length+' tâche'+(lost.length>1?'s':'')+' de préparation a'+(lost.length>1?'ont':'')+' disparu de « '+String(o.tx||'').slice(0,30)+' » : Réglages › Tâches disparues pour la'+(lost.length>1?'/les':'')+' remettre',7000)}}catch(e){}}
      a.it[P.id]={id:P.id,kind:P.kind,tx:String(P.tx||'').slice(0,200),x:P.x?1:0,d:String(P.d||'').slice(0,10),w:String(P.w||'').slice(0,30),qt:String(P.qt||'').slice(0,20),tm:String(P.tm||'').slice(0,5),pl:String(P.pl||'').slice(0,80),bd:String(P.bd||'').slice(0,P.kind==='bm'||P.kind==='ag'?150000:P.kind==='po'?400000:P.kind==='ad'?40000:P.kind==='ac'?200000:P.kind==='lg'?30000:P.kind==='aq'||P.kind==='cx'?20000:P.kind==='cm'?6000:P.kind==='rn'||P.kind==='rp'||P.kind==='cs'?12000:4000),by:String(P.by||'').slice(0,30),at:P.at||0,del:P.del?1:0,z:x.z};if(P.kind==='bm')a.it[P.id].sg=String(P.sg||'');{const c9=a.it[P.id];if(P.kind==='tk')c9.ak=String(P.ak||'').slice(0,60);c9.cg=String(P.cg||'').slice(0,240);c9.hs=Array.isArray(P.hs)?P.hs.slice(0,6).map(h=>({t:+(h&&h.t)||0,by:String((h&&h.by)||'').slice(0,30),ac:['a','d','x','u','m'].includes(h&&h.ac)?h.ac:'m',cg:String((h&&h.cg)||'').slice(0,240)})).filter(h=>h.t>0):[]}
      if(P.kind==='co'||P.kind==='cq'||P.kind==='ad'||P.kind==='cd'||P.kind==='pv')a.it[P.id].l=String(P.l||'').slice(0,P.kind==='cd'?60:30);
      if(P.kind==='ac'){const c=a.it[P.id];if(c.del||!c.bd)await PH.del('adc-'+P.id);else await PH.put('adc-'+P.id,c.bd);c.bd=''}
@@ -16590,6 +16594,18 @@ async function amSnapOpen(){
  const lb=o=>o.lb==='avant'?' (avant restauration)':o.lb==='fichier'?' (avant import du fichier)':'';
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">📅 Copies automatiques</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .5rem">Sur cet appareil : une copie par jour (7 jours), une par semaine (4 semaines) et, dans la journée, une toutes les 3 h entre 8 h et 17 h (quand l’appli est ouverte et que quelque chose a changé). '+(a.apriv?'Touche une copie pour voir ce qui a changé et, si besoin, revenir en arrière.':'<b>Seul l’administrateur fait des copies automatiques et peut restaurer</b> : sur ton appareil, il n’y en a pas de nouvelle.')+'</p>'+(S0.length?S0.map(({k,o})=>'<button class="am-it" data-act="sn-pick" data-k="'+esc(k)+'"'+(a.apriv?'':' disabled')+'><span class="am-itx"><b>'+esc(new Date(o.at).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+esc(lb(o))+'</b><small>'+o.n+' éléments</small></span></button>').join(''):'<p class="empty">Pas encore de copie.</p>'),'full');
 }
+async function amCkLost(){
+ const a=amc();if(!a)return;const L=(a.ckl||[]).filter(z=>a.it[z.id]&&!a.it[z.id].del);
+ if(!L.length){a.ckl=[];amSave();toast('Rien à remettre',3000);return}
+ const h='<p class="mut" style="font-size:.84rem;margin:.1rem 0 .4rem">Ces tâches de préparation ont disparu après une synchronisation (un autre appareil a modifié l’événement). Coche celles à remettre.</p><div class="sn-ch" style="max-height:48vh;overflow:auto;text-align:left">'+L.map((z,i)=>'<div style="margin:.3rem 0"><b>'+esc(z.ev)+'</b> <small class="mut">'+new Date(z.at).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'})+(z.by?' · modifié par '+esc(z.by):'')+'</small>'+z.c.map((c,j)=>'<label style="display:block;padding:.15rem 0 .15rem 1.2rem"><input type="checkbox" data-i="'+i+'.'+j+'" checked> '+esc(c.t)+(c.w?' <small class="mut">('+esc(c.w)+')</small>':'')+'</label>').join('')+'</div>').join('')+'</div>';
+ const sel={get value(){return[...document.querySelectorAll('.sn-ch input[data-i]:checked')].map(z=>z.dataset.i)}};
+ const r=await ask({title:'🧩 Tâches de prépa disparues',html:h,btns:[{label:'↩ Remettre les tâches cochées',value:sel,cls:'pri'},{label:'Oublier cette liste',value:'x'},{label:'Annuler',value:null}]});
+ if(!r)return;if(r==='x'){a.ckl=[];amSave();toast('Liste effacée',2500);return}
+ if(!r.length){toast('Rien de coché',3000);return}
+ const by={};r.forEach(k=>{const[i,j]=k.split('.').map(Number);(by[L[i].id]=by[L[i].id]||[]).push(L[i].c[j])});
+ const keep=AMC_EE;let n=0;
+ for(const id in by){AMC_EE=id;amEeMut(o=>{const have=new Set(o.ck.map(c=>String(c.t).trim().toLowerCase()));by[id].forEach(c=>{if(!have.has(String(c.t).trim().toLowerCase())){o.ck.push(c);n++}})})}
+ AMC_EE=keep;a.ckl=(a.ckl||[]).filter(z=>!by[z.id]);amSave();toast(n+' tâche'+(n>1?'s':'')+' remise'+(n>1?'s':''),3500);render()}
 async function amSnapChoose(o){const D=amSnapDiff(o),it=[];
  D.back.forEach(x=>it.push({x,t:'🗑 supprimé'}));D.chg.forEach(x=>it.push({x,t:'✏️ modifié'}));
  if(!it.length){toast('Rien à choisir : tout est déjà comme dans cette copie',3500);return}
@@ -16743,7 +16759,7 @@ function amSosOpen(){
  mrow('am-sync','1️⃣ Actualiser maintenant','Le plus simple, à essayer d’abord')+mrow('am-full','2️⃣ Tout recharger depuis le serveur','Relit tout, sans rien effacer')+
  (adm?mrow('am-reset','3️⃣ Repartir du serveur (cet appareil)','Cet appareil oublie ses données et reprend celles du serveur. À faire sur l’appareil FAUX, après avoir vérifié qu’un autre est juste'):'<p class="mut" style="font-size:.84rem;margin:.2rem 0">3️⃣ Toujours faux : demande à l’administrateur.</p>')+
  (adm?h('📣 Envoyer la consigne au groupe')+'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .3rem">Ouvre WhatsApp (ou le partage du téléphone) avec le message tout prêt : choisis le groupe ou les personnes.</p>'+mrow('am-sos-pp','👥 Choisir les personnes (WhatsApp direct)','Un bouton par personne, avec son numéro et le bon message')+mrow('am-sos-send','💬 Aux aides','Remise à zéro en 5 étapes',' data-k="m"')+mrow('am-sos-send','💬 Au bureau','Mêmes étapes + chiffres à vérifier',' data-k="b"')+mrow('am-sos-send','💬 Aux administrateurs','Procédure complète, un à la fois',' data-k="a"'):'')+
- (adm?'<p class="mut" style="font-size:.88rem;margin:.7rem 0 .3rem"><b>Quelque chose a été supprimé ou écrasé</b> (événement, prestataires, amicalistes…) :</p>'+mrow('sn-open','📅 Copies automatiques','Touche une copie puis « Choisir ce que je remets »')+mrow('bk-am','💾 Sauvegarde (fichier de secours)','À faire AVANT toute grosse manipulation'):'')+
+ (adm?'<p class="mut" style="font-size:.88rem;margin:.7rem 0 .3rem"><b>Quelque chose a été supprimé ou écrasé</b> (événement, prestataires, amicalistes…) :</p>'+mrow('sn-open','📅 Copies automatiques','Touche une copie puis « Choisir ce que je remets »')+((a.ckl||[]).length?mrow('ck-lost','🧩 Tâches de prépa disparues ('+a.ckl.length+')','Remettre ce qu’une synchro a écrasé'):'')+mrow('bk-am','💾 Sauvegarde (fichier de secours)','À faire AVANT toute grosse manipulation'):'')+
  h('🧯 Repartir à zéro, proprement (bureau)')+ul(li('<b>L’administrateur</b> vérifie sur l’appareil qui est juste (ex. le Mac) : nombre d’amicalistes, inscrits, paiements.')+li('Il fait une <b>sauvegarde fichier</b>, puis garde les <b>copies automatiques</b> (7 jours).')+li('<b>Tous les autres ferment l’appli</b>, la mettent à jour, la rouvrent, <b>sans rien modifier</b>.')+li('<b>Un par un</b>, chaque appareil faux fait « Repartir du serveur ». On compare au bon appareil avant de passer au suivant.')+li('Quand tout concorde : on reprend le travail normalement.'))+
  h('🧭 Si ça recommence à se dérégler')+ul(li('<b>Tout le monde arrête</b> d’ajouter ou de modifier (message WhatsApp), le temps de régler.')+li('<b>Un seul appareil est faux</b>, les autres sont justes : sur cet appareil, « Actualiser » puis « Tout recharger ». Toujours faux et administrateur : « Repartir du serveur », un appareil à la fois.')+li('<b>Plusieurs appareils sont faux, ou des données abîmées ou effacées</b> : administrateur, « Copies automatiques », choisir la copie d’avant le problème et ne remettre que ce qui manque (une copie « avant restauration » est prise toute seule). Elles sont gardées 7 jours : agir vite.')+li('<b>Dernier recours</b> : la sauvegarde fichier faite avant.')+li('<b>Ne répare pas au hasard</b> : note ce que chaque appareil affiche (nombre de membres, d’inscrits…) avant de toucher.'))+
   h('☎️ Si ça ne marche pas')+'<p class="mut" style="font-size:.88rem">Note l’heure, ce que tu as touché et le « Problème » affiché en haut, puis préviens l’administrateur avant de refaire quelque chose.</p>','full')}
@@ -16764,7 +16780,7 @@ function amSafeCard(){
  const a=amc();if(!a||!a.kB)return '';setTimeout(()=>{amSnapAuto();amTrashPurge()},400);const n=amTrash().length,bk=S.amBkAt,old=!bk||Date.now()-bk>30*AM_DAY;
  return '<div class="card" id="am-safe"><h3>🛡 Sauvegarde de l’Amicale</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Contre les fausses manips : une suppression part chez tout le bureau, mais on peut toujours revenir en arrière.'+(a.apriv?' <b>Tu es administrateur</b> : les restaurations demandent de taper RESTAURER.':'')+'</p>'+
   mrow('tr-open','🗑 Corbeille'+(n?' · '+n:''),'Ce qui a été supprimé ces 30 derniers jours, à restaurer')+
-  mrow('sn-open','📅 Copies automatiques',(a.apriv?'Une par jour (7 jours), par semaine, et toutes les 3 h de 8 h à 17 h, sur cet appareil':'Faites seulement sur l’appareil de l’administrateur'))+
+  ((a.ckl||[]).length?mrow('ck-lost','🧩 Tâches de prépa disparues ('+a.ckl.length+')','Remettre ce qu’une synchro a écrasé'):'')+mrow('sn-open','📅 Copies automatiques',(a.apriv?'Une par jour (7 jours), par semaine, et toutes les 3 h de 8 h à 17 h, sur cet appareil':'Faites seulement sur l’appareil de l’administrateur'))+
   (a.apriv?mrow('bk-am','💾 Sauvegarder l’Amicale (fichier)',bk?'Dernière : '+new Date(bk).toLocaleDateString('fr-FR'):'Jamais faite sur cet appareil')+mrow('bk-amr','📂 Restaurer depuis un fichier','Ou remettre le groupe sur un nouvel appareil'):'')+
   (a.apriv&&old&&amItems('am').length>5?'<p class="am-warn">💾 '+(bk?'Dernière sauvegarde il y a plus d’un mois':'Pas encore de sauvegarde en fichier')+' : pense à en faire une.</p>':'')+'</div>';
 }
