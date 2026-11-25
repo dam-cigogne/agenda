@@ -1872,7 +1872,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 .nwe-r .amf-sec{margin-top:.6rem}.nwe-r .chips{gap:.3rem}.nwe-r .chip{font-size:.8rem;padding:.35rem .6rem}
 .nwe-r .nwe-gr{grid-template-columns:repeat(2,1fr)}.nwe-r .nwe-gr button{height:2.6rem}
 .nwe-r .nwe-dt{grid-template-columns:1fr}
-.nwe-r .nwe-li{flex-wrap:wrap}.nwe-r .nwe-bt{flex-direction:row}
+.nwe-r .nwe-li{display:grid;grid-template-columns:3.2rem 1fr;grid-template-areas:"em bt" "tx tx";gap:.35rem}.nwe-r .nwe-em{grid-area:em}.nwe-r .nwe-tx{grid-area:tx}.nwe-r .nwe-bt{grid-area:bt;flex-direction:row;justify-content:flex-end;align-items:center}.nwe-r .nwe-tx{min-width:0;width:100%}.nwe-r .nwe-tx .in{width:100%;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}.nwe-r .nwe-tx textarea.in{min-height:4.2rem}
 @media(min-width:700px){.nwe-g{grid-template-columns:45% 1fr}.nwe-prev .am2-news{zoom:.6}}
 .nwe-li{display:flex;gap:.4rem;align-items:flex-start;margin:.45rem 0;padding:.5rem;border-radius:14px;background:rgba(124,58,237,.06)}
 .nwe-em{width:3.2rem!important;text-align:center;font-size:1.4rem!important;padding:.4rem .2rem!important}
@@ -3185,7 +3185,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.226';
+const APP_VERSION='2.82.227';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3193,6 +3193,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.227',d:'25/11/2026',items:['<b>✏️ Modifier « Quoi de neuf ? »</b> : sur iPhone, les lignes de texte étaient écrasées dans la colonne de droite (une lettre par ligne). Elles prennent maintenant toute la largeur, l’icône et les boutons ⬆️ 🗑 au-dessus']},
 {v:'2.82.226',d:'25/11/2026',items:['<b>🎉 Nouveau look des événements</b> : un tableau de bord en tuiles colorées (Préparation, Inscrits, Encaissé, Programme, Dépenses, Réunions, Documents, Outils, Actions) : on touche une tuile pour ouvrir sa partie. « 📋 Tout afficher » remet tout sur une seule page. Tous les boutons sont toujours là, rangés en tuiles','<b>✨ Créer un événement pas à pas</b> : 4 étapes (Quoi, Quand, Prépa, Programme), avec dates, heures et lieux en un geste, et départ possible d’un modèle','<b>🎖 Page des amicalistes</b> : recherche rapide tout en haut, anneau des cotisations, tuiles « À payer, Sans patch, Régimes… » qui montrent qui c’est (avec export Excel), pastilles de couleur et étiquettes « à jour / à payer »','<b>📝 Fiche d’un amicaliste</b> rangée en rubriques, choix en pastilles','<b>🏆 Challenge</b> avec podium, <b>💡 Boîte à idées</b> en cartes colorées','<b>✏️ « Quoi de neuf ? » modifiable par les administrateurs</b> : textes, vitesse, animation, couleurs, photo ou logo, bouton, dates, pour tout le groupe','<b>Style classique</b> : la page Membres montre aussi les réunions à répondre, la nouvelle version, « Quoi de neuf ? » et « À suivre »']},
 {v:'2.82.225',d:'24/11/2026',items:['<b>📚 Modèles d’événement partagés avec le bureau</b> : ils sont rangés dans 📁 Administratif › Modèles d’événement, et tout le bureau peut les ouvrir et les <b>modifier directement</b> (tâches et sous-tâches, qui s’en occupe, programme, prestataires, frais), puis créer l’événement à partir d’eux le moment venu. Les modèles déjà gardés sur un téléphone y sont recopiés tout seuls','<b>📌 Garder comme modèle</b> avec le même nom = le modèle est mis à jour pour tout le monde','<b>📚 Mes modèles</b> : le bouton est de retour en haut de la liste des événements (il ne s’affichait plus)']},
 {v:'2.82.224',d:'24/11/2026',items:['<b>🔑 Retirer un membre ne casse plus rien</b> : quand les clés du groupe sont renouvelées, chaque téléphone se réabonne tout seul aux notifications avec les nouvelles clés (avant, il fallait attendre une mise à jour de l’appli : d’où des notifications qui « ne marchaient plus »)','<b>📲 Liens d’inscription et clôtures</b> : ils sont réenregistrés automatiquement avec les nouvelles clés, et un ancien appareil pas à jour ne peut plus les remettre sur les anciennes','<b>🔕 Plus de notifications venant des anciennes clés</b> : ton téléphone se désabonne des anciens espaces du groupe']},
