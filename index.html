@@ -3260,7 +3260,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.229';
+const APP_VERSION='2.82.230';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3268,6 +3268,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.230',d:'25/11/2026',items:['🕒 <b>Programme d’un événement en Excel, aller-retour</b> : « 📗 Programme en Excel » donne un beau tableau (jour, heure, ce qui se passe) à s’envoyer par mail ; on le modifie au travail (heures, lignes ajoutées ou supprimées) et « 📥 Reprendre l’Excel » met le programme à jour tout seul, après un aperçu des changements (retour arrière possible).']},
 {v:'2.82.229',d:'25/11/2026',items:['📋 <b>Ordre du jour des réunions</b> : une vraie page avec des parties (titre et sous-titre), des points détaillés (puces, qui présente, durée), un ✨ plan type tout prêt, 📝 des notes à prendre pendant la réunion sous chaque point (elles font le compte rendu), et pour sortir : 📽️ projeter (plein écran, ou sur ordinateur « deux écrans » : la projection sur le rétroprojecteur, tes notes et les flèches sur ton écran), 📊 PowerPoint et 📗 Excel à s’envoyer par mail (au travail par exemple), 📥 « Reprendre l’Excel » : tu modifies le fichier au travail (points, notes, fait…), tu le remets dans l’appli et l’ordre du jour se met à jour (avec retour arrière possible), 🖨️ impression / PDF, 📋 texte pour WhatsApp.','💬 <b>SMS de rappel de cotisation tout prêt</b> : dans « À payer » et « En attente de paiement », le bouton 💬 ouvre le SMS avec le numéro et une petite phrase gentille (prénom, saison, montant) : il n’y a plus qu’à envoyer.']},
 {v:'2.82.228',d:'25/11/2026',items:['📨 <b>Envoyer à…</b> en un seul écran : toi compris (mail du boulot) et chaque membre du bureau, avec un bouton par moyen : 📎 Excel joint par mail (l’adresse est copiée, il suffit de la coller dans « À »), mail en texte, SMS ou WhatsApp. Aussi dans les tuiles « À payer », « Sans patch »…','<b>✏️ Nom et surnom corrigés</b> : une correction faite par l’administrateur ne peut plus être effacée par un autre appareil pas à jour. La correction la plus récente gagne, et si un appareil renvoie l’ancien nom, ton téléphone remet la bonne correction pour tout le groupe']},
 {v:'2.82.227',d:'25/11/2026',items:['<b>✏️ Modifier « Quoi de neuf ? »</b> : sur iPhone, les lignes de texte étaient écrasées dans la colonne de droite (une lettre par ligne). Elles prennent maintenant toute la largeur, l’icône et les boutons ⬆️ 🗑 au-dessus']},
@@ -9862,6 +9863,9 @@ async function act(a,el,e){
   case 'vp-copy':{const a=amc(),it=a&&a.it&&a.it[ds_.id];if(!it)break;try{await navigator.clipboard.writeText('Bonjour,\n'+amVpMsg(it,amVpPh(it)));toast('📋 Message copié',2500)}catch(e){toast('Copie impossible',2500)}break}
   case 'vp-test':{const a=amc(),it=a&&a.it&&a.it[ds_.id];const u=it&&it.vp&&(it.vp.uc||amVpHref(it.vp.u));if(u)window.open(u,'_blank','noopener');break}
   case 'ee-addpg':amEeAddPg(-1);break;
+  case 'ee-pgxl':amPgXl();break;
+  case 'ee-pgimp':amPgImp();break;
+  case 'ee-pgundo':amPgUndo();break;
   case 'ee-bn':amEeBnEdit(AMC_EE);break;
   case 'ee-hist':amEeHist();break;
   case 'ee-edit':{const a=amc(),it=a&&a.it[AMC_EE];if(it&&a.kB)amItemForm('ee',it);break}
@@ -16342,6 +16346,66 @@ let DG=null,DG_T=null,DG_SW=0;
  document.addEventListener('touchmove',e=>{if(DG)e.preventDefault()},{passive:false,capture:true});
  document.addEventListener('contextmenu',e=>{if(DG||DG_T||(e.target.closest&&e.target.closest('[data-dg],.am-sbr[data-sbi]')&&Date.now()-DG_SW<900))e.preventDefault()},true);
  document.addEventListener('click',e=>{if(Date.now()-DG_SW<700){e.preventDefault();e.stopImmediatePropagation()}},true)})();
+/* 2.82.230 : 🕒 programme d’un événement en Excel mis en forme, à modifier ailleurs (heures, lignes ajoutées ou supprimées,
+   jour) puis à reprendre dans l’appli : le programme se met à jour (aperçu des changements, retour arrière possible) */
+function amXlsxNice(o){const X=amX,H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n',COL=['7C3AED','0EA5E9','F59E0B','10B981','EC4899','0891B2','64748B'],NC=o.cols.length,L='ABCDEFGHIJ';
+ const fills='<fills count="'+(6+COL.length)+'"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+['7C3AED','F3EEFE','1E1B4B'].concat(COL,['FFF8E1']).map(c=>'<fill><patternFill patternType="solid"><fgColor rgb="FF'+c+'"/><bgColor indexed="64"/></patternFill></fill>').join('')+'</fills>';
+ const fonts='<fonts count="7"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="18"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><i/><sz val="11"/><color rgb="FF4C1D95"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="13"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="12"/><name val="Calibri"/></font><font><sz val="9"/><color rgb="FF6B7280"/><name val="Calibri"/></font></fonts>';
+ const borders='<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFE5E0F5"/></left><right style="thin"><color rgb="FFE5E0F5"/></right><top style="thin"><color rgb="FFE5E0F5"/></top><bottom style="thin"><color rgb="FFE5E0F5"/></bottom><diagonal/></border></borders>';
+ const xf=(f,fi,b,al)=>'<xf numFmtId="0" fontId="'+f+'" fillId="'+fi+'" borderId="'+b+'" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment '+al+'/></xf>';
+ const XF=[xf(0,0,0,'vertical="top"'),xf(1,2,0,'vertical="center" indent="1"'),xf(2,3,0,'vertical="center" indent="1" wrapText="1"'),xf(3,4,1,'horizontal="center" vertical="center" wrapText="1"')].concat(COL.map((_,k)=>xf(4,5+k,0,'vertical="center" indent="1"')),[xf(0,0,1,'vertical="center" wrapText="1"'),xf(5,0,1,'vertical="center" wrapText="1"'),xf(5,3,1,'horizontal="center" vertical="center"'),xf(0,5+COL.length,1,'vertical="center" wrapText="1"'),xf(6,0,1,'vertical="center" wrapText="1"')]);
+ const S0=4+COL.length,ST={n:S0,b:S0+1,c:S0+2,y:S0+3,g:S0+4};
+ const styles=H+'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+fonts+fills+borders+'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="'+XF.length+'">'+XF.join('')+'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+ const R=[],M=[],last=L[NC-1];let r=0;
+ const c=(k,v,s)=>'<c r="'+L[k]+r+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+X(v==null?'':v)+'</t></is></c>';
+ const row=(f,ht)=>{r++;R.push('<row r="'+r+'"'+(ht?' ht="'+ht+'" customHeight="1"':'')+'>'+f()+'</row>')};
+ const full=(v,s,ht)=>{row(()=>c(0,v,s)+o.cols.slice(1).map((_,k)=>c(k+1,'',s)).join(''),ht);M.push('A'+r+':'+last+r)};
+ full(o.title,1,34);if(o.sub)full(o.sub,2,22);row(()=>'',8);
+ row(()=>o.cols.map((h,k)=>c(k,h[0],3)).join(''),24);const hr=r;
+ o.rows.forEach(x=>{if(x.band!=null){const sp=4+((x.col||0)%COL.length);row(()=>o.cols.map((_,k)=>c(k,k===(x.at||0)?x.band:'',sp)).join(''),24);M.push(L[x.at||0]+r+':'+last+r);return}row(()=>x.cells.map((v,k)=>c(k,v[0],ST[v[1]]||ST.n)).join(''),x.ht||22)});
+ const sheet=H+'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:'+last+r+'"/><sheetViews><sheetView workbookViewId="0" showGridLines="0" zoomScale="115"><pane ySplit="'+hr+'" topLeftCell="A'+(hr+1)+'" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A'+(hr+1)+'" sqref="A'+(hr+1)+'"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><cols>'+o.cols.map((h,k)=>'<col min="'+(k+1)+'" max="'+(k+1)+'" width="'+h[1]+'" customWidth="1"/>').join('')+'</cols><sheetData>'+R.join('')+'</sheetData><mergeCells count="'+M.length+'">'+M.map(m=>'<mergeCell ref="'+m+'"/>').join('')+'</mergeCells><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="'+(o.land?'landscape':'portrait')+'" fitToWidth="1" fitToHeight="0"/></worksheet>';
+ const sn=X(String(o.sheet||'Feuille').slice(0,30).replace(/[\\\/?*\[\]:']/g,' '));
+ return new Blob([amZip([
+  {n:'[Content_Types].xml',d:H+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+  {n:'_rels/.rels',d:H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+  {n:'xl/workbook.xml',d:H+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+sn+'" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+  {n:'xl/_rels/workbook.xml.rels',d:H+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+  {n:'xl/styles.xml',d:styles},{n:'xl/worksheets/sheet1.xml',d:sheet}])],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+const AM_PGJX=[['-7','Une semaine avant'],['-3','3 jours avant'],['-1','La veille'],['0','Le jour J'],['1','Le lendemain']];
+const amPgJTx=j=>(AM_PGJX.find(x=>x[0]===String(j))||['',''])[1];
+function amPgJOf(t){const n=norm(String(t||'')).replace(/[^a-z0-9 -]+/g,' ').replace(/\s+/g,' ').trim();if(!n||n==='programme'||/pas de jour/.test(n))return '';if(/semaine/.test(n))return '-7';if(/3 jours|trois jours/.test(n))return '-3';if(/veille/.test(n))return '-1';if(/lendemain/.test(n))return '1';if(/jour j|^j$|jour meme/.test(n))return '0';const m=n.match(/^j ?([+-]) ?(\d+)$/);if(m){const v=(m[1]==='-'?-1:1)*+m[2];return ['-7','-3','-1','0','1'].includes(String(v))?String(v):''}return null}
+function amPgTm(v){if(v==null||v==='')return '';const f=+v;if(String(v).trim()!==''&&isFinite(f)&&f>=0&&f<1){const mn=Math.round(f*1440);return String(Math.floor(mn/60)%24).padStart(2,'0')+':'+String(mn%60).padStart(2,'0')}const m=String(v).trim().match(/^(\d{1,2})\s*[hH:.]\s*(\d{2})?/);if(!m||+m[1]>23)return '';const mi=m[2]||'00';return +mi>59?'':m[1].padStart(2,'0')+':'+mi}
+function amPgXlsx(it){const G=amPgList(it),multi=G.some(g=>g.k!==''),rows=[];
+ G.forEach((g,k)=>{if(multi)rows.push({band:(g.l||'Programme'),col:k});g.L.forEach(p=>rows.push({cells:[[multi?amPgJTx(p.j==null?'':p.j)||'':'','g'],[p.tm||'','c'],[p.t,'b']]}))});
+ if(!rows.length)rows.push({cells:[['','g'],['19:00','c'],['(exemple) Apéritif','b']]});
+ return amXlsxNice({sheet:'Programme',title:'🕒 Programme — '+it.tx,sub:[it.d?cap(fLongY(it.d)):'',it.pl?'📍 '+it.pl:'',(amc()||{}).nm||''].filter(Boolean).join('   ·   '),cols:[['Jour',18],['Heure',10],['Ce qui se passe',70]],rows})}
+function amPgFromRows(rows){const N=v=>norm(String(v==null?'':v)).replace(/[^a-z0-9]+/g,' ').trim();
+ const hi=rows.findIndex(r=>{const n=r.map(N);return n.includes('heure')&&n.some(x=>/ce qui se passe|programme|activite|quoi/.test(x))});if(hi<0)throw new Error('colonnes « Heure » et « Ce qui se passe » introuvables');
+ const Hh=rows[hi].map(N),cJ=Hh.findIndex(h=>h==='jour'),cH=Hh.findIndex(h=>h==='heure'),cT=Hh.findIndex(h=>/ce qui se passe|programme|activite|quoi/.test(h));
+ const out=[];let cur='';rows.slice(hi+1).forEach(r=>{const g=c=>c<0?'':String(r[c]==null?'':r[c]).trim(),jv=g(cJ),t=g(cT),hv=cH<0?'':r[cH];
+  if(jv){const j=amPgJOf(jv);if(j!==null)cur=j}
+  if(!t){return}if(/^\(exemple\)/i.test(t))return;const n={tm:amPgTm(hv),t:t.replace(/\s*\n\s*/g,' ').slice(0,200)};if(cur!=='')n.j=cur;out.push(n)});
+ return out.slice(0,150)}
+async function amPgXl(){const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;
+ const r=await ask({title:'📗 Programme en Excel',text:'Un tableau en couleurs, une ligne par créneau (jour, heure, ce qui se passe). Change les heures, ajoute ou supprime des lignes où tu veux, puis remets le fichier ici avec « 📥 Reprendre l’Excel » : le programme se met à jour tout seul.',btns:[{label:'📨 Me l’envoyer par mail (ou au bureau)',value:'s',cls:'pri'},{label:'💾 Enregistrer / ouvrir le fichier',value:'f'},{label:'Annuler',value:null}]});
+ if(!r)return;const it2=amc().it[AMC_EE];if(!it2)return;const nm='Programme-'+amSlug(it2.tx)+'.xlsx',MI='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+ if(r==='f'){await amSaveBlob(amPgXlsx(it2),nm,MI);return}
+ const txt=['🕒 Programme — '+it2.tx].concat(amPgList(it2).flatMap(g=>(g.l?['',g.l]:[]).concat(g.L.map(p=>(p.tm?p.tm.replace(':','h')+'  ':'')+p.t))));
+ const id=AMC_EE;await amSendTo('Programme — '+it2.tx,txt.map(l=>[l]),{mk:()=>amPgXlsx((amc().it[id])||it2),name:nm,mime:MI,lb:'Excel'})}
+let AM_PG_UNDO=null;
+function amPgImp(){const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;const id=AMC_EE;
+ const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+ inp.onchange=async()=>{const f=inp.files&&inp.files[0];if(!f)return;let P;
+  try{if(!/\.xlsx$/i.test(f.name))throw new Error('il faut un fichier Excel (.xlsx)');P=amPgFromRows(await amReadXlsx(await f.arrayBuffer()))}catch(e){toast('Import impossible : '+(e.message||e),6000);return}
+  const it2=amc().it[id];if(!it2||AMC_EE!==id)return;if(!P.length){toast('Aucun créneau trouvé dans ce fichier',5000);return}
+  const K=p=>(p.j==null?'':p.j)+'|'+(p.tm||'')+'|'+norm(p.t),old=it2.pg||[],oK=new Set(old.map(K)),nK=new Set(P.map(K));let add=P.filter(p=>!oK.has(K(p))),rm=old.filter(p=>!nK.has(K(p)));
+  /* même texte, autre heure ou autre jour = « changé » */
+  const ch=[];add=add.filter(p=>{const k=rm.findIndex(q=>norm(q.t)===norm(p.t));if(k<0)return true;ch.push([rm[k],p]);rm.splice(k,1);return false});
+  const L=(A,ic)=>A.slice(0,5).map(p=>'<li>'+ic+' '+esc((p.tm?p.tm.replace(':','h')+' ':'')+p.t)+'</li>').join('')+(A.length>5?'<li>… et '+(A.length-5)+' autre(s)</li>':'');
+  const r=await ask({title:'📥 Mettre à jour le programme ?',html:'<p style="margin:.2rem 0 .4rem">Depuis <b>'+esc(f.name)+'</b> : <b>'+P.length+'</b> créneau(x).</p>'+(add.length||rm.length||ch.length?'<ul style="margin:0 0 .5rem 1.1rem;padding:0;line-height:1.55;font-size:.92rem">'+ch.slice(0,6).map(([q,p])=>'<li>🔁 '+esc(p.t)+' : '+esc((amPgJTx(q.j)?amPgJTx(q.j)+' ':'')+(q.tm?q.tm.replace(':','h'):'sans heure'))+' → <b>'+esc((amPgJTx(p.j)?amPgJTx(p.j)+' ':'')+(p.tm?p.tm.replace(':','h'):'sans heure'))+'</b></li>').join('')+L(add,'➕')+L(rm,'🗑')+'</ul>':'<p>Aucun changement.</p>')+'<p class="mut" style="font-size:.85rem;margin:0">Tu pourras revenir en arrière juste après.</p>',btns:[{label:'✅ Mettre à jour',value:1,cls:'pri'},{label:'Annuler',value:null}]});
+  if(!r||AMC_EE!==id)return;AM_PG_UNDO={id,pg:JSON.parse(JSON.stringify(old))};amEeMut(o=>{o.pg=P});toast('✅ Programme mis à jour depuis Excel',4000)};
+ inp.click()}
+function amPgUndo(){if(!AM_PG_UNDO||AM_PG_UNDO.id!==AMC_EE)return;const p=AM_PG_UNDO.pg;AM_PG_UNDO=null;amEeMut(o=>{o.pg=p});toast('↩ Programme remis comme avant l’import',3500)}
 async function amEeAddPg(i){
  const a=amc();if(!a||!a.kB)return;const it=a.it[AMC_EE];if(!it)return;
  const c=i>=0?(it.pg||[])[i]:null;
@@ -18793,7 +18857,7 @@ function amEeHTML(){
   const AD=h;h='';
   h+='<h4 class="am-h">Programme'+(pg.length?' · '+pg.length:'')+'</h4>';
   h+=pg.length?amPgList(it).map(g=>(g.l?'<h5 class="am-pgh" data-pgj="'+esc(g.k)+'" style="margin:.7rem 0 .2rem">'+g.l+'</h5>':'')+g.L.map(p=>'<button class="am-it am-ev" '+(rw?'data-act="ee-pg" data-dg="pg" data-i="'+p.i+'"':'disabled')+'><span class="am-dt am-tm"><b>'+esc(p.tm||'–')+'</b></span><span class="am-itx"><b>'+esc(p.t)+'</b></span></button>').join('')).join(''):'<p class="empty">Programme vide.</p>';
-  if(rw)h+='<button class="btn blk" data-act="ee-addpg" style="margin-top:.4rem">'+ic('plus')+' Ajouter un créneau</button><details class="am-dt ee2-box ee2-fold" data-k="eeac"'+(AM_DT.eeac===false?'':' open')+'><summary class="ee2-bt">⚙️ Actions sur l’événement <small>copier · modèle · supprimer</small></summary><div class="btns"><button class="btn grow" data-act="ee-copy">📋 Copier pour l’an prochain</button><button class="btn grow" data-act="ee-tpl">📌 Garder comme modèle</button><button class="btn grow dng" data-act="ee-del">🗑️ Supprimer l’événement</button></div></details>';
+  if(rw)h+='<button class="btn blk" data-act="ee-addpg" style="margin-top:.4rem">'+ic('plus')+' Ajouter un créneau</button><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="ee-pgxl">📗 Programme en Excel</button><button class="btn grow" data-act="ee-pgimp">📥 Reprendre l’Excel</button>'+(AM_PG_UNDO&&AM_PG_UNDO.id===it.id?'<button class="btn grow" data-act="ee-pgundo">↩ Annuler l’import</button>':'')+'</div><details class="am-dt ee2-box ee2-fold" data-k="eeac"'+(AM_DT.eeac===false?'':' open')+'><summary class="ee2-bt">⚙️ Actions sur l’événement <small>copier · modèle · supprimer</small></summary><div class="btns"><button class="btn grow" data-act="ee-copy">📋 Copier pour l’an prochain</button><button class="btn grow" data-act="ee-tpl">📌 Garder comme modèle</button><button class="btn grow dng" data-act="ee-del">🗑️ Supprimer l’événement</button></div></details>';
   const PG=h;
   const RPH=rw?rpEvHTML(it):'';
   void TB;const W=x=>'<div class="ee2">'+amEe2Tiles(x)+'</div>';
