@@ -1806,6 +1806,7 @@ html.ami #main{padding-bottom:env(safe-area-inset-bottom)}
 .amx-fold>summary:after{content:'▾ toucher pour ouvrir';display:block;font-size:.72rem;font-weight:700;color:#7c3aed;margin-top:.15rem}.amx-fold[open]>summary:after{content:'▴ toucher pour fermer'}
 </style>
 <style id="odj-css">
+#dlg textarea.in[data-amf]{max-height:40vh;overflow-y:auto}
 .odj-evb{padding:.25rem .6rem!important;font-size:.76rem!important}
 .odj-all{display:flex;flex-direction:column;align-items:flex-start;width:100%;margin:.75rem 0 0;padding:.7rem .9rem;border-radius:18px;border:0;color:#fff;text-align:left;background:linear-gradient(125deg,#0ea5e9,#6366f1);box-shadow:0 8px 18px rgba(99,102,241,.28)}.odj-all span{font-size:1.3rem}.odj-all b{font-size:1rem}.odj-all small{font-size:.78rem;opacity:.92}
 .obk-hd{padding:.8rem .9rem;border-radius:20px;background:linear-gradient(140deg,rgba(14,165,233,.12),rgba(99,102,241,.12));margin-bottom:.7rem}.obk-hd .ew-x{display:flex;align-items:center;justify-content:space-between}.obk-hd b{font-size:1.05rem}.obk-hd .x{color:#1e1b4b!important}.obk-hd p{font-size:.84rem;line-height:1.45;margin:.35rem 0 .5rem}.obk-hd code{background:rgba(30,27,75,.08);padding:.05rem .3rem;border-radius:6px}
@@ -3276,7 +3277,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.232';
+const APP_VERSION='2.82.233';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3284,6 +3285,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.233',d:'25/11/2026',items:['✏️ <b>Ordre du jour : textes plus longs</b> : les détails et les notes d’un point vont jusqu’à 3000 caractères (avant 600), et l’appli prévient si on dépasse au lieu de couper sans rien dire. Dans les fenêtres de saisie, une zone de texte très longue ne grandit plus jusqu’à cacher le bouton « Ajouter » : elle défile.']},
 {v:'2.82.232',d:'25/11/2026',items:['➡️ <b>Tout envoyer vers l’événement</b> : en haut de l’ordre du jour, un seul écran montre chaque point qui a des lignes. Ceux qui ressemblent à un programme (19h …) ou à des tâches (… - Prénom) sont cochés d’office ; tu coches ou décoches, tu choisis programme ou tâches et le jour, tu corriges si besoin, et un seul « Envoyer » fait tout. Le bouton par point devient « ➡️ Envoyer ce point » et n’apparaît que s’il y a quelque chose à envoyer.']},
 {v:'2.82.231',d:'25/11/2026',items:['➡️ <b>De la réunion à l’événement</b> : dans l’ordre du jour, chaque point a un bouton « Vers l’événement ». Ce qu’on a décidé (détails et notes, une ligne par créneau ou par tâche) part dans le programme de l’événement choisi, au bon jour (la veille, le jour J…), ou dans ses tâches de préparation (« Tâche - Prénom »). Pour une réunion de préparation, l’événement est déjà choisi.','❓ <b>« Comment écrire »</b> dans l’ordre du jour : le mode d’emploi avec des exemples (notes, programme <code>19h Apéritif</code>, tâches <code>Installer la salle - Marie</code>), et un rappel en mode notes.','✨ <b>Modèles d’ordre du jour</b> : un plan tout prêt pour la réunion mensuelle et un pour la préparation d’un événement (programme du jour J, qui fait quoi, matériel, communication…), et « 💾 Garder comme modèle » pour réutiliser tes propres ordres du jour, partagés avec le bureau. Un ordre du jour vide propose les modèles en un toucher.']},
 {v:'2.82.230',d:'25/11/2026',items:['🕒 <b>Programme d’un événement en Excel, aller-retour</b> : « 📗 Programme en Excel » donne un beau tableau (jour, heure, ce qui se passe) à s’envoyer par mail ; on le modifie au travail (heures, lignes ajoutées ou supprimées) et « 📥 Reprendre l’Excel » met le programme à jour tout seul, après un aperçu des changements (retour arrière possible).']},
@@ -16741,8 +16743,8 @@ function amHelpPop(k){
 }
 /* 2.82.229 : 📋 Ordre du jour d’une réunion : page dédiée (parties avec sous-titre, points avec détails, qui présente, durée),
    projection plein écran (rétroprojecteur, télé), impression / PDF et texte à copier. Les anciens points restent tels quels. */
-let ODJ=null;
-function odjPtC(x){const T=(v,n)=>String(v==null?'':v).slice(0,n),r={i:T(x.i,10),t:T(x.t,120),x:x.x?1:0};if(x.k==='h')r.k='h';if(x.d)r.d=T(x.d,600);if(x.w)r.w=T(x.w,40);if(x.nt)r.nt=T(x.nt,800);if(x.ev)r.ev=T(x.ev,60);const mn=Math.round(+x.mn)||0;if(mn>0)r.mn=Math.min(240,mn);return r}
+let ODJ=null;const ODJ_MAX=3000;/* 2.82.233 : détails et notes jusqu’à 3000 caractères par point (avant 600 / 800) */
+function odjPtC(x){const T=(v,n)=>String(v==null?'':v).slice(0,n),r={i:T(x.i,10),t:T(x.t,120),x:x.x?1:0};if(x.k==='h')r.k='h';if(x.d)r.d=T(x.d,ODJ_MAX);if(x.w)r.w=T(x.w,40);if(x.nt)r.nt=T(x.nt,ODJ_MAX);if(x.ev)r.ev=T(x.ev,60);const mn=Math.round(+x.mn)||0;if(mn>0)r.mn=Math.min(240,mn);return r}
 function odjGet(){if(!ODJ)return null;return ODJ.ty==='rn'?rnGet(ODJ.id):rpGet(ODJ.id)}
 function odjSave(o){if(ODJ.ty==='rn')rnSave(ODJ.id,o,false);else{o.id=ODJ.id;rpSave(o,false)}}
 function odjInfo(o){const a=amc()||{},fx=(o.ds||[]).find(x=>x.i===o.fd);return{nm:ODJ.ty==='rn'?'Réunion de '+chName(ODJ.id):(o.t||'Réunion')+' · '+rpEvN(o),dt:fx?rnDl(fx):'',pl:o.pl||'',am:((a.em||'👥')+' '+(a.nm||'')).trim()}}
@@ -16755,7 +16757,7 @@ const odjCol=k=>ODJ_COL[k%ODJ_COL.length];
 /* 2.82.229 : 📝 notes pendant la réunion (sous chaque point, enregistrées toutes seules) et projection sur un 2e écran :
    l’ordinateur garde l’ordre du jour + les notes, la fenêtre de projection va sur le rétroprojecteur */
 let ODJ_NOTES=false,ODJ_W=null,ODJ_NT_T=null;
-function odjNoteSave(t){if(!t||!ODJ)return;const o=odjGet();if(!o)return;const x=o.pts.find(y=>y.i===t.dataset.odjnt);if(!x)return;const v=String(t.value||'').slice(0,800);if((x.nt||'')===v)return;x.nt=v;odjSave(o);const s=t.parentNode&&t.parentNode.querySelector('.odj-ntok');if(s){s.textContent='✓ enregistré';setTimeout(()=>{s.textContent=''},1500)}}
+function odjNoteSave(t){if(!t||!ODJ)return;const o=odjGet();if(!o)return;const x=o.pts.find(y=>y.i===t.dataset.odjnt);if(!x)return;const v=String(t.value||'').slice(0,ODJ_MAX);if(String(t.value||'').length>ODJ_MAX)toast('✂️ Note trop longue : '+ODJ_MAX+' caractères au plus par point. Continue dans un autre point.',5000);if((x.nt||'')===v)return;x.nt=v;odjSave(o);const s=t.parentNode&&t.parentNode.querySelector('.odj-ntok');if(s){s.textContent='✓ enregistré';setTimeout(()=>{s.textContent=''},1500)}}
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.odjnt){clearTimeout(ODJ_NT_T);ODJ_NT_T=setTimeout(()=>odjNoteSave(t),1200)}});
 document.addEventListener('focusout',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.odjnt){clearTimeout(ODJ_NT_T);odjNoteSave(t)}});
 async function odjPres(){if(!odjGet())return;
@@ -16789,9 +16791,10 @@ function odjRender(keep){const o=odjGet();if(!o){toast('Réunion introuvable',25
  openSheet(h+(odjWAlive()?'<div id="odj-rc"><span>📽️</span><button data-act="odj-wp" aria-label="Diapo précédente">‹</button><b></b><button data-act="odj-wn" aria-label="Diapo suivante">›</button><button data-act="odj-wx" aria-label="Arrêter la projection">✕</button></div>':''),'full');odjWBar();if(odjWAlive())setTimeout(odjWBuild,0);if(top){const s2=document.querySelector('#sheet .sh');if(s2)s2.scrollTop=top}}
 async function odjEdit(x,kind,after){const isH=x?x.k==='h':kind==='h';
  const F=isH?[{k:'t',l:'Titre de la partie',v:x?x.t:'',ph:'Ex. 💶 Finances'},{k:'d',l:'Sous-titre (facultatif)',v:x?x.d||'':'',ph:'Ex. Point trésorerie et bar'}]
-  :[{k:'t',l:'Point à aborder',v:x?x.t:'',ph:'Ex. Sortie de printemps'},{k:'d',l:'Détails (une ligne = une puce, facultatif)',t:'area',v:x?x.d||'':'',ph:'Date\nBudget\nQui s’en occupe'},{k:'w',l:'Qui présente (facultatif)',v:x?x.w||'':'',ph:'Ex. Le trésorier'},{k:'mn',l:'Durée prévue en minutes (facultatif)',v:x&&x.mn?String(x.mn):'',ph:'Ex. 10'}];
+  :[{k:'t',l:'Point à aborder',v:x?x.t:'',ph:'Ex. Sortie de printemps'},{k:'d',l:'Détails (une ligne = une puce, facultatif, '+ODJ_MAX+' caractères au plus)',t:'area',v:x?x.d||'':'',ph:'Date\nBudget\nQui s’en occupe'},{k:'w',l:'Qui présente (facultatif)',v:x?x.w||'':'',ph:'Ex. Le trésorier'},{k:'mn',l:'Durée prévue en minutes (facultatif)',v:x&&x.mn?String(x.mn):'',ph:'Ex. 10'}];
  const v=await amForm(isH?(x?'🏷️ Modifier la partie':'🏷️ Nouvelle partie'):(x?'📝 Modifier le point':'📝 Nouveau point'),'',F,x?'Enregistrer':'Ajouter');
  if(!v||!String(v.t||'').trim()){odjRender(1);return}
+ if(String(v.d||'').length>ODJ_MAX)toast('✂️ Détails trop longs : '+ODJ_MAX+' caractères au plus, la fin a été coupée. Mets la suite dans un autre point.',6000);
  const o=odjGet();if(!o)return;
  const nx=odjPtC(Object.assign({},x||{i:rnRid(),x:0},isH?{k:'h'}:{},{t:String(v.t).trim(),d:String(v.d||'').trim(),w:String(v.w||'').trim(),mn:v.mn}));
  if(x){const k=o.pts.findIndex(y=>y.i===x.i);if(k>=0)o.pts[k]=nx}
