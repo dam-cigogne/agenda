@@ -3277,7 +3277,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.236';
+const APP_VERSION='2.82.237';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3285,6 +3285,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.237',d:'26/11/2026',items:['🖼 <b>Affiches</b> : un texte que tu effaces (titre, accroche, lignes d’infos) reste effacé quand tu rouvres l’affiche ; avant, le texte proposé au départ revenait.','🎟 <b>Feuille Jour J imprimée</b> : en haut, les mêmes compteurs que l’écran Jour J (✅ Arrivé 0/100, 🎁 Cadeau 3/69, enfants, ✅ personnes terminées, 💶 payé et reste à encaisser, régimes) ; la colonne 👥 est toujours remplie (1 par défaut) ; la première colonne est cochée pour les personnes déjà terminées. Au moment d’imprimer, on choisit <b>A4 ou A3</b> (paysage). Le PDF envoyé par mail ou mis dans le dossier a la même mise en page que celui qu’on imprime.']},
 {v:'2.82.236',d:'26/11/2026',items:['🖼 <b>Affiches et QR codes</b> : une affiche envoyée en PDF par mail (« ✉️ Envoyer par mail à… ») garde maintenant sa mise en page et son QR code, comme à l’impression. L’image « QR code seul » (adhésion, inscription, menu) est refaite : titre et nom de l’amicale sur deux lignes qui tiennent toujours dans l’image, QR plus grand et net.']},
 {v:'2.82.235',d:'26/11/2026',items:['🧹 <b>Accueil allégé</b> : les tâches passées (date dépassée, ou tâche d’un événement déjà terminé) ne s’affichent plus sur l’accueil : ni dans la tuile « tâches », ni dans « Ce qui t’attend », ni sous les membres du bureau. Elles ne sont pas effacées : elles restent dans l’onglet Tâches et dans l’événement.']},
 {v:'2.82.234',d:'26/11/2026',items:['📣 <b>Réunion : « Bien reçu, je serai là »</b> : dès qu’une réunion est fixée ou qu’elle change (date, heure, lieu), chaque invité voit une carte bleue en haut de l’accueil (« ⚠️ CHANGEMENT » si ça a bougé) avec « ✅ Bien reçu, je serai là » ou « 🙅 Je ne pourrai pas ». Elle reste tant qu’il n’a pas répondu, même s’il n’a pas les notifications. Dans la réunion, le bureau voit ✅ présents, 🙅 absents et ❔ pas encore confirmé (avec les noms), et « 🔔 Relancer ceux qui n’ont pas confirmé ».']},
@@ -14344,7 +14345,7 @@ function amPrintDoc(html,poster){
  let el=$('#amprint');if(!el){el=document.createElement('div');el.id='amprint';document.body.appendChild(el)}
  el.innerHTML=html;
  let st=$('#ampg');if(!st){st=document.createElement('style');st.id='ampg';document.head.appendChild(st)}
- const wd=!poster&&amWideDoc(html);el.classList.toggle('am-land',wd);st.textContent='@page{size:A4 '+(wd?'landscape':'portrait')+';margin:'+(poster||/class="amr[ "]/.test(html)?'0':(wd?'8mm':'14mm'))+'}'+(poster?'@media print{body.am-printing #amprint .pst{zoom:1.0}}':'');
+ const wd=!poster&&amWideDoc(html);el.classList.toggle('am-land',wd);st.textContent='@page{size:'+(/<!--A3-->/.test(html)?'A3':'A4')+' '+(wd?'landscape':'portrait')+';margin:'+(poster||/class="amr[ "]/.test(html)?'0':(wd?'8mm':'14mm'))+'}'+(poster?'@media print{body.am-printing #amprint .pst{zoom:1.0}}':'');
  document.body.classList.add('am-printing');
  const done=()=>{document.body.classList.remove('am-printing');window.removeEventListener('afterprint',done)};
  window.addEventListener('afterprint',done);setTimeout(()=>{try{window.print()}catch(e){done()}},120);
@@ -14357,7 +14358,7 @@ function pdfFromJpegs(pg){
  obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
  obj(2,'<< /Type /Pages /Kids ['+pg.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+pg.length+' >>');
  pg.forEach((p,i)=>{
-  const L=p.w>p.h,pw=L?H:W,ph=L?W:H,a=3+i*3,b=a+1,c=a+2,cs='q '+pw+' 0 0 '+ph+' 0 0 cm /Im0 Do Q';
+  const L=p.w>p.h,W0=p.a3?841.89:W,H0=p.a3?1190.55:H,pw=L?H0:W0,ph=L?W0:H0,a=3+i*3,b=a+1,c=a+2,cs='q '+pw+' 0 0 '+ph+' 0 0 cm /Im0 Do Q';
   obj(a,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+pw+' '+ph+'] /Resources << /XObject << /Im0 '+c+' 0 R >> >> /Contents '+b+' 0 R >>');
   obj(b,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
   off[c]=len;put(enc(c+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+p.w+' /Height '+p.h+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+p.jpg.length+' >>\nstream\n'));put(p.jpg);put(enc('\nendstream\nendobj\n'));
@@ -14372,13 +14373,15 @@ async function amPdfBlob(html,poster){return new Blob([pdfFromJpegs(await amPdfP
 async function amPdfPages(html,poster){
  await loadH2C();
  /* 2.82.236 : une affiche envoyée par mail garde son format (une page A4, QR code compris) */
- const shot=document.createElement('div');shot.className='am-shot'+(poster?' am-poster':'');shot.innerHTML=html;document.body.appendChild(shot);
+ /* 2.82.237 : même rendu partout (impression, mail, dossier) : tableaux larges en paysage, A3 si demandé */
+ const a3=/<!--A3-->/.test(html),shot=document.createElement('div');shot.className='am-shot'+(poster?' am-poster':'');shot.innerHTML=html;document.body.appendChild(shot);
  try{
   await new Promise(r=>setTimeout(r,poster?350:250));
-  const cv=await html2canvas(shot,poster?{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,height:1123,windowWidth:794}:{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,windowWidth:794});
-  const PW=cv.width,PH=Math.round(PW*1.41421),n=poster?1:Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
+  let land=false;if(!poster&&(amWideDoc(html)||shot.scrollWidth>800)){land=true;shot.classList.add('am-land');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xs');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xxs');await new Promise(r=>setTimeout(r,120))}}}
+  const SW=land?1123:794,cv=await html2canvas(shot,poster?{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,height:1123,windowWidth:794}:{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:SW,windowWidth:SW});
+  const PW=cv.width,PH=land?Math.round(PW/1.41421):Math.round(PW*1.41421),n=poster?1:Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
   for(let i=0;i<n;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
-   const bin=atob(c2.toDataURL('image/jpeg',0.9).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH})}
+   const bin=atob(c2.toDataURL('image/jpeg',0.92).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH,a3})}
   return pages;
  }finally{shot.remove()}
 }
@@ -14431,27 +14434,14 @@ async function amPdfMail(html,name,poster){
 async function amPdf0(html,name,poster){
  if(!amMobile()){amPrintDoc(html,poster);return}
  toast('Préparation du PDF…',8000);
- let shot;
  try{
-  await loadH2C();
-  shot=document.createElement('div');shot.className='am-shot'+(poster?' am-poster':'');shot.innerHTML=html;document.body.appendChild(shot);
-  await new Promise(r=>setTimeout(r,300));
-  let land=false;if(!poster&&(amWideDoc(html)||shot.scrollWidth>800)){land=true;shot.classList.add('am-land');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xs');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xxs');await new Promise(r=>setTimeout(r,120))}}}
-  const SW=land?1123:794,cv=await html2canvas(shot,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:SW,windowWidth:SW});
-  const PW=cv.width,PH=land?Math.round(PW/1.41421):Math.round(PW*1.41421),n=poster?1:Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
-  for(let i=0;i<n;i++){
-   const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);
-   const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
-   const b64=c2.toDataURL('image/jpeg',0.92).split(',')[1],bin=atob(b64),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);
-   pages.push({jpg,w:PW,h:PH});
-  }
+  const pages=await amPdfPages(html,poster);
   const file=new File([pdfFromJpegs(pages)],name,{type:'application/pdf'});
-  const r=await ask({title:'PDF prêt',text:pages.length+' page'+(pages.length>1?'s':'')+'. Touche le bouton, puis choisis « Imprimer » (ou Mail, Enregistrer dans Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
+  const r=await ask({title:'PDF prêt',text:pages.length+' page'+(pages.length>1?'s':'')+(pages[0]&&pages[0].a3?' (A3)':'')+'. Touche le bouton, puis choisis « Imprimer » (ou Mail, Enregistrer dans Fichiers…).',btns:[{label:'Imprimer / Partager le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});
   if(r!=='s')return;
   if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
   const u=URL.createObjectURL(file);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},4000);
  }catch(e){toast('PDF impossible ici : '+(e&&e.message?e.message:'erreur'),6000)}
- finally{if(shot)shot.remove()}
 }
 function amDocFrame(title,meta,bodyHTML){
  const a=amc();
@@ -14591,7 +14581,7 @@ function amPoDef(it,sv){
  if(!imgs.length&&sv.img)imgs=[{src:sv.img,x:247,y:330,w:300}];
  const th0=sv.th||(it.sv==='v'?'vente':amThGuess(it.tx)),T0=AM_TH[th0]||{};
  const KX=it.kind==='cx'||it.kind==='aq';
- const P0={id:it.id,th:th0,lay:sv.lay||T0.lay||'band',fnt:sv.fnt||T0.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||T0.dec||'em',col:sv.col||'',col2:sv.col2||'',bgc:sv.bgc||'',bw:sv.bw||'0',em:sv.em||'',off:sv.off&&typeof sv.off==='object'?sv.off:{},selb:'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt||(it.kind==='cx'?'Une idée ? Un souci ?':it.kind==='aq'?'Rejoins l’amicale !':''),acc:sv.acc||(it.kind==='cx'?'Nous sommes là pour toi ! Scanne et écris-nous.':it.kind==='aq'?'Adhère en 2 minutes sur ton téléphone · saison '+amSaCur():it.sv==='v'&&it.vp&&it.vp.pn?'avec '+it.vp.pn:''),hr:sv.hr||'',dt:sv.dt||(KX?'0':'1'),pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info||(it.sv==='v'?amVpInfo(it):it.kind==='aq'?'🎉 Soirées, repas, sorties, Saint-Éloi, Noël…\n🎁 Des cadeaux pour les grands moments de ta vie':it.kind==='cx'?'💡 Une idée · ❓ Une question · ⚠️ Un problème':''),ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',imgs,sel:0,md:sv.md==='menu'&&!amPoNoMenu(it)?'menu':'',mt:sv.mt||'',mn:sv.mn!=null?String(sv.mn):(it.mn||''),bgi:sv.bgi||'',bgd:sv.bgd||'1',bgia:sv.bgia!=null?sv.bgia:(sv.bgi||''),bgoa:sv.bgoa!=null?sv.bgoa:(sv.bgo||'0'),bgda:sv.bgda!=null?sv.bgda:(sv.bgd||'1'),bgim:sv.bgim!=null?sv.bgim:'',bgom:sv.bgom!=null?sv.bgom:'0',bgdm:sv.bgdm!=null?sv.bgdm:'1',bgza:+sv.bgza||100,bgzm:+sv.bgzm||100,bgxa:sv.bgxa!=null?+sv.bgxa:50,bgxm:sv.bgxm!=null?+sv.bgxm:50,bgya:sv.bgya!=null?+sv.bgya:50,bgym:sv.bgym!=null?+sv.bgym:50,bgo:sv.bgo||'0',mnf:sv.mnf||'cl',mno:sv.mno||'0',mns:sv.mns||100,qrs:sv.qrs||'1',qrz:sv.qrz||100,qrt:sv.qrt||'bd',pxs:sv.pxs||'0',pxsm:sv.pxsm||'0',pxc:sv.pxc||'#ffffff',pxb:sv.pxb||'d',pxf:sv.pxf||'cl',pxr:sv.pxr||'n',pxz:sv.pxz||100,pxt:sv.pxt!=null?sv.pxt:'',qms:sv.qms||'0',qmz:sv.qmz||100,qmt:sv.qmt||'bd',qmts:sv.qmts||100,qrts:sv.qrts||100,qmx:sv.qmx!=null?sv.qmx:'',qrx:sv.qrx!=null?sv.qrx:'',qrf:sv.qrf||'',colt:sv.colt||'',cola:sv.cola||'',emb:sv.emb||'',fnti:sv.fnti||'',cold:sv.cold||'',tfx:sv.tfx||'',ais:sv.ais||'',pno:sv.pno!=null?sv.pno:100,offa:sv.offa&&typeof sv.offa==='object'?sv.offa:(sv.md==='menu'?{}:(sv.off||{})),offm:sv.offm&&typeof sv.offm==='object'?sv.offm:{}}
+ const P0={id:it.id,th:th0,lay:sv.lay||T0.lay||'band',fnt:sv.fnt||T0.fnt||'gras',sz:sv.sz||'m',dec:sv.dec||T0.dec||'em',col:sv.col||'',col2:sv.col2||'',bgc:sv.bgc||'',bw:sv.bw||'0',em:sv.em||'',off:sv.off&&typeof sv.off==='object'?sv.off:{},selb:'',kick:sv.kick!=null?sv.kick:a.nm,tt:sv.tt!=null?sv.tt:(it.kind==='cx'?'Une idée ? Un souci ?':it.kind==='aq'?'Rejoins l’amicale !':''),acc:sv.acc!=null?sv.acc:(it.kind==='cx'?'Nous sommes là pour toi ! Scanne et écris-nous.':it.kind==='aq'?'Adhère en 2 minutes sur ton téléphone · saison '+amSaCur():it.sv==='v'&&it.vp&&it.vp.pn?'avec '+it.vp.pn:''),hr:sv.hr||'',dt:sv.dt||(KX?'0':'1'),pl:sv.pl||'1',pg:sv.pg||((it.pg||[]).length?'1':'0'),info:sv.info!=null?sv.info:(it.sv==='v'?amVpInfo(it):it.kind==='aq'?'🎉 Soirées, repas, sorties, Saint-Éloi, Noël…\n🎁 Des cadeaux pour les grands moments de ta vie':it.kind==='cx'?'💡 Une idée · ❓ Une question · ⚠️ Un problème':''),ct:sv.ct!=null?sv.ct:(a.me.n+(a.me.tel?' · '+a.me.tel:'')),ft:sv.ft||'',imgs,sel:0,md:sv.md==='menu'&&!amPoNoMenu(it)?'menu':'',mt:sv.mt||'',mn:sv.mn!=null?String(sv.mn):(it.mn||''),bgi:sv.bgi||'',bgd:sv.bgd||'1',bgia:sv.bgia!=null?sv.bgia:(sv.bgi||''),bgoa:sv.bgoa!=null?sv.bgoa:(sv.bgo||'0'),bgda:sv.bgda!=null?sv.bgda:(sv.bgd||'1'),bgim:sv.bgim!=null?sv.bgim:'',bgom:sv.bgom!=null?sv.bgom:'0',bgdm:sv.bgdm!=null?sv.bgdm:'1',bgza:+sv.bgza||100,bgzm:+sv.bgzm||100,bgxa:sv.bgxa!=null?+sv.bgxa:50,bgxm:sv.bgxm!=null?+sv.bgxm:50,bgya:sv.bgya!=null?+sv.bgya:50,bgym:sv.bgym!=null?+sv.bgym:50,bgo:sv.bgo||'0',mnf:sv.mnf||'cl',mno:sv.mno||'0',mns:sv.mns||100,qrs:sv.qrs||'1',qrz:sv.qrz||100,qrt:sv.qrt||'bd',pxs:sv.pxs||'0',pxsm:sv.pxsm||'0',pxc:sv.pxc||'#ffffff',pxb:sv.pxb||'d',pxf:sv.pxf||'cl',pxr:sv.pxr||'n',pxz:sv.pxz||100,pxt:sv.pxt!=null?sv.pxt:'',qms:sv.qms||'0',qmz:sv.qmz||100,qmt:sv.qmt||'bd',qmts:sv.qmts||100,qrts:sv.qrts||100,qmx:sv.qmx!=null?sv.qmx:'',qrx:sv.qrx!=null?sv.qrx:'',qrf:sv.qrf||'',colt:sv.colt||'',cola:sv.cola||'',emb:sv.emb||'',fnti:sv.fnti||'',cold:sv.cold||'',tfx:sv.tfx||'',ais:sv.ais||'',pno:sv.pno!=null?sv.pno:100,offa:sv.offa&&typeof sv.offa==='object'?sv.offa:(sv.md==='menu'?{}:(sv.off||{})),offm:sv.offm&&typeof sv.offm==='object'?sv.offm:{}}
  return amPoBgLoad(P0,P0.md);
 }
 const AM_PO_COL2=['#7c3aed','#a855f7','#ec4899','#f43f5e','#dc2626','#ea580c','#f59e0b','#ca8a04','#84cc16','#16a34a','#0d9488','#0891b2','#0ea5e9','#1d4ed8','#1e3a8a','#78350f','#475569','#111827'];
@@ -18819,16 +18809,21 @@ function amJjList(){
 let AMJJ_T=null;
 function amJjLive(){clearInterval(AMJJ_T);AMJJ_T=setInterval(async()=>{if(!document.querySelector('.sh.jj')){clearInterval(AMJJ_T);AMJJ_T=null;return}if(document.hidden||AMC_BUSY)return;const a=amc();if(!a||demo)return;const b0=JSON.stringify(((a.it||{})[AMC_EE]||{}).pt||[]);a.pullAt=0;try{await amPull(true)}catch(e){}try{if(document.querySelector('.sh.jj')&&JSON.stringify(((a.it||{})[AMC_EE]||{}).pt||[])!==b0)amJjList()}catch(e){}},4000)}
 /* 2.82.178 : feuille Jour J imprimable (secours papier) : une ligne par inscrit, cases à cocher pour chaque ticket, enfants, montant */
-function amJjPrint(){const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it)return;const TY=amTy(it),[A0,N0]=amPtGroups(it),KS=amKs(it),pay=it.pr&&it.pr.on;
+async function amJjPrint(){const a=amc(),it0=a&&a.it&&a.it[AMC_EE];if(!it0)return;
+ /* 2.82.237 : format au choix, et en-tête avec les mêmes compteurs que l’écran Jour J */
+ const fm=await ask({title:'🖨 Feuille Jour J',text:'Format de la feuille (paysage) :',btns:[{label:'📄 A4',value:'A4',cls:'pri'},{label:'🗞 A3 (plus grand, plus lisible)',value:'A3'},{label:'Annuler',value:null}]});if(!fm)return;
+ const it=amc().it[AMC_EE];if(!it)return;const TY=amTy(it),[A0,N0]=amPtGroups(it),KS=amKs(it),pay=it.pr&&it.pr.on;
  const box=(q,g)=>{let o='';for(let u=0;u<q;u++)o+=u<g?'☒':'☐';return o||'—'};
  const kid=p=>{const n=+p.ne||0;if(!n)return '';const K=amKids(p,!KS.kb);return [K.m?K.m+'× '+KS.kn:'',K.a?K.a+'× repas adulte':'',K.b?K.b+'× -'+KS.kx+' ans':''].filter(Boolean).join(', ')};
  const head=['✓','Nom',amGW(),'👥'].concat(TY.map(t=>(t.e||'')+' '+t.l),['🧒 Enfants','Régime'],pay?['À payer','Payé']:[]);
- const row=x=>{const p=x.p,o=(x.m&&x.m.o)||{},st=pay?amPtSt(it,x):null;return ['☐',p.n,o.gr||'',(p.na||p.ne)?(p.na||0)+(p.ne?'+'+p.ne:''):''].concat(TY.map(t=>box(amQ(p,t.k),Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0))),[kid(p),amRgOf(x)||''],pay?[amEur(st.d),st.k==='ok'||st.k==='free'?'☒ '+amEur(st.pa):(st.pa?'reste '+amEur(st.r)+' ☐':'☐')]:[])};
+ const row=x=>{const p=x.p,o=(x.m&&x.m.o)||{},st=pay?amPtSt(it,x):null;return [amDoneJ(it,p,TY)?'☒':'☐',p.n,o.gr||'',(+p.na||(p.ne?0:1))+(p.ne?'+'+p.ne:'')].concat(TY.map(t=>box(amQ(p,t.k),Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0))),[kid(p),amRgOf(x)||''],pay?[amEur(st.d),st.k==='ok'||st.k==='free'?'☒ '+amEur(st.pa):(st.pa?'reste '+amEur(st.r)+' ☐':'☐')]:[])};
  const so=L=>L.slice().sort((p,q)=>String(p.p.n).localeCompare(String(q.p.n),'fr'));
  const tb=(t,L)=>L.length?'<h3 style="margin:10px 0 4px">'+esc(t)+' · '+L.length+'</h3><table class="amp-t amp-g"><tr>'+head.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr>'+so(L).map(x=>'<tr>'+row(x).map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>').join('')+'</table>':'';
- const tot=TY.map(t=>(t.e||'')+' '+t.l+' : '+(it.pt||[]).reduce((n,p)=>n+amQ(p,t.k),0)).join(' · ');
- const html='<div style="font-family:system-ui,sans-serif"><h2 style="margin:0">🎟 Jour J · '+esc(it.tx||'')+'</h2><p style="margin:2px 0 6px;font-size:10pt">'+esc(it.d?new Date(it.d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'')+(it.pl?' · '+esc(it.pl):'')+' · '+(it.pt||[]).length+' inscrits · '+esc(tot)+' · imprimé le '+esc(new Date().toLocaleString('fr-FR'))+'</p><p style="margin:0 0 6px;font-size:9pt">☐ à cocher au stylo · ☒ déjà donné dans l’appli au moment de l’impression</p>'+tb('🎖 '+amWC('p'),A0)+tb('👤 '+amWC('np'),N0)+'</div>';
- amPdf(html,'jour-j-'+String(it.tx||'evenement').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30)+'.pdf');
+ const PT=it.pt||[],tot=TY.map(t=>{const T=PT.reduce((n,p)=>n+amQ(p,t.k),0),G=PT.reduce((n,p)=>n+Math.min(amQ(p,t.k),(p.gv||{})[t.k]||0),0);return T?(t.e||'')+' '+t.l+' '+G+'/'+T:''}).filter(Boolean).join(' · ');
+ const nbK=!KS.kb,KK=PT.reduce((r,p)=>{const k=amKids(p,nbK);r.m+=k.m;r.a+=k.a;r.b+=k.b;return r},{m:0,a:0,b:0}),sv=PT.filter(p=>amDoneJ(it,p,TY)).length,PY=pay?amPayTot(it):null,RG=amRgCount(it,A0.concat(N0)),hasT=TY.some(t=>t.k==='tr');
+ const st2=[(KK.m+KK.a+KK.b)?'🧒 Enfants : 🍟 '+KK.m+' · 🍽 '+KK.a+(KK.b?' · 👶 '+KK.b:''):'','✅ Personnes terminées '+sv+'/'+PT.length,PY?'💶 Payé '+PY.ok+'/'+PT.length+' · reste '+amEur(PY.re):''].concat(RG.map(r=>'🥗 '+r.k+' '+(hasT?(r.n||r.pers):r.pers))).filter(Boolean).join(' · ');
+ const html=(fm==='A3'?'<!--A3-->':'')+'<div style="font-family:system-ui,sans-serif"><h2 style="margin:0">🎟 Jour J · '+esc(it.tx||'')+'</h2><p style="margin:2px 0 6px;font-size:10pt">'+esc(it.d?new Date(it.d+'T12:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'')+(it.pl?' · '+esc(it.pl):'')+' · '+(it.pt||[]).length+' inscrits · imprimé le '+esc(new Date().toLocaleString('fr-FR'))+'</p><p style="margin:2px 0 4px;font-size:10.5pt;font-weight:700">'+esc(tot)+'</p><p style="margin:0 0 6px;font-size:9.5pt">'+esc(st2)+'</p><p style="margin:0 0 6px;font-size:9pt">☐ à cocher au stylo · ☒ déjà fait dans l’appli au moment de l’impression (première colonne ✓ = personne terminée)</p>'+tb('🎖 '+amWC('p'),A0)+tb('👤 '+amWC('np'),N0)+'</div>';
+ amPdf(html,(fm==='A3'?'A3-':'')+'jour-j-'+String(it.tx||'evenement').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30)+'.pdf');
 }
 function amJjOpen(){
  const a=amc(),it=a&&a.it&&a.it[AMC_EE];if(!it||!(it.pt||[]).length)return;
