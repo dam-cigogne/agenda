@@ -3277,7 +3277,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.234';
+const APP_VERSION='2.82.235';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3285,6 +3285,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.235',d:'26/11/2026',items:['🧹 <b>Accueil allégé</b> : les tâches passées (date dépassée, ou tâche d’un événement déjà terminé) ne s’affichent plus sur l’accueil : ni dans la tuile « tâches », ni dans « Ce qui t’attend », ni sous les membres du bureau. Elles ne sont pas effacées : elles restent dans l’onglet Tâches et dans l’événement.']},
 {v:'2.82.234',d:'26/11/2026',items:['📣 <b>Réunion : « Bien reçu, je serai là »</b> : dès qu’une réunion est fixée ou qu’elle change (date, heure, lieu), chaque invité voit une carte bleue en haut de l’accueil (« ⚠️ CHANGEMENT » si ça a bougé) avec « ✅ Bien reçu, je serai là » ou « 🙅 Je ne pourrai pas ». Elle reste tant qu’il n’a pas répondu, même s’il n’a pas les notifications. Dans la réunion, le bureau voit ✅ présents, 🙅 absents et ❔ pas encore confirmé (avec les noms), et « 🔔 Relancer ceux qui n’ont pas confirmé ».']},
 {v:'2.82.233',d:'25/11/2026',items:['✏️ <b>Ordre du jour : textes plus longs</b> : les détails et les notes d’un point vont jusqu’à 3000 caractères (avant 600), et l’appli prévient si on dépasse au lieu de couper sans rien dire. Dans les fenêtres de saisie, une zone de texte très longue ne grandit plus jusqu’à cacher le bouton « Ajouter » : elle défile.']},
 {v:'2.82.232',d:'25/11/2026',items:['➡️ <b>Tout envoyer vers l’événement</b> : en haut de l’ordre du jour, un seul écran montre chaque point qui a des lignes. Ceux qui ressemblent à un programme (19h …) ou à des tâches (… - Prénom) sont cochés d’office ; tu coches ou décoches, tu choisis programme ou tâches et le jour, tu corriges si besoin, et un seul « Envoyer » fait tout. Le bouton par point devient « ➡️ Envoyer ce point » et n’apparaît que s’il y a quelque chose à envoyer.']},
@@ -14014,9 +14015,12 @@ async function amRemove(id){
  render();toast('Retiré. Clés renouvelées pour '+n+' membre'+(n>1?'s':''),4500);
  setTimeout(()=>ask({title:'✅ '+esc(p.n)+' est retiré',html:'<p style="margin:.2rem 0 .5rem">Les clés du groupe ont été renouvelées pour '+n+' membre'+(n>1?'s':'')+'.</p><div class="card" style="padding:.6rem .7rem;margin:.3rem 0;border-left:4px solid #f59e0b"><b>📲 Tu as d’autres appareils liés à toi (PC, tablette, Mac) ?</b><ol style="margin:.3rem 0 0;padding-left:1.2rem;line-height:1.45;font-size:.92rem"><li>Ouvre l’appli sur cet appareil.</li><li>Regarde la liste des membres : '+esc(p.n)+' doit avoir disparu.</li><li>S’il ou elle est <b>encore là</b> : sur ce téléphone, Réglages › Groupe › <b>📲 Lier mon PC / ma tablette</b>, puis tape le code sur l’autre appareil. Il se remet à jour.</li></ol></div>',btns:[{label:'Compris',value:1,cls:'pri'}]}),600)
 }
+/* 2.82.235 : l’accueil ne montre plus les tâches passées (date dépassée, ou tâche d’un événement déjà fini) ; elles restent dans l’onglet Tâches et dans l’événement */
+const amTkLive=i=>!i.d||String(i.d)>=today();
+const amEeLive=e=>String(e.d2||e.d||'9')>=today();
 function amMbTk(p){
- const L=amItems('tk').filter(i=>!i.x&&i.w&&amWIs(i.w,p)).map(i=>({tx:i.tx,d:i.d,h:i.h}));
- amItems('ee').filter(e=>!e.x).forEach(e=>(e.ck||[]).forEach(c=>{if(!c)return;const pr=ckWho(c).some(n=>amWIs(n,p));if(!c.ok&&pr)L.push({tx:c.t,d:e.d,ev:e.tx});(c.sb||[]).forEach(q=>{if(!q.ok&&!pr&&ckWho(q).some(n=>amWIs(n,p)))L.push({tx:q.t+' ('+c.t+')',d:e.d,ev:e.tx})})}));
+ const L=amItems('tk').filter(i=>!i.x&&i.w&&amWIs(i.w,p)&&amTkLive(i)).map(i=>({tx:i.tx,d:i.d,h:i.h}));
+ amItems('ee').filter(e=>!e.x&&amEeLive(e)).forEach(e=>(e.ck||[]).forEach(c=>{if(!c)return;const pr=ckWho(c).some(n=>amWIs(n,p));if(!c.ok&&pr)L.push({tx:c.t,d:e.d,ev:e.tx});(c.sb||[]).forEach(q=>{if(!q.ok&&!pr&&ckWho(q).some(n=>amWIs(n,p)))L.push({tx:q.t+' ('+c.t+')',d:e.d,ev:e.tx})})}));
  return L}
 function amMbTasks(id){
  const p=amList().find(x=>x.id===id);if(!p)return;
@@ -19338,7 +19342,7 @@ function amSuiviHTML(a){
   R.push(go('ee',it.id,it.sv==='v'?'🛍️':'🎉',String(it.tx||'Événement').slice(0,50)+(j?' · '+j:''),info.join(' · ')))});
  return '<div class="am2-card"><h3>📋 À suivre</h3>'+(R.length?R.join(''):'<p class="mut" style="margin:.3rem 0">Rien à suivre pour l’instant 🎉</p>')+'</div>'}
 function amAcHTML(a){
- const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x),mine=pend.filter(i=>i.w&&amIsMe(i.w)),buy=amItems('co').filter(i=>!i.x);
+ const me=String(a.me.n||''),pend=amItems('tk').filter(i=>!i.x&&amTkLive(i)),mine=pend.filter(i=>i.w&&amIsMe(i.w)),buy=amItems('co').filter(i=>!i.x);
  const row=(k,ic,t,sub)=>'<button class="am2-row" data-act="am-tab" data-k="'+k+'"><i>'+ic+'</i><span><b>'+esc(t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span></button>';
  /* 2.82.133 : ordre de l’accueil = affiche « Quoi de neuf » → « À suivre » → « Ce qui t’attend » */
  let h='<div class="am2-card"><h3>Ce qui t’attend</h3>';
@@ -20001,7 +20005,7 @@ function amView0(){
    const bc=lv==='b'?amAc():'#12B5A0';return '<section class="am2-box" style="--bx:'+bc+'"><div class="am2-sec"><h3>'+(lv==='b'?'🏛️ ':'🤝 ')+lbl+'</h3><span style="color:'+bc+'">'+G.length+(G.length>1?' personnes':' personne')+'</span></div><div class="am2-grid">'+G.map(p=>{const k=hs(p.id),c1=p.col||(lv==='a'?'#12B5A0':RC[k%RC.length]),c2=p.col||(lv==='a'?'#2D8CFF':RC[((k%RC.length)+3+((k>>3)%4))%RC.length]),lab=/^membre du bureau$/i.test(p.t||'')?'Bureau':(p.t||(lv==='b'?'Bureau':'Aide'));
     return '<button class="am2-mb" data-act="am-mb" data-id="'+esc(p.id)+'"><div class="am2-ring" style="background:linear-gradient(135deg,'+c1+','+c2+')">'+amAvIn(p,c1)+(p.adm?'<span class="am2-crown">👑</span>':'')+'</div><b>'+esc(p.sn||String(p.n||'?').split(/\s+/)[0])+(p.self?' <small>(toi)</small>':'')+'</b><span class="am2-pill" style="background:rgba(127,127,127,.16);color:var(--text);background:color-mix(in srgb,'+c1+' 18%,transparent);color:color-mix(in srgb,'+c1+' 70%,var(--text))">'+esc(lab)+'</span>'+(()=>{const nt=amMbTk(p).length;return nt?'<small class="am2-nt" data-act="am-mbtk" data-id="'+esc(p.id)+'" role="button" style="text-decoration:underline;text-underline-offset:2px">✅ '+nt+(nt>1?' tâches':' tâche')+'</small>':''})()+amAbBadge(p.id)+'</button>'}).join('')+'</div></section>'};
   const isAc=nu&&AMC_TAB==='ac';
-  h+=isAc?updCardHTML()+amKeyStaleHTML()+amAckCard()+amTodoVoteCard()+amNotifHome()+amHome(a,n1,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+amVerPill()+''+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':amClassicTop(a)+grpC('b','Bureau')+grpC('a','Aides extérieurs');
+  h+=isAc?updCardHTML()+amKeyStaleHTML()+amAckCard()+amTodoVoteCard()+amNotifHome()+amHome(a,amItems('tk').filter(i=>!i.x&&amTkLive(i)).length,n3+n4)+amAcHTML(a)+'<div id="am-mbs" style="scroll-margin-top:.6rem"><button class="btn blk" data-act="am-abplan" style="margin:.4rem 0">📅 Disponibilités : qui est là ?</button>'+amVerPill()+''+grp('b','Le bureau')+grp('a','Les aides')+'</div>':nu?'':amClassicTop(a)+grpC('b','Bureau')+grpC('a','Aides extérieurs');
   {if(L.length<2)h+='<p class="empty">Tu es seul(e) pour l’instant.'+(a.kB?' Invite les autres : touche ⚙️ puis 🔢 Inviter quelqu’un.':'')+'</p>';
   if(a.kB)h+='<button class="btn blk" data-act="am-inv" style="margin-top:.7rem">＋ Inviter quelqu’un</button>';
   if(a.apriv)h+='<button class="btn blk" data-act="am-prep" style="margin-top:.4rem">📋 Préparatifs : inviter plusieurs personnes</button>'}
