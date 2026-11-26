@@ -3277,7 +3277,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.237';
+const APP_VERSION='2.82.238';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3285,6 +3285,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.238',d:'26/11/2026',items:['🪖 <b>Fiche amicaliste et bulletin d’adhésion</b> : le statut propose aussi <b>Civil catégorie A</b>, <b>B</b> et <b>C</b> (à côté d’Actif, Réserviste…), et le grade « Civil cat. A » s’ajoute à « Civil cat. B / C ».']},
 {v:'2.82.237',d:'26/11/2026',items:['🖼 <b>Affiches</b> : un texte que tu effaces (titre, accroche, lignes d’infos) reste effacé quand tu rouvres l’affiche ; avant, le texte proposé au départ revenait.','🎟 <b>Feuille Jour J imprimée</b> : en haut, les mêmes compteurs que l’écran Jour J (✅ Arrivé 0/100, 🎁 Cadeau 3/69, enfants, ✅ personnes terminées, 💶 payé et reste à encaisser, régimes) ; la colonne 👥 est toujours remplie (1 par défaut) ; la première colonne est cochée pour les personnes déjà terminées. Au moment d’imprimer, on choisit <b>A4 ou A3</b> (paysage). Le PDF envoyé par mail ou mis dans le dossier a la même mise en page que celui qu’on imprime.']},
 {v:'2.82.236',d:'26/11/2026',items:['🖼 <b>Affiches et QR codes</b> : une affiche envoyée en PDF par mail (« ✉️ Envoyer par mail à… ») garde maintenant sa mise en page et son QR code, comme à l’impression. L’image « QR code seul » (adhésion, inscription, menu) est refaite : titre et nom de l’amicale sur deux lignes qui tiennent toujours dans l’image, QR plus grand et net.']},
 {v:'2.82.235',d:'26/11/2026',items:['🧹 <b>Accueil allégé</b> : les tâches passées (date dépassée, ou tâche d’un événement déjà terminé) ne s’affichent plus sur l’accueil : ni dans la tuile « tâches », ni dans « Ce qui t’attend », ni sous les membres du bureau. Elles ne sont pas effacées : elles restent dans l’onglet Tâches et dans l’événement.']},
@@ -16552,11 +16553,12 @@ async function amEeDel(){
  if(r!=='y')return;amItemSave(Object.assign({},it,{del:1}));AMC_EE='';toast('Supprimé',2000);
 }
 
-const AM_GR=['Soldat','1re classe','Caporal','Caporal-chef','Sergent','Sergent-chef','Adjudant','Adjudant-chef','Major','Aspirant','Sous-lieutenant','Lieutenant','Capitaine','Commandant','Lieutenant-colonel','Colonel','Général','Civil','Civil cat. B','Civil cat. C','Extérieur'];
+const AM_GR=['Soldat','1re classe','Caporal','Caporal-chef','Sergent','Sergent-chef','Adjudant','Adjudant-chef','Major','Aspirant','Sous-lieutenant','Lieutenant','Capitaine','Commandant','Lieutenant-colonel','Colonel','Général','Civil','Civil cat. A','Civil cat. B','Civil cat. C','Extérieur'];
 /* abréviations militaires courantes → grade */
-const AM_GRAB={avt:'Soldat',av1:'1re classe',clc:'Caporal-chef',ext:'Extérieur',exterieur:'Extérieur',sdt:'Soldat',sol:'Soldat','1cl':'1re classe',cpl:'Caporal',cal:'Caporal',cch:'Caporal-chef',cc:'Caporal-chef',sgt:'Sergent',sgc:'Sergent-chef',sch:'Sergent-chef',adj:'Adjudant',adc:'Adjudant-chef',maj:'Major',asp:'Aspirant',slt:'Sous-lieutenant',ltt:'Lieutenant',lt:'Lieutenant',lnt:'Lieutenant',cne:'Capitaine',cpt:'Capitaine',cdt:'Commandant',lcl:'Lieutenant-colonel',col:'Colonel',gal:'Général',civ:'Civil',civil:'Civil',catb:'Civil cat. B',catc:'Civil cat. C',cat:'Civil'};
-const AM_CT0=[['actif','Actif'],['reserv','Réserviste'],['honneur','Membre d’honneur'],['bienf','Bienfaiteur'],['ancien','Ancien'],['autre','Autre']];
-const amCT=()=>{const o=(amVoc().ct)||{};return AM_CT0.map(c=>[c[0],(typeof o[c[0]]==='string'&&o[c[0]].trim())?o[c[0]].trim().slice(0,30):c[1]])};
+const AM_GRAB={avt:'Soldat',av1:'1re classe',clc:'Caporal-chef',ext:'Extérieur',exterieur:'Extérieur',sdt:'Soldat',sol:'Soldat','1cl':'1re classe',cpl:'Caporal',cal:'Caporal',cch:'Caporal-chef',cc:'Caporal-chef',sgt:'Sergent',sgc:'Sergent-chef',sch:'Sergent-chef',adj:'Adjudant',adc:'Adjudant-chef',maj:'Major',asp:'Aspirant',slt:'Sous-lieutenant',ltt:'Lieutenant',lt:'Lieutenant',lnt:'Lieutenant',cne:'Capitaine',cpt:'Capitaine',cdt:'Commandant',lcl:'Lieutenant-colonel',col:'Colonel',gal:'Général',civ:'Civil',civil:'Civil',cata:'Civil cat. A',catb:'Civil cat. B',catc:'Civil cat. C',cat:'Civil'};
+/* 2.82.238 : statuts civils (catégorie A, B, C) à côté d’Actif / Réserviste (vocabulaire militaire seulement) */
+const AM_CT0=[['actif','Actif'],['reserv','Réserviste'],['civa','Civil catégorie A'],['civb','Civil catégorie B'],['civc','Civil catégorie C'],['honneur','Membre d’honneur'],['bienf','Bienfaiteur'],['ancien','Ancien'],['autre','Autre']];
+const amCT=()=>{const o=(amVoc().ct)||{};return AM_CT0.filter(c=>!/^civ[abc]$/.test(c[0])||!amVoc().civ).map(c=>[c[0],(typeof o[c[0]]==='string'&&o[c[0]].trim())?o[c[0]].trim().slice(0,30):c[1]])};
 const amGrMil=()=>!amVoc().civ;
 const amGrL=()=>amGrMil()?AM_GR:String(amVoc().gl||'').split(/[;,\n]/).map(x=>x.trim().slice(0,30)).filter(Boolean).slice(0,30);
 const amGrOn=()=>amGrL().length>0;
