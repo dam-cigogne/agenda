@@ -3277,7 +3277,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.235';
+const APP_VERSION='2.82.236';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3285,6 +3285,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.236',d:'26/11/2026',items:['🖼 <b>Affiches et QR codes</b> : une affiche envoyée en PDF par mail (« ✉️ Envoyer par mail à… ») garde maintenant sa mise en page et son QR code, comme à l’impression. L’image « QR code seul » (adhésion, inscription, menu) est refaite : titre et nom de l’amicale sur deux lignes qui tiennent toujours dans l’image, QR plus grand et net.']},
 {v:'2.82.235',d:'26/11/2026',items:['🧹 <b>Accueil allégé</b> : les tâches passées (date dépassée, ou tâche d’un événement déjà terminé) ne s’affichent plus sur l’accueil : ni dans la tuile « tâches », ni dans « Ce qui t’attend », ni sous les membres du bureau. Elles ne sont pas effacées : elles restent dans l’onglet Tâches et dans l’événement.']},
 {v:'2.82.234',d:'26/11/2026',items:['📣 <b>Réunion : « Bien reçu, je serai là »</b> : dès qu’une réunion est fixée ou qu’elle change (date, heure, lieu), chaque invité voit une carte bleue en haut de l’accueil (« ⚠️ CHANGEMENT » si ça a bougé) avec « ✅ Bien reçu, je serai là » ou « 🙅 Je ne pourrai pas ». Elle reste tant qu’il n’a pas répondu, même s’il n’a pas les notifications. Dans la réunion, le bureau voit ✅ présents, 🙅 absents et ❔ pas encore confirmé (avec les noms), et « 🔔 Relancer ceux qui n’ont pas confirmé ».']},
 {v:'2.82.233',d:'25/11/2026',items:['✏️ <b>Ordre du jour : textes plus longs</b> : les détails et les notes d’un point vont jusqu’à 3000 caractères (avant 600), et l’appli prévient si on dépasse au lieu de couper sans rien dire. Dans les fenêtres de saisie, une zone de texte très longue ne grandit plus jusqu’à cacher le bouton « Ajouter » : elle défile.']},
@@ -9954,7 +9955,7 @@ async function act(a,el,e){
    const lst=amRlLast(amAq()&&amAq().o&&amAq().o.rl);if(lst&&B.length<=2){const ok2=await ask({title:'⏰ Relancer l’adhésion ?',html:lst,btns:[{label:'Relancer quand même',value:'y',cls:'pri'},{label:'Annuler',value:null}]});if(!ok2)break}
    const w=B.length>2?await ask({title:'⏰ Relancer qui ?',html:lst+'<p style="margin:.2rem 0 .5rem">Pour l’adhésion de la saison '+esc(amSaCur())+'.</p>',btns:B}):B[0].value;if(!w)break;if(w==='pick'){const ids=await amPickPeople('⏰ Relancer qui ?',A.concat(N).sort((p,q)=>norm(p.tx).localeCompare(norm(q.tx))),amRsSet((amAq()&&amAq().o)||{}));if(ids&&ids.length)amSendLink(ids,{k:'ra',w:'sel'});break}amSendLink((w==='a'?A:w==='n'?N:A.concat(N)).map(m=>m.id),{k:'ra',w});break}
   case 'aq-send':{const u=amAqUrl();if(!u)break;const a0=amc()||{},t='📲 Adhésion à '+(a0.nm||'l’amicale')+' – saison '+amSaCur()+'\nRemplis ton bulletin sur ton téléphone, puis passe voir le bureau pour régler et signer :\n'+u;try{await navigator.clipboard.writeText(t)}catch(e){}if(navigator.share){try{await navigator.share({text:t});break}catch(e){if(e&&e.name==='AbortError')break}}toast('🔗 Message copié : colle-le dans un SMS ou un groupe',4000);break}
-  case 'aq-qrimg':{const u=amAqUrl();if(!u)break;const a0=amc()||{};try{const im=await loadImg(amQrImg(u)),c=document.createElement('canvas'),W=im.width;c.width=W;c.height=W+60;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0);g.fillStyle='#111';g.font='bold 32px -apple-system,Arial,sans-serif';g.textAlign='center';g.fillText('📲 Adhésion '+amSaCur()+' · '+String(a0.nm||'').slice(0,24),W/2,W+40);const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'qr-adhesion.png',{type:'image/png'}),t='📲 Adhésion : '+u;try{await navigator.clipboard.writeText(t)}catch(e){}if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:t});break}catch(e){if(e&&e.name==='AbortError')break}}const x=URL.createObjectURL(f),l=document.createElement('a');l.href=x;l.download=f.name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(x)},4000)}catch(e){toast('Image impossible',3000)}break}
+  case 'aq-qrimg':{const u=amAqUrl();if(!u)break;const a0=amc()||{};try{const b=await amQrCardBlob(u,'📲 Adhésion '+amSaCur(),String(a0.nm||'').slice(0,60)),f=new File([b],'qr-adhesion.png',{type:'image/png'}),t='📲 Adhésion : '+u;try{await navigator.clipboard.writeText(t)}catch(e){}if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:t});break}catch(e){if(e&&e.name==='AbortError')break}}const x=URL.createObjectURL(f),l=document.createElement('a');l.href=x;l.download=f.name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(x)},4000)}catch(e){toast('Image impossible',3000)}break}
   case 'aq-copy':{const u=amAqUrl();try{await navigator.clipboard.writeText(u);toast('🔗 Lien copié : colle-le dans un message',3500)}catch(e){toast('Copie impossible',2500)}break}
   case 'aq-test':{const u=amAqUrl();if(u)window.open(u,'_blank','noopener');break}
   case 'qr-hist':amQrHist(ds_.id);break;
@@ -14367,14 +14368,15 @@ function pdfFromJpegs(pg){
  const out=new Uint8Array(len);let q=0;for(const u of parts){out.set(u,q);q+=u.length}
  return out;
 }
-async function amPdfBlob(html){return new Blob([pdfFromJpegs(await amPdfPages(html))],{type:'application/pdf'})}
-async function amPdfPages(html){
+async function amPdfBlob(html,poster){return new Blob([pdfFromJpegs(await amPdfPages(html,poster))],{type:'application/pdf'})}
+async function amPdfPages(html,poster){
  await loadH2C();
- const shot=document.createElement('div');shot.className='am-shot';shot.innerHTML=html;document.body.appendChild(shot);
+ /* 2.82.236 : une affiche envoyée par mail garde son format (une page A4, QR code compris) */
+ const shot=document.createElement('div');shot.className='am-shot'+(poster?' am-poster':'');shot.innerHTML=html;document.body.appendChild(shot);
  try{
-  await new Promise(r=>setTimeout(r,250));
-  const cv=await html2canvas(shot,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,windowWidth:794});
-  const PW=cv.width,PH=Math.round(PW*1.41421),n=Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
+  await new Promise(r=>setTimeout(r,poster?350:250));
+  const cv=await html2canvas(shot,poster?{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,height:1123,windowWidth:794}:{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,windowWidth:794});
+  const PW=cv.width,PH=Math.round(PW*1.41421),n=poster?1:Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
   for(let i=0;i<n;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
    const bin=atob(c2.toDataURL('image/jpeg',0.9).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH})}
   return pages;
@@ -14419,10 +14421,10 @@ async function amPdfMail(html,name,poster){
  await ficheCopy(to,'📋 Adresse copiée : '+to);
  if(!amMobile()){
   /* ordinateur : le PDF est enregistré, Mail s’ouvre avec l’adresse ; il reste à joindre le fichier enregistré */
-  try{toast('Préparation du PDF…',6000);const bl=await amPdfBlob(html),u=URL.createObjectURL(bl),el=document.createElement('a');el.href=u;el.download=name;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000)}catch(e){}
+  try{toast('Préparation du PDF…',6000);const bl=await amPdfBlob(html,poster),u=URL.createObjectURL(bl),el=document.createElement('a');el.href=u;el.download=name;document.body.appendChild(el);el.click();setTimeout(()=>{el.remove();URL.revokeObjectURL(u)},4000)}catch(e){}
   const go=await ask({title:'✉️ Prêt',html:'<p style="margin:.2rem 0 .5rem">Le PDF <b>'+esc(name)+'</b> est dans tes Téléchargements, et l’adresse <b>'+esc(to)+'</b> est copiée.</p><p class="mut" style="font-size:.86rem;margin:0">Touche « Ouvrir Mail » : l’adresse est déjà mise ; glisse le PDF dans le message.</p>',btns:[{label:'✉️ Ouvrir Mail',value:1,cls:'pri'},{label:'Fermer',value:null}]});
   if(go&&!(ESSAI&&essaiBlk()))location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''));return}
- toast('Préparation du PDF…',8000);let file;try{const bl=await amPdfBlob(html);file=new File([bl],name,{type:'application/pdf'})}catch(e){toast('PDF impossible ici',4000);return}
+ toast('Préparation du PDF…',8000);let file;try{const bl=await amPdfBlob(html,poster);file=new File([bl],name,{type:'application/pdf'})}catch(e){toast('PDF impossible ici',4000);return}
  const go=await ask({title:'✉️ Prêt à envoyer',html:'<p style="margin:.2rem 0 .5rem">📋 L’adresse <b>'+esc(to)+'</b> est copiée.</p><p style="margin:0 0 .4rem">1. Touche « Envoyer le PDF » et choisis <b>Mail</b>.<br>2. Dans « À : », <b>appuie longuement puis Coller</b>.</p>',btns:[{label:'✉️ Envoyer le PDF',value:1,cls:'pri'},{label:'Annuler',value:null}]});if(!go)return;
  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});return}catch(e){if(e&&e.name==='AbortError')return}}
  if(ESSAI&&essaiBlk())return;location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(String(name).replace(/\.pdf$/,''))}
@@ -16089,11 +16091,15 @@ async function amPoLinksPick(id){const a=amc(),it=a&&a.it&&a.it[id||(PO&&PO.id)]
  const t=amPoLinks(it,P,v==='b'?'':v);if(!t)return;try{await navigator.clipboard.writeText(t)}catch(e){}
  if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
  toast('🔗 Copié : colle-le dans WhatsApp',4000)}
+/* 2.82.236 : image « QR code seul » : le titre et le nom tiennent toujours dans l’image (taille du texte ajustée), QR net et bien centré */
+async function amQrCardBlob(u,t1,t2){const im=await loadImg(amQrImg(u)),Q=720,M=56,W=Q+2*M,H=168+Q+M,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,H);g.textAlign='center';g.fillStyle='#111';
+ const fit=(t,y,sz,wt)=>{let z=sz;for(;z>14;z-=2){g.font=wt+' '+z+'px -apple-system,"Segoe UI",Arial,sans-serif';if(g.measureText(t).width<=W-2*M)break}g.fillText(t,W/2,y)};
+ fit(t1,M+40,52,'800');if(t2){g.fillStyle='#555';fit(t2,M+96,34,'600')}g.imageSmoothingEnabled=false;g.drawImage(im,M,168,Q,Q);
+ return await new Promise(r=>c.toBlob(r,'image/png'))}
 async function amQrSharePick(it){const B=[];if(it.qr)B.push({label:'📲 QR d’inscription',value:'i'});if(it.qm)B.push({label:'🍽 QR du menu',value:'m'});if(!B.length)return;
  const v=B.length>1?await ask({title:'🔳 Quel QR code ?',btns:B.concat([{label:'Annuler',value:null}])}):B[0].value;if(!v)return;
  const u=v==='i'?amQrUrl(it):amQmUrl(it),lb=v==='i'?'Inscription':'Menu';
- try{const im=await loadImg(amQrImg(u)),c=document.createElement('canvas'),W=im.width,P2=60;c.width=W;c.height=W+P2;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0);g.fillStyle='#111';g.font='bold 34px -apple-system,Arial,sans-serif';g.textAlign='center';g.fillText((v==='i'?'📲 ':'🍽 ')+lb+' · '+String(it.tx||'').slice(0,28),W/2,W+40);
-  const b=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([b],'qr-'+lb.toLowerCase()+'.png',{type:'image/png'}),t=(v==='i'?'📲 Inscription : ':'🍽 Menu et tarifs : ')+u;try{await navigator.clipboard.writeText(t)}catch(e){}
+ try{const b=await amQrCardBlob(u,(v==='i'?'📲 ':'🍽 ')+lb,String(it.tx||'').slice(0,60)),f=new File([b],'qr-'+lb.toLowerCase()+'.png',{type:'image/png'}),t=(v==='i'?'📲 Inscription : ':'🍽 Menu et tarifs : ')+u;try{await navigator.clipboard.writeText(t)}catch(e){}
   if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:t});return}catch(e){if(e&&e.name==='AbortError')return}}
   const x=URL.createObjectURL(f),l=document.createElement('a');l.href=x;l.download=f.name;document.body.appendChild(l);l.click();setTimeout(()=>{l.remove();URL.revokeObjectURL(x)},4000)}catch(e){toast('Image impossible',3000)}}
 async function amPoLinksCopy(){const a=amc(),it=a&&a.it&&a.it[PO&&PO.id];if(!it)return;const t=amPoLinks(it,PO);if(!t){toast('Pas encore de QR code d’inscription ni de menu',3000);return}try{await navigator.clipboard.writeText(t);toast('🔗 Message copié : colle-le dans WhatsApp, sous l’image',4000)}catch(e){toast('Copie impossible',2500)}}
