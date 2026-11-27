@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.245';
+const APP_VERSION='2.82.247';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.247',d:'27/11/2026',items:['📄 <b>Compte rendu plus joli et modifiable</b> : titres de partie en couleur, numéros des points, puces, notes dans un encadré jaune, à l’écran, dans 📝 Notes et dans le PDF envoyé. Nouveau bouton <b>« ✏️ Modifier le texte »</b> : tu corriges ou complètes directement ; ta version est gardée (elle n’est plus refaite toute seule), avec « 🔄 Refaire depuis l’ordre du jour » si tu veux repartir de zéro.']},
+{v:'2.82.246',d:'27/11/2026',items:['🎁 <b>Cadeau de l’année avec date limite</b> : Administratif › 🎁 Cadeaux › « ⚙️ Régler » : le nom du cadeau (ex. Coffret cadeau) et « offert aux inscrits avant le » (ex. 1er décembre). Réglé pour tout le bureau, il suffit de changer la date l’an prochain. Toute personne inscrite ce jour-là ou après est marquée <b>en rouge « 🚫 PAS ÉLIGIBLE »</b> dans la liste et dans sa fiche, et un message le rappelle quand on valide son adhésion. La date d’adhésion se remplit toute seule à l’inscription.']},
 {v:'2.82.245',d:'27/11/2026',items:['✍️ Ordre du jour : bouton <b>« Orthographe »</b>. Il vérifie l’orthographe et la grammaire de tout l’ordre du jour (titres, détails, qui présente, notes) avec le correcteur gratuit LanguageTool. Chaque faute est montrée en rouge dans sa phrase avec l’explication : touche la bonne correction, « Ignorer », ou <b>« ✨ Tout corriger »</b>. La première fois, l’appli prévient que le texte est envoyé au correcteur.']},
 {v:'2.82.244',d:'27/11/2026',items:['📄 Ordre du jour : <b>Compte rendu</b> de la réunion, propre et complet (parties, points, détails, notes prises pendant la réunion, points traités ✅, présents et excusés confirmés dans l’appli). Il est <b>rangé automatiquement dans 📝 Notes</b> (une note par réunion, mise à jour à chaque fois) dès que tu touches « Fin des notes » ou « 📄 Compte rendu ». Ensuite, un toucher : <b>📨 l’envoyer au bureau</b> (PDF par mail pro ou perso, texte par SMS ou WhatsApp), l’imprimer, <b>mettre les infos dans l’événement</b> ou ouvrir la note.']},
 {v:'2.82.243',d:'27/11/2026',items:['🆕 <b>Nouvel arrivant = cotisation offerte</b> : quand tu valides une adhésion en ligne, remplis un bulletin ou touches « ✅ Encaisser », choisis « 🆕 Nouvel arrivant » : le montant passe à 0 € (au lieu de 20 € pour un sergent, par exemple) et la cotisation est marquée réglée. Le bulletin indique « offerte (nouvel arrivant) ». Tu changes d’avis : le montant revient.']},
@@ -9846,6 +9848,7 @@ async function act(a,el,e){
   case 'bk-am':amFileSave();break;
   case 'bk-amr':amFileRestore();break;
   case 'cd-ed':amCdEdit(ds_.id);break;
+  case 'k8-cfg':amK8Cfg();break;
   case 'cd-tog':amCdTog(ds_.id);break;
   case 'cd-exp':amCdExport();break;
   case 'cd-f':AMC_CDF=ds_.v||'';render();break;
@@ -14484,7 +14487,7 @@ function amDocFrame(title,meta,bodyHTML){
  const a=amc();
  return '<div class="amp"><div class="amp-h"><b>'+esc((a.em||'👥')+' '+a.nm)+'</b><span>'+esc(amDateFr())+'</span></div><h1>'+esc(title)+'</h1>'+(meta?'<p class="amp-m">'+meta+'</p>':'')+'<div class="amp-b">'+bodyHTML+'</div><div class="amp-f">Document interne · '+esc(a.nm)+' · imprimé le '+esc(amDateFr())+'</div></div>';
 }
-function amNotePrint(){const a=amc(),it=a&&a.it&&a.it[AMC_NT];if(!it)return;amPdf(amDocFrame(it.tx,'Rédigé par '+esc(it.by||'—')+' · mis à jour le '+esc(amDateFr(it.at)),amFmt(it.bd)),'note-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,30)+'.pdf')}
+function amNotePrint(){const a=amc(),it=a&&a.it&&a.it[AMC_NT];if(!it)return;amPdf(amDocFrame(it.tx,'Rédigé par '+esc(it.by||'—')+' · mis à jour le '+esc(amDateFr(it.at)),/^odj:/.test(it.pl||'')?odjCrHtml(it.bd):amFmt(it.bd)),'note-'+norm(it.tx).replace(/[^a-z0-9]+/g,'-').slice(0,30)+'.pdf')}
 async function amNoteShare(how){
  const a=amc(),it=a&&a.it&&a.it[AMC_NT];if(!it)return;
  const text=it.tx+'\n'+a.nm+' · '+amDateFr(it.at)+'\n\n'+(it.bd||'')+'\n\n— '+(it.by||'');
@@ -14498,7 +14501,7 @@ async function amNoteDel(){
  if(r!=='y')return;AMC_NT='';amItemSave(Object.assign({},it,{del:1}));
 }
 function amNotePage(it){
- return '<button class="btn blk" data-act="am-ntback" style="margin-bottom:.5rem">‹ Toutes les notes</button><article class="am-doc"><h2>'+esc(it.tx)+'</h2><p class="mut" style="margin:.1rem 0 .7rem;font-size:.88rem">🔒 Bureau seulement · '+esc(it.by||'—')+' · '+esc(amDateFr(it.at))+'</p><div class="am-docb">'+amFmt(it.bd)+'</div></article><div class="btns" style="margin-top:.6rem"><button class="btn pri grow" data-act="am-ntprint">🖨 Imprimer / PDF</button><button class="btn grow" data-act="am-ntshare">📤 Partager</button></div><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-ntmail">✉️ Envoyer par mail</button><button class="btn grow" data-act="am-ntcopy">📋 Copier le texte</button></div><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-ntedit">✏️ Modifier</button><button class="btn grow dng" data-act="am-ntdel">🗑️ Supprimer</button></div>';
+ return '<button class="btn blk" data-act="am-ntback" style="margin-bottom:.5rem">‹ Toutes les notes</button><article class="am-doc"><h2>'+esc(it.tx)+'</h2><p class="mut" style="margin:.1rem 0 .7rem;font-size:.88rem">🔒 Bureau seulement · '+esc(it.by||'—')+' · '+esc(amDateFr(it.at))+'</p><div class="am-docb">'+(/^odj:/.test(it.pl||'')?odjCrHtml(it.bd):amFmt(it.bd))+'</div></article><div class="btns" style="margin-top:.6rem"><button class="btn pri grow" data-act="am-ntprint">🖨 Imprimer / PDF</button><button class="btn grow" data-act="am-ntshare">📤 Partager</button></div><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-ntmail">✉️ Envoyer par mail</button><button class="btn grow" data-act="am-ntcopy">📋 Copier le texte</button></div><div class="btns" style="margin-top:.4rem"><button class="btn grow" data-act="am-ntedit">✏️ Modifier</button><button class="btn grow dng" data-act="am-ntdel">🗑️ Supprimer</button></div>';
 }
  function amEvNote(kind){
  const a=amc(),L=amItems(kind),today=new Date().toISOString().slice(0,10);
@@ -15910,13 +15913,14 @@ async function amAqOk(n){
  const a=amc(),m=(C.cand&&AMQR_CK.sp!=='y')?C.ex:C.m,nb=t=>String(t==null?'':t).trim(),gr=amGrFind(v.gr)||'',ct=amCT().some(c=>c[0]===v.ct)?v.ct:'actif',inf={gr,ct,sv:nb(v.sv).slice(0,60),tl:nb(v.tl).slice(0,30),ml:nb(v.ml).slice(0,60),rg:nb(v.rg).slice(0,60)};
  let id;
  if(m){const o=Object.assign({},m.o||{});Object.keys(inf).forEach(k=>{if(inf[k])o[k]=inf[k]});o.st='';const mo=nb(v.mo);amItemSave(Object.assign({},m,{o,bd:mo&&!String(m.bd||'').includes(mo)?(String(m.bd||'')+(m.bd?'\n':'')+'📲 '+mo).slice(0,1000):(m.bd||'')}));id=m.id}
- else{id=amId();amItemSave({id,kind:'am',x:0,z:'b',tx:nm.slice(0,60),d:'',w:'',qt:'',tm:'',pl:'',bd:nb(v.mo)?('📲 '+nb(v.mo)).slice(0,1000):'',o:Object.assign({cb:a.me.n,cf:'0',pm:'',pa:'',pc:'0',bg:'',k8:'',pd:'',pb:'',st:''},inf)})}
+ else{id=amId();amItemSave({id,kind:'am',x:0,z:'b',tx:nm.slice(0,60),d:today(),w:'',qt:'',tm:'',pl:'',bd:nb(v.mo)?('📲 '+nb(v.mo)).slice(0,1000):'',o:Object.assign({cb:a.me.n,cf:'0',pm:'',pa:'',pc:'0',bg:'',k8:'',pd:'',pb:'',st:''},inf)})}
  amAqMut(o=>{o.qd.push(n);o.w.push(id)});
  if(v.sg){try{const m2=amc().it[id],o2=m2.o||{},day=ds(new Date(x.at)),pmx=AMQR_CK.py||'',cfN=['cb','esp','chq','vir','na'].includes(pmx),pa=pmx==='na'?'0':String(AMQR_CK.pa!=null&&String(AMQR_CK.pa).trim()!==''?String(AMQR_CK.pa).replace(',','.').replace(/[^0-9.]/g,''):(v.pa||o2.pa||amBmPrice(gr,ct)||'')),ps=[nb(v.pr),nb(v.nm).toUpperCase()];
    const f={gr:gr||o2.gr||'',ct,ad:'',tl:inf.tl||o2.tl||'',ml:inf.ml||o2.ml||'',rg:inf.rg||o2.rg||'',pa,pmx,sa:amSaCur(),pn:ps[0],nm:ps[1],sv:inf.sv||o2.sv||'',ol:1};
    amItemSave(Object.assign({},m2,{o:Object.assign({},o2,{pa,pm:cfN?pmx:(pmx==='va'?'vir':(o2.cf==='1'?o2.pm:(['cb','chq','esp'].includes(v.py)?v.py:''))),cf:cfN?'1':(o2.cf==='1'?'1':'0'),pd:cfN?(o2.pd||today()):(o2.pd||''),pb:cfN?(o2.pb||a.me.n):(o2.pb||''),bs:day,bsa:f.sa,bp:'',bb:'en ligne',ba:''})}));
    const old=amSg()[id],bi=old&&old.it?Object.assign({},old.it):{id:amId(),kind:'bs',x:0,z:'b',tm:'',pl:'',qt:'',del:0};bi.tx=(ps[1]+' '+ps[0]).trim().slice(0,60)||nm.slice(0,60);bi.w=id;bi.d=day;bi.bd=JSON.stringify(f);bi.sg=amSgDecode(v.sg);amItemSave(bi)}catch(e){toast('Bulletin non enregistré : '+(e&&e.message||'erreur'),4000)}}
  toast((m?'📇 Fiche de '+m.tx+' mise à jour':'🎖 '+nm+' ajouté aux '+amW('p'))+(v.sg?' · bulletin signé rangé dans sa fiche':''),3500);
+ try{const m3=amc().it[id];if(amK8No(m3))setTimeout(()=>toast(m3.tx+' : '+amK8Msg(m3),7000),3700)}catch(e){}
  if(b==='sign')setTimeout(()=>amBsOpen(id),200);else if(v.sg)setTimeout(()=>amBsMenu(id,1),250);
 }
 function amAqNo(n){amAqMut(o=>{if(!o.qd.includes(n))o.qd.push(n)});toast('Demande écartée',2500)}
@@ -17125,18 +17129,36 @@ function odjCrText(o){const a=amc()||{},I=odjInfo(o),G=odjGroups(o.pts),L=['# Co
    String(x.nt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(l=>L.push('📝 '+l));if(x.ev)L.push('➡️ Envoyé vers l’événement : '+x.ev)})});
  const n=o.pts.filter(x=>x.k!=='h'),d=n.filter(x=>x.x).length;L.push('');if(n.length)L.push('Points traités : '+d+' sur '+n.length);
  L.push('Compte rendu du '+amDateFr()+(a.me&&a.me.n?' · '+a.me.n:''));return L.join('\n')}
-function odjCrSave(o){const a=amc();if(!a||!ODJ)return null;const I=odjInfo(o),id=odjCrId(),pv=a.it&&a.it[id],t=odjCrText(o).slice(0,12000);
- amItemSave(Object.assign({},pv&&!pv.del?pv:{},{id,kind:'nt',x:0,z:'b',tx:('📋 Compte rendu — '+I.nm).slice(0,200),d:(pv&&pv.d)||today(),w:'',qt:'',tm:'',pl:'odj:'+ODJ.ty+':'+ODJ.id,bd:t.split('\n').slice(1).join('\n').trim(),del:0}));return{id,t,I}}
-async function odjCr(auto){const o=odjGet();if(!o||!ODJ)return;const S0=odjCrSave(o);if(!S0)return;const {id,t,I}=S0,ty=ODJ.ty,key=ODJ.id;
- const name='Compte-rendu-'+amSlug(I.nm)+'.pdf',title='Compte rendu — '+I.nm,html=amDocFrame(title,[I.dt?'📅 '+esc(I.dt):'',I.pl?'📍 '+esc(I.pl):''].filter(Boolean).join(' · '),amFmt(t.split('\n').slice(1).filter(l=>!/^📅 |^📍 /.test(l)).join('\n')));
- const r=await ask({title:'📄 Compte rendu'+(auto?' prêt':''),html:'<p style="margin:.1rem 0 .4rem;font-size:.9rem">✅ <b>Rangé dans 📝 Notes</b> (bureau) : « '+esc('📋 Compte rendu — '+I.nm)+' ». Il est mis à jour à chaque fois.</p><pre style="white-space:pre-wrap;font:inherit;font-size:.82rem;background:var(--surface2);border-radius:.6rem;padding:.45rem .6rem;margin:0 0 .3rem;max-height:40vh;overflow:auto">'+esc(t)+'</pre>',
-  btns:[{label:'📨 Envoyer au bureau (mail, SMS, WhatsApp)',value:'s',cls:'pri'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'➡️ Mettre les infos dans l’événement',value:'ev'},{label:'📝 Ouvrir dans Notes',value:'n'},{label:'Fermer',value:null}]});
+function odjCrSave(o,force){const a=amc();if(!a||!ODJ)return null;const I=odjInfo(o),id=odjCrId(),pv=a.it&&a.it[id],man=!!(pv&&!pv.del&&pv.qt==='m'&&!force);
+ const bd=man?String(pv.bd||''):odjCrText(o).split('\n').slice(1).join('\n').trim().slice(0,12000);
+ if(!man)amItemSave(Object.assign({},pv&&!pv.del?pv:{},{id,kind:'nt',x:0,z:'b',tx:('📋 Compte rendu — '+I.nm).slice(0,200),d:(pv&&pv.d)||today(),w:'',qt:'',tm:'',pl:'odj:'+ODJ.ty+':'+ODJ.id,bd,del:0}));
+ return{id,bd,t:'# Compte rendu — '+I.nm+'\n'+bd,I,man}}
+/* 2.82.247 : compte rendu présenté joliment (titres de partie en couleur, numéros, puces, notes en encadré jaune), à l’écran, dans Notes et dans le PDF */
+function odjCrHtml(bd){let h='',ul=0;const cl=()=>{if(ul){h+='</ul>';ul=0}};
+ String(bd||'').split(/\r?\n/).forEach(raw=>{const l=raw.trim();if(!l){cl();return}let m;
+  if((m=l.match(/^#{1,3}\s+(.*)$/))){cl();h+='<div style="margin:16px 0 6px;padding:8px 12px;border-radius:10px;background:linear-gradient(120deg,#7c3aed,#db2777);color:#fff;font-weight:800;font-size:15px">'+esc(m[1])+'</div>';return}
+  if((m=l.match(/^[-•*]\s+(.*)$/))){if(!ul){h+='<ul style="margin:2px 0 6px 26px;padding:0;color:#334155">';ul=1}h+='<li style="margin:2px 0">'+esc(m[1])+'</li>';return}
+  cl();
+  if(/^📝/.test(l)){h+='<div style="margin:4px 0 6px 12px;padding:6px 10px;border-left:4px solid #f59e0b;background:#fff7e6;border-radius:6px;color:#1c1917">'+esc(l)+'</div>';return}
+  if((m=l.match(/^(✅\s*)?(\d+\.\d+)\s+(.*)$/))){h+='<div style="margin:12px 0 3px;font-weight:700;font-size:15px;color:#0f172a">'+(m[1]?'✅ ':'')+'<span style="color:#7c3aed">'+esc(m[2])+'</span> '+esc(m[3])+'</div>';return}
+  if(/^(📅|📍|👥|🙅|➡️)/.test(l)){h+='<div style="font-size:13px;color:#475569;margin:2px 0">'+esc(l)+'</div>';return}
+  if(/^(Points traités|Compte rendu du)/.test(l)){h+='<div style="font-size:12px;color:#64748b;margin-top:10px">'+esc(l)+'</div>';return}
+  h+='<p style="margin:4px 0">'+esc(l)+'</p>'});cl();
+ return '<div style="background:#fff;color:#0f172a;border-radius:12px;padding:6px 14px 12px;font-size:14px;line-height:1.45">'+h+'</div>'}
+async function odjCr(auto){const o=odjGet();if(!o||!ODJ)return;const S0=odjCrSave(o);if(!S0)return;const {id,t,bd,I,man}=S0,ty=ODJ.ty,key=ODJ.id;
+ const name='Compte-rendu-'+amSlug(I.nm)+'.pdf',title='Compte rendu — '+I.nm,html=amDocFrame(title,'',odjCrHtml(bd));
+ const r=await ask({title:'📄 Compte rendu'+(auto?' prêt':''),html:'<p style="margin:.1rem 0 .4rem;font-size:.88rem">✅ <b>Rangé dans 📝 Notes</b> (bureau) : « 📋 '+esc(title)+' ».'+(man?' <b style="color:#b45309">✏️ Modifié à la main</b> : il n’est plus refait tout seul.':' Mis à jour à chaque fois.')+'</p><div style="max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin:0 0 .3rem">'+odjCrHtml(bd)+'</div>',
+  btns:[{label:'📨 Envoyer au bureau (mail, SMS, WhatsApp)',value:'s',cls:'pri'},{label:'✏️ Modifier le texte',value:'e'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'➡️ Mettre les infos dans l’événement',value:'ev'},{label:'📝 Ouvrir dans Notes',value:'n'}].concat(man?[{label:'🔄 Refaire depuis l’ordre du jour (efface tes modifications)',value:'re'}]:[]).concat([{label:'Fermer',value:null}])});
  if(!r){if(ODJ&&ODJ.ty===ty&&ODJ.id===key)odjRender(1);return}
+ if(r==='e'){const v=await amForm('✏️ Modifier le compte rendu','Écris comme tu veux. Astuces : une ligne qui commence par <b>##</b> = titre de partie, <b>-</b> = puce, <b>📝</b> = note encadrée, <b>✅ 1.2</b> = point traité.',[{k:'t',l:'Compte rendu',t:'area',v:bd}],'Enregistrer');
+  if(v&&String(v.t||'').trim()){const a=amc(),pv=a.it[id];amItemSave(Object.assign({},pv||{id,kind:'nt',x:0,z:'b',d:today(),w:'',tm:'',pl:'odj:'+ty+':'+key},{tx:('📋 '+title).slice(0,200),bd:String(v.t).trim().slice(0,12000),qt:'m',del:0}));toast('✏️ Compte rendu modifié',2000)}
+  ODJ={ty,id:key};return odjCr(auto)}
+ if(r==='re'){odjCrSave(o,true);toast('🔄 Refait depuis l’ordre du jour',2000);ODJ={ty,id:key};return odjCr(auto)}
  if(r==='n'){closeSheet();AMC_TAB='nt';AMC_NT=id;go('amicale');return}
  if(r==='ev'){ODJ={ty,id:key};return odjBulk()}
  if(r==='p')return amPdf(html,name);
  toast('Préparation du PDF…',6000);let b;try{b=await amPdfBlob(html)}catch(e){toast('Le PDF n’a pas pu être préparé : réessaie.',4000);return}
- await amSendTo(title,t.split('\n').map(l=>[l]),{mk:()=>b,name,mime:'application/pdf',lb:'PDF'})}
+ await amSendTo(title,t.split('\n').map(l=>[l.replace(/^#+\s*/,'')]),{mk:()=>b,name,mime:'application/pdf',lb:'PDF'})}
 /* 2.82.245 : ✍️ Vérifier l’orthographe de l’ordre du jour (titres, sous-titres, détails, qui présente, notes) avec LanguageTool
    (service gratuit, orthographe ET grammaire en français). Le texte est envoyé au service : on le dit avant, une seule fois.
    Chaque faute : le mot en rouge dans sa phrase, l’explication, 1 à 3 corrections à toucher, ou « Ignorer ». « ✨ Tout corriger » prend la 1re proposition. */
@@ -17870,7 +17892,7 @@ function amPersoOpen(){
  '<div style="display:flex;gap:.5rem;margin:.7rem 0;flex-wrap:wrap"><button class="btn pri" data-act="perso-save">Enregistrer</button>'+(cm?'<button class="btn" data-act="perso-reset">Remettre les mots d’origine</button>':'')+'</div>'+
  '<div class="card" style="margin:.3rem 0"><b>Exemple avec tes mots actuels</b><br><span class="mut" style="font-size:.9rem">« 12 '+esc(amW('p'))+' · 3 '+esc(amW('np'))+' · Es-tu '+esc(amW('s'))+' ? »</span></div>'+
  '','full')}
-function amVocPut(v){amItemSave({id:'cfgvoc',kind:'dl',tx:'Mots',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(v),del:0,z:'a'})}
+function amVocPut(v){const o0=amVoc();['k8n','k8d'].forEach(k=>{if(v[k]==null&&o0[k]!=null)v[k]=o0[k]});amItemSave({id:'cfgvoc',kind:'dl',tx:'Mots',x:0,d:'',w:'',qt:'',tm:'',pl:'',bd:JSON.stringify(v),del:0,z:'a'})}
 function amPersoSave(){if(!amPersoOk())return;const v={};document.querySelectorAll('[data-voc]').forEach(e=>{const t=(e.value||'').trim().slice(0,e.dataset.voc==='gl'?300:40);if(t)v[e.dataset.voc]=t});const cv=document.getElementById('perso-civ');if(cv&&cv.checked)v.civ=1;const ct={};document.querySelectorAll('[data-ct]').forEach(e=>{const t=(e.value||'').trim().slice(0,30);if(t)ct[e.dataset.ct]=t});if(Object.keys(ct).length)v.ct=ct;const ph={};document.querySelectorAll('[data-ph]').forEach(e=>{const t=(e.value||'').trim().slice(0,70);if(t)ph[e.dataset.ph]=t});if(Object.keys(ph).length)v.ph=ph;S.amVoc={};saveSet();amVocPut(v);closeSheet();toast('✅ Mots enregistrés, envoi à tout le groupe…',3000);render()}
 function amPersoReset(){if(!amPersoOk())return;S.amVoc={};saveSet();amVocPut({});closeSheet();toast('Mots d’origine remis pour tout le groupe',3000);render()}
 function amSosOpen(){
@@ -17912,7 +17934,19 @@ function amSafeCard(){
 }
 /* ---------- 🎁 Cadeaux de l'amicale : naissance, mariage, départ, décès… (types libres) ; qui l'a donné et quand ---------- */
 /* 2.82.177 : cadeau suivi dans les fiches (case k8, « reçu »), nom réglable (Coffret 8 ans cette année) ; un événement peut le cocher tout seul quand le cadeau est remis au Jour J (it.cdk) */
-const amK8L=()=>{const v=S&&S.amK8n;return (typeof v==='string'&&v.trim())?v.trim():'Coffret 8 ans'};
+/* 2.82.246 : 🎁 coffret de l’année réglé pour TOUT le groupe (réglages cfgvoc : k8n = nom, k8d = date limite).
+   Offert aux inscrits AVANT la date limite ; inscrit ce jour-là ou après (date d’adhésion, sinon bulletin, sinon paiement) = « 🚫 PAS ÉLIGIBLE », affiché en rouge. */
+const amK8L=()=>{let v=amVoc().k8n;if(!(typeof v==='string'&&v.trim()))v=S&&S.amK8n;return (typeof v==='string'&&v.trim())?v.trim():'Coffret 8 ans'};
+const amK8Lim=()=>{const d=amVoc().k8d;return /^\d{4}-\d\d-\d\d$/.test(d||'')?d:''};
+const amK8Fr=()=>{const d=amK8Lim();if(!d)return '';const t=new Date(d+'T12:00'),j=t.getDate();return (j===1?'1er':j)+' '+t.toLocaleDateString('fr-FR',{month:'long'})+(t.getFullYear()!==new Date().getFullYear()?' '+t.getFullYear():'')};
+const amK8D=m=>{const o=(m&&m.o)||{};return (m&&m.d)||o.bs||o.pd||''};
+const amK8No=m=>{const L=amK8Lim();if(!L||!m||m.kind!=='am')return false;const o=m.o||{};if(o.st||o.k8==='1')return false;const d=amK8D(m);return !!d&&d>=L};
+const amK8Msg=m=>'🚫 PAS ÉLIGIBLE au '+amK8L()+' : inscrit le '+new Date(amK8D(m)+'T12:00').toLocaleDateString('fr-FR')+' (à partir du '+amK8Fr()+', pas de cadeau)';
+async function amK8Cfg(){const a=amc();if(!a||!a.kB)return;
+ const v=await amForm('🎁 Cadeau de l’année','Réglé pour tout le bureau. Les '+amW('p')+' inscrits à partir de la date limite sont marqués <b>🚫 pas éligibles</b> en rouge (liste et fiche). Laisse la date vide s’il n’y a pas de limite. L’an prochain, change simplement la date.',[{k:'n',l:'Nom du cadeau',v:amK8L(),ph:'Coffret cadeau'},{k:'d',l:'Offert aux inscrits avant le',t:'date',v:amK8Lim()}],'Enregistrer');
+ if(!v)return;const n=String(v.n||'').trim().slice(0,40),d=/^\d{4}-\d\d-\d\d$/.test(v.d||'')?v.d:'';
+ if(n){S.amK8n=n;saveSet()}amVocPut(Object.assign({},amVoc(),{k8n:n||amK8L(),k8d:d}));
+ const nb=amItems('am').filter(amK8No).length;toast(d?'🎁 '+(n||amK8L())+' : offert aux inscrits avant le '+amK8Fr()+(nb?' · '+nb+' pas éligible'+(nb>1?'s':''):''):'🎁 Pas de date limite',4000);render()}
 function amK8Sync(eid){const a=amc(),it=a&&a.it&&a.it[eid];if(!it||!it.cdk||!a.kB)return;const ty=amTy(it).find(t=>t.k==='cd');if(!ty)return;let n=0;
  (it.pt||[]).forEach(p=>{const m=amPtMember(p);if(!m)return;const o=m.o||{},got=((p.gv||{}).cd||0)>0;
   if(got&&o.k8!=='1'){amItemSave(Object.assign({},m,{o:Object.assign({},o,{k8:'1',k8e:eid})}));n++}
@@ -17928,7 +17962,7 @@ const amFr=d=>d?new Date(d+'T12:00').toLocaleDateString('fr-FR'):'';
 function amCdRow(c){return '<div class="am-it'+(c.x?' done':'')+'"><button class="am-ck" data-act="cd-tog" data-id="'+esc(c.id)+'" aria-label="Donné">'+(c.x?'✓':'')+'</button><button class="am-itx" data-act="cd-ed" data-id="'+esc(c.id)+'"><b>🎁 '+esc(c.tx)+' · '+esc(amCdWho(c))+'</b><small>'+[c.d?'📅 '+esc(amFr(c.d)):'',c.x?'✅ donné par <span class="rp-n">'+esc(c.pl||c.by||'')+'</span>'+(c.qt?' le '+esc(amFr(c.qt)):''):'⏳ à donner',c.bd?esc(c.bd):''].filter(Boolean).join(' · ')+'</small></button></div>'}
 function amCdCard(){
  const L=amCdAll(),td=L.filter(c=>!c.x),T=[...new Set(L.map(c=>c.tx))],F=AMC_CDF?L.filter(c=>c.tx===AMC_CDF):L;
- return '<div class="card"><h3>🎁 Cadeaux de l’amicale</h3><p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Naissance, mariage, départ, décès d’un proche… Celui qui remet le cadeau coche : tout le bureau voit <b>qui a fait quoi</b>.'+(L.length?' <b>'+td.length+'</b> à donner · <b>'+(L.length-td.length)+'</b> donné'+(L.length-td.length>1?'s':'')+'.':'')+'</p>'+
+ return '<div class="card"><h3>🎁 Cadeaux de l’amicale</h3>'+(()=>{const L0=amK8Lim(),nb=L0?amItems('am').filter(amK8No).length:0;return '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.2rem 0 .5rem;padding:.45rem .6rem;border-radius:.7rem;background:rgba(124,58,237,.08)"><span style="flex:1;min-width:12rem;font-size:.9rem">🎁 <b>'+esc(amK8L())+'</b> : '+(L0?'offert aux inscrits <b>avant le '+esc(amK8Fr())+'</b>'+(nb?' · <b style="color:#b91c1c">🚫 '+nb+' pas éligible'+(nb>1?'s':'')+'</b>':''):'pas de date limite')+'</span><button class="chip" data-act="k8-cfg">⚙️ Régler</button></div>'})()+'<p class="mut" style="margin:.2rem 0 .4rem;font-size:.86rem">Naissance, mariage, départ, décès d’un proche… Celui qui remet le cadeau coche : tout le bureau voit <b>qui a fait quoi</b>.'+(L.length?' <b>'+td.length+'</b> à donner · <b>'+(L.length-td.length)+'</b> donné'+(L.length-td.length>1?'s':'')+'.':'')+'</p>'+
   (T.length>1?'<div class="chips" style="margin:0 0 .3rem"><button class="chip'+(AMC_CDF?'':' on')+'" data-act="cd-f" data-v="">Tous</button>'+T.map(t=>'<button class="chip'+(AMC_CDF===t?' on':'')+'" data-act="cd-f" data-v="'+esc(t)+'">'+esc(t.split(' – ')[0])+' · '+L.filter(c=>c.tx===t).length+'</button>').join('')+'</div>':'')+
   F.slice(0,60).map(amCdRow).join('')+'<div class="btns" style="margin-top:.4rem"><button class="btn grow pri" data-act="cd-new">＋ Nouveau cadeau</button>'+(L.length?'<button class="btn grow" data-act="cd-exp">📤 Exporter</button>':'')+'</div></div>';
 }
@@ -18275,7 +18309,7 @@ function amAmRows(){
  /* 2.82.140 : longues listes affichées par paquets de 60 (les anciens iPad n’arrivaient plus à dessiner 200 fiches : zone vide) */
  {const lk=AM_ST+'|'+AM_FLT+'|'+q;if(lk!==AM_LK){AM_LK=lk;AM_LIM=60}}
  const nAll=L.length,more=nAll>AM_LIM&&!AM_SEL?nAll-AM_LIM:0;if(more)L=L.slice(0,AM_LIM);
- return L.length?L.map(m=>{const o=m.o||{},sel=AM_SEL&&AM_SEL.has(m.id);return '<button class="am-it amx-row'+(sel?' am-sel':'')+'" data-act="'+(AM_SEL?'am-seltog':'am-amed')+'" data-id="'+esc(m.id)+'">'+(AM_SEL?'<span class="am-ck am-sck">'+(sel?'✓':'')+'</span>':'')+(AM_SEL?'':'<span class="amx-av" style="background:'+amAm2Col(m.tx)+'">'+esc(amAm2Ini(m.tx))+'</span>')+'<span class="am-itx"><b>'+esc(m.tx)+(o.st?'':o.cf==='1'?' <i class="amx-p ok">✓ à jour</i>':' <i class="amx-p ko">à payer</i>')+'</b><small>'+[o.gr?esc(o.gr):'',((amCT().find(x=>x[0]===o.ct)||[])[1])||'',o.st?'👤 '+amW('ns'):o.cf==='1'?'💶 cotisation ✓'+(o.pa?' '+esc(amEur(o.pa)):'')+(o.pm?' ('+amPmLb(o.pm)+')':''):'⚠️ cotisation à payer',o.pc==='1'?'🧵 patch ✓':'',o.bg?'🪪 '+esc(o.bg):'',o.tl?'📞 '+esc(o.tl):'',o.ml?'✉️ '+esc(o.ml):'',o.k8==='1'?'🎁 '+esc(amK8L().toLowerCase()):'',(()=>{const L=amCdOf(m.id);if(!L.length)return '';const td=L.filter(c=>!c.x).length;return '🎁 '+L.length+' cadeau'+(L.length>1?'x':'')+(td?' ('+td+' à donner)':'')})(),o.cf==='1'&&o.pd?'payée le '+esc(new Date(o.pd+'T12:00').toLocaleDateString('fr-FR'))+(o.pb?' par '+esc(o.pb):''):'',amBsLbl(o),amRgClean(o.rg)?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small>'+((o.cb||o.bb)?'<small class="am-by">'+[o.cb?'✍️ inscrit par '+esc(o.cb):'',o.bb&&o.bb!==o.cb?'bulletin signé devant '+esc(o.bb):''].filter(Boolean).join(' · ')+'</small>':'')+(o.nr?'<small class="am-nr">📌 '+esc(o.nr)+'</small>':'')+'</span>'+(AM_SEL?'':amAmSide(m))+'</button>'}).join('')+(more?'<button class="btn blk am-more" data-act="am-lim">⬇ Afficher la suite ('+Math.min(more,60)+' sur '+more+')</button>':''):'<p class="empty">'+(amItems('am').length?'Aucun résultat.':'Aucun '+amW('s')+' pour l’instant. Ajoute-les un par un ou importe ta liste.')+'</p>';
+ return L.length?L.map(m=>{const o=m.o||{},sel=AM_SEL&&AM_SEL.has(m.id);return '<button class="am-it amx-row'+(sel?' am-sel':'')+'" data-act="'+(AM_SEL?'am-seltog':'am-amed')+'" data-id="'+esc(m.id)+'">'+(AM_SEL?'<span class="am-ck am-sck">'+(sel?'✓':'')+'</span>':'')+(AM_SEL?'':'<span class="amx-av" style="background:'+amAm2Col(m.tx)+'">'+esc(amAm2Ini(m.tx))+'</span>')+'<span class="am-itx"><b>'+esc(m.tx)+(o.st?'':o.cf==='1'?' <i class="amx-p ok">✓ à jour</i>':' <i class="amx-p ko">à payer</i>')+'</b><small>'+[o.gr?esc(o.gr):'',((amCT().find(x=>x[0]===o.ct)||[])[1])||'',o.st?'👤 '+amW('ns'):o.cf==='1'?'💶 cotisation ✓'+(o.pa?' '+esc(amEur(o.pa)):'')+(o.pm?' ('+amPmLb(o.pm)+')':''):'⚠️ cotisation à payer',o.pc==='1'?'🧵 patch ✓':'',o.bg?'🪪 '+esc(o.bg):'',o.tl?'📞 '+esc(o.tl):'',o.ml?'✉️ '+esc(o.ml):'',o.k8==='1'?'🎁 '+esc(amK8L().toLowerCase()):'',(()=>{const L=amCdOf(m.id);if(!L.length)return '';const td=L.filter(c=>!c.x).length;return '🎁 '+L.length+' cadeau'+(L.length>1?'x':'')+(td?' ('+td+' à donner)':'')})(),o.cf==='1'&&o.pd?'payée le '+esc(new Date(o.pd+'T12:00').toLocaleDateString('fr-FR'))+(o.pb?' par '+esc(o.pb):''):'',amBsLbl(o),amRgClean(o.rg)?'🍽 '+esc(o.rg):''].filter(Boolean).join(' · ')+'</small>'+((o.cb||o.bb)?'<small class="am-by">'+[o.cb?'✍️ inscrit par '+esc(o.cb):'',o.bb&&o.bb!==o.cb?'bulletin signé devant '+esc(o.bb):''].filter(Boolean).join(' · ')+'</small>':'')+(o.nr?'<small class="am-nr">📌 '+esc(o.nr)+'</small>':'')+(amK8No(m)?'<small class="am-nr" style="font-size:.9rem">'+esc(amK8Msg(m))+'</small>':'')+'</span>'+(AM_SEL?'':amAmSide(m))+'</button>'}).join('')+(more?'<button class="btn blk am-more" data-act="am-lim">⬇ Afficher la suite ('+Math.min(more,60)+' sur '+more+')</button>':''):'<p class="empty">'+(amItems('am').length?'Aucun résultat.':'Aucun '+amW('s')+' pour l’instant. Ajoute-les un par un ou importe ta liste.')+'</p>';
 }
 function amAmHTML(){
  const L=amAms(),n=L.length,NN=amNons().length,cot=L.filter(m=>(m.o||{}).cf==='1'),tot=cot.reduce((s,m)=>s+(+(m.o||{}).pa||0),0);
@@ -18326,8 +18360,8 @@ async function amAmSaveFrom(ex,v,sac){
 }
 async function amAmEdit(id){
  const a=amc();if(!a||!a.kB)return;const m=id&&a.it[id],o=(m&&m.o)||{};
- const F=[{k:'tx',l:'Nom et prénom',v:m?m.tx:'',ph:'DUPONT Jean'},{k:'st',l:'Statut',t:'select',v:m?(o.st||''):(AM_ST==='n'?'n':''),o:[['','🎖 '+amWC('s')],['n','👤 '+amWC('ns')+' (on garde ses infos)']]},...(amGrOn()?[{k:'gr',l:amGW(),t:'select',v:o.gr||'',o:[['','—']].concat(amGrL().map(g=>[g,g]))}]:[]),{k:'ct',l:'Catégorie',t:'select',v:o.ct||'actif',o:amCT()},{k:'d',l:'Date d’adhésion',t:'date',v:m?m.d:''},
-  {k:'cf',l:'Cotisation',t:'select',v:o.cf||'0',o:[['0','Non payée'],['1','Payée']]},{k:'pm',l:'Payée par',t:'select',v:o.pm||'',o:AM_PM},{k:'pa',l:'Prix payé (€)',v:o.pa||'',ph:'20'},{k:'pc',l:'Patch reçu',t:'select',v:o.pc||'0',o:[['0','Non'],['1','Oui']]},{k:'pd',l:'Payée le',t:'date',v:o.pd||''},{k:'pb',l:'Encaissé par',v:o.pb||'',ph:'Rempli tout seul quand tu coches « Payée »'},{k:'rg',l:'Régime particulier',v:o.rg||'',ph:'Halal, végétarien, allergie aux arachides…'},{k:'sv',l:'Service',v:o.sv||''},{k:'tl',l:'📞 Téléphone',v:o.tl||'',ph:'06 12 34 56 78',t:'tel'},{k:'ml',l:'✉️ Mail',v:o.ml||'',ph:'prenom.nom@exemple.fr',t:'email'},{k:'bg',l:'N° de badge',v:o.bg||'',ph:'24612'},{k:'k8',l:'🎁 '+amK8L()+' reçu ?',t:'select',v:o.k8==='1'?'1':'0',o:[['0','Non, pas encore'],['1','Oui, reçu']]}];
+ const F=[{k:'tx',l:'Nom et prénom',v:m?m.tx:'',ph:'DUPONT Jean'},{k:'st',l:'Statut',t:'select',v:m?(o.st||''):(AM_ST==='n'?'n':''),o:[['','🎖 '+amWC('s')],['n','👤 '+amWC('ns')+' (on garde ses infos)']]},...(amGrOn()?[{k:'gr',l:amGW(),t:'select',v:o.gr||'',o:[['','—']].concat(amGrL().map(g=>[g,g]))}]:[]),{k:'ct',l:'Catégorie',t:'select',v:o.ct||'actif',o:amCT()},{k:'d',l:'Date d’adhésion',t:'date',v:m?m.d:today()},
+  {k:'cf',l:'Cotisation',t:'select',v:o.cf||'0',o:[['0','Non payée'],['1','Payée']]},{k:'pm',l:'Payée par',t:'select',v:o.pm||'',o:AM_PM},{k:'pa',l:'Prix payé (€)',v:o.pa||'',ph:'20'},{k:'pc',l:'Patch reçu',t:'select',v:o.pc||'0',o:[['0','Non'],['1','Oui']]},{k:'pd',l:'Payée le',t:'date',v:o.pd||''},{k:'pb',l:'Encaissé par',v:o.pb||'',ph:'Rempli tout seul quand tu coches « Payée »'},{k:'rg',l:'Régime particulier',v:o.rg||'',ph:'Halal, végétarien, allergie aux arachides…'},{k:'sv',l:'Service',v:o.sv||''},{k:'tl',l:'📞 Téléphone',v:o.tl||'',ph:'06 12 34 56 78',t:'tel'},{k:'ml',l:'✉️ Mail',v:o.ml||'',ph:'prenom.nom@exemple.fr',t:'email'},{k:'bg',l:'N° de badge',v:o.bg||'',ph:'24612'},{k:'k8',l:(amK8No(m)?amK8Msg(m)+' — ':'🎁 ')+amK8L()+' reçu ?',t:'select',v:o.k8==='1'?'1':'0',o:[['0','Non, pas encore'],['1','Oui, reçu']]}];
  F.splice(2,0,{k:'au',l:'⏳ Attend la mise à jour du fichier Excel',t:'select',v:o.au==='1'?'1':'0',o:[['0','Non'],['1','Oui : dit être '+amW('s')+', à vérifier au prochain fichier']]},{k:'wa',l:'📱 Groupe WhatsApp',t:'select',v:o.wa||'',o:Object.entries(AM_WA).map(([k,l])=>[k,l])});
  const sac=amSaCur(),sgc=m&&amSg()[m.id],appOk=!!(sgc&&((sgc.f&&sgc.f.sa)||amSaOf(sgc.at))===sac&&o.bp!=='1');
  if(!appOk)F.push({k:'bp',l:'Bulletin '+sac+' signé sur papier',t:'select',v:(o.bp==='1'&&amBsSa(o)===sac)?'1':'0',o:[['0','Non'],['1','Oui (déjà rempli à la main)']]});
