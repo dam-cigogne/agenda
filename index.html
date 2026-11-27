@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.250';
+const APP_VERSION='2.82.252';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.252',d:'27/11/2026',items:['🐞 <b>Programme vide sur un autre appareil</b> : une tâche ou un créneau retiré puis remis (annuler un envoi, renvoyer depuis l’ordre du jour, remettre depuis l’historique) pouvait être jeté par les autres appareils à la synchronisation, parce qu’ils se souvenaient de sa suppression. Ce qui est remis compte maintenant comme un ajout récent : il arrive partout. Et, une seule fois, l’appareil de l’administrateur renvoie tout seul (sans notification) les créneaux des événements à venir, pour réparer les téléphones qui les avaient perdus.']},
+{v:'2.82.251',d:'27/11/2026',items:['➡️ Envoi vers l’événement : pour le <b>programme</b>, l’heure est reconnue au début ou à la fin de la ligne (« 18h Château gonflable » ou « Château gonflable - 18 h »). Une ligne que tu mets toi-même dans la case Programme sans heure y va quand même (sans heure), au lieu d’être oubliée.']},
 {v:'2.82.250',d:'27/11/2026',items:['➡️ <b>Envoi vers l’événement refait</b>, avec le même canevas que l’événement : chaque <b>grande partie</b> de l’ordre du jour va dans la <b>partie</b> des tâches qui porte le même nom (Veille, Jour J…, créée si besoin) ; chaque <b>point</b> devient <b>une tâche avec ses lignes en sous-tâches</b> (comme « Charger le camion ») ; seules les lignes avec une <b>heure</b> (« 19h Apéritif ») vont au <b>programme</b>, au bon jour. Rien n’est mis en double si on renvoie. Nouveau : <b>« ↩ Annuler le dernier envoi »</b> et <b>« 🧹 Nettoyer l’événement »</b> pour retirer ce que l’ancienne méthode avait mis en vrac.']},
 {v:'2.82.249',d:'27/11/2026',items:['🟢 Compte rendu : nouveau bouton <b>« Envoyer le PDF sur WhatsApp (groupe…) »</b>. Le PDF du compte rendu est partagé tel quel : sur iPhone ou Mac, la feuille de partage s’ouvre, choisis WhatsApp puis le groupe des amicalistes. Si le partage n’est pas possible, le PDF est enregistré et l’appli explique comment le joindre dans WhatsApp (📎 › Document).']},
 {v:'2.82.248',d:'27/11/2026',items:['📄 <b>Compte rendu et ordre du jour liés</b> : ce que tu corriges avec « ✏️ Modifier le texte » est aussi changé dans l’ordre du jour (titres des parties et des points, qui présente, détails, notes, ✅ traités, points ajoutés ou retirés). En cas d’erreur, « ↩ Revenir à l’ordre du jour d’avant » en haut de l’ordre du jour.']},
@@ -14167,7 +14169,7 @@ function amAkTx(c){if(!c||!c.w||!ckWho(c).some(n=>amList().some(m=>m.n===n)))ret
 const amRiH=it=>(it&&(((it.kind==='rn'||it.kind==='rp'||it.kind==='rv'||it.kind==='rx')&&/^r[np]i$/.test(it.nh||''))||((it.kind==='tk'||it.kind==='ee')&&it.nh==='tka'))&&it.pto)?it.nh:'';
 async function amFlush(){
  if(AM_HYD_P){try{await AM_HYD_P}catch(e){}}
- try{amCfgMig()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}try{amTplMig()}catch(e){}
+ try{amCfgMig()}catch(e){}try{amPgFix252()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}try{amTplMig()}catch(e){}
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;
  if(amBlocked())return;
  /* garde-fou : on relit le serveur juste avant d’envoyer ; une donnée plus récente sur le serveur remplace la locale (et n’est donc plus renvoyée) */
@@ -14541,6 +14543,9 @@ const amKc=c=>String(c&&c.t||'').trim().toLowerCase(),amKp=c=>String(c&&c.tm||''
 function amCkCl(c){const S2=v=>String(v||''),ar=v=>Array.isArray(v)?v:[];return {t:S2(c&&c.t).slice(0,200),ok:c&&c.ok?1:0,w:S2(c&&c.w).slice(0,30),ws:ar(c&&c.ws).slice(0,12).map(x=>S2(x).slice(0,30)).filter(Boolean),ak:S2(c&&c.ak).slice(0,60),ob:S2(c&&c.ob).slice(0,30),ot:Math.max(0,+(c&&c.ot)||0),u:Math.max(0,+(c&&c.u)||0),ts:Math.max(0,+(c&&c.ts)||0),s:S2(c&&c.s).slice(0,12),d:S2(c&&c.d).slice(0,12),x:S2(c&&c.x).slice(0,400),sb:ar(c&&c.sb).slice(0,12).map(q=>({t:S2(q&&q.t).slice(0,100),ok:q&&q.ok?1:0,w:S2(q&&q.w).slice(0,30),ob:S2(q&&q.ob).slice(0,30),ot:Math.max(0,+(q&&q.ot)||0)})).filter(q=>q.t)}}
 function amPgCl(c){const S2=v=>String(v||'');return Object.assign({tm:S2(c&&c.tm).slice(0,5),t:S2(c&&c.t).slice(0,100),u:Math.max(0,+(c&&c.u)||0),ts:Math.max(0,+(c&&c.ts)||0)},c&&c.j!=null&&c.j!==''?{j:S2(c.j).slice(0,4)}:{})}
 /* l’appareil local est plus récent que le message reçu : on y reprend quand même les tâches / lignes que l’autre a modifiées plus récemment */
+/* 2.82.252 : réparation automatique, une seule fois, sur l’appareil de l’administrateur : les créneaux des événements à venir sont renvoyés avec une date neuve, en silence (sans notification), pour que les autres appareils qui les avaient jetés les reprennent */
+function amPgFix252(){if(S.pgFix252)return;const a=amc();if(!a||!a.kB||!a.apriv||demo)return;S.pgFix252=1;saveSet();const t0=today(),now=Date.now();
+ Object.values(a.it||{}).forEach(i=>{if(!i||i.kind!=='ee'||i.del||!(i.pg||[]).length||(i.d&&i.d<t0))return;const pg=i.pg.map(c=>Object.assign({},c,{u:now})),K=new Set(pg.map(c=>String(c.tm||'')+'|'+String(c.t||'').trim().toLowerCase()));i.pg=pg;i.pgx=(i.pgx||[]).filter(z=>z&&!K.has(z.k));i.at=now;i.dirty=1;i.mq=1});amSave()}
 function amCkPull(o,P){let ch=0;const dead=new Map((o.ckx||[]).concat(o.pgx||[]).map(z=>[z.k,z.t]));
  [['ck',amKc,amCkCl,150],['pg',amKp,amPgCl,40]].forEach(([f,kf,cl,mx])=>{o[f]=Array.isArray(o[f])?o[f]:[];(Array.isArray(P[f])?P[f]:[]).slice(0,mx).forEach(c=>{if(!c||!c.t)return;const k=kf(c),i=o[f].findIndex(x=>kf(x)===k),n=cl(c);
   if(i<0){const d=dead.get(k);if(!(d&&d>(+n.u||0))&&o[f].length<mx){o[f].push(n);ch=1}}else if(amTsOf(n)>amTsOf(o[f][i])){o[f][i]=n;ch=1}})});return ch}
@@ -14555,7 +14560,7 @@ function amEeMut(fn){
  if(!o._tka){let sc=null,sn=null;o.ck.forEach((c,i)=>{const p0=old.ck.length===o.ck.length?old.ck[i]:old.ck.find(x=>x.t===c.t);(c.sb||[]).forEach(q=>{const q0=p0&&(p0.sb||[]).find(z=>z.t===q.t);const nn=ckWho(q).filter(x=>{const m2=amList().find(y=>y.n===x);return m2&&!m2.self&&m2.id!==a.me.id&&!(q0&&ckWho(q0).includes(x))});if(nn.length){sc=q;sn=nn}})});
   const ms=(sn||[]).map(n=>amList().find(x=>x.n===n)).filter(m=>m&&!m.self&&m.id!==a.me.id);if(ms.length){o.nh='tka';o.ndt=amNtCf('tk_p','t’a confié la petite tâche « '+String(sc.t).slice(0,26)+' » ('+String(o.tx||'').slice(0,16)+')',String(sc.t).slice(0,26),String(o.tx||'').slice(0,16));o.pto=ms.map(x=>x.id).join(',');o._tka=1}}
  {const K=c=>String(c&&c.t||'').trim().toLowerCase(),KP=c=>String(c&&c.tm||'')+'|'+String(c&&c.t||'').trim().toLowerCase(),n2=Date.now();
-  const upd=(oa,na,kf,fld)=>{const ok0=new Set(oa.map(kf)),nk=new Set(na.map(kf));na.forEach(c=>{if(!ok0.has(kf(c))&&!c.u)c.u=n2});const x=(old[fld]||[]).filter(z=>z&&z.k&&!nk.has(z.k)&&n2-z.t<30*864e5),have=new Set(x.map(z=>z.k));oa.forEach(c=>{const k=kf(c);if(k&&!nk.has(k)&&!have.has(k)){x.push({k,t:n2});have.add(k)}});o[fld]=x.slice(-80)};
+  const upd=(oa,na,kf,fld)=>{const ok0=new Set(oa.map(kf)),nk=new Set(na.map(kf));na.forEach(c=>{if(!ok0.has(kf(c)))c.u=n2});const x=(old[fld]||[]).filter(z=>z&&z.k&&!nk.has(z.k)&&n2-z.t<30*864e5),have=new Set(x.map(z=>z.k));oa.forEach(c=>{const k=kf(c);if(k&&!nk.has(k)&&!have.has(k)){x.push({k,t:n2});have.add(k)}});o[fld]=x.slice(-80)};
   upd(old.ck,o.ck,K,'ckx');upd(old.pg,o.pg,KP,'pgx');
    /* 2.82.220 : journal des éléments retirés (tâches, programme, inscrits) pour pouvoir les remettre depuis « 🕘 Historique » */
    {const R=(o.rm||[]).filter(z=>z&&z.o&&n2-z.t<30*864e5);const lg=(oa,na,kf,k)=>{if(oa.length<=na.length)return;const nk=new Set(na.map(kf));oa.forEach(c=>{if(!nk.has(kf(c)))R.push({t:n2,by:me,k,o:JSON.parse(JSON.stringify(c))})})};
@@ -16982,18 +16987,20 @@ const odjDayOf=t=>{const n=odjNk(t);return /\bveille\b/.test(n)?'-1':/\blendemai
 function odjSecFor(it,gt){const C=it.cs||[],n=odjNk(gt);if(!n)return '';let c=C.find(x=>odjNk(x.t)===n)||C.find(x=>{const m=odjNk(x.t);return m&&(n.includes(m)||m.includes(n))});
  if(!c){const d=odjDayOf(gt);if(d)c=C.find(x=>odjDayOf(x.t)===d)}return c?c.id:'+'+String(gt).replace(/^[^\wÀ-ÿ]+/,'').trim().slice(0,60)}
 const odjCkLine=l=>{const m=String(l).match(/^(.*?)\s+[-–—]\s+([^-–—]{1,30})$/);if(!m)return {t:String(l).slice(0,100),ok:0,w:''};const w0=m[2].trim(),nw=norm(w0),P=amList().filter(p=>p.n&&(norm(p.n)===nw||norm(p.sn||'')===nw||norm(p.n).split(/\s+/).includes(nw)));return {t:m[1].trim().slice(0,100),ok:0,w:P.length===1?P[0].n:w0}};
+/* 2.82.251 : l’heure est reconnue au début OU à la fin de la ligne (« 18h Château gonflable » ou « Château gonflable - 18 h ») ; une ligne mise dans la case Programme sans heure y va quand même (sans heure) */
+const odjPgAny=l=>{const z=amPgTime(l);if(z.tm)return z;const m=String(l).match(/^(.*?)[\s\-–—:,]*(?:à\s*)?(\d{1,2})\s*[hH]\s*(\d{2})?\s*$/);if(m&&+m[2]<24&&(m[3]==null||+m[3]<60)&&m[1].trim())return {tm:String(m[2]).padStart(2,'0')+':'+(m[3]||'00'),t:m[1].replace(/[\s\-–—:,]+$/,'').trim()};return {tm:'',t:String(l).trim()}};
 let ODJ_BKO='';
 function odjBulk(only){const o=odjGet();if(!o)return;const E=odjEvList(o);if(!E.L.length){toast('Aucun événement à venir : crée d’abord l’événement dans Fêtes',5000);return}
  ODJ_BKO=only||'';const eid=(document.getElementById('obk-e')||{}).value||E.pre||E.L[0].id;odjBulkDraw(eid)}
 function odjBulkDraw(eid){const o=odjGet();if(!o)return;const E=odjEvList(o),it=amc().it[eid];if(!it)return;const G=odjGroups(o.pts),DJ=[['-1','🌙 La veille'],['0','🎉 Le jour J'],['1','🌅 Le lendemain'],['-7','Une semaine avant'],['-3','3 jours avant'],['','Pas de jour']];
  const C=it.cs||[];let n=0;
- const rows=G.map((g,k)=>{const gt=g.h?g.h.t:'',P=g.L.map((x,j)=>{if(ODJ_BKO&&x.i!==ODJ_BKO)return '';const L=odjPtLines(x),TM=[],TK=[];L.forEach(l=>{const z=amPgTime(l);(z.tm&&z.t?TM:TK).push(l)});n++;
+ const rows=G.map((g,k)=>{const gt=g.h?g.h.t:'',P=g.L.map((x,j)=>{if(ODJ_BKO&&x.i!==ODJ_BKO)return '';const L=odjPtLines(x),TM=[],TK=[];L.forEach(l=>{const z=odjPgAny(l);(z.tm&&z.t?TM:TK).push(l)});n++;
    const sec=odjSecFor(it,gt),day=odjDayOf(x.t)||odjDayOf(gt)||'0',on=ODJ_BKO?true:(!x.ev&&L.length>0);
    const SO=[['','📌 Autres tâches (sans partie)']].concat(C.map(c=>[c.id,'📂 '+c.t])).concat(sec&&sec[0]==='+'?[[sec,'➕ Nouvelle partie « '+sec.slice(1)+' »']]:[]);
    return '<div class="obk-c'+(on?' on':'')+'" data-bk="'+esc(x.i)+'"><label class="obk-h"><input type="checkbox" data-bkon'+(on?' checked':'')+'><span><i>'+(k+1)+'.'+(j+1)+'</i> '+esc(x.t)+(x.ev?'<small>✅ déjà envoyé : '+esc(x.ev)+'</small>':'')+'</span></label>'+
     '<div style="margin:.35rem 0 .15rem;font-size:.82rem;font-weight:700">☑️ Une tâche « '+esc(String(x.t).slice(0,60))+' » dans</div><select class="in" data-bks style="margin-bottom:.3rem">'+SO.map(([v,l])=>'<option value="'+esc(v)+'"'+(v===sec?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>'+
     '<div style="font-size:.8rem;color:var(--muted,#64748b)">Ses sous-tâches (une par ligne, « - Prénom » à la fin pour quelqu’un) :</div><textarea data-bkk rows="'+Math.min(8,Math.max(2,TK.length))+'">'+esc(TK.join('\n'))+'</textarea>'+
-    '<div style="margin:.4rem 0 .15rem;font-size:.82rem;font-weight:700;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">🕒 Au programme (lignes avec une heure) <select data-bkj>'+DJ.map(([v,l])=>'<option value="'+v+'"'+(v===day?' selected':'')+'>'+l+'</option>').join('')+'</select></div><textarea data-bkp rows="'+Math.min(6,Math.max(1,TM.length))+'" placeholder="19h Apéritif">'+esc(TM.join('\n'))+'</textarea></div>'}).join('');
+    '<div style="margin:.4rem 0 .15rem;font-size:.82rem;font-weight:700;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">🕒 Au programme, une ligne par créneau (« 18h Château gonflable ») <select data-bkj>'+DJ.map(([v,l])=>'<option value="'+v+'"'+(v===day?' selected':'')+'>'+l+'</option>').join('')+'</select></div><textarea data-bkp rows="'+Math.min(6,Math.max(1,TM.length))+'" placeholder="19h Apéritif">'+esc(TM.join('\n'))+'</textarea></div>'}).join('');
   return P?(gt&&!ODJ_BKO?'<div style="margin:.8rem 0 .35rem;padding:.45rem .7rem;border-radius:10px;background:linear-gradient(120deg,#7c3aed,#db2777);color:#fff;font-weight:800">'+(k+1)+'. '+esc(gt)+'</div>':'')+P:''}).join('');
  const U=S.odjEvu,sent=o.pts.some(x=>x.ev);
  openSheet('<div class="obk"><div class="obk-hd"><div class="ew-x"><b>➡️ '+(ODJ_BKO?'Envoyer ce point':'Tout envoyer')+' vers l’événement</b><button class="x" data-act="odj-bkx" aria-label="Fermer">'+ic('x')+'</button></div><p>Chaque point devient <b>une tâche avec ses sous-tâches</b>, rangée dans la <b>partie</b> de l’événement qui porte le même nom (créée si besoin). Les lignes avec une <b>heure</b> (<code>19h Apéritif</code>) vont au <b>programme</b>, au bon jour. Si tu renvoies, rien n’est mis en double.</p>'+
@@ -17016,7 +17023,7 @@ function odjBulkGo(){const root=document.querySelector('.obk');if(!root)return;c
    const sb=x.K.map(odjCkLine).filter(q=>q.t);let c=oo.ck.find(q=>odjNk(q.t)===odjNk(p.t));
    if(c){c.sb=c.sb||[];sb.forEach(q=>{if(!c.sb.some(z=>odjNk(z.t)===odjNk(q.t))&&c.sb.length<40){c.sb.push(q);nS++}});if(sid&&!c.s)c.s=sid}
    else if(oo.ck.length<150&&(sb.length||!x.P.length)){c={t:String(p.t).slice(0,200),ok:0,w:''};if(sid)c.s=sid;if(sb.length)c.sb=sb;oo.ck.push(c);nT++;nS+=sb.length}
-   let np=0;x.P.map(amPgTime).filter(z=>z.tm&&z.t).forEach(z=>{if(oo.pg.length>=120)return;if(oo.pg.some(q=>q.tm===z.tm&&odjNk(q.t)===odjNk(z.t)&&String(q.j==null?'':q.j)===x.j))return;const q={tm:z.tm,t:z.t.slice(0,200)};if(x.j!=='')q.j=x.j;oo.pg.push(q);np++});nP+=np;
+   let np=0;x.P.map(odjPgAny).filter(z=>z.t).forEach(z=>{if(oo.pg.length>=120)return;if(oo.pg.some(q=>q.tm===z.tm&&odjNk(q.t)===odjNk(z.t)&&String(q.j==null?'':q.j)===x.j))return;const q={tm:z.tm,t:z.t.slice(0,200)};if(x.j!=='')q.j=x.j;oo.pg.push(q);np++});nP+=np;
    cnt[x.i]='☑️ '+(sb.length?sb.length+' sous-tâche'+(sb.length>1?'s':''):'1 tâche')+(np?' · 🕒 '+np:'')})})}finally{AMC_EE=keep}
  o.pts.forEach(y=>{if(cnt[y.i])y.ev=cnt[y.i]+' → '+String(it.tx).slice(0,40)});odjSave(o);
  const jj=SL.find(x=>x.P.length);if(jj)AM_PGJ_LAST=jj.j;
