@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.248';
+const APP_VERSION='2.82.250';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.250',d:'27/11/2026',items:['➡️ <b>Envoi vers l’événement refait</b>, avec le même canevas que l’événement : chaque <b>grande partie</b> de l’ordre du jour va dans la <b>partie</b> des tâches qui porte le même nom (Veille, Jour J…, créée si besoin) ; chaque <b>point</b> devient <b>une tâche avec ses lignes en sous-tâches</b> (comme « Charger le camion ») ; seules les lignes avec une <b>heure</b> (« 19h Apéritif ») vont au <b>programme</b>, au bon jour. Rien n’est mis en double si on renvoie. Nouveau : <b>« ↩ Annuler le dernier envoi »</b> et <b>« 🧹 Nettoyer l’événement »</b> pour retirer ce que l’ancienne méthode avait mis en vrac.']},
+{v:'2.82.249',d:'27/11/2026',items:['🟢 Compte rendu : nouveau bouton <b>« Envoyer le PDF sur WhatsApp (groupe…) »</b>. Le PDF du compte rendu est partagé tel quel : sur iPhone ou Mac, la feuille de partage s’ouvre, choisis WhatsApp puis le groupe des amicalistes. Si le partage n’est pas possible, le PDF est enregistré et l’appli explique comment le joindre dans WhatsApp (📎 › Document).']},
 {v:'2.82.248',d:'27/11/2026',items:['📄 <b>Compte rendu et ordre du jour liés</b> : ce que tu corriges avec « ✏️ Modifier le texte » est aussi changé dans l’ordre du jour (titres des parties et des points, qui présente, détails, notes, ✅ traités, points ajoutés ou retirés). En cas d’erreur, « ↩ Revenir à l’ordre du jour d’avant » en haut de l’ordre du jour.']},
 {v:'2.82.247',d:'27/11/2026',items:['📄 <b>Compte rendu plus joli et modifiable</b> : titres de partie en couleur, numéros des points, puces, notes dans un encadré jaune, à l’écran, dans 📝 Notes et dans le PDF envoyé. Nouveau bouton <b>« ✏️ Modifier le texte »</b> : tu corriges ou complètes directement ; ta version est gardée (elle n’est plus refaite toute seule), avec « 🔄 Refaire depuis l’ordre du jour » si tu veux repartir de zéro.']},
 {v:'2.82.246',d:'27/11/2026',items:['🎁 <b>Cadeau de l’année avec date limite</b> : Administratif › 🎁 Cadeaux › « ⚙️ Régler » : le nom du cadeau (ex. Coffret cadeau) et « offert aux inscrits avant le » (ex. 1er décembre). Réglé pour tout le bureau, il suffit de changer la date l’an prochain. Toute personne inscrite ce jour-là ou après est marquée <b>en rouge « 🚫 PAS ÉLIGIBLE »</b> dans la liste et dans sa fiche, et un message le rappelle quand on valide son adhésion. La date d’adhésion se remplit toute seule à l’inscription.']},
@@ -9695,6 +9697,8 @@ async function act(a,el,e){
   case 'odj-xl':odjXl();break;
   case 'odj-ev':odjEv(ds_.i);break;
   case 'odj-bulk':odjBulk();break;
+  case 'odj-evu':odjEvUndo();break;
+  case 'odj-evcl':{ODJ_CLK={k:[],p:[]};const eid=(document.getElementById('obk-e')||{}).value,it=eid&&amc().it[eid],o=odjGet();if(it&&o){const Ls=new Set();o.pts.forEach(x=>{if(x.k==='h')return;odjPtLines(x).forEach(l=>{Ls.add(odjNk(l));Ls.add(odjNk(odjCkLine(l).t));Ls.add(odjNk(amPgTime(l).t))})});Ls.delete('');(it.ck||[]).forEach((c,k)=>{if(!(c.sb&&c.sb.length)&&Ls.has(odjNk(c.t)))ODJ_CLK.k.push(k)});(it.pg||[]).forEach((q,k)=>{if(!q.tm&&Ls.has(odjNk(q.t)))ODJ_CLK.p.push(k)})}odjEvClean();break}
   case 'odj-bkgo':odjBulkGo();break;
   case 'odj-bkx':odjRender();break;
   case 'odj-help':odjHelp();break;
@@ -16953,22 +16957,7 @@ function odjUndo(){if(!ODJ_UNDO||ODJ_UNDO.k!==ODJ.ty+ODJ.id)return;const o=odjGe
 /* 2.82.231 : ➡️ un point de réunion part dans un événement : ses lignes (détails + notes) deviennent des créneaux du programme
    (avec le jour : la veille, le jour J…) ou des tâches de préparation (« Tâche - Prénom ») */
 function odjEvList(o){const t0=add(today(),-2),L=amItems('ee').filter(e=>!e.sv).sort((x,y)=>String(x.d||'9').localeCompare(String(y.d||'9'))),up=L.filter(e=>!e.d||e.d>=t0),pre=ODJ&&ODJ.ty==='rp'&&o&&o.e?o.e:'';const R=(up.length?up:L).slice(0,30);if(pre&&!R.some(e=>e.id===pre)){const e=amc().it[pre];if(e&&!e.del)R.unshift(e)}return {L:R,pre}}
-async function odjEv(i){const o=odjGet();if(!o)return;const x=o.pts.find(y=>y.i===i);if(!x)return;const E=odjEvList(o);
- if(!E.L.length){toast('Aucun événement à venir : crée d’abord l’événement dans Fêtes',5000);return}
- const lines=odjLines(x.d).concat(String(x.nt||'').split(/\r?\n/).map(l=>l.replace(/^\s*[-•*·]\s*/,'').trim()).filter(Boolean));
- const v=await amForm('➡️ « '+String(x.t).slice(0,40)+' » vers un événement','<b>🕒 Programme</b> : une ligne par créneau, l’heure au début (<code>19h Apéritif</code>).<br><b>☑️ Tâches</b> : une ligne par tâche, tiret puis prénom (<code>Installer la salle - Marie</code>).<br>Tu peux corriger les lignes avant d’envoyer.',[
-  {k:'e',l:'Événement',t:'select',v:E.pre||E.L[0].id,o:E.L.map(e=>[e.id,e.tx+(e.d?' ('+e.d.slice(8,10)+'/'+e.d.slice(5,7)+')':'')])},
-  {k:'k',l:'Ça va dans',t:'seg',v:'pg',o:[['pg','🕒 Le programme'],['ck','☑️ Les tâches de préparation']]},
-  {k:'j',l:'Quel jour ? (pour le programme)',t:'seg',v:AM_PGJ_LAST||'0',o:[['-1','🌙 La veille'],['0','🎉 Le jour J'],['1','🌅 Le lendemain'],['-7','Une semaine avant'],['-3','3 jours avant'],['','Pas de jour']]},
-  {k:'m',l:'Lignes à envoyer',t:'area',v:(lines.length?lines:[x.t]).join('\n'),ph:'19h Apéritif\n20h Repas'}],'➡️ Envoyer');
- if(!v){odjRender(1);return}const eid=v.e,it=amc().it[eid];if(!it||it.del){odjRender(1);return}
- const raw=String(v.m||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).slice(0,40);if(!raw.length){odjRender(1);return}
- let n=0;const keep=AMC_EE;AMC_EE=eid;
- try{if(v.k==='ck'){const T=raw.map(l=>{const m=l.match(/^(.*?)\s+[-–—]\s+([^-–—]{1,30})$/);if(!m)return {t:l.slice(0,200),ok:0,w:''};const w0=m[2].trim(),nw=norm(w0),P=amList().filter(p=>p.n&&(norm(p.n)===nw||norm(p.sn||'')===nw||norm(p.n).split(/\s+/).includes(nw)));return {t:m[1].trim().slice(0,200),ok:0,w:P.length===1?P[0].n:w0}}).filter(c=>c.t);n=T.length;amEeMut(oo=>{oo.ck=(oo.ck||[]).concat(T).slice(0,150)})}
-  else{AM_PGJ_LAST=v.j||'';const P=raw.map(amPgTime).filter(z=>z.t||z.tm).map(z=>{const q={tm:z.tm,t:(z.t||'—').slice(0,200)};if(v.j!=='')q.j=v.j;return q});n=P.length;amEeMut(oo=>{oo.pg=(oo.pg||[]).concat(P).slice(0,120)})}}
- finally{AMC_EE=keep}
- const o2=odjGet();if(o2){const y=o2.pts.find(z=>z.i===i);if(y){y.ev=(v.k==='ck'?'☑️ ':'🕒 ')+n+' → '+String(it.tx).slice(0,40);odjSave(o2)}}
- odjRender(1);toast('➡️ '+n+(v.k==='ck'?' tâche(s) ajoutée(s) à la préparation':' créneau(x) ajouté(s) au programme')+' de « '+it.tx+' »',4500)}
+async function odjEv(i){odjBulk(i)}
 /* 2.82.231 : ❓ mode d’emploi de l’ordre du jour : comment écrire les points et les notes pour qu’ils partent au bon endroit */
 function odjHelp(){const B=(t,h)=>'<div class="odh-b"><b>'+t+'</b>'+h+'</div>',X=t=>'<pre class="odh-x">'+esc(t)+'</pre>';
  ask({title:'❓ Comment écrire l’ordre du jour et les notes',html:'<div class="odh">'+
@@ -16983,28 +16972,74 @@ function odjHelp(){const B=(t,h)=>'<div class="odh-b"><b>'+t+'</b>'+h+'</div>',X
    coché d’office quand l’appli reconnaît un programme (19h …) ou des tâches (… - Prénom) ; on choisit, on corrige, un seul « Envoyer » */
 const odjPtLines=x=>odjLines(x.d).concat(String(x.nt||'').split(/\r?\n/).map(l=>l.replace(/^\s*[-•*·]\s*/,'').trim()).filter(Boolean));
 function odjGuess(L){if(!L.length)return '';const pg=L.filter(l=>amPgTime(l).tm).length,ck=L.filter(l=>/\s[-–—]\s+[^-–—]{1,30}$/.test(l)).length;if(pg&&pg>=L.length/2)return 'pg';if(ck&&ck>=L.length/2)return 'ck';return ''}
-function odjBulk(){const o=odjGet();if(!o)return;const E=odjEvList(o);if(!E.L.length){toast('Aucun événement à venir : crée d’abord l’événement dans Fêtes',5000);return}
- const G=odjGroups(o.pts);let n=0;const DJ=[['-7','Une semaine avant'],['-3','3 jours avant'],['-1','🌙 La veille'],['0','🎉 Le jour J'],['1','🌅 Le lendemain'],['','Pas de jour']];
- const rows=G.map((g,k)=>g.L.map((x,j)=>{const L=odjPtLines(x);if(!L.length)return '';n++;const gu=odjGuess(L),on=!!gu&&!x.ev,ty=gu||'ck',jd=AM_PGJ_LAST||'0';
-  return '<div class="obk-c'+(on?' on':'')+'" data-bk="'+esc(x.i)+'"><label class="obk-h"><input type="checkbox" data-bkon'+(on?' checked':'')+'><span><i>'+(k+1)+'.'+(j+1)+'</i> '+esc(x.t)+(x.ev?'<small>✅ déjà envoyé : '+esc(x.ev)+'</small>':'')+(!gu&&!x.ev?'<small>À toi de voir si ça doit partir</small>':'')+'</span></label>'+
-   '<div class="obk-o"><select data-bkty><option value="pg"'+(ty==='pg'?' selected':'')+'>🕒 Programme</option><option value="ck"'+(ty==='ck'?' selected':'')+'>☑️ Tâches</option></select><select data-bkj'+(ty==='pg'?'':' disabled')+'>'+DJ.map(([v,l])=>'<option value="'+v+'"'+(v===jd?' selected':'')+'>'+l+'</option>').join('')+'</select></div>'+
-   '<textarea data-bkm rows="'+Math.min(6,Math.max(2,L.length))+'">'+esc(L.join('\n'))+'</textarea></div>'}).join('')).join('');
- openSheet('<div class="obk"><div class="obk-hd"><div class="ew-x"><b>➡️ Tout envoyer vers l’événement</b><button class="x" data-act="odj-bkx" aria-label="Fermer">'+ic('x')+'</button></div><p>Coche ce qui doit partir. 🕒 Programme : une ligne par créneau avec l’heure (<code>19h Apéritif</code>). ☑️ Tâches : <code>Tâche - Prénom</code>. Tu peux corriger les lignes ici.</p>'+
-  '<label class="lbl">Événement</label><select class="in" id="obk-e">'+E.L.map(e=>'<option value="'+esc(e.id)+'"'+(e.id===(E.pre||E.L[0].id)?' selected':'')+'>'+esc(e.tx+(e.d?' ('+e.d.slice(8,10)+'/'+e.d.slice(5,7)+')':''))+'</option>').join('')+'</select></div>'+
-  (n?rows:'<div class="odj-none"><span>📝</span><b>Rien à envoyer pour l’instant</b><small>Écris d’abord des lignes dans les détails ou les notes des points (📝 Prendre des notes).</small></div>')+
-  (n?'<button class="obk-go" data-act="odj-bkgo">➡️ Envoyer la sélection</button>':'')+'</div>','full');
+/* 2.82.250 : ➡️ envoi vers l’événement refait, même canevas que l’événement :
+   grande partie de l’ordre du jour → PARTIE des tâches de l’événement (même nom ; « veille », « jour J », « lendemain » reconnus) ;
+   point → UNE tâche (bloc) avec ses lignes en sous-tâches (comme « Charger le camion » et ses 12 sous-tâches) ;
+   seules les lignes avec une HEURE vont au programme, au bon jour (veille, jour J, lendemain). Pas de doublon si on renvoie.
+   Avant chaque envoi : copie de l’événement → « ↩ Annuler le dernier envoi ». « 🧹 Nettoyer » retire ce que l’ancienne méthode avait mis en vrac. */
+const odjNk=t=>norm(String(t||'')).replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const odjDayOf=t=>{const n=odjNk(t);return /\bveille\b/.test(n)?'-1':/\blendemain\b/.test(n)?'1':/\bjour j\b|\bjourj\b|\bsoiree\b|\bjournee\b/.test(n)?'0':''};
+function odjSecFor(it,gt){const C=it.cs||[],n=odjNk(gt);if(!n)return '';let c=C.find(x=>odjNk(x.t)===n)||C.find(x=>{const m=odjNk(x.t);return m&&(n.includes(m)||m.includes(n))});
+ if(!c){const d=odjDayOf(gt);if(d)c=C.find(x=>odjDayOf(x.t)===d)}return c?c.id:'+'+String(gt).replace(/^[^\wÀ-ÿ]+/,'').trim().slice(0,60)}
+const odjCkLine=l=>{const m=String(l).match(/^(.*?)\s+[-–—]\s+([^-–—]{1,30})$/);if(!m)return {t:String(l).slice(0,100),ok:0,w:''};const w0=m[2].trim(),nw=norm(w0),P=amList().filter(p=>p.n&&(norm(p.n)===nw||norm(p.sn||'')===nw||norm(p.n).split(/\s+/).includes(nw)));return {t:m[1].trim().slice(0,100),ok:0,w:P.length===1?P[0].n:w0}};
+let ODJ_BKO='';
+function odjBulk(only){const o=odjGet();if(!o)return;const E=odjEvList(o);if(!E.L.length){toast('Aucun événement à venir : crée d’abord l’événement dans Fêtes',5000);return}
+ ODJ_BKO=only||'';const eid=(document.getElementById('obk-e')||{}).value||E.pre||E.L[0].id;odjBulkDraw(eid)}
+function odjBulkDraw(eid){const o=odjGet();if(!o)return;const E=odjEvList(o),it=amc().it[eid];if(!it)return;const G=odjGroups(o.pts),DJ=[['-1','🌙 La veille'],['0','🎉 Le jour J'],['1','🌅 Le lendemain'],['-7','Une semaine avant'],['-3','3 jours avant'],['','Pas de jour']];
+ const C=it.cs||[];let n=0;
+ const rows=G.map((g,k)=>{const gt=g.h?g.h.t:'',P=g.L.map((x,j)=>{if(ODJ_BKO&&x.i!==ODJ_BKO)return '';const L=odjPtLines(x),TM=[],TK=[];L.forEach(l=>{const z=amPgTime(l);(z.tm&&z.t?TM:TK).push(l)});n++;
+   const sec=odjSecFor(it,gt),day=odjDayOf(x.t)||odjDayOf(gt)||'0',on=ODJ_BKO?true:(!x.ev&&L.length>0);
+   const SO=[['','📌 Autres tâches (sans partie)']].concat(C.map(c=>[c.id,'📂 '+c.t])).concat(sec&&sec[0]==='+'?[[sec,'➕ Nouvelle partie « '+sec.slice(1)+' »']]:[]);
+   return '<div class="obk-c'+(on?' on':'')+'" data-bk="'+esc(x.i)+'"><label class="obk-h"><input type="checkbox" data-bkon'+(on?' checked':'')+'><span><i>'+(k+1)+'.'+(j+1)+'</i> '+esc(x.t)+(x.ev?'<small>✅ déjà envoyé : '+esc(x.ev)+'</small>':'')+'</span></label>'+
+    '<div style="margin:.35rem 0 .15rem;font-size:.82rem;font-weight:700">☑️ Une tâche « '+esc(String(x.t).slice(0,60))+' » dans</div><select class="in" data-bks style="margin-bottom:.3rem">'+SO.map(([v,l])=>'<option value="'+esc(v)+'"'+(v===sec?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>'+
+    '<div style="font-size:.8rem;color:var(--muted,#64748b)">Ses sous-tâches (une par ligne, « - Prénom » à la fin pour quelqu’un) :</div><textarea data-bkk rows="'+Math.min(8,Math.max(2,TK.length))+'">'+esc(TK.join('\n'))+'</textarea>'+
+    '<div style="margin:.4rem 0 .15rem;font-size:.82rem;font-weight:700;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">🕒 Au programme (lignes avec une heure) <select data-bkj>'+DJ.map(([v,l])=>'<option value="'+v+'"'+(v===day?' selected':'')+'>'+l+'</option>').join('')+'</select></div><textarea data-bkp rows="'+Math.min(6,Math.max(1,TM.length))+'" placeholder="19h Apéritif">'+esc(TM.join('\n'))+'</textarea></div>'}).join('');
+  return P?(gt&&!ODJ_BKO?'<div style="margin:.8rem 0 .35rem;padding:.45rem .7rem;border-radius:10px;background:linear-gradient(120deg,#7c3aed,#db2777);color:#fff;font-weight:800">'+(k+1)+'. '+esc(gt)+'</div>':'')+P:''}).join('');
+ const U=S.odjEvu,sent=o.pts.some(x=>x.ev);
+ openSheet('<div class="obk"><div class="obk-hd"><div class="ew-x"><b>➡️ '+(ODJ_BKO?'Envoyer ce point':'Tout envoyer')+' vers l’événement</b><button class="x" data-act="odj-bkx" aria-label="Fermer">'+ic('x')+'</button></div><p>Chaque point devient <b>une tâche avec ses sous-tâches</b>, rangée dans la <b>partie</b> de l’événement qui porte le même nom (créée si besoin). Les lignes avec une <b>heure</b> (<code>19h Apéritif</code>) vont au <b>programme</b>, au bon jour. Si tu renvoies, rien n’est mis en double.</p>'+
+  '<label class="lbl">Événement</label><select class="in" id="obk-e" data-act-chg="obk-e">'+E.L.map(e=>'<option value="'+esc(e.id)+'"'+(e.id===eid?' selected':'')+'>'+esc(e.tx+(e.d?' ('+e.d.slice(8,10)+'/'+e.d.slice(5,7)+')':''))+'</option>').join('')+'</select>'+
+  (U&&U.eid?'<button class="btn blk" data-act="odj-evu" style="margin:.5rem 0 0">↩ Annuler le dernier envoi vers « '+esc(U.nm||'')+' »</button>':'')+
+  (sent?'<button class="btn blk" data-act="odj-evcl" style="margin:.4rem 0 0">🧹 Nettoyer l’événement (retirer ce qui avait été envoyé en vrac)</button>':'')+'</div>'+
+  (n?rows+'<button class="obk-go" data-act="odj-bkgo">➡️ Envoyer la sélection</button>':'<div class="odj-none"><span>📝</span><b>Rien à envoyer</b></div>')+'</div>','full');
  const root=document.querySelector('.obk');if(!root)return;
- root.addEventListener('change',e=>{const c=e.target.closest('.obk-c');if(!c)return;if(e.target.matches('[data-bkon]'))c.classList.toggle('on',e.target.checked);if(e.target.matches('[data-bkty]')){c.querySelector('[data-bkj]').disabled=e.target.value!=='pg';const cb=c.querySelector('[data-bkon]');if(!cb.checked){cb.checked=true;c.classList.add('on')}}});
- root.addEventListener('input',e=>{const c=e.target.closest('.obk-c');if(c&&e.target.matches('[data-bkm]')){const cb=c.querySelector('[data-bkon]');if(!cb.checked){cb.checked=true;c.classList.add('on')}}})}
+ root.addEventListener('change',e=>{if(e.target.id==='obk-e'){odjBulkDraw(e.target.value);return}const c=e.target.closest('.obk-c');if(!c)return;if(e.target.matches('[data-bkon]'))c.classList.toggle('on',e.target.checked);else{const cb=c.querySelector('[data-bkon]');if(!cb.checked){cb.checked=true;c.classList.add('on')}}});
+ root.addEventListener('input',e=>{const c=e.target.closest('.obk-c');if(c&&e.target.matches('textarea')){const cb=c.querySelector('[data-bkon]');if(!cb.checked){cb.checked=true;c.classList.add('on')}}})}
+function odjEvSaveU(it){S.odjEvu={eid:it.id,nm:String(it.tx||'').slice(0,60),at:Date.now(),ck:JSON.parse(JSON.stringify(it.ck||[])),pg:JSON.parse(JSON.stringify(it.pg||[])),cs:JSON.parse(JSON.stringify(it.cs||[])),ev:(()=>{const o=odjGet(),m={};if(o)o.pts.forEach(x=>{m[x.i]=x.ev||''});return {k:ODJ?ODJ.ty+ODJ.id:'',m}})()};saveSet()}
 function odjBulkGo(){const root=document.querySelector('.obk');if(!root)return;const eid=(document.getElementById('obk-e')||{}).value,it=eid&&amc().it[eid];if(!it||it.del){toast('Choisis un événement',3000);return}
- const S=[...root.querySelectorAll('.obk-c')].filter(c=>c.querySelector('[data-bkon]').checked).map(c=>({i:c.dataset.bk,k:c.querySelector('[data-bkty]').value,j:c.querySelector('[data-bkj]').value,L:String(c.querySelector('[data-bkm]').value||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).slice(0,40)})).filter(x=>x.L.length);
- if(!S.length){toast('Coche au moins un point',3000);return}
- const PG=[],CK=[],cnt={};S.forEach(x=>{if(x.k==='pg'){const P=x.L.map(amPgTime).filter(z=>z.t||z.tm).map(z=>{const q={tm:z.tm,t:(z.t||'—').slice(0,200)};if(x.j!=='')q.j=x.j;return q});PG.push(...P);cnt[x.i]='🕒 '+P.length}
-  else{const T=x.L.map(l=>{const m=l.match(/^(.*?)\s+[-–—]\s+([^-–—]{1,30})$/);if(!m)return {t:l.slice(0,200),ok:0,w:''};const w0=m[2].trim(),nw=norm(w0),P=amList().filter(p=>p.n&&(norm(p.n)===nw||norm(p.sn||'')===nw||norm(p.n).split(/\s+/).includes(nw)));return {t:m[1].trim().slice(0,200),ok:0,w:P.length===1?P[0].n:w0}}).filter(c=>c.t);CK.push(...T);cnt[x.i]='☑️ '+T.length}});
- const keep=AMC_EE;AMC_EE=eid;try{amEeMut(oo=>{if(PG.length)oo.pg=(oo.pg||[]).concat(PG).slice(0,120);if(CK.length)oo.ck=(oo.ck||[]).concat(CK).slice(0,150)})}finally{AMC_EE=keep}
- const pj=S.find(x=>x.k==='pg');if(pj)AM_PGJ_LAST=pj.j||'';
- const o=odjGet();if(o){o.pts.forEach(y=>{if(cnt[y.i])y.ev=cnt[y.i]+' → '+String(it.tx).slice(0,40)});odjSave(o)}
- odjRender();toast('➡️ Envoyé dans « '+it.tx+' » : '+(PG.length?PG.length+' créneau(x) au programme':'')+(PG.length&&CK.length?' et ':'')+(CK.length?CK.length+' tâche(s)':''),5000)}
+ const SL=[...root.querySelectorAll('.obk-c')].filter(c=>c.querySelector('[data-bkon]').checked).map(c=>{const ln=sel=>String((c.querySelector(sel)||{}).value||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean);return {i:c.dataset.bk,s:(c.querySelector('[data-bks]')||{}).value||'',j:(c.querySelector('[data-bkj]')||{}).value||'',K:ln('[data-bkk]').slice(0,40),P:ln('[data-bkp]').slice(0,40)}});
+ if(!SL.length){toast('Coche au moins un point',3000);return}
+ const o=odjGet();if(!o)return;odjEvSaveU(it);const cnt={};let nT=0,nS=0,nP=0;
+ const keep=AMC_EE;AMC_EE=eid;
+ try{amEeMut(oo=>{oo.cs=oo.cs||[];const newSec={};
+  SL.forEach(x=>{const p=o.pts.find(y=>y.i===x.i);if(!p)return;let sid=x.s;
+   if(sid&&sid[0]==='+'){const nm=sid.slice(1);const ex=oo.cs.find(c=>odjNk(c.t)===odjNk(nm));if(ex)sid=ex.id;else if(newSec[nm])sid=newSec[nm];else if(oo.cs.length<12){const id=amId();oo.cs.push({id,t:nm.slice(0,60),o:''});newSec[nm]=id;sid=id}else sid=''}
+   const sb=x.K.map(odjCkLine).filter(q=>q.t);let c=oo.ck.find(q=>odjNk(q.t)===odjNk(p.t));
+   if(c){c.sb=c.sb||[];sb.forEach(q=>{if(!c.sb.some(z=>odjNk(z.t)===odjNk(q.t))&&c.sb.length<40){c.sb.push(q);nS++}});if(sid&&!c.s)c.s=sid}
+   else if(oo.ck.length<150&&(sb.length||!x.P.length)){c={t:String(p.t).slice(0,200),ok:0,w:''};if(sid)c.s=sid;if(sb.length)c.sb=sb;oo.ck.push(c);nT++;nS+=sb.length}
+   let np=0;x.P.map(amPgTime).filter(z=>z.tm&&z.t).forEach(z=>{if(oo.pg.length>=120)return;if(oo.pg.some(q=>q.tm===z.tm&&odjNk(q.t)===odjNk(z.t)&&String(q.j==null?'':q.j)===x.j))return;const q={tm:z.tm,t:z.t.slice(0,200)};if(x.j!=='')q.j=x.j;oo.pg.push(q);np++});nP+=np;
+   cnt[x.i]='☑️ '+(sb.length?sb.length+' sous-tâche'+(sb.length>1?'s':''):'1 tâche')+(np?' · 🕒 '+np:'')})})}finally{AMC_EE=keep}
+ o.pts.forEach(y=>{if(cnt[y.i])y.ev=cnt[y.i]+' → '+String(it.tx).slice(0,40)});odjSave(o);
+ const jj=SL.find(x=>x.P.length);if(jj)AM_PGJ_LAST=jj.j;
+ odjRender();toast('➡️ « '+it.tx+' » : '+nT+' tâche'+(nT>1?'s':'')+(nS?', '+nS+' sous-tâche'+(nS>1?'s':''):'')+(nP?', '+nP+' créneau'+(nP>1?'x':'')+' au programme':'')+'. ↩ Annulable depuis « Tout envoyer ».',6000)}
+async function odjEvUndo(){const U=S.odjEvu;if(!U||!U.eid)return;const it=amc().it[U.eid];if(!it||it.del){toast('Événement introuvable',3000);return}
+ const r=await ask({title:'↩ Annuler le dernier envoi ?',text:'Les tâches, parties et le programme de « '+U.nm+' » reviennent comme avant l’envoi du '+new Date(U.at).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'. Ce qui a été changé depuis dans l’événement serait aussi annulé.',btns:[{label:'↩ Annuler l’envoi',value:'y',cls:'pri'},{label:'Garder',value:null}]});
+ if(r!=='y'){odjBulk(ODJ_BKO);return}
+ const keep=AMC_EE;AMC_EE=U.eid;try{amEeMut(oo=>{oo.ck=U.ck;oo.pg=U.pg;oo.cs=U.cs})}finally{AMC_EE=keep}
+ const o=odjGet();if(o&&U.ev&&U.ev.k===ODJ.ty+ODJ.id){o.pts.forEach(x=>{if(x.i in U.ev.m){if(U.ev.m[x.i])x.ev=U.ev.m[x.i];else delete x.ev}});odjSave(o)}
+ delete S.odjEvu;saveSet();odjRender();toast('↩ « '+U.nm+' » est revenu comme avant l’envoi',4000)}
+/* 🧹 retire de l’événement ce que l’ancienne méthode avait ajouté en vrac (tâches sans sous-tâches et créneaux SANS heure dont le texte est une ligne de l’ordre du jour) */
+async function odjEvClean(){const eid=(document.getElementById('obk-e')||{}).value,it=eid&&amc().it[eid],o=odjGet();if(!it||!o)return;
+ const Ls=new Set();o.pts.forEach(x=>{if(x.k==='h')return;odjPtLines(x).forEach(l=>{Ls.add(odjNk(l));Ls.add(odjNk(odjCkLine(l).t));Ls.add(odjNk(amPgTime(l).t))})});Ls.delete('');
+ const CK=(it.ck||[]).map((c,i)=>({i,c})).filter(z=>!(z.c.sb&&z.c.sb.length)&&Ls.has(odjNk(z.c.t))),PG=(it.pg||[]).map((p,i)=>({i,p})).filter(z=>!z.p.tm&&Ls.has(odjNk(z.p.t)));
+ if(!CK.length&&!PG.length){toast('Rien à nettoyer dans « '+it.tx+' »',3000);return}
+ const r=await ask({title:'🧹 Nettoyer « '+it.tx+' »',html:'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Décoche ce qu’il faut garder. Le reste est retiré de l’événement (annulable avec « ↩ Annuler le dernier envoi »).</p><div style="max-height:46vh;overflow:auto">'+(CK.length?'<b>☑️ Tâches ('+CK.length+')</b>'+CK.map(z=>'<label style="display:flex;gap:.5rem;margin:.2rem 0"><input type="checkbox" data-clk="'+z.i+'" checked> '+esc(z.c.t)+'</label>').join(''):'')+(PG.length?'<b style="display:block;margin-top:.5rem">🕒 Programme ('+PG.length+')</b>'+PG.map(z=>'<label style="display:flex;gap:.5rem;margin:.2rem 0"><input type="checkbox" data-clp="'+z.i+'" checked> '+esc((z.p.tm||'—')+' '+z.p.t)+'</label>').join(''):'')+'</div>',btns:[{label:'🧹 Retirer les cochés',value:'y',cls:'dng'},{label:'Annuler',value:null}],
+  onOpen:null});
+ if(r!=='y'){odjBulk(ODJ_BKO);return}
+ const dk=new Set(ODJ_CLK.k),dp=new Set(ODJ_CLK.p);odjEvSaveU(it);
+ const keep=AMC_EE;AMC_EE=eid;try{amEeMut(oo=>{oo.ck=oo.ck.filter((c,i)=>!dk.has(i));oo.pg=oo.pg.filter((p,i)=>!dp.has(i))})}finally{AMC_EE=keep}
+ o.pts.forEach(x=>{delete x.ev});odjSave(o);toast('🧹 '+dk.size+' tâche(s) et '+dp.size+' créneau(x) retirés de « '+it.tx+' »',5000);odjBulk(ODJ_BKO)}
+let ODJ_CLK={k:[],p:[]};
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset)return;if(t.dataset.clk!=null||t.dataset.clp!=null){const k=t.dataset.clk!=null?'k':'p',v=+(t.dataset.clk!=null?t.dataset.clk:t.dataset.clp),A=ODJ_CLK[k];const i=A.indexOf(v);if(t.checked&&i<0)A.push(v);if(!t.checked&&i>=0)A.splice(i,1)}});
 /* 2.82.239 : 📨 Demander à chacun sa partie de l’ordre du jour.
    « qui présente » d’un point = prénom, nom ou fonction (ex. « Trésorière », « Moi »). La demande marque les points (q) et note qui la fait (o.aq).
    La personne répond depuis sa carte d’accueil « 🎤 Ta partie pour la réunion » : sa réponse va dans SON élément de vote (rv / rx, champ pa),
@@ -17169,7 +17204,7 @@ function odjCrHtml(bd){let h='',ul=0;const cl=()=>{if(ul){h+='</ul>';ul=0}};
 async function odjCr(auto){const o=odjGet();if(!o||!ODJ)return;const S0=odjCrSave(o);if(!S0)return;const {id,t,bd,I,man}=S0,ty=ODJ.ty,key=ODJ.id;
  const name='Compte-rendu-'+amSlug(I.nm)+'.pdf',title='Compte rendu — '+I.nm,html=amDocFrame(title,'',odjCrHtml(bd));
  const r=await ask({title:'📄 Compte rendu'+(auto?' prêt':''),html:'<p style="margin:.1rem 0 .4rem;font-size:.88rem">✅ <b>Rangé dans 📝 Notes</b> (bureau) : « 📋 '+esc(title)+' ».'+(man?' <b style="color:#b45309">✏️ Modifié à la main</b> : il n’est plus refait tout seul.':' Mis à jour à chaque fois.')+'</p><div style="max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin:0 0 .3rem">'+odjCrHtml(bd)+'</div>',
-  btns:[{label:'📨 Envoyer au bureau (mail, SMS, WhatsApp)',value:'s',cls:'pri'},{label:'✏️ Modifier le texte',value:'e'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'➡️ Mettre les infos dans l’événement',value:'ev'},{label:'📝 Ouvrir dans Notes',value:'n'}].concat(man?[{label:'🔄 Refaire depuis l’ordre du jour (efface tes modifications)',value:'re'}]:[]).concat([{label:'Fermer',value:null}])});
+  btns:[{label:'📨 Envoyer au bureau (mail, SMS, WhatsApp)',value:'s',cls:'pri'},{label:'🟢 Envoyer le PDF sur WhatsApp (groupe…)',value:'wa'},{label:'✏️ Modifier le texte',value:'e'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'➡️ Mettre les infos dans l’événement',value:'ev'},{label:'📝 Ouvrir dans Notes',value:'n'}].concat(man?[{label:'🔄 Refaire depuis l’ordre du jour (efface tes modifications)',value:'re'}]:[]).concat([{label:'Fermer',value:null}])});
  if(!r){if(ODJ&&ODJ.ty===ty&&ODJ.id===key)odjRender(1);return}
  if(r==='e'){const v=await amForm('✏️ Modifier le compte rendu','Ce que tu changes ici est <b>aussi changé dans l’ordre du jour</b>. Une ligne qui commence par <b>##</b> = partie, <b>1.2 Titre</b> = point (<b>✅ 1.2</b> = traité), <b>-</b> = détail, toute autre ligne sous un point = note 📝.',[{k:'t',l:'Compte rendu',t:'area',v:bd}],'Enregistrer');
   if(v&&String(v.t||'').trim()){ODJ={ty,id:key};if(odjCrApply(String(v.t))){const o2=odjGet();if(o2)odjCrSave(o2,true);toast('✏️ Compte rendu et ordre du jour mis à jour',3000)}
@@ -17179,6 +17214,12 @@ async function odjCr(auto){const o=odjGet();if(!o||!ODJ)return;const S0=odjCrSav
  if(r==='n'){closeSheet();AMC_TAB='nt';AMC_NT=id;go('amicale');return}
  if(r==='ev'){ODJ={ty,id:key};return odjBulk()}
  if(r==='p')return amPdf(html,name);
+ /* 2.82.249 : le PDF du compte rendu partagé tel quel (WhatsApp, groupe des amicalistes…) : feuille de partage du téléphone ou du Mac, sinon PDF enregistré */
+ if(r==='wa'){toast('Préparation du PDF…',6000);let b;try{b=await amPdfBlob(html)}catch(e){toast('Le PDF n’a pas pu être préparé : réessaie.',4000);return}
+  const f=new File([b],name,{type:'application/pdf'}),ok=!!(navigator.canShare&&navigator.canShare({files:[f]}));
+  const r2=await ask({title:'🟢 PDF prêt',text:ok?'Touche « Partager », choisis WhatsApp, puis le groupe (ex. les amicalistes) et envoie.':'Le PDF va être enregistré. Ensuite, dans WhatsApp : ouvre le groupe › 📎 › Document › choisis « '+name+' ».',btns:[{label:ok?'📤 Partager le PDF':'💾 Enregistrer le PDF',value:'s',cls:'pri'},{label:'Annuler',value:null}]});if(r2!=='s')return;
+  if(ok){try{await navigator.share({files:[f],title});return}catch(e){if(e&&e.name==='AbortError')return}}
+  amSaveBlob(b,name,'application/pdf');toast('📄 PDF enregistré. Dans WhatsApp : ouvre le groupe › 📎 › Document › « '+name+' ».',9000);return}
  toast('Préparation du PDF…',6000);let b;try{b=await amPdfBlob(html)}catch(e){toast('Le PDF n’a pas pu être préparé : réessaie.',4000);return}
  await amSendTo(title,t.split('\n').map(l=>[l.replace(/^#+\s*/,'')]),{mk:()=>b,name,mime:'application/pdf',lb:'PDF'})}
 /* 2.82.245 : ✍️ Vérifier l’orthographe de l’ordre du jour (titres, sous-titres, détails, qui présente, notes) avec LanguageTool
