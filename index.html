@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.252';
+const APP_VERSION='2.82.253';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.253',d:'27/11/2026',items:['🛟 <b>Inscrits perdus</b> : la réparation automatique de la version 2.82.252 est retirée. Sur un appareil qui n’avait pas été ouvert depuis longtemps, elle renvoyait une vieille copie de l’événement et des inscrits disparaissaient. Pour les retrouver : ouvre l’événement › 🕘 Historique › <b>« 🛟 Retrouver des inscrits »</b>. L’appli cherche dans les copies automatiques de l’appareil les personnes qui étaient inscrites et ne le sont plus ; tu coches, elles reviennent avec leurs tickets et paiements. Et un appareil resté longtemps fermé ne peut plus faire revenir dans la liste un membre déjà retiré.']},
 {v:'2.82.252',d:'27/11/2026',items:['🐞 <b>Programme vide sur un autre appareil</b> : une tâche ou un créneau retiré puis remis (annuler un envoi, renvoyer depuis l’ordre du jour, remettre depuis l’historique) pouvait être jeté par les autres appareils à la synchronisation, parce qu’ils se souvenaient de sa suppression. Ce qui est remis compte maintenant comme un ajout récent : il arrive partout. Et, une seule fois, l’appareil de l’administrateur renvoie tout seul (sans notification) les créneaux des événements à venir, pour réparer les téléphones qui les avaient perdus.']},
 {v:'2.82.251',d:'27/11/2026',items:['➡️ Envoi vers l’événement : pour le <b>programme</b>, l’heure est reconnue au début ou à la fin de la ligne (« 18h Château gonflable » ou « Château gonflable - 18 h »). Une ligne que tu mets toi-même dans la case Programme sans heure y va quand même (sans heure), au lieu d’être oubliée.']},
 {v:'2.82.250',d:'27/11/2026',items:['➡️ <b>Envoi vers l’événement refait</b>, avec le même canevas que l’événement : chaque <b>grande partie</b> de l’ordre du jour va dans la <b>partie</b> des tâches qui porte le même nom (Veille, Jour J…, créée si besoin) ; chaque <b>point</b> devient <b>une tâche avec ses lignes en sous-tâches</b> (comme « Charger le camion ») ; seules les lignes avec une <b>heure</b> (« 19h Apéritif ») vont au <b>programme</b>, au bon jour. Rien n’est mis en double si on renvoie. Nouveau : <b>« ↩ Annuler le dernier envoi »</b> et <b>« 🧹 Nettoyer l’événement »</b> pour retirer ce que l’ancienne méthode avait mis en vrac.']},
@@ -13663,7 +13664,7 @@ function amList(){
 async function amRolesPut(){
  const a=amc();if(!a||!a.apriv)return;if(Date.now()-(a.syncOk||0)>15000)return; /* garde-fou : jamais republier les rôles sans avoir relu le serveur */
  const rl=a.rl||{},list=[];
- const add=(id,n,l,adm)=>{const e={id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:rl[id]&&rl[id].x?1:0,adm:adm?1:0};if(rl[id]&&rl[id].on)e.on=String(rl[id].on).slice(0,30);if(rl[id]&&rl[id].os)e.os=String(rl[id].os).slice(0,30);if(rl[id]&&+rl[id].nt)e.nt=+rl[id].nt;list.push(e)};
+ const SX=new Set(((a.roles&&a.roles.list)||[]).filter(r=>r&&r.x&&r.id).map(r=>r.id));const add=(id,n,l,adm)=>{const e={id,n:String(n||'?').slice(0,30),t:(rl[id]&&rl[id].t)||'',l,x:(rl[id]&&rl[id].x)||SX.has(id)?1:0,adm:adm?1:0};if(rl[id]&&rl[id].on)e.on=String(rl[id].on).slice(0,30);if(rl[id]&&rl[id].os)e.os=String(rl[id].os).slice(0,30);if(rl[id]&&+rl[id].nt)e.nt=+rl[id].nt;list.push(e)};
  add(a.me.id,a.me.n,'b',1);
  for(const id of Object.keys(a.mem||{})){const m=a.mem[id],c=m.cards&&(m.cards.b||m.cards.a)||{};add(id,c.n,(a.lvo&&a.lvo[id])||m.z||'a',(a.admIds||[]).includes(id))}
  /* 2.82.152 : les retraits restent DANS la liste envoyée (x:1), même si la fiche de la personne n’est plus sur cet appareil : sinon un autre appareil la faisait réapparaître */
@@ -14169,7 +14170,7 @@ function amAkTx(c){if(!c||!c.w||!ckWho(c).some(n=>amList().some(m=>m.n===n)))ret
 const amRiH=it=>(it&&(((it.kind==='rn'||it.kind==='rp'||it.kind==='rv'||it.kind==='rx')&&/^r[np]i$/.test(it.nh||''))||((it.kind==='tk'||it.kind==='ee')&&it.nh==='tka'))&&it.pto)?it.nh:'';
 async function amFlush(){
  if(AM_HYD_P){try{await AM_HYD_P}catch(e){}}
- try{amCfgMig()}catch(e){}try{amPgFix252()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}try{amTplMig()}catch(e){}
+ try{amCfgMig()}catch(e){}try{amSnapAuto()}catch(e){}try{amClSync()}catch(e){}try{amTplMig()}catch(e){}
  const a=amc();if(!a||!famUrl()||demo||AMC_FL)return;
  if(amBlocked())return;
  /* garde-fou : on relit le serveur juste avant d’envoyer ; une donnée plus récente sur le serveur remplace la locale (et n’est donc plus renvoyée) */
@@ -17802,13 +17803,27 @@ async function amSnapOpen(){
  const lb=o=>o.lb==='avant'?' (avant restauration)':o.lb==='fichier'?' (avant import du fichier)':'';
  openSheet('<div class="sh-h"><b style="font-size:1.15rem">📅 Copies automatiques</b><span class="sp1"></span><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><p class="mut" style="font-size:.86rem;margin:.1rem 0 .5rem">Sur cet appareil : une copie par jour (7 jours), une par semaine (4 semaines) et, dans la journée, une toutes les 3 h entre 8 h et 17 h (quand l’appli est ouverte et que quelque chose a changé). '+(a.apriv?'Touche une copie pour voir ce qui a changé et, si besoin, revenir en arrière.':'<b>Seul l’administrateur fait des copies automatiques et peut restaurer</b> : sur ton appareil, il n’y en a pas de nouvelle.')+'</p>'+(S0.length?S0.map(({k,o})=>'<button class="am-it" data-act="sn-pick" data-k="'+esc(k)+'"'+(a.apriv?'':' disabled')+'><span class="am-itx"><b>'+esc(new Date(o.at).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))+esc(lb(o))+'</b><small>'+o.n+' éléments</small></span></button>').join(''):'<p class="empty">Pas encore de copie.</p>'),'full');
 }
+/* 2.82.253 : 🛟 Retrouver des inscrits dans les copies automatiques de CET appareil (une par jour + toutes les 3 h) :
+   la liste des personnes qui étaient inscrites dans une copie et qui ne le sont plus ; on coche, elles sont remises (avec leurs tickets et paiements). */
+async function amPtRescue(){const a=amc(),it=a&&a.it[AMC_EE];if(!it||!a.kB)return;
+ const K=[...(await amSnapList()),...(await amSnapHList())],N=p=>norm(String(p&&p.n||'')).replace(/\s+/g,' ').trim(),cur=new Set((it.pt||[]).map(N)),M=new Map();
+ for(const k of K){let o=null;try{o=await PH.get(k)}catch(e){}const e=o&&o.it&&o.it[it.id];if(!e||!Array.isArray(e.pt))continue;
+  e.pt.forEach(p=>{const n=N(p);if(!n||cur.has(n))return;const pv=M.get(n);if(!pv||pv.at<o.at)M.set(n,{p,at:o.at})})}
+ const L=[...M.values()].sort((x,y)=>String(x.p.n).localeCompare(String(y.p.n),'fr'));
+ if(!L.length){toast(K.length?'Aucun inscrit manquant dans les copies de cet appareil. Essaie sur ton autre appareil (téléphone ou Mac).':'Pas de copie automatique sur cet appareil : essaie sur ton téléphone ou ton Mac (appareil administrateur).',7000);return}
+ const r=await ask({title:'🛟 '+L.length+' inscrit'+(L.length>1?'s':'')+' à retrouver',html:'<p class="mut" style="font-size:.86rem;margin:.1rem 0 .4rem">Ces personnes étaient inscrites à « '+esc(String(it.tx).slice(0,40))+' » dans une copie automatique de cet appareil, mais ne le sont plus. Décoche celles qui ne doivent pas revenir (désinscrites exprès).</p><div class="sn-pt" style="max-height:46vh;overflow:auto;text-align:left">'+L.map((z,i)=>'<label style="display:flex;gap:.5rem;margin:.3rem 0"><input type="checkbox" data-i="'+i+'" checked><span><b>'+esc(z.p.n)+'</b>'+((+z.p.na||0)>1?' · '+z.p.na+' adultes':'')+((+z.p.ne||0)?' · '+z.p.ne+' enfant'+(z.p.ne>1?'s':''):'')+'<br><small class="mut">copie du '+esc(new Date(z.at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}))+'</small></span></label>').join('')+'</div>',
+  btns:[{label:'↩ Remettre les personnes cochées',value:{get value(){return [...document.querySelectorAll('.sn-pt input[data-i]:checked')].map(z=>+z.dataset.i)}},cls:'pri'},{label:'Annuler',value:null}]});
+ const sel=Array.isArray(r)?r:(r&&r.value);if(!sel||!sel.length)return;let n=0;const now=Date.now();
+ amEeMut(o=>{const have=new Set((o.pt||[]).map(N));sel.forEach(i=>{const z=L[i];if(!z||have.has(N(z.p))||o.pt.length>=250)return;const c=JSON.parse(JSON.stringify(z.p));c.u=now;o.pt.push(c);have.add(N(c));n++})});
+ toast('🛟 '+n+' inscrit'+(n>1?'s':'')+' remis'+(n>1?'':'')+' dans « '+it.tx+' »',5000);render()}
 async function amEeHist(){
  const a=amc(),it=a&&a.it[AMC_EE];if(!it)return;const AC={m:'a modifié',a:'a ajouté',d:'a supprimé'};
  const H=(it.hs||[]).slice(0,6).map(h=>'<div style="margin:.2rem 0;font-size:.88rem">• <b>'+esc(h.by||'?')+'</b> <small class="mut">'+new Date(+h.t||0).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</small><br>'+esc(h.cg||AC[h.ac]||'a modifié')+'</div>').join('');
  const R=(it.rm||[]).slice().reverse(),KL={ck:'✅ Tâche',pg:'🕐 Programme',pt:'👥 Inscrit'},nm=z=>z.o.t||z.o.n||'(sans titre)';
  const h='<p class="mut" style="font-size:.84rem;margin:.1rem 0 .3rem"><b>Dernières modifications</b></p>'+(H||'<p class="mut" style="margin:0">Rien d’enregistré.</p>')+'<p class="mut" style="font-size:.84rem;margin:.7rem 0 .3rem"><b>Retiré de cet événement</b> (coche pour remettre)</p><div class="sn-ch" style="max-height:38vh;overflow:auto;text-align:left">'+(R.length?R.map((z,i)=>'<div style="margin:.3rem 0"><label><input type="checkbox" data-i="'+i+'"> '+KL[z.k]+' · <b>'+esc(String(nm(z)).slice(0,70))+'</b></label><br><small class="mut" style="margin-left:1.6rem">retiré par '+esc(z.by||'?')+' · '+new Date(z.t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</small></div>').join(''):'<p class="mut" style="margin:0">Rien n’a été retiré depuis la mise à jour.</p>')+'</div>';
  const sel={get value(){return[...document.querySelectorAll('.sn-ch input[data-i]:checked')].map(z=>+z.dataset.i)}};
- const r=await ask({title:'🕘 '+String(it.tx||'Événement').slice(0,40),html:h,btns:R.length?[{label:'↩ Remettre les éléments cochés',value:sel,cls:'pri'},{label:'Fermer',value:null}]:[{label:'Fermer',value:null}]});
+ const r=await ask({title:'🕘 '+String(it.tx||'Événement').slice(0,40),html:h,btns:(R.length?[{label:'↩ Remettre les éléments cochés',value:sel,cls:'pri'}]:[]).concat(a.kB?[{label:'🛟 Retrouver des inscrits (copies automatiques)',value:'snap'}]:[]).concat([{label:'Fermer',value:null}])});
+ if(r==='snap')return amPtRescue();
  if(!r||!r.length)return;const P=r.map(i=>R[i]).filter(Boolean);let n=0;const now=Date.now();
  amEeMut(o=>{P.forEach(z=>{const c=JSON.parse(JSON.stringify(z.o));c.u=now;const L=z.k==='ck'?o.ck:z.k==='pg'?o.pg:o.pt,kf=z.k==='pt'?x=>String(x&&x.n||'').trim().toLowerCase():z.k==='ck'?x=>String(x&&x.t||'').trim().toLowerCase():x=>String(x&&x.tm||'')+'|'+String(x&&x.t||'').trim().toLowerCase();if(!L.some(x=>kf(x)===kf(c))){L.push(c);n++}});o.rm=(o.rm||[]).filter(z=>!P.some(q=>q.t===z.t&&q.k===z.k&&JSON.stringify(q.o)===JSON.stringify(z.o)))});
  toast(n+' élément'+(n>1?'s':'')+' remis',3500);render()}
