@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.242';
+const APP_VERSION='2.82.244';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,8 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.244',d:'27/11/2026',items:['📄 Ordre du jour : <b>Compte rendu</b> de la réunion, propre et complet (parties, points, détails, notes prises pendant la réunion, points traités ✅, présents et excusés confirmés dans l’appli). Il est <b>rangé automatiquement dans 📝 Notes</b> (une note par réunion, mise à jour à chaque fois) dès que tu touches « Fin des notes » ou « 📄 Compte rendu ». Ensuite, un toucher : <b>📨 l’envoyer au bureau</b> (PDF par mail pro ou perso, texte par SMS ou WhatsApp), l’imprimer, <b>mettre les infos dans l’événement</b> ou ouvrir la note.']},
+{v:'2.82.243',d:'27/11/2026',items:['🆕 <b>Nouvel arrivant = cotisation offerte</b> : quand tu valides une adhésion en ligne, remplis un bulletin ou touches « ✅ Encaisser », choisis « 🆕 Nouvel arrivant » : le montant passe à 0 € (au lieu de 20 € pour un sergent, par exemple) et la cotisation est marquée réglée. Le bulletin indique « offerte (nouvel arrivant) ». Tu changes d’avis : le montant revient.']},
 {v:'2.82.242',d:'27/11/2026',items:['📄 PDF (ordre du jour, feuille de réunion, listes, fiches…) : <b>plus aucune ligne coupée en deux</b> entre deux pages. La page s’arrête avant la ligne ou le bloc qui ne tient plus, et la suite commence en haut de la page suivante, avec une marge.']},
 {v:'2.82.241',d:'27/11/2026',items:['🖊️ Ordre du jour : nouveau bouton <b>« Feuille à remplir (A4) »</b>. Une feuille à imprimer avec des cases et des lignes vides : présents, excusés, heure de début et de fin, sous chaque point un cadre « Notes / décisions », ☐ Validé / ☐ Reporté, « Qui » et « Pour quand », puis points divers, prochaine réunion et signatures. Les deux (feuille et « Imprimer / PDF ») peuvent aussi être <b>envoyées aux membres</b> : mail pro ou perso avec le PDF joint, SMS ou WhatsApp avec le texte. Astuce : un détail qui finit par « : » (ex. « Recettes du bar : ») reçoit un blanc à remplir.']},
 {v:'2.82.240',d:'27/11/2026',items:['✋ Ordre du jour : <b>poignée ⠿</b> pour glisser avec le doigt. Un point va dans n’importe quelle partie ; une partie entière (avec ses points) monte ou descend (les parties se replient pendant qu’on glisse). <b>« ➕ Nouvelle partie ici »</b> entre les parties et tout en haut, sans passer par le bas. Les boutons ✏️ ↑ ↓ 🗑 restent.']},
@@ -9680,6 +9682,7 @@ async function act(a,el,e){
   case 'odj-pres':odjPres();break;
   case 'odj-prt':odjPrint();break;
   case 'odj-prf':odjPrintFill();break;
+  case 'odj-cr':odjCr();break;
   case 'odj-ppt':odjPpt();break;
   case 'odj-xl':odjXl();break;
   case 'odj-ev':odjEv(ds_.i);break;
@@ -9690,7 +9693,7 @@ async function act(a,el,e){
   case 'odj-qm':odjQm(ds_.v);break;
   case 'odj-imp':odjImport();break;
   case 'odj-undo':odjUndo();break;
-  case 'odj-nts':ODJ_NOTES=!ODJ_NOTES;odjRender(1);break;
+  case 'odj-nts':{const was=ODJ_NOTES;ODJ_NOTES=!ODJ_NOTES;odjRender(1);if(was){const o=odjGet();if(o&&o.pts.some(x=>x.nt))setTimeout(()=>odjCr(1),350)}break}
   case 'odj-wp':if(odjWAlive())odjWGo(ODJ_W.cur-1);break;
   case 'odj-wn':if(odjWAlive())odjWGo(ODJ_W.cur+1);break;
   case 'odj-wx':try{ODJ_W&&ODJ_W.w&&ODJ_W.w.close()}catch(e){}ODJ_W=null;odjWBar();break;
@@ -15144,6 +15147,7 @@ function amQrCheck(v,fk){
  return {nm,ex,cand,m,o,I,isAm,g2};
 }
 let AMQR_CK={};
+document.addEventListener('change',e=>{const t=e.target;if(!t||!t.dataset||t.dataset.qk!=='py')return;const p=document.querySelector('[data-qk="pa"]');if(!p)return;if(t.value==='na'){if(p.value!=='0')p.dataset.pa0=p.value;p.value='0';AMQR_CK.pa='0'}else if(p.value==='0'&&p.dataset.pa0){p.value=p.dataset.pa0;AMQR_CK.pa=p.dataset.pa0}});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.qk){AMQR_CK[t.dataset.qk]=t.type==='checkbox'?t.checked:t.value}});
 document.addEventListener('input',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.qk&&t.type!=='checkbox'&&t.type!=='radio'){AMQR_CK[t.dataset.qk]=t.value}});
 async function amQrReview(x,fk){
@@ -15878,8 +15882,8 @@ async function amAqNr(id){const a=amc(),m=a&&a.it&&a.it[id];if(!m)return;const o
  const v=await amForm('📌 Note rouge · '+m.tx,'S’affiche en rouge sous son nom (ex. : dit avoir payé jeudi, à vérifier sur le compte).',[{k:'nr',l:'Note',v:o.nr||'',ph:'Ex. : aurait payé jeudi'}],'Enregistrer');if(!v)return;
  amItemSave(Object.assign({},m,{o:Object.assign({},o,{nr:String(v.nr||'').trim().slice(0,120)})}));toast('📌 Note enregistrée',2000)}
 async function amAqPay(id){const a=amc(),m=a&&a.it&&a.it[id];if(!m)return;const o=m.o||{};
- const v=await amForm('✅ Encaisser la cotisation de '+m.tx,'Saison '+esc(amSaCur())+'. Après « Encaisser », sa cotisation est marquée <b>payée</b>.',[{k:'pa',l:'Montant reçu (€)',v:String(o.pa||amBmPrice(o.gr,o.ct)||'').replace('.',','),ph:'20'},{k:'pm',l:'Payée par',t:'select',v:o.pm||'esp',o:AM_PM.filter(x=>x[0])}],'Encaisser');if(!v)return;
- amItemSave(Object.assign({},m,{o:Object.assign({},o,{cf:'1',pa:String(v.pa||'').replace(',','.').replace(/[^0-9.]/g,'').slice(0,8),pm:v.pm||'',pd:today(),pb:a.me.n})}));toast('✅ Cotisation de '+m.tx+' encaissée',3000)}
+ const v=await amForm('✅ Encaisser la cotisation de '+m.tx,'Saison '+esc(amSaCur())+'. Après « Encaisser », sa cotisation est marquée <b>payée</b>. 🆕 Nouvel arrivant : choisis-le dans « Payée par », la cotisation passe à 0 €.',[{k:'pa',l:'Montant reçu (€)',v:String(o.pa||amBmPrice(o.gr,o.ct)||'').replace('.',','),ph:'20'},{k:'pm',l:'Payée par',t:'select',v:o.pm||'esp',o:AM_PM.filter(x=>x[0])}],'Encaisser');if(!v)return;
+ amItemSave(Object.assign({},m,{o:Object.assign({},o,{cf:'1',pa:v.pm==='na'?'0':String(v.pa||'').replace(',','.').replace(/[^0-9.]/g,'').slice(0,8),pm:v.pm||'',pd:today(),pb:a.me.n})}));toast('✅ Cotisation de '+m.tx+' encaissée',3000)}
 async function amAqOk(n){
  const x=amAqPend().find(y=>y.n===n);if(!x)return;const v=x.v||{},C=amQrCheck(v),nm=C.nm;if(!nm){amAqMut(o=>o.qd.push(n));return}
  const R=(k,val,lab,on)=>'<label style="display:flex;gap:.5rem;align-items:flex-start;margin:.25rem 0"><input type="radio" name="'+k+'" data-qk="'+k+'" value="'+val+'"'+(on?' checked':'')+' style="margin-top:.25rem"><span>'+lab+'</span></label>';
@@ -15891,7 +15895,7 @@ async function amAqOk(n){
  const A0=amAq(),ptOn=!!(A0&&A0.o&&A0.o.pt==='1');
  if(v.sg){AMQR_CK.py=v.py==='vir'?'va':'';const pa0=v.pa||'',paX=amBmPrice(amGrFind(v.gr)||'',amCT().some(c=>c[0]===v.ct)?v.ct:'actif');AMQR_CK.pa=pa0||paX||'';
   h+='<div class="card" style="padding:.6rem .7rem;margin:.4rem 0"><b>✍️ Bulletin '+esc(amSaCur())+' signé en ligne</b> le '+esc(new Date(x.at).toLocaleDateString('fr-FR'))+'<div style="margin:.4rem 0;background:#fff;border:1px solid var(--line);border-radius:.6rem"><img src="'+amSgDecode(v.sg)+'" alt="Signature" style="width:100%;height:auto;display:block"></div>'+
-   '<b>💶 Cotisation</b><div style="display:flex;align-items:center;gap:.5rem;margin:.3rem 0"><input class="in" data-qk="pa" inputmode="decimal" value="'+esc(AMQR_CK.pa)+'" style="max-width:7rem;font-weight:800"><span>€</span><small class="mut">'+(pa0?'affiché à la personne : '+esc(amEur(pa0)):'')+(paX&&paX!==pa0?' · tarif actuel : '+esc(amEur(paX)):'')+'</small></div><small class="mut" style="display:block;margin-bottom:.2rem">Vérifie le montant (grade, catégorie, civil…) et corrige-le si besoin.</small>'+(v.py==='vir'?R('py','va','⏳ Virement annoncé, <b>pas encore vu</b> sur le compte',1):R('py','','⏳ Pas encore payée (il passera au bureau'+({cb:' : carte SumUp',chq:' : chèque',esp:' : espèces'}[v.py]||'')+')',1))+R('py','vir','✅ Virement <b>reçu</b>',0)+R('py','esp','✅ Payée en espèces',0)+R('py','chq','✅ Payée par chèque',0)+R('py','cb','✅ Payée par carte',0)+'</div>';
+   '<b>💶 Cotisation</b><div style="display:flex;align-items:center;gap:.5rem;margin:.3rem 0"><input class="in" data-qk="pa" inputmode="decimal" value="'+esc(AMQR_CK.pa)+'" style="max-width:7rem;font-weight:800"><span>€</span><small class="mut">'+(pa0?'affiché à la personne : '+esc(amEur(pa0)):'')+(paX&&paX!==pa0?' · tarif actuel : '+esc(amEur(paX)):'')+'</small></div><small class="mut" style="display:block;margin-bottom:.2rem">Vérifie le montant (grade, catégorie, civil…) et corrige-le si besoin.</small>'+(v.py==='vir'?R('py','va','⏳ Virement annoncé, <b>pas encore vu</b> sur le compte',1):R('py','','⏳ Pas encore payée (il passera au bureau'+({cb:' : carte SumUp',chq:' : chèque',esp:' : espèces'}[v.py]||'')+')',1))+R('py','vir','✅ Virement <b>reçu</b>',0)+R('py','esp','✅ Payée en espèces',0)+R('py','chq','✅ Payée par chèque',0)+R('py','cb','✅ Payée par carte',0)+R('py','na','🆕 <b>Nouvel arrivant</b> : cotisation offerte (0 €)',0)+'</div>';
   if(ptOn)h+='<p style="margin:.3rem 0 0;font-size:.9rem">🧵 <b>Patch de bienvenue</b> : il sera dans « Patchs à donner ».</p>'}
  else h+='<p class="mut" style="font-size:.82rem;margin:.3rem 0 0">Ensuite : encaisse la cotisation et fais signer le bulletin (sur l’iPad, ou sur papier déjà rempli).</p>';
  const b=await ask({title:'📲 Valider l’adhésion',html:h,btns:(v.sg?[{label:'✅ Valider l’adhésion',value:'ok',cls:'pri'},{label:'👁 Voir le bulletin signé',value:'pv'}]:[{label:'✅ Valider et faire signer maintenant',value:'sign',cls:'pri'},{label:'✅ Valider (signature plus tard)',value:'ok'}]).concat([{label:'Plus tard',value:null}])});
@@ -15903,7 +15907,7 @@ async function amAqOk(n){
  if(m){const o=Object.assign({},m.o||{});Object.keys(inf).forEach(k=>{if(inf[k])o[k]=inf[k]});o.st='';const mo=nb(v.mo);amItemSave(Object.assign({},m,{o,bd:mo&&!String(m.bd||'').includes(mo)?(String(m.bd||'')+(m.bd?'\n':'')+'📲 '+mo).slice(0,1000):(m.bd||'')}));id=m.id}
  else{id=amId();amItemSave({id,kind:'am',x:0,z:'b',tx:nm.slice(0,60),d:'',w:'',qt:'',tm:'',pl:'',bd:nb(v.mo)?('📲 '+nb(v.mo)).slice(0,1000):'',o:Object.assign({cb:a.me.n,cf:'0',pm:'',pa:'',pc:'0',bg:'',k8:'',pd:'',pb:'',st:''},inf)})}
  amAqMut(o=>{o.qd.push(n);o.w.push(id)});
- if(v.sg){try{const m2=amc().it[id],o2=m2.o||{},day=ds(new Date(x.at)),pmx=AMQR_CK.py||'',cfN=['cb','esp','chq','vir'].includes(pmx),pa=String(AMQR_CK.pa!=null&&String(AMQR_CK.pa).trim()!==''?String(AMQR_CK.pa).replace(',','.').replace(/[^0-9.]/g,''):(v.pa||o2.pa||amBmPrice(gr,ct)||'')),ps=[nb(v.pr),nb(v.nm).toUpperCase()];
+ if(v.sg){try{const m2=amc().it[id],o2=m2.o||{},day=ds(new Date(x.at)),pmx=AMQR_CK.py||'',cfN=['cb','esp','chq','vir','na'].includes(pmx),pa=pmx==='na'?'0':String(AMQR_CK.pa!=null&&String(AMQR_CK.pa).trim()!==''?String(AMQR_CK.pa).replace(',','.').replace(/[^0-9.]/g,''):(v.pa||o2.pa||amBmPrice(gr,ct)||'')),ps=[nb(v.pr),nb(v.nm).toUpperCase()];
    const f={gr:gr||o2.gr||'',ct,ad:'',tl:inf.tl||o2.tl||'',ml:inf.ml||o2.ml||'',rg:inf.rg||o2.rg||'',pa,pmx,sa:amSaCur(),pn:ps[0],nm:ps[1],sv:inf.sv||o2.sv||'',ol:1};
    amItemSave(Object.assign({},m2,{o:Object.assign({},o2,{pa,pm:cfN?pmx:(pmx==='va'?'vir':(o2.cf==='1'?o2.pm:(['cb','chq','esp'].includes(v.py)?v.py:''))),cf:cfN?'1':(o2.cf==='1'?'1':'0'),pd:cfN?(o2.pd||today()):(o2.pd||''),pb:cfN?(o2.pb||a.me.n):(o2.pb||''),bs:day,bsa:f.sa,bp:'',bb:'en ligne',ba:''})}));
    const old=amSg()[id],bi=old&&old.it?Object.assign({},old.it):{id:amId(),kind:'bs',x:0,z:'b',tm:'',pl:'',qt:'',del:0};bi.tx=(ps[1]+' '+ps[0]).trim().slice(0,60)||nm.slice(0,60);bi.w=id;bi.d=day;bi.bd=JSON.stringify(f);bi.sg=amSgDecode(v.sg);amItemSave(bi)}catch(e){toast('Bulletin non enregistré : '+(e&&e.message||'erreur'),4000)}}
@@ -16820,7 +16824,7 @@ function odjRender(keep){const o=odjGet();if(!o){toast('Réunion introuvable',25
  const P=(x,k,j)=>{const L=odjLines(x.d);return '<div class="odj-it'+(x.x?' done':'')+'" data-odjp="'+esc(x.i)+'">'+(adm&&!ODJ_NOTES?'<span class="odj-hdl" data-odjdrag="p" data-i="'+esc(x.i)+'" aria-label="Glisser le point">⠿</span>':'')+(adm?'<button class="odj-ck" data-act="odj-x" data-i="'+esc(x.i)+'" aria-label="Cocher">'+(x.x?'✔':'')+'</button>':'<span class="odj-ck">'+(x.x?'✔':'')+'</span>')+'<div class="odj-tx"><b><i>'+(k+1)+'.'+(j+1)+'</i> '+esc(x.t)+'</b>'+(L.length?'<ul>'+L.map(l=>'<li>'+esc(l)+'</li>').join('')+'</ul>':'')+((x.w||x.mn)?'<div class="odj-mt">'+(x.w?'<span>👤 '+esc(x.w)+'</span>':'')+(x.mn?'<span>⏱ '+x.mn+' min</span>':'')+'</div>':'')+odjRepH(x,adm)+(ODJ_NOTES&&adm?'<div class="odj-nw"><textarea class="odj-nt" data-odjnt="'+esc(x.i)+'" rows="2" placeholder="📝 Notes, décisions…  (19h Apéritif = programme · Installer la salle - Marie = tâche)">'+esc(x.nt||'')+'</textarea><small class="odj-ntok"></small></div>':(x.nt?'<div class="odj-ntv">📝 '+esc(x.nt)+'</div>':''))+(x.ev?'<div class="odj-evd">✅ Envoyé : '+esc(x.ev)+'</div>':'')+(adm&&odjPtLines(x).length?'<button class="odj-evb" data-act="odj-ev" data-i="'+esc(x.i)+'">➡️ Envoyer ce point</button>':'')+(ODJ_NOTES?'':C(x))+'</div></div>'};
  const body=G.length?G.map((g,k)=>{const d=odjMn(g.L),last=g.L.length?g.L[g.L.length-1].i:(g.h?g.h.i:'');return (adm&&!ODJ_NOTES&&(k===0?!!g.h:true)?'<button class="odj-nb" data-act="odj-nb" data-v="'+(k===0?'^':esc(G[k-1].L.length?G[k-1].L[G[k-1].L.length-1].i:G[k-1].h.i))+'">➕ Nouvelle partie ici</button>':'')+'<section class="odj-g" data-odjb="'+esc(g.h?g.h.i:'')+'"><div class="odj-gh" style="background:linear-gradient(125deg,'+odjCol(k)+')">'+(adm&&!ODJ_NOTES&&g.h?'<span class="odj-hdl" data-odjdrag="b" data-i="'+esc(g.h.i)+'" aria-label="Glisser la partie">⠿</span>':'')+'<span class="odj-num">'+(k+1)+'</span><div class="odj-gt"><b>'+esc(g.h?g.h.t:'Points à aborder')+'</b>'+(g.h&&g.h.d?'<small>'+esc(g.h.d)+'</small>':'')+'</div>'+(d?'<em>⏱ '+odjDur(d)+'</em>':'')+'</div>'+(g.h?C(g.h).replace('odj-c','odj-c odj-cw'):'')+(g.L.map((x,j)=>P(x,k,j)).join('')||'<p class="mut odj-e">Aucun point dans cette partie pour l’instant.</p>')+(adm?'<button class="odj-add" data-act="odj-add" data-after="'+esc(last)+'">➕ Ajouter un point ici</button>':'')+'</section>'}).join(''):'<div class="odj-none"><span>🗒️</span><b>Ordre du jour vide</b><small>'+(adm?'Pars d’un modèle (un toucher) ou ajoute une partie et des points.</small><div class="odj-qm">'+[['b:rn','📋 Réunion mensuelle'],['b:rp','🎉 Préparation d’un événement']].concat(odjModels().map(t=>['m:'+t.id,(t.oj.ty==='rp'?'🎉 ':t.oj.ty==='rn'?'📋 ':'⭐ ')+t.tx])).sort((x,y)=>(y[0]==='b:'+ODJ.ty)-(x[0]==='b:'+ODJ.ty)).map(x=>'<button data-act="odj-qm" data-v="'+esc(x[0])+'">'+esc(x[1])+'</button>').join('')+'</div><small>':'L’administrateur n’a encore rien préparé.')+'</small></div>';
  const h='<div class="odj"><div class="odj-hero"><div class="ew-x"><small>📋 ORDRE DU JOUR</small><button class="x" data-act="close" aria-label="Fermer">'+ic('x')+'</button></div><h2>'+esc(I.nm)+'</h2>'+((I.dt||I.pl)?'<p>'+[I.dt?'📅 '+esc(I.dt):'',I.pl?'📍 '+esc(I.pl):''].filter(Boolean).join('<br>')+'</p>':'')+'<div class="odj-st"><span><b>'+nh+'</b>partie'+(nh>1?'s':'')+'</span><span><b>'+np+'</b>point'+(np>1?'s':'')+'</span>'+(tot?'<span><b>'+odjDur(tot)+'</b>prévues</span>':'')+'</div></div>'+
-  (ODJ_UNDO&&ODJ_UNDO.k===ODJ.ty+ODJ.id&&adm?'<button class="odj-undo" data-act="odj-undo">↩ Revenir à l’ordre du jour d’avant (annule le dernier modèle ou import Excel)</button>':'')+(adm?'<button class="odj-all" data-act="odj-bulk"><span>➡️</span><b>Tout envoyer vers l’événement</b><small>programme et tâches en une fois, tu choisis ce qui part</small></button>':'')+'<div class="odj-tools"><button data-act="odj-pres"><span>📽️</span>Projeter</button><button data-act="odj-ppt"><span>📊</span>PowerPoint</button><button data-act="odj-xl"><span>📗</span>Excel</button>'+(adm?'<button data-act="odj-imp"><span>📥</span>Reprendre l’Excel</button>':'')+'<button data-act="odj-prt"><span>🖨️</span>Imprimer / PDF</button><button data-act="odj-prf"><span>🖊️</span>Feuille à remplir (A4)</button><button data-act="odj-cp"><span>📋</span>Copier le texte</button>'+(adm?'<button data-act="odj-sp"><span>📨</span>Demander à chacun sa partie</button>':'')+(adm?'<button data-act="odj-nts" class="'+(ODJ_NOTES?'on':'')+'"><span>📝</span>'+(ODJ_NOTES?'Fin des notes':'Prendre des notes')+'</button>':'')+''+(adm?'<button data-act="odj-tpl"><span>✨</span>Modèles</button>':'')+'<button data-act="odj-help"><span>❓</span>Comment écrire</button></div>'+(adm?odjAskSum(o):'')+(ODJ_NOTES&&adm?'<div class="odh-tip"><b>📝 Mode notes</b> · écris sous chaque point, ça s’enregistre tout seul.<br>🕒 Programme : <code>19h Apéritif</code> (une ligne par créneau) · ☑️ Tâche : <code>Installer la salle - Marie</code><br>Puis <b>➡️ Vers l’événement</b> sous le point. <a href="#" data-act="odj-help">Voir l’aide complète</a></div>':'')+body+
+  (ODJ_UNDO&&ODJ_UNDO.k===ODJ.ty+ODJ.id&&adm?'<button class="odj-undo" data-act="odj-undo">↩ Revenir à l’ordre du jour d’avant (annule le dernier modèle ou import Excel)</button>':'')+(adm?'<button class="odj-all" data-act="odj-bulk"><span>➡️</span><b>Tout envoyer vers l’événement</b><small>programme et tâches en une fois, tu choisis ce qui part</small></button>':'')+'<div class="odj-tools"><button data-act="odj-pres"><span>📽️</span>Projeter</button><button data-act="odj-ppt"><span>📊</span>PowerPoint</button><button data-act="odj-xl"><span>📗</span>Excel</button>'+(adm?'<button data-act="odj-imp"><span>📥</span>Reprendre l’Excel</button>':'')+'<button data-act="odj-prt"><span>🖨️</span>Imprimer / PDF</button><button data-act="odj-prf"><span>🖊️</span>Feuille à remplir (A4)</button>'+(adm?'<button data-act="odj-cr"><span>📄</span>Compte rendu</button>':'')+'<button data-act="odj-cp"><span>📋</span>Copier le texte</button>'+(adm?'<button data-act="odj-sp"><span>📨</span>Demander à chacun sa partie</button>':'')+(adm?'<button data-act="odj-nts" class="'+(ODJ_NOTES?'on':'')+'"><span>📝</span>'+(ODJ_NOTES?'Fin des notes':'Prendre des notes')+'</button>':'')+''+(adm?'<button data-act="odj-tpl"><span>✨</span>Modèles</button>':'')+'<button data-act="odj-help"><span>❓</span>Comment écrire</button></div>'+(adm?odjAskSum(o):'')+(ODJ_NOTES&&adm?'<div class="odh-tip"><b>📝 Mode notes</b> · écris sous chaque point, ça s’enregistre tout seul.<br>🕒 Programme : <code>19h Apéritif</code> (une ligne par créneau) · ☑️ Tâche : <code>Installer la salle - Marie</code><br>Puis <b>➡️ Vers l’événement</b> sous le point. <a href="#" data-act="odj-help">Voir l’aide complète</a></div>':'')+body+
   (adm?'<div class="odj-bot"><button data-act="odj-new" data-k="h">🏷️ Nouvelle partie</button><button data-act="odj-new" data-k="">➕ Nouveau point</button></div><p class="mut odj-tip">💡 Une partie = un grand titre (avec un sous-titre si tu veux). Dans les détails d’un point, une ligne = une puce. ↑ ↓ ou la poignée ⠿ (pose le doigt et glisse) déplacent un point ou toute une partie avec ses points.</p>':'')+'</div>';
  openSheet(h+(odjWAlive()?'<div id="odj-rc"><span>📽️</span><button data-act="odj-wp" aria-label="Diapo précédente">‹</button><b></b><button data-act="odj-wn" aria-label="Diapo suivante">›</button><button data-act="odj-wx" aria-label="Arrêter la projection">✕</button></div>':''),'full');odjWBar();if(odjWAlive())setTimeout(odjWBuild,0);if(top){const s2=document.querySelector('#sheet .sh');if(s2)s2.scrollTop=top}}
 async function odjEdit(x,kind,after){const isH=x?x.k==='h':kind==='h';
@@ -17101,6 +17105,33 @@ document.addEventListener('pointermove',e=>{if(ODJ_D){e.preventDefault();odjDMov
 document.addEventListener('touchmove',e=>{if(ODJ_D)e.preventDefault()},{passive:false});
 document.addEventListener('pointerup',odjDEnd);document.addEventListener('pointercancel',odjDEnd);
 function odjAddH(pos){const o=odjGet();if(!o)return;odjEdit(null,'h',pos)}
+/* 2.82.244 : 📄 Compte rendu de la réunion : résumé propre et complet (parties, points, détails, notes prises pendant la réunion, ✅ traités,
+   présents / excusés confirmés dans l’appli). Rangé AUTOMATIQUEMENT dans 📝 Notes (une note par réunion, mise à jour à chaque fois)
+   quand on termine la prise de notes ou qu’on touche « 📄 Compte rendu » ; puis : envoyer au bureau (PDF par mail, texte par SMS / WhatsApp),
+   imprimer, mettre les infos dans l’événement, ouvrir la note. */
+const odjCrId=()=>ODJ.ty==='rn'?'nrn'+String(ODJ.id).replace(/[^0-9]/g,'').slice(0,8):'nrp'+String(ODJ.id).replace(/[^a-z0-9]/gi,'').slice(0,13);
+function odjCrText(o){const a=amc()||{},I=odjInfo(o),G=odjGroups(o.pts),L=['# Compte rendu — '+I.nm];
+ if(I.dt)L.push('📅 '+I.dt);if(I.pl)L.push('📍 '+I.pl);
+ try{if(o.st==='f'){const R=amAckAll(ODJ.ty,ODJ.id),sg=amAckSig(o),P=amList(),nm=id=>{const p=P.find(x=>x.id===id);return p?p.n:''},st=id=>{const r=R[amAckKey(ODJ.ty,id)];return r&&r.ak===sg?r.pr:''};
+  const ok=(o.iv||[]).filter(id=>st(id)==='o').map(nm).filter(Boolean),no=(o.iv||[]).filter(id=>st(id)==='n').map(nm).filter(Boolean);
+  if(ok.length)L.push('👥 Présents (confirmés dans l’appli) : '+ok.join(', '));if(no.length)L.push('🙅 Excusés : '+no.join(', '))}}catch(e){}
+ G.forEach((g,k)=>{L.push('');L.push('## '+(k+1)+'. '+(g.h?g.h.t:'Points à aborder'));
+  g.L.forEach((x,j)=>{L.push((x.x?'✅ ':'')+(k+1)+'.'+(j+1)+' '+x.t+(x.w?' (👤 '+x.w+')':''));odjLines(x.d).forEach(l=>L.push('- '+l));
+   String(x.nt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(l=>L.push('📝 '+l));if(x.ev)L.push('➡️ Envoyé vers l’événement : '+x.ev)})});
+ const n=o.pts.filter(x=>x.k!=='h'),d=n.filter(x=>x.x).length;L.push('');if(n.length)L.push('Points traités : '+d+' sur '+n.length);
+ L.push('Compte rendu du '+amDateFr()+(a.me&&a.me.n?' · '+a.me.n:''));return L.join('\n')}
+function odjCrSave(o){const a=amc();if(!a||!ODJ)return null;const I=odjInfo(o),id=odjCrId(),pv=a.it&&a.it[id],t=odjCrText(o).slice(0,12000);
+ amItemSave(Object.assign({},pv&&!pv.del?pv:{},{id,kind:'nt',x:0,z:'b',tx:('📋 Compte rendu — '+I.nm).slice(0,200),d:(pv&&pv.d)||today(),w:'',qt:'',tm:'',pl:'odj:'+ODJ.ty+':'+ODJ.id,bd:t.split('\n').slice(1).join('\n').trim(),del:0}));return{id,t,I}}
+async function odjCr(auto){const o=odjGet();if(!o||!ODJ)return;const S0=odjCrSave(o);if(!S0)return;const {id,t,I}=S0,ty=ODJ.ty,key=ODJ.id;
+ const name='Compte-rendu-'+amSlug(I.nm)+'.pdf',title='Compte rendu — '+I.nm,html=amDocFrame(title,[I.dt?'📅 '+esc(I.dt):'',I.pl?'📍 '+esc(I.pl):''].filter(Boolean).join(' · '),amFmt(t.split('\n').slice(1).filter(l=>!/^📅 |^📍 /.test(l)).join('\n')));
+ const r=await ask({title:'📄 Compte rendu'+(auto?' prêt':''),html:'<p style="margin:.1rem 0 .4rem;font-size:.9rem">✅ <b>Rangé dans 📝 Notes</b> (bureau) : « '+esc('📋 Compte rendu — '+I.nm)+' ». Il est mis à jour à chaque fois.</p><pre style="white-space:pre-wrap;font:inherit;font-size:.82rem;background:var(--surface2);border-radius:.6rem;padding:.45rem .6rem;margin:0 0 .3rem;max-height:40vh;overflow:auto">'+esc(t)+'</pre>',
+  btns:[{label:'📨 Envoyer au bureau (mail, SMS, WhatsApp)',value:'s',cls:'pri'},{label:'🖨 Imprimer / PDF',value:'p'},{label:'➡️ Mettre les infos dans l’événement',value:'ev'},{label:'📝 Ouvrir dans Notes',value:'n'},{label:'Fermer',value:null}]});
+ if(!r){if(ODJ&&ODJ.ty===ty&&ODJ.id===key)odjRender(1);return}
+ if(r==='n'){closeSheet();AMC_TAB='nt';AMC_NT=id;go('amicale');return}
+ if(r==='ev'){ODJ={ty,id:key};return odjBulk()}
+ if(r==='p')return amPdf(html,name);
+ toast('Préparation du PDF…',6000);let b;try{b=await amPdfBlob(html)}catch(e){toast('Le PDF n’a pas pu être préparé : réessaie.',4000);return}
+ await amSendTo(title,t.split('\n').map(l=>[l]),{mk:()=>b,name,mime:'application/pdf',lb:'PDF'})}
 function odjCopy(){const o=odjGet();if(!o)return;const t=odjText(o);try{navigator.clipboard.writeText(t).then(()=>toast('📋 Ordre du jour copié : colle-le dans WhatsApp, un mail…',3500),()=>toast('Copie impossible ici',3000))}catch(e){toast('Copie impossible ici',3000)}}
 /* 2.82.241 : 🖊️ Feuille à remplir (A4) : l’ordre du jour avec des cases et des lignes vides pour écrire à la main pendant la réunion.
    Une ligne de détail qui finit par « : » ou « ? » (ex. « Recettes du bar : ») reçoit un blanc à remplir. */
@@ -17435,7 +17466,7 @@ function amBsOpen(id){
  if(!reg)h+='<p style="margin:.6rem 0 .3rem;font-size:.92rem;white-space:pre-wrap">'+esc(amBsFill(b.intro,m.tx,gr))+'</p>';
  const cl=reg?[]:String(b.cl||'').split(/\r?\n/).filter(Boolean);if(cl.length)h+='<ul style="margin:.2rem 0 .5rem 1.1rem;font-size:.9rem">'+cl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';
  const pr=f.pa!=null?f.pa:(o.pa||amBmPrice(gr));
- h+='<div style="display:flex;gap:.5rem"><label class="fld" style="flex:1"><span>Cotisation (€)</span><input class="in" id="bs-pa" inputmode="decimal" value="'+esc(String(pr||''))+'"></label><label class="fld" style="flex:1.4"><span>Règlement</span><select class="in" id="bs-pm"><option value="">Pas encore réglé</option><option value="cb">Carte bancaire</option><option value="esp">Espèces</option><option value="chq">Chèque</option><option value="vir">Virement reçu</option><option value="va">Virement annoncé</option></select></label></div>';
+ h+='<div style="display:flex;gap:.5rem"><label class="fld" style="flex:1"><span>Cotisation (€)</span><input class="in" id="bs-pa" inputmode="decimal" value="'+esc(String(pr||''))+'"></label><label class="fld" style="flex:1.4"><span>Règlement</span><select class="in" id="bs-pm"><option value="">Pas encore réglé</option><option value="cb">Carte bancaire</option><option value="esp">Espèces</option><option value="chq">Chèque</option><option value="vir">Virement reçu</option><option value="va">Virement annoncé</option><option value="na">🆕 Nouvel arrivant (offerte)</option></select></label></div>';
  h+='<button class="btn blk" data-act="bs-pv" style="margin:.5rem 0 .2rem">👁 Voir le bulletin avant de signer</button>';
  h+='<div style="border:1.5px solid var(--line);border-radius:.7rem;padding:.5rem .65rem;margin:.5rem 0;font-size:.82rem;line-height:1.4;white-space:pre-wrap">🔒 '+esc(amRgpdTx(b))+'</div>';
  h+='<b class="rc-h" style="display:block;margin-top:.4rem">Signature</b><canvas id="bs-cv" width="760" height="260" style="width:100%;height:auto;aspect-ratio:760/260;border:2px dashed var(--line);border-radius:.8rem;background:#fff;touch-action:none"></canvas>';
@@ -17457,6 +17488,8 @@ function amBsPad(cv,onDraw){
 function amBsClear(){const c=$('#bs-cv');if(c){c.getContext('2d').clearRect(0,0,c.width,c.height);BS.dirty=0}}
 document.addEventListener('change',e=>{if(BS&&e.target&&e.target.id==='bs-gr'&&!BS.paEdit){const p=$('#bs-pa');if(p)p.value=amBmPrice(e.target.value)}});
 document.addEventListener('input',e=>{if(BS&&e.target&&e.target.id==='bs-pa')BS.paEdit=true});
+/* 2.82.243 : 🆕 nouvel arrivant = cotisation offerte (0 €) ; si on change d’avis, le montant revient */
+document.addEventListener('change',e=>{if(BS&&e.target&&e.target.id==='bs-pm'){const p=$('#bs-pa');if(!p)return;if(e.target.value==='na'){if(p.value!=='0')p.dataset.pa0=p.value;p.value='0'}else if(p.value==='0'&&p.dataset.pa0)p.value=p.dataset.pa0}});
 function amBsGather(){
  const g=k=>(($('#bs-'+k)||{}).value||'').trim(),b=amBm();
  const f={gr:g('gr'),ct:g('ct'),ad:g('ad'),tl:g('tl'),ml:g('ml'),rg:g('rg'),pa:g('pa').replace(',','.').replace(/[^0-9.]/g,''),pmx:g('pm'),sa:b.sa||amSaOf()};
@@ -17467,7 +17500,7 @@ async function amBsDone(){
  const a=amc(),m=BS&&a&&a.it&&a.it[BS.id];if(!m)return;
  const G=amBsGather(),nom=G.nom,f=G.f;if(!nom){toast('Il faut un nom',2500);return}
  if(!BS.dirty){toast('La signature est vide : la personne doit signer avec le doigt',3500);return}
- const pa=f.pa,pmx=f.pmx,pm=pmx==='va'?'vir':pmx,cf=['cb','esp','chq','vir'].includes(pmx)?'1':'0',day=today();
+ const pmx=f.pmx,pa=pmx==='na'?'0':f.pa,pm=pmx==='va'?'vir':pmx,cf=['cb','esp','chq','vir','na'].includes(pmx)?'1':'0',day=today();
  const sigU=$('#bs-cv').toDataURL('image/png'),old=amSg()[m.id];
  amItemSave(Object.assign({},m,{tx:nom.slice(0,60),d:m.d||day,o:Object.assign({},m.o||{},{gr:f.gr,ct:f.ct||'actif',ad:f.ad,tl:f.tl,ml:f.ml,rg:f.rg,pa,pm,cf,pd:cf==='1'?((m.o||{}).pd||day):((m.o||{}).pd||''),pb:cf==='1'?((m.o||{}).pb||a.me.n):((m.o||{}).pb||''),bs:day,bsa:f.sa,bp:'',sv:f.sv!=null?f.sv:((m.o||{}).sv||''),bb:a.me.n,ba:''})}));
  if(demo){(window.__bsd=window.__bsd||{})[m.id]={at:day,sig:sigU,f,by:a.me.n}}else{const bi=old&&old.it?Object.assign({},old.it):{id:amId(),kind:'bs',x:0,z:'b',tm:'',pl:'',qt:'',del:0};bi.tx=nom.slice(0,60);bi.w=m.id;bi.d=day;bi.bd=JSON.stringify(f);if(bi.bd.length>3900){toast('Fiche trop longue : raccourcis l’adresse ou le régime',4000);return}bi.sg=sigU;amItemSave(bi)}
@@ -17477,7 +17510,7 @@ function amBsHtml(id,sgo,nomo){
  const a=amc(),m=a&&a.it&&a.it[id],sg=sgo||amSg()[id];if(!m||!sg)return null;
  const f=sg.f||{},b=amBmFor(f.sa||amSaOf(sg.at));if(String(b.tx||'').trim())return amRegHtml(b,f,sg,nomo||m.tx);
  const nom=nomo||m.tx,cl=String(b.cl||'').split(/\r?\n/).filter(Boolean),ct=(amCT().find(x=>x[0]===f.ct)||[])[1]||'';
- const pay=f.pa?('Cotisation : <b>'+esc(amEur(f.pa))+'</b> — '+({cb:'réglée par carte bancaire',esp:'réglée en espèces',chq:'réglée par chèque',vir:'réglée par virement',va:'virement annoncé (à recevoir)'}[f.pmx]||'à régler')):'';
+ const pay=f.pa?('Cotisation : <b>'+esc(amEur(f.pa))+'</b> — '+({cb:'réglée par carte bancaire',esp:'réglée en espèces',chq:'réglée par chèque',vir:'réglée par virement',va:'virement annoncé (à recevoir)',na:'offerte (nouvel arrivant)'}[f.pmx]||'à régler')):'';
  const rows=[['Nom et prénom',nom],[amGW(),f.gr],['Catégorie',ct],['Adresse',f.ad],['Téléphone',f.tl],['Mail',f.ml],['Régime particulier',f.rg]].filter(r=>r[1]);
  const body='<p>'+esc(amBsFill(b.intro,nom,f.gr))+'</p><table class="amp-t">'+rows.map(r=>'<tr><td style="width:170px">'+esc(r[0])+'</td><td>'+esc(r[1])+'</td></tr>').join('')+'</table>'+
   (cl.length?'<ul>'+cl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+(pay?'<p>'+pay+'</p>':'')+amRgpdHtml(b)+
@@ -17504,7 +17537,7 @@ function amRegBureau(b){
 }
 function amRegBox(b,f,sg,nom){
  const ps=(f.pn!=null||f.nm!=null)?[f.pn||'',f.nm||'']:amNomSplit(nom),v=x=>'<span class="amr-v">'+esc(x||'')+'</span>';
- const pd=['cb','esp','chq','vir'].includes(f.pmx),pay=f.pa?(pd?esc(amEur(f.pa))+' ('+{cb:'carte',esp:'espèces',chq:'chèque',vir:'virement'}[f.pmx]+')':'à régler : '+esc(amEur(f.pa))+(f.pmx==='va'?' (virement annoncé)':'')):'';
+ const pd=['cb','esp','chq','vir'].includes(f.pmx),pay=f.pmx==='na'?'offerte (nouvel arrivant)':f.pa?(pd?esc(amEur(f.pa))+' ('+{cb:'carte',esp:'espèces',chq:'chèque',vir:'virement'}[f.pmx]+')':'à régler : '+esc(amEur(f.pa))+(f.pmx==='va'?' (virement annoncé)':'')):'';
  const dt=new Date(String(sg.at||today())+'T12:00').toLocaleDateString('fr-FR');
  return '<table class="amr-box"><tr><td class="amr-b1"><p>'+amGW()+' : '+v(f.gr)+'</p><p>Prénom : '+v(ps[0])+'</p><p>Nom : '+v(String(ps[1]).toUpperCase())+'</p><p>Service : '+v(f.sv)+'</p></td>'+
   '<td class="amr-b2"><p class="amr-j">'+esc(b.ac||'Accepte le présent document en tant qu’adhérent.')+'</p><p style="text-align:center;margin:16px 0 4px">somme réglée:</p><p style="text-align:center">'+v(pay)+'</p></td>'+
