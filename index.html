@@ -3285,7 +3285,7 @@ var Q=M["index"];window.QRCodeLib=Q;window.qrMatrix=function(txt,ec){var q=new Q
 (function(){
 'use strict';
 /* ========= Agenda · données, dates, récurrences, .ics, sauvegarde ========= */
-const APP_VERSION='2.82.241';
+const APP_VERSION='2.82.242';
 /* Appli « Amicale » : même code, publiée aussi sur dam-cigogne.github.io/amicale/ (seul l'onglet du groupe). Mémoire séparée : préfixe agd-am- */
 const AMI=/\/amicale(\/|$)/.test(location.pathname)||/[?&]amicale=1/.test(location.search);
 const P=AMI?'agd-am-':'agd-';
@@ -3293,6 +3293,7 @@ const K={data:P+'data',set:P+'settings',meta:P+'meta',fired:P+'fired',ms:P+'ms'}
 const BACKUP_FILE=AMI?'amicale-sauvegarde.json':'agenda-sauvegarde.json';
 const ICS_FILE='agenda.ics';
 const CHANGELOG=[
+{v:'2.82.242',d:'27/11/2026',items:['📄 PDF (ordre du jour, feuille de réunion, listes, fiches…) : <b>plus aucune ligne coupée en deux</b> entre deux pages. La page s’arrête avant la ligne ou le bloc qui ne tient plus, et la suite commence en haut de la page suivante, avec une marge.']},
 {v:'2.82.241',d:'27/11/2026',items:['🖊️ Ordre du jour : nouveau bouton <b>« Feuille à remplir (A4) »</b>. Une feuille à imprimer avec des cases et des lignes vides : présents, excusés, heure de début et de fin, sous chaque point un cadre « Notes / décisions », ☐ Validé / ☐ Reporté, « Qui » et « Pour quand », puis points divers, prochaine réunion et signatures. Les deux (feuille et « Imprimer / PDF ») peuvent aussi être <b>envoyées aux membres</b> : mail pro ou perso avec le PDF joint, SMS ou WhatsApp avec le texte. Astuce : un détail qui finit par « : » (ex. « Recettes du bar : ») reçoit un blanc à remplir.']},
 {v:'2.82.240',d:'27/11/2026',items:['✋ Ordre du jour : <b>poignée ⠿</b> pour glisser avec le doigt. Un point va dans n’importe quelle partie ; une partie entière (avec ses points) monte ou descend (les parties se replient pendant qu’on glisse). <b>« ➕ Nouvelle partie ici »</b> entre les parties et tout en haut, sans passer par le bas. Les boutons ✏️ ↑ ↓ 🗑 restent.']},
 {v:'2.82.239',d:'26/11/2026',items:['📨 Ordre du jour : « Demander à chacun sa partie ». Chaque personne qui présente (prénom, nom ou fonction, ex. « Trésorière ») reçoit une notification et une carte « 🎤 Ta partie pour la réunion » sur l’accueil (et, si tu veux, un SMS, WhatsApp ou mail). Elle écrit sa partie dans l’appli ; tu la vois sous le point avec « ✅ Mettre dans l’ordre du jour » ou « ✕ Refuser » : rien n’entre sans ta validation.']},
@@ -14392,8 +14393,23 @@ async function amPdfPages(html,poster){
   await new Promise(r=>setTimeout(r,poster?350:250));
   let land=false;if(!poster&&(amWideDoc(html)||shot.scrollWidth>800)){land=true;shot.classList.add('am-land');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xs');await new Promise(r=>setTimeout(r,120));if(shot.scrollWidth>1130){shot.classList.add('am-xxs');await new Promise(r=>setTimeout(r,120))}}}
   const SW=land?1123:794,cv=await html2canvas(shot,poster?{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:794,height:1123,windowWidth:794}:{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:false,width:SW,windowWidth:SW});
-  const PW=cv.width,PH=land?Math.round(PW/1.41421):Math.round(PW*1.41421),n=poster?1:Math.max(1,Math.ceil((cv.height-6)/PH)),pages=[];
-  for(let i=0;i<n;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const hh=Math.min(PH,cv.height-i*PH);if(hh>0)g.drawImage(cv,0,i*PH,PW,hh,0,0,PW,hh);
+  const PW=cv.width,PH=land?Math.round(PW/1.41421):Math.round(PW*1.41421),pages=[];
+  /* 2.82.242 : on ne coupe plus au milieu d’une ligne : la page s’arrête juste avant la ligne (ou le bloc « ne pas couper ») qui déborderait,
+     et les pages suivantes ont une marge en haut */
+  const k=PW/SW,M=poster?0:Math.round(28*k),cuts=[0];
+  if(poster)cuts.push(PH);else{const t0=shot.getBoundingClientRect().top,B=[],add=r=>{if(r.height>0)B.push([(r.top-t0)*k,(r.bottom-t0)*k])};
+   try{const w=document.createTreeWalker(shot,NodeFilter.SHOW_TEXT),rg=document.createRange();let nd;while((nd=w.nextNode())){if(!/\S/.test(nd.nodeValue))continue;rg.selectNodeContents(nd);Array.from(rg.getClientRects()).forEach(add)}}catch(e){}
+   const HA=[];shot.querySelectorAll('[style*="break-after:avoid"],[style*="break-after: avoid"]').forEach(el=>{const r=el.getBoundingClientRect();if(r.height>0)HA.push([(r.top-t0)*k,(r.bottom-t0)*k])});
+   shot.querySelectorAll('tr,img,svg,canvas,input,[style*="break-inside:avoid"],[style*="break-inside: avoid"]').forEach(el=>add(el.getBoundingClientRect()));
+   const END=Math.min(cv.height,B.reduce((m,x)=>Math.max(m,x[1]),0)+12*k);
+   let s=0;while(END-s>(cuts.length>1?PH-M:PH)){const cap=cuts.length>1?PH-M:PH;let y=s+cap;
+    for(let it=0;it<80;it++){let mn=Infinity;for(const [t,b] of B)if(t<y-1&&b>y+1&&b-t<cap*0.9&&t<mn)mn=t;
+     /* un titre de partie (« ne pas séparer de la suite ») ne reste pas seul en bas de page */
+     for(const [t,b] of HA)if(t<y-1&&y-b<70*k&&t>s+cap*0.35&&t<mn)mn=t;
+     if(mn===Infinity)break;y=Math.floor(mn-10*k)}
+    if(y<=s+cap*0.35)y=s+cap;cuts.push(y);s=y}
+   cuts.push(cv.height)}
+  for(let i=0;i<cuts.length-1;i++){const c2=document.createElement('canvas');c2.width=PW;c2.height=PH;const g=c2.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,PW,PH);const off=i?M:0,hh=Math.min(PH-off,cuts[i+1]-cuts[i]);if(hh>0)g.drawImage(cv,0,cuts[i],PW,hh,0,off,PW,hh);
    const bin=atob(c2.toDataURL('image/jpeg',0.92).split(',')[1]),jpg=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)jpg[k]=bin.charCodeAt(k);pages.push({jpg,w:PW,h:PH,a3})}
   return pages;
  }finally{shot.remove()}
